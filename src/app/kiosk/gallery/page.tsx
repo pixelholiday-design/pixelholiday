@@ -1,14 +1,18 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles } from "lucide-react";
 import { cleanUrl } from "@/lib/cloudinary";
+import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
+import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
 
 type Photo = { id: string; cloudinaryId: string | null; s3Key_highRes: string };
 type Gallery = { id: string; magicLinkToken: string; photos: Photo[] };
 
 export default function GalleryKiosk() {
+  const settings = useMemo(() => loadKioskSettings(), []);
+  const apiBase = useMemo(() => localApiBase(settings), [settings]);
   const [step, setStep] = useState<"id" | "browse" | "preview" | "checkout" | "done">("id");
-  const [locationId, setLocationId] = useState("");
+  const [locationId, setLocationId] = useState(settings?.locationId || "");
   const [active, setActive] = useState<Gallery | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [previewId, setPreviewId] = useState<string | null>(null);
@@ -49,7 +53,7 @@ export default function GalleryKiosk() {
     if (method === "WRISTBAND") body.wristbandCode = value;
     if (method === "ROOM") body.roomNumber = value;
     if (method === "SELFIE") body.selfieData = "kiosk";
-    const r = await fetch("/api/kiosk/identify", {
+    const r = await fetch(`${apiBase}/api/kiosk/identify`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -74,7 +78,7 @@ export default function GalleryKiosk() {
   async function payNow() {
     if (!active) return;
     setBusy(true);
-    const r = await fetch("/api/kiosk/qr-payment", {
+    const r = await fetch(`${apiBase}/api/kiosk/qr-payment`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ galleryId: active.id, photoIds: Array.from(selected) }),
@@ -90,7 +94,7 @@ export default function GalleryKiosk() {
   async function orderAtCounter() {
     if (!active) return;
     setBusy(true);
-    const r = await fetch("/api/kiosk/sale-orders", {
+    const r = await fetch(`${apiBase}/api/local/order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ galleryId: active.id, photoIds: Array.from(selected) }),
@@ -107,6 +111,7 @@ export default function GalleryKiosk() {
   if (step === "id") {
     return (
       <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 text-center">
+        <ConnectionStatus baseUrl={apiBase} />
         <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold mb-3 inline-flex items-center gap-2">
           <Sparkles className="h-3 w-3" /> Customer Gallery
         </div>

@@ -202,15 +202,34 @@ export default function KioskSetupPage() {
           )}
 
           {settings.networkMode === "LOCAL" && settings.type !== "SALE_POINT" && (
-            <label className="block">
-              <div className="label-xs text-white/60 mb-1.5">Sale-point IP</div>
-              <input
-                className="input !text-navy-900"
-                value={settings.serverIp}
-                onChange={(e) => setSettings({ ...settings, serverIp: e.target.value })}
-                placeholder="192.168.1.100"
-              />
-            </label>
+            <div>
+              <label className="block">
+                <div className="label-xs text-white/60 mb-1.5">Sale-point IP</div>
+                <input
+                  className="input !text-navy-900"
+                  value={settings.serverIp}
+                  onChange={(e) => setSettings({ ...settings, serverIp: e.target.value })}
+                  placeholder="192.168.1.100"
+                />
+              </label>
+              <button
+                type="button"
+                className="btn-secondary w-full mt-2"
+                onClick={async () => {
+                  const ip = settings.serverIp.trim();
+                  if (!ip) return;
+                  try {
+                    const r = await fetch(`http://${ip}:3000/api/local/status`);
+                    const j = await r.json();
+                    alert(`✅ Connected: ${j.name || "Sale Point"}`);
+                  } catch (e: any) {
+                    alert(`❌ Cannot reach ${ip}: ${e?.message || "unknown"}`);
+                  }
+                }}
+              >
+                Test connection
+              </button>
+            </div>
           )}
 
           <button onClick={save} disabled={busy} className="btn-primary w-full !py-3">

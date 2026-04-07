@@ -932,3 +932,21 @@ enum SyncStatus {
   SYNCED
   FAILED
 }
+
+model SyncQueue {
+  id        String    @id @default(cuid())
+  type      String
+  action    String
+  localId   String
+  cloudId   String?
+  payload   String
+  status    String    @default("pending")
+  attempts  Int       @default(0)
+  lastError String?
+  priority  Int       @default(5)
+  createdAt DateTime  @default(now())
+  syncedAt  DateTime?
+
+  @@index([status])
+  @@index([priority])
+}

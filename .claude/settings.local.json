@@ -62,7 +62,14 @@
       "Bash(rm -f /tmp/jar_admin)",
       "Bash(curl -s -c /tmp/jar_admin http://localhost:3000/api/auth/csrf)",
       "Bash(curl -s -b /tmp/jar_admin -o /dev/null -w \"%{http_code}\\\\n\" -X POST http://localhost:3000/api/admin/staff -H \"Content-Type: application/json\" -d '{}')",
-      "Bash(cd \"/c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli\" echo \"=== console.log in src ===\" grep -rn \"console\\\\.log\" src/ --include=\"*.ts\" --include=\"*.tsx\")"
+      "Bash(cd \"/c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli\" echo \"=== console.log in src ===\" grep -rn \"console\\\\.log\" src/ --include=\"*.ts\" --include=\"*.tsx\")",
+      "Bash(grep -n 'fetch\\(\"/api/kiosk\\\\|fetch\\(\"/api/local\\\\|fetch\\(`/api' src/app/kiosk/gallery/page.tsx)",
+      "Bash(curl -s -o /tmp_dl.bin -w 'status=%{http_code} size=%{size_download} type=%{content_type}\\\\n' http://localhost:3000/api/local/photo/cmnp31l7w000mwtgqq39qlgp9/file)",
+      "Bash(ls -l /tmp_dl.bin)",
+      "Bash(file /tmp_dl.bin)",
+      "Bash(curl -s -o /c/Users/JOE/AppData/Local/Temp/dl.bin -w 'status=%{http_code} size=%{size_download}\\\\n' http://localhost:3000/api/local/photo/cmnp31l7w000mwtgqq39qlgp9/file)",
+      "Read(//c/Users/JOE/AppData/Local/Temp/**)",
+      "Bash(xxd)"
     ]
   }
 }
