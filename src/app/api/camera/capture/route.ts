@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { sendWhatsAppHookLink } from "@/lib/whatsapp";
+import { autoEditPhoto } from "@/lib/ai-edit";
 
 /**
  * Speed-camera capture endpoint.
@@ -111,6 +112,9 @@ export async function POST(req: Request) {
       data: { captureCount: { increment: 1 }, lastPingAt: new Date() },
     }),
   ]);
+
+  // Background AI cull + edit (Stage 1 + 2 of pipeline)
+  autoEditPhoto(photo.id, gallery.editQuality).catch(() => {});
 
   // Real-time WhatsApp ping for digital-pass holders
   if (customer.hasDigitalPass && customer.whatsapp) {

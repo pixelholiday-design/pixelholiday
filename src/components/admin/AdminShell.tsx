@@ -87,7 +87,9 @@ const SECTIONS: NavSection[] = [
     items: [
       { href: "/admin/cameras", label: "Cameras", icon: Camera },
       { href: "/admin/kiosks", label: "Kiosks", icon: LayoutDashboard },
+      { href: "/admin/kiosk-setup", label: "Kiosk network", icon: Wifi },
       { href: "/admin/wifi-transfer", label: "Wi-Fi routing", icon: Wifi },
+      { href: "/admin/photo-flow", label: "Photo flow", icon: Sparkles },
       { href: "/kiosk/print-queue", label: "Print queue", icon: Printer },
     ],
   },
@@ -105,18 +107,19 @@ const SECTIONS: NavSection[] = [
 const ROLE_ALLOWED: Record<string, string[]> = {
   CEO: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
-    "/admin/wifi-transfer","/kiosk/print-queue","/admin/staff","/admin/equipment","/admin/housing",
-    "/admin/academy","/admin/payroll","/admin/commissions","/admin/pricing","/admin/cash",
-    "/admin/sleeping-money","/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs",
+    "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
+    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/commissions","/admin/pricing","/admin/cash","/admin/sleeping-money",
+    "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs",
     "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
   ],
   OPERATIONS_MANAGER: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
-    "/admin/wifi-transfer","/kiosk/print-queue","/admin/staff","/admin/equipment","/admin/housing",
-    "/admin/academy","/admin/payroll","/admin/commissions","/admin/pricing","/admin/cash",
-    "/admin/sleeping-money","/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews",
-    "/admin/magic-elements","/admin/retouch",
+    "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
+    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/commissions","/admin/pricing","/admin/cash","/admin/sleeping-money",
+    "/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
   ],
   SUPERVISOR: [

@@ -157,6 +157,7 @@ model Gallery {
   coverMessage    String?
   accessPassword  String?
   downloadPin     String?
+  editQuality     EditQuality   @default(STANDARD)
   downloadLogs    DownloadLog[]
   viewLogs        GalleryViewLog[]
   photoSets       PhotoSet[]
@@ -192,6 +193,9 @@ model Photo {
   setId           String?
   set             PhotoSet? @relation(fields: [setId], references: [id])
   sortOrder       Int      @default(0)
+  cloudinaryId_edited String?
+  isAutoEdited    Boolean  @default(false)
+  editApplied     String[] @default([])
   createdAt       DateTime @default(now())
 }
 
@@ -852,4 +856,56 @@ enum CouponType {
   PERCENTAGE
   FIXED_AMOUNT
   FREE_SHIPPING
+}
+
+enum EditQuality {
+  NONE
+  LIGHT
+  STANDARD
+  PREMIUM
+}
+
+// ── LOCAL NETWORK / KIOSK CONFIG / SYNC ─────────────────────────
+model KioskConfig {
+  id            String   @id @default(cuid())
+  name          String
+  externalId    String   @unique
+  type          KioskAppType
+  locationId    String
+  networkMode   NetworkMode @default(ONLINE)
+  serverIp      String?       // for GALLERY_DISPLAY in LOCAL mode
+  isLocalServer Boolean  @default(false) // true on the SALE_POINT serving locally
+  lastSeenAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum KioskAppType {
+  SALE_POINT
+  GALLERY_DISPLAY
+  TV_DISPLAY
+  SD_UPLOAD
+}
+
+enum NetworkMode {
+  ONLINE
+  LOCAL
+}
+
+model SyncLog {
+  id        String     @id @default(cuid())
+  type      String     // gallery | order | photo | cash | commission
+  localId   String
+  cloudId   String?
+  status    SyncStatus @default(PENDING)
+  error     String?
+  syncedAt  DateTime?
+  createdAt DateTime   @default(now())
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCING
+  SYNCED
+  FAILED
 }

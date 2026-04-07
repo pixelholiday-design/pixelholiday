@@ -5,6 +5,7 @@ import { GalleryStatus } from "@prisma/client";
 import { sendWhatsAppHookLink } from "@/lib/whatsapp";
 import { requireStaff, handleGuardError } from "@/lib/guards";
 import { uploadToCloudinary } from "@/lib/cloudinary.server";
+import { autoEditGallery } from "@/lib/ai-edit";
 
 const photoSchema = z.object({
   key: z.string(),
@@ -92,6 +93,9 @@ export async function POST(req: Request) {
       const link = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/gallery/${gallery.magicLinkToken}`;
       await sendWhatsAppHookLink(customer.whatsapp, link);
     }
+
+    // Background AI auto-edit pipeline (does not block the response)
+    autoEditGallery(gallery.id).catch((e) => console.warn("autoEditGallery failed", e));
 
     return NextResponse.json({ galleryId: gallery.id, magicLinkToken: gallery.magicLinkToken });
   } catch (e) {

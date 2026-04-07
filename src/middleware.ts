@@ -21,7 +21,9 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/admin/hr",
     "/admin/cameras",
     "/admin/kiosks",
+    "/admin/kiosk-setup",
     "/admin/wifi-transfer",
+    "/admin/photo-flow",
     "/admin/payroll",
     "/admin/commissions",
     "/admin/pricing",
@@ -57,7 +59,7 @@ function isAllowed(role: string | undefined, pathname: string): boolean {
 }
 
 // Public kiosk surfaces — no auth required (designed for unmanned displays).
-// Sale-point and SD-upload have their own PIN gate so they're public at the URL level.
+// Sale-point, SD-upload, and setup have their own PIN gate so they're public at the URL level.
 const PUBLIC_KIOSK = [
   "/kiosk/self-service",
   "/kiosk/tv-display",
@@ -65,6 +67,7 @@ const PUBLIC_KIOSK = [
   "/kiosk/sale-point",
   "/kiosk/sd-upload",
   "/kiosk/print-queue",
+  "/kiosk/setup",
 ];
 
 export default withAuth(
