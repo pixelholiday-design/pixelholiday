@@ -5,10 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && prisma migrate deploy && next build",
     "postinstall": "prisma generate",
     "start": "next start",
     "lint": "next lint",
     "db:seed": "tsx prisma/seed.ts",
+    "db:migrate:deploy": "prisma migrate deploy",
     "health": "tsx scripts/health-check.ts"
   },
   "prisma": {

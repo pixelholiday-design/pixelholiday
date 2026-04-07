@@ -44,7 +44,9 @@
       "Bash(\"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT id, amount, \"\"paymentMethod\"\", \"\"stripeSessionId\"\", \"\"createdAt\"\" FROM \"\"Order\"\" WHERE \"\"galleryId\"\"=''$GID'';\")",
       "Bash(\"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT id, source, \"\"createdAt\"\" FROM \"\"ProcessedWebhookEvent\"\" ORDER BY \"\"createdAt\"\" DESC LIMIT 5;\")",
       "Bash(\"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT status, COUNT\\(*\\) FROM \"\"Gallery\"\" GROUP BY status;\")",
-      "Bash(curl -s -b /tmp/jar_admin \"http://localhost:3000/admin/blog\" -o /tmp/blog.html echo \"match count for both posts:\" grep -oE \"5 reasons|How AquaSplash\" /tmp/blog.html)"
+      "Bash(curl -s -b /tmp/jar_admin \"http://localhost:3000/admin/blog\" -o /tmp/blog.html echo \"match count for both posts:\" grep -oE \"5 reasons|How AquaSplash\" /tmp/blog.html)",
+      "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./package.json'\\).scripts, null, 2\\)\\)\")",
+      "Bash(cd \"/c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli\" grep -rhoE \"process\\\\.env\\\\.[A-Z_][A-Z0-9_]+\" src/ prisma/)"
     ]
   }
 }
