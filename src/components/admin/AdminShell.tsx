@@ -31,6 +31,10 @@ import {
   Wifi,
   Printer,
   TrendingUp,
+  Banknote,
+  ShoppingBag,
+  Truck,
+  Ticket,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -62,11 +66,20 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/payroll", label: "Payroll", icon: Wallet },
       { href: "/admin/commissions", label: "Commissions", icon: TrendingUp },
       { href: "/admin/pricing", label: "Pricing", icon: Tag },
+      { href: "/admin/cash", label: "Cash management", icon: Banknote },
       { href: "/admin/sleeping-money", label: "Sleeping money", icon: Moon },
       { href: "/admin/b2b", label: "B2B Barter", icon: Handshake },
       { href: "/admin/franchise", label: "Franchise", icon: Building2 },
       { href: "/admin/ai-insights", label: "AI Insights", icon: Brain },
       { href: "/admin/hr/jobs", label: "HR / Jobs", icon: Briefcase },
+    ],
+  },
+  {
+    title: "Store",
+    items: [
+      { href: "/admin/store/orders", label: "Orders", icon: ShoppingBag },
+      { href: "/admin/store/labs", label: "Print Labs", icon: Truck },
+      { href: "/admin/store/coupons", label: "Coupons", icon: Ticket },
     ],
   },
   {
@@ -93,15 +106,18 @@ const ROLE_ALLOWED: Record<string, string[]> = {
   CEO: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
     "/admin/wifi-transfer","/kiosk/print-queue","/admin/staff","/admin/equipment","/admin/housing",
-    "/admin/academy","/admin/payroll","/admin/commissions","/admin/pricing","/admin/sleeping-money",
-    "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs","/admin/blog",
-    "/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/academy","/admin/payroll","/admin/commissions","/admin/pricing","/admin/cash",
+    "/admin/sleeping-money","/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs",
+    "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
   ],
   OPERATIONS_MANAGER: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
     "/admin/wifi-transfer","/kiosk/print-queue","/admin/staff","/admin/equipment","/admin/housing",
-    "/admin/academy","/admin/payroll","/admin/commissions","/admin/pricing","/admin/sleeping-money",
-    "/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/academy","/admin/payroll","/admin/commissions","/admin/pricing","/admin/cash",
+    "/admin/sleeping-money","/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews",
+    "/admin/magic-elements","/admin/retouch",
+    "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
   ],
   SUPERVISOR: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",

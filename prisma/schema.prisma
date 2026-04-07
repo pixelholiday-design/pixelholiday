@@ -93,6 +93,7 @@ model Location {
   b2bDeliveries     B2BDelivery[]
   cameras           Camera[]
   kiosks            KioskDevice[]
+  cashRegisters     CashRegister[]
   createdAt         DateTime      @default(now())
 }
 
@@ -153,6 +154,12 @@ model Gallery {
   totalCount      Int           @default(0)
   sweepUpSentAt   DateTime?
   discountPercent Float?
+  coverMessage    String?
+  accessPassword  String?
+  downloadPin     String?
+  downloadLogs    DownloadLog[]
+  viewLogs        GalleryViewLog[]
+  photoSets       PhotoSet[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 }
@@ -182,6 +189,8 @@ model Photo {
   aiCullReason    String?
   hasMagicElement Boolean  @default(false)
   magicElementId  String?
+  setId           String?
+  set             PhotoSet? @relation(fields: [setId], references: [id])
   sortOrder       Int      @default(0)
   createdAt       DateTime @default(now())
 }
@@ -255,6 +264,7 @@ model Order {
   items           OrderItem[]
   commissions     Commission[]
   printJobs       PrintJob[]
+  fulfillments    FulfillmentOrder[]
   isAutomatedSale Boolean       @default(false)
   discountApplied Float?
   createdAt       DateTime      @default(now())
@@ -655,4 +665,191 @@ model Campaign {
   template     String
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// ── CASH MANAGEMENT ─────────────────────────────────────────────
+model CashRegister {
+  id              String              @id @default(cuid())
+  locationId      String
+  location        Location            @relation(fields: [locationId], references: [id])
+  date            DateTime            @default(now())
+  openingBalance  Float               @default(0)
+  totalCashIn     Float               @default(0)
+  totalCashOut    Float               @default(0)
+  totalExpenses   Float               @default(0)
+  expectedBalance Float               @default(0)
+  actualBalance   Float?
+  discrepancy     Float?
+  status          CashRegisterStatus  @default(OPEN)
+  openedBy        String
+  closedBy        String?
+  closedAt        DateTime?
+  transactions    CashTransaction[]
+  handovers       CashHandover[]
+  expenses        CashExpense[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@unique([locationId, date])
+}
+
+enum CashRegisterStatus {
+  OPEN
+  CLOSED
+  RECONCILED
+  DISCREPANCY
+}
+
+model CashTransaction {
+  id             String              @id @default(cuid())
+  cashRegisterId String
+  cashRegister   CashRegister        @relation(fields: [cashRegisterId], references: [id])
+  orderId        String?
+  type           CashTransactionType
+  amount         Float
+  staffId        String
+  staffPin       String
+  customerName   String?
+  description    String?
+  createdAt      DateTime            @default(now())
+}
+
+enum CashTransactionType {
+  SALE
+  CHANGE_GIVEN
+  REFUND
+  ADJUSTMENT
+  EXPENSE
+}
+
+model CashHandover {
+  id                  String       @id @default(cuid())
+  cashRegisterId      String
+  cashRegister        CashRegister @relation(fields: [cashRegisterId], references: [id])
+  fromStaffId         String
+  toStaffId           String
+  amount              Float
+  denomination        String?
+  notes               String?
+  confirmedByReceiver Boolean      @default(false)
+  confirmedAt         DateTime?
+  createdAt           DateTime     @default(now())
+}
+
+model CashExpense {
+  id             String       @id @default(cuid())
+  cashRegisterId String
+  cashRegister   CashRegister @relation(fields: [cashRegisterId], references: [id])
+  amount         Float
+  reason         String
+  staffId        String
+  approvedBy     String?
+  receiptUrl     String?
+  createdAt      DateTime     @default(now())
+}
+
+// ── GALLERY ENHANCEMENTS (Pixieset-level) ───────────────────────
+model DownloadLog {
+  id        String   @id @default(cuid())
+  galleryId String
+  gallery   Gallery  @relation(fields: [galleryId], references: [id])
+  photoId   String?
+  type      String
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model GalleryViewLog {
+  id        String   @id @default(cuid())
+  galleryId String
+  gallery   Gallery  @relation(fields: [galleryId], references: [id])
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+model PhotoSet {
+  id        String   @id @default(cuid())
+  galleryId String
+  gallery   Gallery  @relation(fields: [galleryId], references: [id])
+  name      String
+  sortOrder Int      @default(0)
+  photos    Photo[]
+  createdAt DateTime @default(now())
+}
+
+// ── STORE / PRINT LAB ───────────────────────────────────────────
+model PrintLabConfig {
+  id            String             @id @default(cuid())
+  name          String
+  type          PrintLabType
+  apiBaseUrl    String?
+  apiKey        String?
+  isActive      Boolean            @default(true)
+  isDefault     Boolean            @default(false)
+  markupPercent Float              @default(50)
+  shippingRates Json?
+  productMap    Json?
+  fulfillments  FulfillmentOrder[]
+  createdAt     DateTime           @default(now())
+}
+
+enum PrintLabType {
+  LOCAL
+  PRODIGI
+  PRINTFUL
+  GOOTEN
+  CUSTOM_API
+}
+
+model FulfillmentOrder {
+  id              String            @id @default(cuid())
+  orderId         String
+  order           Order             @relation(fields: [orderId], references: [id])
+  printLabId      String
+  printLab        PrintLabConfig    @relation(fields: [printLabId], references: [id])
+  externalOrderId String?
+  status          FulfillmentStatus @default(PENDING)
+  trackingNumber  String?
+  trackingUrl     String?
+  shippingAddress Json
+  items           Json
+  costToUs        Float
+  chargedCustomer Float
+  profit          Float
+  submittedAt     DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+enum FulfillmentStatus {
+  PENDING
+  SUBMITTED_TO_LAB
+  IN_PRODUCTION
+  SHIPPED
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+model Coupon {
+  id         String     @id @default(cuid())
+  code       String     @unique
+  type       CouponType
+  value      Float
+  minOrder   Float?
+  maxUses    Int?
+  usedCount  Int        @default(0)
+  expiresAt  DateTime?
+  isActive   Boolean    @default(true)
+  locationId String?
+  createdAt  DateTime   @default(now())
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
 }

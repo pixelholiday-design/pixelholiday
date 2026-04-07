@@ -357,6 +357,109 @@ async function main() {
     }
   }
 
+  // ── CASH REGISTERS ────────────────────────────
+  const cashDay = new Date();
+  cashDay.setHours(0, 0, 0, 0);
+  const reg1 = await prisma.cashRegister.create({
+    data: {
+      locationId: hotel.id,
+      date: cashDay,
+      openingBalance: 100,
+      totalCashIn: 145,
+      totalCashOut: 25,
+      totalExpenses: 8,
+      expectedBalance: 100 + 145 - 25 - 8,
+      openedBy: supervisor.email,
+      status: "OPEN",
+    },
+  });
+  // 5 sample cash transactions
+  await prisma.cashTransaction.createMany({
+    data: [
+      { cashRegisterId: reg1.id, type: "SALE", amount: 49, staffId: photo1.id, staffPin: "1111", customerName: "Guest 1", description: "Full gallery" },
+      { cashRegisterId: reg1.id, type: "CHANGE_GIVEN", amount: -10, staffId: photo1.id, staffPin: "1111", customerName: "Guest 1", description: "Change for €60" },
+      { cashRegisterId: reg1.id, type: "SALE", amount: 35, staffId: sales.id, staffPin: "3333", customerName: "Guest 2", description: "Social media pack" },
+      { cashRegisterId: reg1.id, type: "SALE", amount: 49, staffId: photo1.id, staffPin: "1111", customerName: "Guest 3", description: "Full gallery" },
+      { cashRegisterId: reg1.id, type: "CHANGE_GIVEN", amount: -15, staffId: photo1.id, staffPin: "1111", customerName: "Guest 3", description: "Change for €64" },
+    ],
+  });
+  await prisma.cashHandover.create({
+    data: {
+      cashRegisterId: reg1.id,
+      fromStaffId: photo1.id,
+      toStaffId: supervisor.id,
+      amount: 50,
+      denomination: "2x€20, 1x€10",
+      notes: "End of morning shift",
+    },
+  });
+  await prisma.cashExpense.create({
+    data: {
+      cashRegisterId: reg1.id,
+      amount: 8,
+      reason: "Printer paper restock",
+      staffId: supervisor.id,
+      approvedBy: ops.email,
+    },
+  });
+  // Second register — already closed and reconciled
+  const reg2 = await prisma.cashRegister.create({
+    data: {
+      locationId: park.id,
+      date: cashDay,
+      openingBalance: 80,
+      totalCashIn: 220,
+      totalCashOut: 30,
+      totalExpenses: 0,
+      expectedBalance: 80 + 220 - 30,
+      actualBalance: 270,
+      discrepancy: 0,
+      status: "RECONCILED",
+      openedBy: photo2.email,
+      closedBy: ops.email,
+      closedAt: new Date(),
+    },
+  });
+
+  // ── PRINT LAB + COUPONS + FULFILLMENT ──────────
+  const lab = await prisma.printLabConfig.create({
+    data: {
+      name: "Local Lab Tunis",
+      type: "LOCAL",
+      isActive: true,
+      isDefault: true,
+      markupPercent: 60,
+    },
+  });
+  await prisma.coupon.createMany({
+    data: [
+      { code: "WELCOME10", type: "PERCENTAGE", value: 10, isActive: true, maxUses: 100, usedCount: 12 },
+      { code: "FREESHIP", type: "FREE_SHIPPING", value: 0, isActive: true, minOrder: 50 },
+    ],
+  });
+  // Sample fulfillment for first order
+  const sampleOrder = await prisma.order.findFirst();
+  if (sampleOrder) {
+    await prisma.fulfillmentOrder.create({
+      data: {
+        orderId: sampleOrder.id,
+        printLabId: lab.id,
+        status: "PENDING",
+        shippingAddress: { name: "Guest 1", city: "Monastir", country: "TN" },
+        items: [{ type: "print_5x7", qty: 2 }],
+        costToUs: 6,
+        chargedCustomer: 10,
+        profit: 4,
+      },
+    });
+  }
+
+  // Sample gallery cover message
+  await prisma.gallery.updateMany({
+    where: { status: "PAID" },
+    data: { coverMessage: "Thank you for visiting — enjoy your memories!" },
+  });
+
   // ── ACADEMY MODULE ────────────────────────────
   await prisma.academyModule.create({
     data: {
