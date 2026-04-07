@@ -12,7 +12,31 @@
       "Bash(git checkout:*)",
       "Bash(git add:*)",
       "Bash(git -c user.email=dev@pixelholiday.local -c user.name=PixelHoliday commit -q -m \"Phase 1 Complete: Core Revenue Engine:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(netstat -ano)",
+      "Bash(where psql.exe)",
+      "Bash(sc query:*)",
+      "Bash(winget list:*)",
+      "Bash(winget --version)",
+      "Bash(winget install:*)",
+      "Bash(PGPASSWORD=postgres \"/c/Program Files/PostgreSQL/16/bin/psql.exe\" -U postgres -h localhost -c \"SELECT version\\(\\);\")",
+      "Bash(PGPASSWORD=postgres \"/c/Program Files/PostgreSQL/16/bin/psql.exe\" -U postgres -h localhost -c \"CREATE DATABASE pixeleco;\")",
+      "Bash(tail -3 cat EOF DATABASE_URL=postgresql://postgres:postgres@localhost:5432/pixeleco?schema=public NEXTAUTH_SECRET=dev-secret-change-me NEXTAUTH_URL=http://localhost:3000 NEXT_PUBLIC_APP_URL=http://localhost:3000 EOF echo ---PUSH--- npx prisma db push)",
+      "Bash(curl -sI http://localhost:3000/login)",
+      "Bash(PSQL='/c/Program Files/PostgreSQL/16/bin/psql.exe')",
+      "Bash(PGPASSWORD=postgres \"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT id, \"\"magicLinkToken\"\" FROM \"\"Gallery\"\" LIMIT 2;\")",
+      "Bash(curl -s -o /dev/null -w \"/gallery/[token1] %{http_code}\\\\n\" http://localhost:3000/gallery/cmnow7owo000tjjfht9wuzk36)",
+      "Bash(curl -s -o /dev/null -w \"/gallery/[token2] %{http_code}\\\\n\" http://localhost:3000/gallery/cmnow7ox70017jjfhtkzpqkyg)",
+      "Bash(curl -s -b /tmp/jar.txt -o /dev/null -w \"/kiosk/[id1] %{http_code}\\\\n\" http://localhost:3000/kiosk/cmnow7owo000sjjfh8yjsu4wb)",
+      "Bash(curl -s -b /tmp/jar.txt -o /tmp/dashbody.html -w \"/admin/dashboard %{http_code}\\\\n\" http://localhost:3000/admin/dashboard)",
+      "Read(//tmp/**)",
+      "Bash(curl -s -b /tmp/jar.txt http://localhost:3000/admin/dashboard)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli/**)",
+      "Bash(done)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/pixeleco?schema=public\" npx next build)"
     ]
   }
 }

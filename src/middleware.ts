@@ -1,26 +1,65 @@
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 
+// Per-role allow-lists. The first matching prefix wins.
+// Anything not in a role's allow-list is redirected to /my-dashboard.
+const ROLE_ROUTES: Record<string, string[]> = {
+  CEO: ["/admin", "/kiosk", "/my-dashboard"], // sees everything
+  OPERATIONS_MANAGER: [
+    "/admin/dashboard",
+    "/admin/upload",
+    "/admin/bookings",
+    "/admin/staff",
+    "/admin/equipment",
+    "/admin/housing",
+    "/admin/academy",
+    "/admin/b2b",
+    "/admin/blog",
+    "/admin/reviews",
+    "/admin/magic-elements",
+    "/admin/retouch",
+    "/admin/hr",
+    "/kiosk",
+    "/my-dashboard",
+  ],
+  SUPERVISOR: [
+    "/admin/dashboard",
+    "/admin/upload",
+    "/admin/bookings",
+    "/admin/staff",
+    "/admin/equipment",
+    "/admin/academy",
+    "/admin/blog",
+    "/admin/reviews",
+    "/kiosk",
+    "/my-dashboard",
+  ],
+  PHOTOGRAPHER: ["/admin/upload", "/admin/bookings", "/kiosk", "/my-dashboard"],
+  SALES_STAFF: ["/admin/bookings", "/kiosk", "/my-dashboard"],
+  RECEPTIONIST: ["/admin/bookings", "/my-dashboard"],
+  ACADEMY_TRAINEE: ["/admin/academy", "/my-dashboard"],
+};
+
+function isAllowed(role: string | undefined, pathname: string): boolean {
+  if (!role) return false;
+  const allowed = ROLE_ROUTES[role];
+  if (!allowed) return false;
+  return allowed.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p));
+}
+
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token as any;
     const role = token?.role as string | undefined;
 
-    // RBAC: photographers can access kiosk + upload + their own dashboard,
-    // but the CEO/ops routes are restricted.
-    const restricted = [
-      "/admin/staff",
-      "/admin/equipment",
-      "/admin/housing",
-      "/admin/franchise",
-      "/admin/b2b",
-      "/admin/hr",
-      "/admin/ai-insights",
-    ];
-    if (restricted.some((p) => pathname.startsWith(p))) {
-      if (!["CEO", "OPERATIONS_MANAGER", "SUPERVISOR"].includes(role || "")) {
-        return NextResponse.redirect(new URL("/my-dashboard", req.url));
+    // Always allow auth + public api
+    if (pathname.startsWith("/api")) return NextResponse.next();
+
+    if (!isAllowed(role, pathname)) {
+      const target = role === "ACADEMY_TRAINEE" ? "/admin/academy" : "/my-dashboard";
+      if (pathname !== target) {
+        return NextResponse.redirect(new URL(target, req.url));
       }
     }
     return NextResponse.next();

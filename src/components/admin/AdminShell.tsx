@@ -68,6 +68,27 @@ const SECTIONS: NavSection[] = [
   },
 ];
 
+const ROLE_ALLOWED: Record<string, string[]> = {
+  CEO: [
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",
+    "/admin/housing","/admin/academy","/admin/b2b","/admin/franchise","/admin/ai-insights",
+    "/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+  ],
+  OPERATIONS_MANAGER: [
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",
+    "/admin/housing","/admin/academy","/admin/b2b","/admin/hr/jobs","/admin/blog",
+    "/admin/reviews","/admin/magic-elements","/admin/retouch",
+  ],
+  SUPERVISOR: [
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",
+    "/admin/academy","/admin/blog","/admin/reviews",
+  ],
+  PHOTOGRAPHER: ["/admin/upload","/admin/bookings"],
+  SALES_STAFF: ["/admin/bookings"],
+  RECEPTIONIST: ["/admin/bookings"],
+  ACADEMY_TRAINEE: ["/admin/academy"],
+};
+
 export default function AdminShell({
   children,
   user,
@@ -77,6 +98,10 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const allowed = ROLE_ALLOWED[user.role] || [];
+  const visibleSections = SECTIONS
+    .map((s) => ({ ...s, items: s.items.filter((i) => allowed.includes(i.href)) }))
+    .filter((s) => s.items.length > 0);
 
   return (
     <div className="min-h-screen bg-cream-100">
@@ -93,7 +118,7 @@ export default function AdminShell({
           <span className="font-display text-xl tracking-tight">PixelHoliday</span>
         </div>
         <nav className="px-3 py-5 overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin">
-          {SECTIONS.map((section) => (
+          {visibleSections.map((section) => (
             <div key={section.title} className="mb-6">
               <div className="px-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 mb-2">
                 {section.title}
