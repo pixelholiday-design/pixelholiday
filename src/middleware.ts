@@ -28,6 +28,7 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/admin/commissions",
     "/admin/pricing",
     "/admin/cash",
+    "/admin/finance",
     "/admin/sleeping-money",
     "/admin/store",
     "/kiosk",
