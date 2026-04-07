@@ -11,7 +11,8 @@
       "Bash(git init:*)",
       "Bash(git checkout:*)",
       "Bash(git add:*)",
-      "Bash(git -c user.email=dev@pixelholiday.local -c user.name=PixelHoliday commit -q -m \"Phase 1 Complete: Core Revenue Engine:*)"
+      "Bash(git -c user.email=dev@pixelholiday.local -c user.name=PixelHoliday commit -q -m \"Phase 1 Complete: Core Revenue Engine:*)",
+      "Bash(npm run:*)"
     ]
   }
 }
