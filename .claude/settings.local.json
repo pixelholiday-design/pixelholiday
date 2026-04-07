@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mv /tmp/pixelsave/CLAUDE.md /tmp/pixelsave/BUILD_GUIDE.md /tmp/pixelsave/.env.example .)",
+      "Bash(mv /tmp/pixelsave/.claude_session .claude)",
+      "Bash(rm -rf /tmp/pixelsave)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx next:*)",
+      "Bash(npx tsx:*)",
+      "Bash(git init:*)",
+      "Bash(git checkout:*)",
+      "Bash(git add:*)",
+      "Bash(git -c user.email=dev@pixelholiday.local -c user.name=PixelHoliday commit -q -m \"Phase 1 Complete: Core Revenue Engine:*)"
+    ]
+  }
+}

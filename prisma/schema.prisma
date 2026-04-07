@@ -1,0 +1,538 @@
+// PixelHoliday master Prisma schema — see CLAUDE.md Section 1
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── USERS & AUTH ──────────────────────────────
+model Organization {
+  id                 String         @id @default(cuid())
+  name               String
+  type               OrgType
+  parentOrgId        String?
+  parentOrg          Organization?  @relation("FranchiseTree", fields: [parentOrgId], references: [id])
+  children           Organization[] @relation("FranchiseTree")
+  locations          Location[]
+  staff              User[]
+  subscriptionTier   SubscriptionTier @default(STARTER)
+  saasCommissionRate Float          @default(0.02)
+  sleepingMoneyShare Float          @default(0.50)
+  createdAt          DateTime       @default(now())
+}
+
+model User {
+  id                   String                @id @default(cuid())
+  name                 String
+  email                String                @unique
+  password             String?
+  phone                String?
+  pin                  String?
+  role                 StaffRole
+  orgId                String
+  org                  Organization          @relation(fields: [orgId], references: [id])
+  locationId           String?
+  location             Location?             @relation(fields: [locationId], references: [id])
+  isRepeater           Boolean               @default(false)
+  repeaterYears        Int                   @default(0)
+  salary               Float?
+  rating               Float                 @default(0)
+  equipmentAssignments EquipmentAssignment[]
+  galleries            Gallery[]             @relation("PhotographerGalleries")
+  appointments         Appointment[]         @relation("AssignedPhotographer")
+  commissions          Commission[]
+  shifts               Shift[]
+  housing              StaffHousing?
+  blogPosts            BlogPost[]
+  chatMessages         ChatMessage[]
+  createdAt            DateTime              @default(now())
+}
+
+enum StaffRole {
+  CEO
+  OPERATIONS_MANAGER
+  SUPERVISOR
+  PHOTOGRAPHER
+  SALES_STAFF
+  RECEPTIONIST
+  ACADEMY_TRAINEE
+}
+
+enum OrgType {
+  HEADQUARTERS
+  FRANCHISE
+}
+
+enum SubscriptionTier {
+  STARTER
+  PROFESSIONAL
+  BUSINESS
+  ENTERPRISE
+}
+
+// ── LOCATIONS ─────────────────────────────────
+model Location {
+  id                String        @id @default(cuid())
+  name              String
+  type              LocationType
+  orgId             String
+  org               Organization  @relation(fields: [orgId], references: [id])
+  address           String?
+  partnerCommission Float?
+  rentCost          Float?
+  qrCodes           QRCode[]
+  staff             User[]
+  galleries         Gallery[]
+  equipment         Equipment[]
+  b2bDeliveries     B2BDelivery[]
+  createdAt         DateTime      @default(now())
+}
+
+enum LocationType {
+  HOTEL
+  WATER_PARK
+  ATTRACTION
+  SELF_SERVICE
+}
+
+// ── CUSTOMERS ─────────────────────────────────
+model Customer {
+  id              String           @id @default(cuid())
+  name            String?
+  email           String?
+  whatsapp        String?
+  roomNumber      String?
+  faceVector      Bytes?
+  wristbandCode   String?
+  nfcTag          String?
+  hasDigitalPass  Boolean          @default(false)
+  digitalPassType DigitalPassType?
+  locationId      String?
+  galleries       Gallery[]
+  orders          Order[]
+  cartAbandoned   Boolean          @default(false)
+  cartAbandonedAt DateTime?
+  createdAt       DateTime         @default(now())
+}
+
+enum DigitalPassType {
+  BASIC
+  UNLIMITED
+  VIP
+}
+
+// ── GALLERIES ─────────────────────────────────
+model Gallery {
+  id              String        @id @default(cuid())
+  magicLinkToken  String        @unique @default(cuid())
+  status          GalleryStatus
+  locationId      String
+  location        Location      @relation(fields: [locationId], references: [id])
+  photographerId  String
+  photographer    User          @relation("PhotographerGalleries", fields: [photographerId], references: [id])
+  customerId      String
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  roomNumber      String?
+  photos          Photo[]
+  videos          Video[]
+  hookImageId     String?
+  expiresAt       DateTime
+  appointment     Appointment?
+  order           Order?
+  partialPurchase Boolean       @default(false)
+  purchasedCount  Int           @default(0)
+  totalCount      Int           @default(0)
+  sweepUpSentAt   DateTime?
+  discountPercent Float?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+enum GalleryStatus {
+  HOOK_ONLY
+  PREVIEW_ECOM
+  PAID
+  PARTIAL_PAID
+  DIGITAL_PASS
+  EXPIRED
+}
+
+// ── PHOTOS & VIDEOS ───────────────────────────
+model Photo {
+  id              String   @id @default(cuid())
+  galleryId       String
+  gallery         Gallery  @relation(fields: [galleryId], references: [id])
+  s3Key_highRes   String
+  s3Key_raw       String?
+  cloudinaryId    String?
+  isHookImage     Boolean  @default(false)
+  isFavorited     Boolean  @default(false)
+  isPurchased     Boolean  @default(false)
+  isRetouched     Boolean  @default(false)
+  aiCulled        Boolean  @default(false)
+  aiCullReason    String?
+  hasMagicElement Boolean  @default(false)
+  magicElementId  String?
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+}
+
+model Video {
+  id             String    @id @default(cuid())
+  galleryId      String
+  gallery        Gallery   @relation(fields: [galleryId], references: [id])
+  s3Key          String
+  type           VideoType
+  duration       Int?
+  isAutoReel     Boolean   @default(false)
+  musicTrackId   String?
+  graphicOverlay String?
+  createdAt      DateTime  @default(now())
+}
+
+enum VideoType {
+  RAW_CLIP
+  SLOW_MOTION
+  AUTO_REEL
+  HIGHLIGHT
+}
+
+// ── APPOINTMENTS & BOOKINGS ───────────────────
+model Appointment {
+  id                     String            @id @default(cuid())
+  galleryId              String            @unique
+  gallery                Gallery           @relation(fields: [galleryId], references: [id])
+  scheduledTime          DateTime
+  status                 AppointmentStatus
+  assignedPhotographerId String
+  assignedPhotographer   User              @relation("AssignedPhotographer", fields: [assignedPhotographerId], references: [id])
+  source                 BookingSource
+  qrCodeId               String?
+  qrCode                 QRCode?           @relation(fields: [qrCodeId], references: [id])
+  createdAt              DateTime          @default(now())
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PROGRESS
+  COMPLETED
+  NO_SHOW
+}
+
+enum BookingSource {
+  HOOK_GALLERY
+  QR_CODE
+  VIP_BOOKING
+  WALK_IN
+  PRE_ARRIVAL
+  WEBSITE
+}
+
+// ── ORDERS & PAYMENTS ─────────────────────────
+model Order {
+  id              String        @id @default(cuid())
+  galleryId       String        @unique
+  gallery         Gallery       @relation(fields: [galleryId], references: [id])
+  customerId      String
+  customer        Customer      @relation(fields: [customerId], references: [id])
+  amount          Float
+  currency        String        @default("EUR")
+  paymentMethod   PaymentMethod
+  stripeSessionId String?
+  stripePaymentId String?
+  cashPin         String?
+  status          OrderStatus
+  items           OrderItem[]
+  commissions     Commission[]
+  isAutomatedSale Boolean       @default(false)
+  discountApplied Float?
+  createdAt       DateTime      @default(now())
+}
+
+model OrderItem {
+  id        String        @id @default(cuid())
+  orderId   String
+  order     Order         @relation(fields: [orderId], references: [id])
+  type      OrderItemType
+  photoId   String?
+  videoId   String?
+  quantity  Int           @default(1)
+  unitPrice Float
+}
+
+enum OrderItemType {
+  SINGLE_PHOTO
+  FULL_GALLERY
+  PARTIAL_GALLERY
+  PRINTED_ALBUM
+  VIDEO_CLIP
+  AUTO_REEL
+  MAGIC_SHOT
+  DIGITAL_PASS
+  SOCIAL_MEDIA_PACKAGE
+}
+
+enum PaymentMethod {
+  STRIPE_ONLINE
+  STRIPE_TERMINAL
+  CASH
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  REFUNDED
+  FAILED
+}
+
+// ── COMMISSIONS & PAYROLL ─────────────────────
+model Commission {
+  id      String         @id @default(cuid())
+  userId  String
+  user    User           @relation(fields: [userId], references: [id])
+  orderId String
+  order   Order          @relation(fields: [orderId], references: [id])
+  type    CommissionType
+  amount  Float
+  rate    Float
+  isPaid  Boolean        @default(false)
+  paidAt  DateTime?
+  month   String?
+}
+
+enum CommissionType {
+  PHOTO_SALE
+  DIGITAL_PASS_SALE
+  APPOINTMENT_BOOKING
+  QR_REFERRAL
+  SLEEPING_MONEY
+}
+
+// ── QR CODES ──────────────────────────────────
+model QRCode {
+  id                String        @id @default(cuid())
+  code              String        @unique
+  type              QRCodeType
+  locationId        String
+  location          Location      @relation(fields: [locationId], references: [id])
+  assignedToStaffId String?
+  scanCount         Int           @default(0)
+  appointments      Appointment[]
+  createdAt         DateTime      @default(now())
+}
+
+enum QRCodeType {
+  HOTEL_ROOM
+  RECEPTION_DESK
+  LOBBY_SIGN
+  WRISTBAND
+  WELCOME_ARCHWAY
+}
+
+// ── EQUIPMENT TRACKING ────────────────────────
+model Equipment {
+  id           String                @id @default(cuid())
+  name         String
+  type         String
+  serialNumber String?
+  purchaseCost Float?
+  locationId   String
+  location     Location              @relation(fields: [locationId], references: [id])
+  assignments  EquipmentAssignment[]
+  status       EquipmentStatus       @default(AVAILABLE)
+}
+
+enum EquipmentStatus {
+  AVAILABLE
+  ASSIGNED
+  MAINTENANCE
+  RETIRED
+}
+
+model EquipmentAssignment {
+  id          String    @id @default(cuid())
+  equipmentId String
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  assignedAt  DateTime  @default(now())
+  returnedAt  DateTime?
+}
+
+// ── STAFF MANAGEMENT ──────────────────────────
+model Shift {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  date       DateTime
+  startTime  DateTime
+  endTime    DateTime
+  locationId String
+}
+
+model StaffHousing {
+  id            String  @id @default(cuid())
+  userId        String  @unique
+  user          User    @relation(fields: [userId], references: [id])
+  address       String
+  monthlyCost   Float
+  documentation String?
+}
+
+model StaffTransfer {
+  id             String   @id @default(cuid())
+  userId         String
+  fromLocationId String
+  toLocationId   String
+  transferDate   DateTime
+  reason         String?
+  approvedBy     String?
+  createdAt      DateTime @default(now())
+}
+
+// ── CHAT & COMMUNICATION ──────────────────────
+model ChatMessage {
+  id        String   @id @default(cuid())
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  channelId String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+// ── AI & CONTENT ──────────────────────────────
+model BlogPost {
+  id             String        @id @default(cuid())
+  title          String
+  content        String
+  authorId       String
+  author         User          @relation(fields: [authorId], references: [id])
+  isAIGenerated  Boolean       @default(true)
+  status         ContentStatus @default(DRAFT)
+  seoKeywords    String[]
+  featuredPhotos String[]
+  createdAt      DateTime      @default(now())
+  publishedAt    DateTime?
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model AIGrowthLog {
+  id           String       @id @default(cuid())
+  type         AIActionType
+  description  String
+  result       String?
+  dataSnapshot Json?
+  createdAt    DateTime     @default(now())
+}
+
+enum AIActionType {
+  STAFF_PROMOTION_SUGGESTION
+  PRICING_OPTIMIZATION
+  PARTNER_DISCOVERY
+  SEO_UPDATE
+  MARKETING_CAMPAIGN
+  BOOKING_BOOST
+  PHOTOGRAPHER_PERFORMANCE_FLAG
+  FRANCHISE_LEAD
+}
+
+// ── B2B MEDIA BARTER ──────────────────────────
+model B2BDelivery {
+  id                  String    @id @default(cuid())
+  locationId          String
+  location            Location  @relation(fields: [locationId], references: [id])
+  month               String
+  photoCount          Int
+  deliveredAt         DateTime?
+  rentDiscountPercent Float?
+  notes               String?
+}
+
+// ── MAGIC ELEMENTS (AR/3D) ────────────────────
+model MagicElement {
+  id       String           @id @default(cuid())
+  name     String
+  type     MagicElementType
+  assetUrl String
+  category String?
+  isActive Boolean          @default(true)
+}
+
+enum MagicElementType {
+  THREE_D_CHARACTER
+  AR_OVERLAY
+  BACKGROUND_REPLACE
+  GRAPHIC_OVERLAY
+}
+
+// ── ACADEMY & HR ──────────────────────────────
+model AcademyModule {
+  id          String            @id @default(cuid())
+  title       String
+  description String
+  type        AcademyModuleType
+  contentUrl  String?
+  sortOrder   Int
+  isRequired  Boolean           @default(false)
+}
+
+enum AcademyModuleType {
+  ONBOARDING
+  SALES_TRAINING
+  PHOTOGRAPHY_TECHNIQUE
+  SOFTWARE_TRAINING
+  COMPLIANCE
+}
+
+model AcademyProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  moduleId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  score       Float?
+}
+
+model JobPosting {
+  id           String           @id @default(cuid())
+  title        String
+  locationId   String?
+  requirements String
+  status       JobStatus        @default(OPEN)
+  applications JobApplication[]
+  createdAt    DateTime         @default(now())
+}
+
+enum JobStatus {
+  OPEN
+  FILLED
+  CLOSED
+}
+
+model JobApplication {
+  id             String            @id @default(cuid())
+  jobId          String
+  job            JobPosting        @relation(fields: [jobId], references: [id])
+  applicantName  String
+  applicantEmail String
+  cvUrl          String?
+  status         ApplicationStatus @default(RECEIVED)
+  createdAt      DateTime          @default(now())
+}
+
+enum ApplicationStatus {
+  RECEIVED
+  SHORTLISTED
+  INTERVIEWED
+  OFFERED
+  REJECTED
+}
