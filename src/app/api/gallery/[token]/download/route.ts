@@ -18,6 +18,19 @@ export async function GET(_req: Request, { params }: { params: { token: string }
   if (ids.length === 0) {
     return NextResponse.json({ error: "No Cloudinary-backed photos to archive" }, { status: 409 });
   }
-  const url = archiveUrl(ids);
-  return NextResponse.redirect(url, 302);
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    return NextResponse.json(
+      { error: "Cloudinary not configured. Set CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET to enable bulk download." },
+      { status: 503 }
+    );
+  }
+  try {
+    const url = archiveUrl(ids);
+    if (!url || url === "#") {
+      return NextResponse.json({ error: "Failed to generate archive URL" }, { status: 500 });
+    }
+    return NextResponse.redirect(url, 302);
+  } catch (e: any) {
+    return NextResponse.json({ error: e?.message || "Archive generation failed" }, { status: 500 });
+  }
 }

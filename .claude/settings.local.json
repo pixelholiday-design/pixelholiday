@@ -36,7 +36,15 @@
       "Bash(do echo:*)",
       "Read(//c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli/**)",
       "Bash(done)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/pixeleco?schema=public\" npx next build)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:postgres@localhost:5432/pixeleco?schema=public\" npx next build)",
+      "Bash(export PGPASSWORD=postgres PSQL='/c/Program Files/PostgreSQL/16/bin/psql.exe' GID=cmnow7ox70016jjfhzx3kzgzm TOKEN=cmnow7ox70017jjfhtkzpqkyg echo \"All orders for gallery \\(expect seeded + new from webhook\\):\" \"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT id, amount, \"\"paymentMethod\"\", \"\"stripeSessionId\"\" FROM \"\"Order\"\" WHERE \"\"galleryId\"\"=''''$GID'''' ORDER BY \"\"createdAt\"\";\" echo echo \"Commissions for this gallery''''s orders:\" \"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT c.type, c.amount, c.\"\"orderId\"\" FROM \"\"Commission\"\" c WHERE c.\"\"orderId\"\" IN \\(SELECT id FROM \"\"Order\"\" WHERE \"\"galleryId\"\"=''''$GID''''\\);\" echo echo \"Photos with cloudinaryId? \\(download requires real ones\\)\" \"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT id, \"\"cloudinaryId\"\" FROM \"\"Photo\"\" WHERE \"\"galleryId\"\"=''''$GID'''' LIMIT 3;\" echo echo \"Download endpoint:\" curl -sv \"http://localhost:3000/api/gallery/$TOKEN/download\")",
+      "Bash(export PGPASSWORD=postgres)",
+      "Bash(GID=cmnow7oz60034jjfhi554l5n6)",
+      "Bash(echo \"All orders for $GID:\")",
+      "Bash(\"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT id, amount, \"\"paymentMethod\"\", \"\"stripeSessionId\"\", \"\"createdAt\"\" FROM \"\"Order\"\" WHERE \"\"galleryId\"\"=''$GID'';\")",
+      "Bash(\"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT id, source, \"\"createdAt\"\" FROM \"\"ProcessedWebhookEvent\"\" ORDER BY \"\"createdAt\"\" DESC LIMIT 5;\")",
+      "Bash(\"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT status, COUNT\\(*\\) FROM \"\"Gallery\"\" GROUP BY status;\")",
+      "Bash(curl -s -b /tmp/jar_admin \"http://localhost:3000/admin/blog\" -o /tmp/blog.html echo \"match count for both posts:\" grep -oE \"5 reasons|How AquaSplash\" /tmp/blog.html)"
     ]
   }
 }
