@@ -48,6 +48,9 @@ model User {
   housing              StaffHousing?
   blogPosts            BlogPost[]
   chatMessages         ChatMessage[]
+  xp                   Int                   @default(0)
+  level                Int                   @default(1)
+  badges               String[]              @default([])
   createdAt            DateTime              @default(now())
 }
 
@@ -115,6 +118,7 @@ model Customer {
   orders          Order[]
   cartAbandoned   Boolean          @default(false)
   cartAbandonedAt DateTime?
+  lastViewedAt    DateTime?
   createdAt       DateTime         @default(now())
 }
 
