@@ -12,7 +12,7 @@
       "Bash(git checkout:*)",
       "Bash(git add:*)",
       "Bash(git -c user.email=dev@pixelholiday.local -c user.name=PixelHoliday commit -q -m \"Phase 1 Complete: Core Revenue Engine:*)",
-      "Bash(npm run:*)"
+      "Bash(git commit:*)"
     ]
   }
 }

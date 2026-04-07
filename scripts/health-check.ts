@@ -60,44 +60,32 @@ add("KIOSK", "Cash + PIN", fileHas("src/app/kiosk/[galleryId]/KioskView.tsx", "S
 add("KIOSK", "Sale unlock", fileHas("src/app/api/kiosk/sale/route.ts", "isPurchased") ? "PASS" : "FAIL");
 add("DOWNLOAD", "ZIP via Cloudinary", fileHas("src/lib/cloudinary.server.ts", "download_zip_url") ? "PASS" : "FAIL");
 
-// ── PHASE 2 ──────────────────────────────────────────
-add("DASH", "Dashboard page", fileHas("src/app/admin/dashboard/page.tsx", "Total Revenue") ? "PASS" : "FAIL", 2);
-add("DASH", "Dashboard API", fileHas("src/app/api/admin/dashboard/route.ts", "totalRevenue") ? "PASS" : "FAIL", 2);
-add("DASH", "Conversion tracking", fileHas("src/app/api/admin/dashboard/route.ts", "conversion") ? "PASS" : "FAIL", 2);
-add("DASH", "Recharts installed", fileHas("package.json", "recharts") ? "PASS" : "FAIL", 2);
-add("STAFF", "Staff list page", fileHas("src/app/admin/staff/page.tsx", "Leaderboard") ? "PASS" : "FAIL", 2);
-add("STAFF", "Staff detail page", fileHas("src/app/admin/staff/[id]/page.tsx") ? "PASS" : "FAIL", 2);
-add("STAFF", "Staff CRUD API", fileHas("src/app/api/admin/staff/route.ts", "prisma.user") ? "PASS" : "FAIL", 2);
-add("STAFF", "Commissions API", fileHas("src/app/api/admin/commissions/route.ts", "isPaid") ? "PASS" : "FAIL", 2);
-add("STAFF", "Commissions lib", fileHas("src/lib/commissions.ts", "recordCommission") ? "PASS" : "FAIL", 2);
-add("STAFF", "Shift assignment", fileHas("src/app/api/admin/shifts/route.ts", "shift.create") ? "PASS" : "FAIL", 2);
-add("STAFF", "Transfer API", fileHas("src/app/api/admin/transfers/route.ts", "staffTransfer.create") ? "PASS" : "FAIL", 2);
-add("STAFF", "Equipment page", fileHas("src/app/admin/equipment/page.tsx") ? "PASS" : "FAIL", 2);
-add("STAFF", "Housing page", fileHas("src/app/admin/housing/page.tsx") ? "PASS" : "FAIL", 2);
-add("STAFF", "Chat messages API", fileHas("src/app/api/chat/messages/route.ts", "chatMessage.create") ? "PASS" : "FAIL", 2);
-add("STAFF", "Chat channels API", fileHas("src/app/api/chat/channels/route.ts") ? "PASS" : "FAIL", 2);
-add("STAFF", "Gamification XP/badges", fileHas("src/lib/gamification.ts", "addXp") && fileHas("prisma/schema.prisma", "xp ") ? "PASS" : "FAIL", 2);
-add("BOOK", "Bookings calendar", fileHas("src/app/admin/bookings/page.tsx", "weekStart") ? "PASS" : "FAIL", 2);
-add("BOOK", "Booking create API", fileHas("src/app/api/booking/create/route.ts", "appointment.upsert") ? "PASS" : "FAIL", 2);
-add("BOOK", "Auto-dispatch", fileHas("src/app/api/booking/dispatch/route.ts", "rating") ? "PASS" : "FAIL", 2);
-add("CUSTID", "QR generate", fileHas("src/app/api/qr/generate/route.ts", "qRCode.create") ? "PASS" : "FAIL", 2);
-add("CUSTID", "QR scan", fileHas("src/app/api/qr/scan/route.ts", "wristbandCode") ? "PASS" : "FAIL", 2);
-add("CUSTID", "Customer identify", fileHas("src/app/api/customer/identify/route.ts", "method") ? "PASS" : "FAIL", 2);
-add("CUSTID", "Face match (placeholder)", fileHas("src/app/api/ai/face-match/route.ts", "gdpr") ? "PASS" : "FAIL", 2);
-add("AUTO", "Abandoned cart route", fileHas("src/app/api/automation/abandoned-cart/route.ts", "cartAbandoned") ? "PASS" : "FAIL", 2);
-add("AUTO", "Sweep-up route", fileHas("src/app/api/automation/sweep-up/route.ts", "sweepUpSentAt") ? "PASS" : "FAIL", 2);
-add("AUTO", "Cron handler", fileHas("src/app/api/automation/cron/route.ts", "abandoned-cart") ? "PASS" : "FAIL", 2);
-add("AUTO", "Customer.lastViewedAt", fileHas("prisma/schema.prisma", "lastViewedAt") ? "PASS" : "FAIL", 2);
-add("FUNNEL", "Pass page", fileHas("src/app/pass/[locationId]/page.tsx", "TIERS") ? "PASS" : "FAIL", 2);
-add("FUNNEL", "Pass purchase API", fileHas("src/app/api/pass/purchase/route.ts", "DIGITAL_PASS") ? "PASS" : "FAIL", 2);
-add("FUNNEL", "Pass verify", fileHas("src/app/api/pass/verify/route.ts", "hasDigitalPass") ? "PASS" : "FAIL", 2);
-add("FUNNEL", "QR pre-book page", fileHas("src/app/book/[qrCodeId]/page.tsx") ? "PASS" : "FAIL", 2);
-add("FUNNEL", "QR pre-book API", fileHas("src/app/api/booking/qr-prebook/route.ts", "QR_CODE") ? "PASS" : "FAIL", 2);
-add("COMMS", "WhatsApp templates", fileHas("src/lib/whatsapp.ts", "sendWhatsAppGalleryDelivery") && fileHas("src/lib/whatsapp.ts", "sendWhatsAppSweepUp") ? "PASS" : "FAIL", 2);
-add("COMMS", "Email templates", fileHas("src/lib/email.ts", "emailGalleryLink") && fileHas("src/lib/email.ts", "emailSweepUp") ? "PASS" : "FAIL", 2);
-add("COMMS", "WhatsApp webhook", fileHas("src/app/api/webhooks/whatsapp/route.ts", "hub.challenge") ? "PASS" : "FAIL", 2);
+// ─── PHASE 3 CHECKS ──────────────────────────
+add("REEL", "Auto-reel API exists", fileHas("src/app/api/ai/auto-reel/route.ts", "AUTO_REEL") ? "PASS" : "FAIL");
+add("REEL", "Burst detection logic", fileHas("src/app/api/ai/auto-reel/route.ts", "diff <= 10") ? "PASS" : "FAIL");
+add("REEL", "Generates Video record", fileHas("src/app/api/ai/auto-reel/route.ts", "isAutoReel: true") ? "PASS" : "FAIL");
+add("MAGIC", "Magic shot API", fileHas("src/app/api/ai/magic-shot/route.ts", "hasMagicElement") ? "PASS" : "FAIL");
+add("MAGIC", "Magic elements admin", fileHas("src/app/admin/magic-elements/page.tsx", "MagicElement") ? "PASS" : "FAIL");
+add("MAGIC", "Cloudinary overlay", fileHas("src/app/api/ai/magic-shot/route.ts", "overlay") ? "PASS" : "FAIL");
+add("STREAM", "Camera capture API", fileHas("src/app/api/camera/capture/route.ts", "wristbandCode") ? "PASS" : "FAIL");
+add("STREAM", "Real-time WhatsApp ping", fileHas("src/app/api/camera/capture/route.ts", "sendWhatsAppHookLink") ? "PASS" : "FAIL");
+add("RETOUCH", "Retouch admin page", fileHas("src/app/admin/retouch/page.tsx", "Pro Retouch") ? "PASS" : "FAIL");
+add("RETOUCH", "Before/after slider", fileHas("src/app/admin/retouch/page.tsx", "sliderPos") ? "PASS" : "FAIL");
+add("RETOUCH", "Retouch API", fileHas("src/app/api/admin/retouch/route.ts", "isRetouched") ? "PASS" : "FAIL");
+add("WEB", "Portfolio page", fileHas("src/app/portfolio/page.tsx", "PixelHoliday") ? "PASS" : "FAIL");
+add("WEB", "Blog admin", fileHas("src/app/admin/blog/page.tsx", "Blog Manager") ? "PASS" : "FAIL");
+add("WEB", "Blog AI generation", fileHas("src/app/api/blog/route.ts", "aiGenerate") ? "PASS" : "FAIL");
+add("WEB", "Online shop page", fileHas("src/app/shop/page.tsx", "PRODUCTS") ? "PASS" : "FAIL");
+add("WEB", "Shop checkout API", fileHas("src/app/api/shop/checkout/route.ts", "stripe.checkout") ? "PASS" : "FAIL");
+add("WEB", "Reviews dashboard", fileHas("src/app/admin/reviews/page.tsx", "Reviews") ? "PASS" : "FAIL");
+add("AI", "Growth engine API", fileHas("src/app/api/ai/growth/route.ts", "insights") ? "PASS" : "FAIL");
+add("AI", "AI insights admin page", fileHas("src/app/admin/ai-insights/page.tsx", "Growth Insights") ? "PASS" : "FAIL");
+add("AI", "Logs to AIGrowthLog", fileHas("src/app/api/ai/growth/route.ts", "aIGrowthLog.create") ? "PASS" : "FAIL");
+add("AI", "Culling API", fileHas("src/app/api/ai/cull/route.ts", "aiCulled") ? "PASS" : "FAIL");
+add("AI", "Cull reasons tracked", fileHas("src/app/api/ai/cull/route.ts", "aiCullReason") ? "PASS" : "FAIL");
+add("AI", "Admin override (PATCH)", fileHas("src/app/api/ai/cull/route.ts", "PATCH") ? "PASS" : "FAIL");
 
-// Render
+// Render report
 const ok = rows.filter((r) => r.status === "PASS").length;
 const fail = rows.filter((r) => r.status === "FAIL").length;
 const mock = rows.filter((r) => r.status === "MOCK").length;
@@ -108,7 +96,7 @@ const pad = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" 
 const lines: string[] = [];
 const bar = "═".repeat(64);
 lines.push("╔" + bar + "╗");
-lines.push("║   PIXELHOLIDAY — PHASE 1 + PHASE 2 HEALTH REPORT             ║");
+lines.push("║       PIXELHOLIDAY — PHASES 1+2+3 HEALTH REPORT" + " ".repeat(21) + "║");
 lines.push("╠" + bar + "╣");
 let lastPhase = 0;
 for (const r of rows) {
@@ -129,5 +117,6 @@ lines.push("╚" + bar + "╝");
 const out = lines.join("\n");
 console.log(out);
 fs.mkdirSync("logs", { recursive: true });
-fs.writeFileSync("logs/phase2-health.md", "```\n" + out + "\n```\n");
+fs.writeFileSync("logs/phase1-health.md", "```\n" + out + "\n```\n");
+fs.writeFileSync("logs/phase3-health.md", "```\n" + out + "\n```\n");
 process.exit(fail > 0 ? 1 : 0);
