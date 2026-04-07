@@ -46,7 +46,22 @@
       "Bash(\"$PSQL\" -U postgres -h localhost -d pixeleco -tA -c \"SELECT status, COUNT\\(*\\) FROM \"\"Gallery\"\" GROUP BY status;\")",
       "Bash(curl -s -b /tmp/jar_admin \"http://localhost:3000/admin/blog\" -o /tmp/blog.html echo \"match count for both posts:\" grep -oE \"5 reasons|How AquaSplash\" /tmp/blog.html)",
       "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./package.json'\\).scripts, null, 2\\)\\)\")",
-      "Bash(cd \"/c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli\" grep -rhoE \"process\\\\.env\\\\.[A-Z_][A-Z0-9_]+\" src/ prisma/)"
+      "Bash(cd \"/c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli\" grep -rhoE \"process\\\\.env\\\\.[A-Z_][A-Z0-9_]+\" src/ prisma/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/staff)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/cash)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" -X POST http://localhost:3000/api/upload/presigned -H \"Content-Type: application/json\" -d '{\"filename\":\"a.jpg\",\"contentType\":\"image/jpeg\"}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" -X POST http://localhost:3000/api/checkout -H \"Content-Type: application/json\" -d '{\"token\":\"nope\"}')",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:3000/api/local/galleries?locationId=foo\")",
+      "Bash(node -e \"console.log\\(JSON.parse\\(require\\('fs'\\).readFileSync\\('/tmp/staff.json'\\)\\).staff.length\\)\")",
+      "Bash(rm -f /tmp/jar_photo)",
+      "Bash(curl -s -c /tmp/jar_photo http://localhost:3000/api/auth/csrf)",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\('/tmp/dash.json'\\)\\);console.log\\('totalRevenue=',d.totalRevenue,'photogStats=',d.photographerStats?.length\\)\")",
+      "Bash(curl -s -o /tmp1 -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/staff)",
+      "Bash(curl -s -o /tmp1 -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/cash)",
+      "Bash(curl -s -o /tmp1 -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/payroll)",
+      "Bash(rm -f /tmp/jar_admin)",
+      "Bash(curl -s -c /tmp/jar_admin http://localhost:3000/api/auth/csrf)",
+      "Bash(curl -s -b /tmp/jar_admin -o /dev/null -w \"%{http_code}\\\\n\" -X POST http://localhost:3000/api/admin/staff -H \"Content-Type: application/json\" -d '{}')"
     ]
   }
 }

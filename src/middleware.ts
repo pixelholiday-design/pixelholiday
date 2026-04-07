@@ -70,11 +70,30 @@ const PUBLIC_KIOSK = [
   "/kiosk/setup",
 ];
 
+// /api/admin/* is the admin REST surface — must require a session.
+// Other /api/* (camera, gallery/[token], kiosk pos, mobile-upload, webhooks)
+// are deliberately public; they validate via PIN, magic link, signature, etc.
+function isProtectedApi(pathname: string) {
+  return pathname.startsWith("/api/admin/");
+}
+
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token as any;
     const role = token?.role as string | undefined;
+
+    if (isProtectedApi(pathname)) {
+      // withAuth defaults to a 307 redirect for browsers; for an API we
+      // need JSON 401 / 403 instead.
+      if (!token) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      if (!isAllowed(role, pathname.replace(/^\/api/, ""))) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+      }
+      return NextResponse.next();
+    }
 
     if (pathname.startsWith("/api")) return NextResponse.next();
     if (PUBLIC_KIOSK.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
@@ -95,6 +114,9 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const p = req.nextUrl.pathname;
         if (PUBLIC_KIOSK.some((q) => p === q || p.startsWith(q + "/"))) return true;
+        // All /api/* routes pass through this callback so the middleware
+        // function can return JSON instead of a 307 redirect.
+        if (p.startsWith("/api/")) return true;
         return !!token;
       },
     },
@@ -102,5 +124,10 @@ export default withAuth(
 );
 
 export const config = {
-  matcher: ["/admin/:path*", "/kiosk/:path*", "/my-dashboard/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/kiosk/:path*",
+    "/my-dashboard/:path*",
+    "/api/admin/:path*",
+  ],
 };
