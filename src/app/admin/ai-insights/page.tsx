@@ -1,44 +1,45 @@
-async function getInsights() {
+async function fetchInsights() {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/ai/growth`, { cache: "no-store" });
-    return res.json();
+    const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const r = await fetch(`${base}/api/ai/growth`, { cache: "no-store" });
+    return await r.json();
   } catch {
-    return { insights: [], metrics: { totalRevenue: 0, conversion: 0 } };
+    return { insights: [] };
   }
 }
 
 export default async function AIInsightsPage() {
-  const data = await getInsights();
+  const data = await fetchInsights();
+  const insights = data.insights || [];
+  const categories = ["trend", "pricing", "staff", "franchise", "marketing"];
+
   return (
-    <div className="p-8">
-      <h1 className="text-3xl font-bold mb-6">🤖 AI Growth Insights</h1>
-      <div className="grid grid-cols-3 gap-4 mb-8">
-        <div className="border p-4 rounded">
-          <div className="text-sm text-gray-500">Total Revenue</div>
-          <div className="text-2xl font-bold">€{(data.metrics?.totalRevenue ?? 0).toFixed(0)}</div>
-        </div>
-        <div className="border p-4 rounded">
-          <div className="text-sm text-gray-500">Conversion Rate</div>
-          <div className="text-2xl font-bold">{((data.metrics?.conversion ?? 0) * 100).toFixed(1)}%</div>
-        </div>
-        <div className="border p-4 rounded">
-          <div className="text-sm text-gray-500">Insights Generated</div>
-          <div className="text-2xl font-bold">{data.insights?.length ?? 0}</div>
-        </div>
-      </div>
-      <div className="space-y-3">
-        {(data.insights || []).map((i: any, idx: number) => (
-          <div key={idx} className="border-l-4 border-blue-500 bg-blue-50 p-4 rounded">
-            <div className="font-bold">{i.title}</div>
-            <div className="text-sm text-gray-700">{i.detail}</div>
-            <div className="mt-2 space-x-2">
-              <button className="bg-green-600 text-white text-xs px-2 py-1 rounded">Accept</button>
-              <button className="bg-gray-300 text-xs px-2 py-1 rounded">Dismiss</button>
-              <span className="text-xs text-gray-500">{i.type}</span>
+    <div>
+      <h1 className="text-2xl font-bold mb-1">AI Growth Engine v2</h1>
+      <p className="text-sm text-slate-500 mb-6">Self-learning insights from your data</p>
+      {categories.map((cat) => {
+        const items = insights.filter((i: any) => i.category === cat);
+        if (items.length === 0) return null;
+        return (
+          <section key={cat} className="mb-6">
+            <h2 className="font-semibold mb-2 capitalize">{cat}</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {items.map((i: any, idx: number) => (
+                <div key={idx} className="bg-white rounded-lg shadow p-4">
+                  <div className="text-xs text-slate-500 uppercase">{i.type}</div>
+                  <div className="font-semibold mt-1">{i.title}</div>
+                  <div className="text-sm text-slate-600 mt-1">{i.description}</div>
+                </div>
+              ))}
             </div>
-          </div>
-        ))}
-      </div>
+          </section>
+        );
+      })}
+      {insights.length === 0 && (
+        <div className="bg-white rounded-lg shadow p-6 text-center text-slate-500">
+          No insights yet. The AI needs more data to generate recommendations.
+        </div>
+      )}
     </div>
   );
 }
