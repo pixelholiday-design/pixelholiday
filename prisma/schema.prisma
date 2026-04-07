@@ -51,6 +51,10 @@ model User {
   xp                   Int                   @default(0)
   level                Int                   @default(1)
   badges               String[]              @default([])
+  streakDays           Int                   @default(0)
+  lastActivityAt       DateTime?
+  userBadges           UserBadge[]
+  xpLogs               XpLog[]
   createdAt            DateTime              @default(now())
 }
 
@@ -949,4 +953,87 @@ model SyncQueue {
 
   @@index([status])
   @@index([priority])
+}
+
+// ── GAMIFICATION ───────────────────────────────────────────────
+model Badge {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  name        String
+  description String
+  icon        String
+  category    String
+  xpBonus     Int         @default(0)
+  isSecret    Boolean     @default(false)
+  earned      UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+  badgeId  String
+  badge    Badge    @relation(fields: [badgeId], references: [id])
+  earnedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+}
+
+model XpLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  amount    Int
+  context   String?  // JSON
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model DailyChallenge {
+  id         String   @id @default(cuid())
+  date       DateTime
+  locationId String?
+  challenges String   // JSON array of { title, target, xp, key }
+  createdAt  DateTime @default(now())
+
+  @@index([date])
+}
+
+// ── AI ─────────────────────────────────────────────────────────
+model AIInsight {
+  id          String   @id @default(cuid())
+  type        String   // performance | opportunity | alert | promotion | revenue
+  targetType  String   // photographer | location | system
+  targetId    String
+  title       String
+  message     String
+  priority    String   @default("medium") // high|medium|low
+  actionable  Boolean  @default(true)
+  actionTaken Boolean  @default(false)
+  actionBy    String?
+  createdAt   DateTime @default(now())
+
+  @@index([type])
+  @@index([priority])
+}
+
+model SalesCoachTip {
+  id        String  @id @default(cuid())
+  trigger   String
+  condition String  // JSON
+  message   String
+  script    String?
+  tactic    String  // urgency|value|social_proof|bundle
+  isActive  Boolean @default(true)
+}
+
+model AIBriefingLog {
+  id        String   @id @default(cuid())
+  scope     String   // ceo | photographer | location
+  scopeId   String?
+  payload   String   // JSON
+  createdAt DateTime @default(now())
 }
