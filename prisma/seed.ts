@@ -50,6 +50,12 @@ async function main() {
   const reception = await mkUser("Rana Reception", "reception@pixelholiday.local", StaffRole.RECEPTIONIST, hotel.id, 1100);
   const trainee = await mkUser("Taha Trainee", "trainee@pixelholiday.local", StaffRole.ACADEMY_TRAINEE, hotel.id, 600);
 
+  // Assign 4-digit PINs for sale-kiosk access
+  await prisma.user.update({ where: { id: photo1.id }, data: { pin: "1111" } });
+  await prisma.user.update({ where: { id: photo2.id }, data: { pin: "2222" } });
+  await prisma.user.update({ where: { id: sales.id }, data: { pin: "3333" } });
+  await prisma.user.update({ where: { id: supervisor.id }, data: { pin: "4444" } });
+
   const photographers = [photo1, photo2];
 
   // ── CUSTOMERS ─────────────────────────────────
@@ -306,6 +312,50 @@ async function main() {
       },
     ],
   });
+
+  // ── PRICING DEFAULTS ──────────────────────────
+  const DEFAULT_PRICES = [
+    { productKey: "single_photo", name: "Single Photo (digital)", price: 5 },
+    { productKey: "ten_pack", name: "10-Photo Package", price: 39 },
+    { productKey: "full_gallery", name: "Full Gallery (digital)", price: 49 },
+    { productKey: "full_gallery_premium", name: "Full Gallery (premium)", price: 99 },
+    { productKey: "print_4x6", name: "Printed 4x6", price: 3 },
+    { productKey: "print_5x7", name: "Printed 5x7", price: 5 },
+    { productKey: "print_8x10", name: "Printed 8x10", price: 10 },
+    { productKey: "print_a4", name: "Printed A4", price: 15 },
+    { productKey: "pass_basic", name: "Digital Pass Basic", price: 50 },
+    { productKey: "pass_unlimited", name: "Digital Pass Unlimited", price: 100 },
+    { productKey: "pass_vip", name: "Digital Pass VIP", price: 150 },
+    { productKey: "magic_shot", name: "Magic Shot add-on", price: 5 },
+    { productKey: "video_reel", name: "Video Reel add-on", price: 10 },
+  ];
+  for (const p of DEFAULT_PRICES) {
+    await prisma.pricingConfig.upsert({ where: { productKey: p.productKey }, update: {}, create: p });
+  }
+
+  // ── DEFAULT CAMPAIGNS ─────────────────────────
+  await prisma.campaign.createMany({
+    data: [
+      { type: "ABANDONED_CART_3D", name: "Abandoned cart — day 3", discountPct: 0.15, delayDays: 3, template: "Missing the sun? Get your memories now at 15% off." },
+      { type: "SWEEP_UP_7D", name: "Partial-paid sweep — day 7", discountPct: 0.5, delayDays: 7, template: "Unlock the rest of your gallery for 50% off — last chance." },
+    ],
+  });
+
+  // ── SAMPLE PRINT JOB ──────────────────────────
+  const firstOrder = await prisma.order.findFirst();
+  if (firstOrder) {
+    const samplePhotos = await prisma.photo.findMany({ where: { galleryId: firstOrder.galleryId }, take: 3 });
+    if (samplePhotos.length) {
+      await prisma.printJob.create({
+        data: {
+          orderId: firstOrder.id,
+          photoIds: samplePhotos.map((p) => p.id),
+          printSize: "5x7",
+          copies: 2,
+        },
+      });
+    }
+  }
 
   // ── ACADEMY MODULE ────────────────────────────
   await prisma.academyModule.create({

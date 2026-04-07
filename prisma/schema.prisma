@@ -254,6 +254,7 @@ model Order {
   status          OrderStatus
   items           OrderItem[]
   commissions     Commission[]
+  printJobs       PrintJob[]
   isAutomatedSale Boolean       @default(false)
   discountApplied Float?
   createdAt       DateTime      @default(now())
@@ -579,4 +580,79 @@ model KioskDevice {
   lastPingAt    DateTime?
   todaySalesCents Int    @default(0)
   createdAt     DateTime @default(now())
+}
+
+model PrintJob {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id])
+  status    PrintStatus @default(PENDING)
+  photoIds  String[]
+  printSize String      @default("4x6")
+  copies    Int         @default(1)
+  printedAt DateTime?
+  printedBy String?
+  createdAt DateTime    @default(now())
+}
+
+enum PrintStatus {
+  PENDING
+  PRINTING
+  COMPLETED
+  FAILED
+}
+
+model PricingConfig {
+  id         String   @id @default(cuid())
+  productKey String   @unique
+  name       String
+  price      Float
+  currency   String   @default("EUR")
+  isActive   Boolean  @default(true)
+  updatedBy  String?
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+}
+
+model SaleOrder {
+  id            String          @id @default(cuid())
+  galleryId     String
+  customerId    String
+  photoIds      String[]
+  totalCents    Int
+  status        SaleOrderStatus @default(PENDING)
+  paymentMethod String?
+  receivedCents Int?
+  changeCents   Int?
+  staffId       String?
+  receiptCode   String          @unique @default(cuid())
+  createdAt     DateTime        @default(now())
+  completedAt   DateTime?
+}
+
+enum SaleOrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model PricingHistory {
+  id        String   @id @default(cuid())
+  productKey String
+  oldPrice  Float
+  newPrice  Float
+  changedBy String?
+  createdAt DateTime @default(now())
+}
+
+model Campaign {
+  id           String   @id @default(cuid())
+  type         String   // "ABANDONED_CART_3D" | "SWEEP_UP_7D" | custom
+  name         String
+  enabled      Boolean  @default(true)
+  discountPct  Float
+  delayDays    Int
+  template     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
