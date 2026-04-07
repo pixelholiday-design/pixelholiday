@@ -19,6 +19,8 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/admin/magic-elements",
     "/admin/retouch",
     "/admin/hr",
+    "/admin/cameras",
+    "/admin/kiosks",
     "/kiosk",
     "/my-dashboard",
   ],
@@ -47,14 +49,19 @@ function isAllowed(role: string | undefined, pathname: string): boolean {
   return allowed.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p));
 }
 
+// Public kiosk surfaces — no auth required (designed for unmanned displays).
+const PUBLIC_KIOSK = ["/kiosk/self-service", "/kiosk/tv-display"];
+
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token as any;
     const role = token?.role as string | undefined;
 
-    // Always allow auth + public api
     if (pathname.startsWith("/api")) return NextResponse.next();
+    if (PUBLIC_KIOSK.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
+      return NextResponse.next();
+    }
 
     if (!isAllowed(role, pathname)) {
       const target = role === "ACADEMY_TRAINEE" ? "/admin/academy" : "/my-dashboard";
@@ -64,7 +71,16 @@ export default withAuth(
     }
     return NextResponse.next();
   },
-  { pages: { signIn: "/login" } }
+  {
+    pages: { signIn: "/login" },
+    callbacks: {
+      authorized: ({ token, req }) => {
+        const p = req.nextUrl.pathname;
+        if (PUBLIC_KIOSK.some((q) => p === q || p.startsWith(q + "/"))) return true;
+        return !!token;
+      },
+    },
+  }
 );
 
 export const config = {

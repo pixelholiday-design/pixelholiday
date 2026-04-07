@@ -37,6 +37,8 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/upload", label: "Upload Hub", icon: Upload },
       { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
+      { href: "/admin/cameras", label: "Cameras", icon: Camera },
+      { href: "/admin/kiosks", label: "Kiosks", icon: LayoutDashboard },
     ],
   },
   {
@@ -70,14 +72,15 @@ const SECTIONS: NavSection[] = [
 
 const ROLE_ALLOWED: Record<string, string[]> = {
   CEO: [
-    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",
-    "/admin/housing","/admin/academy","/admin/b2b","/admin/franchise","/admin/ai-insights",
-    "/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
+    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/b2b",
+    "/admin/franchise","/admin/ai-insights","/admin/hr/jobs","/admin/blog","/admin/reviews",
+    "/admin/magic-elements","/admin/retouch",
   ],
   OPERATIONS_MANAGER: [
-    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",
-    "/admin/housing","/admin/academy","/admin/b2b","/admin/hr/jobs","/admin/blog",
-    "/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
+    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/b2b",
+    "/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
   ],
   SUPERVISOR: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",

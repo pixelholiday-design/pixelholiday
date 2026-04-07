@@ -9,7 +9,10 @@ const display = Playfair_Display({ subsets: ["latin"], variable: "--font-display
 export const metadata: Metadata = {
   title: "PixelHoliday — Capture your escape",
   description: "Premium resort photography delivery & e-commerce.",
+  manifest: "/manifest.json",
 };
+
+export const viewport = { themeColor: "#E8593C" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

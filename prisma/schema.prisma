@@ -91,6 +91,8 @@ model Location {
   galleries         Gallery[]
   equipment         Equipment[]
   b2bDeliveries     B2BDelivery[]
+  cameras           Camera[]
+  kiosks            KioskDevice[]
   createdAt         DateTime      @default(now())
 }
 
@@ -545,4 +547,36 @@ model ProcessedWebhookEvent {
   id        String   @id
   source    String
   createdAt DateTime @default(now())
+}
+
+model Camera {
+  id           String     @id @default(cuid())
+  name         String
+  externalId   String     @unique
+  locationId   String
+  location     Location   @relation(fields: [locationId], references: [id])
+  type         CameraType
+  isActive     Boolean    @default(true)
+  lastPingAt   DateTime?
+  captureCount Int        @default(0)
+  createdAt    DateTime   @default(now())
+}
+
+enum CameraType {
+  SPEED_CAM
+  RIDE_CAM
+  ENTRANCE_CAM
+  ROAMING
+}
+
+model KioskDevice {
+  id            String   @id @default(cuid())
+  name          String
+  externalId    String   @unique
+  locationId    String
+  location      Location @relation(fields: [locationId], references: [id])
+  isOnline      Boolean  @default(false)
+  lastPingAt    DateTime?
+  todaySalesCents Int    @default(0)
+  createdAt     DateTime @default(now())
 }
