@@ -61,7 +61,8 @@
       "Bash(curl -s -o /tmp1 -w \"%{http_code}\\\\n\" http://localhost:3000/api/admin/payroll)",
       "Bash(rm -f /tmp/jar_admin)",
       "Bash(curl -s -c /tmp/jar_admin http://localhost:3000/api/auth/csrf)",
-      "Bash(curl -s -b /tmp/jar_admin -o /dev/null -w \"%{http_code}\\\\n\" -X POST http://localhost:3000/api/admin/staff -H \"Content-Type: application/json\" -d '{}')"
+      "Bash(curl -s -b /tmp/jar_admin -o /dev/null -w \"%{http_code}\\\\n\" -X POST http://localhost:3000/api/admin/staff -H \"Content-Type: application/json\" -d '{}')",
+      "Bash(cd \"/c/Users/JOE/Desktop/pixeleco/.claude/worktrees/serene-ardinghelli\" echo \"=== console.log in src ===\" grep -rn \"console\\\\.log\" src/ --include=\"*.ts\" --include=\"*.tsx\")"
     ]
   }
 }

@@ -174,6 +174,18 @@ export default function GalleryView({ gallery }: { gallery: Gallery }) {
         </div>
       )}
 
+      {/* Footer with legal links */}
+      <footer className="border-t border-cream-300/70 bg-white/60 mt-8 mb-24">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-2 text-xs text-navy-400">
+          <div>© {new Date().getFullYear()} PixelHoliday</div>
+          <div className="flex gap-4">
+            <a href="/privacy" className="hover:text-coral-600">Privacy</a>
+            <a href="/terms" className="hover:text-coral-600">Terms</a>
+            <a href="mailto:support@pixelholiday.com" className="hover:text-coral-600">Contact</a>
+          </div>
+        </div>
+      </footer>
+
       {/* Lightbox */}
       {lbIdx !== null && (
         <Lightbox
