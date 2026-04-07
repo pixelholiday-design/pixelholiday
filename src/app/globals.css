@@ -3,25 +3,54 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #FAFAF7;
+  --foreground: #0F1B2D;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+html, body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "cv11", "ss01";
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-coral-500 px-5 py-2.5 text-sm font-semibold text-white shadow-card transition hover:bg-coral-600 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none;
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-navy-100 bg-white px-5 py-2.5 text-sm font-semibold text-navy-800 shadow-card transition hover:bg-cream-100 disabled:opacity-50;
+  }
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-navy-600 transition hover:bg-cream-200;
+  }
+  .input {
+    @apply w-full rounded-xl border border-navy-100 bg-white px-4 py-2.5 text-sm text-navy-900 placeholder:text-navy-300 shadow-card transition focus:border-coral-400 focus:outline-none focus:ring-2 focus:ring-coral-100;
+  }
+  .card {
+    @apply rounded-2xl bg-white shadow-card border border-cream-300/60;
+  }
+  .stat-card {
+    @apply card p-6 flex flex-col gap-2 transition hover:shadow-soft;
+  }
+  .label-xs {
+    @apply text-xs font-medium uppercase tracking-wider text-navy-400;
+  }
+  .heading {
+    @apply font-display text-navy-900;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .text-balance { text-wrap: balance; }
+  .bg-resort-pattern {
+    background-image: radial-gradient(at 10% 20%, rgba(232, 89, 60, 0.35) 0px, transparent 50%),
+      radial-gradient(at 80% 0%, rgba(212, 168, 83, 0.35) 0px, transparent 50%),
+      radial-gradient(at 70% 80%, rgba(15, 27, 45, 0.55) 0px, transparent 50%),
+      linear-gradient(135deg, #E8593C 0%, #D4A853 40%, #0F1B2D 100%);
   }
 }
