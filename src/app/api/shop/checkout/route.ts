@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { PRODUCTS } from "../products/route";
+import { PRODUCTS } from "@/lib/shopProducts";
 
 export async function POST(req: NextRequest) {
   const data = await req.formData();

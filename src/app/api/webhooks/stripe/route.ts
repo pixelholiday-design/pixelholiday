@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
 import { Resend } from "resend";
+import { recordCommission } from "@/lib/commissions";
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature") || "";
@@ -15,6 +16,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: `Webhook signature verification failed: ${err.message}` }, { status: 400 });
   }
 
+  // Idempotency — skip already processed events
+  try {
+    await prisma.processedWebhookEvent.create({ data: { id: event.id, source: "stripe" } });
+  } catch {
+    return NextResponse.json({ received: true, duplicate: true });
+  }
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const galleryId = session.metadata?.galleryId;
@@ -22,9 +30,9 @@ export async function POST(req: Request) {
       const gallery = await prisma.gallery.update({
         where: { id: galleryId },
         data: { status: "PAID" },
-        include: { customer: true, photos: true },
+        include: { customer: true, photos: true, photographer: true },
       });
-      await prisma.order.create({
+      const order = await prisma.order.create({
         data: {
           galleryId,
           customerId: gallery.customerId,
@@ -35,7 +43,15 @@ export async function POST(req: Request) {
         },
       });
 
-      // Send delivery email
+      // Commissions: photographer 10% + SaaS 2% ledger row
+      await recordCommission({
+        userId: gallery.photographerId,
+        orderId: order.id,
+        type: "PHOTO_SALE",
+        amount: order.amount,
+      });
+
+      // Delivery email
       if (process.env.RESEND_API_KEY && gallery.customer.email) {
         try {
           const resend = new Resend(process.env.RESEND_API_KEY);

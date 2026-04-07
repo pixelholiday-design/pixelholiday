@@ -540,3 +540,9 @@ enum ApplicationStatus {
   OFFERED
   REJECTED
 }
+
+model ProcessedWebhookEvent {
+  id        String   @id
+  source    String
+  createdAt DateTime @default(now())
+}

@@ -21,4 +21,21 @@ export function archiveUrl(publicIds: string[]): string {
   }
 }
 
+/**
+ * Upload a remote URL to Cloudinary under a folder.
+ * Returns { public_id, secure_url } on success, or null if not configured.
+ */
+export async function uploadToCloudinary(url: string, folder: string) {
+  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) {
+    return null;
+  }
+  try {
+    const res = await cloudinary.uploader.upload(url, { folder, resource_type: "auto" });
+    return { public_id: res.public_id, secure_url: res.secure_url };
+  } catch (e) {
+    console.warn("uploadToCloudinary failed", e);
+    return null;
+  }
+}
+
 export { cloudinary };
