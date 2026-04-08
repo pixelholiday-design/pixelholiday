@@ -105,7 +105,7 @@ async function main() {
         data: {
           galleryId: gallery.id,
           s3Key_highRes: demoUrl(idx),
-          cloudinaryId: `sample-${idx}`,
+          cloudinaryId: null,
           isHookImage: p === 0,
           sortOrder: p,
           isPurchased: statuses[g] === GalleryStatus.PAID || (statuses[g] === GalleryStatus.PARTIAL_PAID && p < 2),

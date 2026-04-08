@@ -69,7 +69,8 @@
       "Bash(file /tmp_dl.bin)",
       "Bash(curl -s -o /c/Users/JOE/AppData/Local/Temp/dl.bin -w 'status=%{http_code} size=%{size_download}\\\\n' http://localhost:3000/api/local/photo/cmnp31l7w000mwtgqq39qlgp9/file)",
       "Read(//c/Users/JOE/AppData/Local/Temp/**)",
-      "Bash(xxd)"
+      "Bash(xxd)",
+      "Bash(git push:*)"
     ]
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { Heart, Camera, MapPin, X } from "lucide-react";
-import { watermarkedUrl, cleanUrl } from "@/lib/cloudinary";
+import { watermarkedUrl, cleanUrl, photoRef } from "@/lib/cloudinary";
 import { toggleFavorite } from "./actions";
 import BookingTimePicker from "./BookingTimePicker";
 import StripeCheckoutButton from "@/components/gallery/StripeCheckoutButton";
@@ -77,7 +77,7 @@ export default function GalleryView({ gallery }: { gallery: Gallery }) {
           <div className="relative z-10 max-w-3xl mx-auto px-6 mt-10">
             <div className="rounded-2xl overflow-hidden shadow-lift ring-1 ring-white/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={watermarkedUrl(hookPhoto.cloudinaryId || hookPhoto.s3Key_highRes)} alt="" className="w-full block" />
+              <img src={watermarkedUrl(photoRef(hookPhoto))} alt="" className="w-full block" />
             </div>
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function GalleryView({ gallery }: { gallery: Gallery }) {
       <section className="relative h-[55vh] min-h-[420px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={cleanUrl(hookPhoto.cloudinaryId || hookPhoto.s3Key_highRes, 2400)}
+          src={cleanUrl(photoRef(hookPhoto), 2400)}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -217,7 +217,7 @@ export default function GalleryView({ gallery }: { gallery: Gallery }) {
                     <div key={p.id} className="relative aspect-square rounded-xl overflow-hidden bg-cream-200">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={(isClean || (isPartial && p.isPurchased) ? cleanUrl : watermarkedUrl)(p.cloudinaryId || p.s3Key_highRes, 600)}
+                        src={(isClean || (isPartial && p.isPurchased) ? cleanUrl : watermarkedUrl)(photoRef(p), 600)}
                         alt=""
                         className="w-full h-full object-cover"
                       />

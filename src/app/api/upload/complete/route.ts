@@ -80,10 +80,13 @@ export async function POST(req: Request) {
         console.warn("Cloudinary upload skipped", e);
       }
 
+      // Store a resolvable URL in s3Key_highRes so the gallery always renders,
+      // even when Cloudinary upload failed or the original key is not itself a URL.
+      const resolvableUrl = p.publicUrl && /^https?:\/\//.test(p.publicUrl) ? p.publicUrl : p.key;
       await prisma.photo.create({
         data: {
           galleryId: gallery.id,
-          s3Key_highRes: p.key,
+          s3Key_highRes: resolvableUrl,
           cloudinaryId,
           isHookImage: isHook,
           sortOrder: i,
