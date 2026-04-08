@@ -5,6 +5,9 @@ import { GalleryStatus } from "@prisma/client";
 import { sendWhatsAppHookLink } from "@/lib/whatsapp";
 import { requireStaff, handleGuardError } from "@/lib/guards";
 import { uploadToCloudinary } from "@/lib/cloudinary.server";
+import { autoEditGallery } from "@/lib/ai-edit";
+import { applyAutoHook } from "@/lib/ai/hook-advisor";
+import { awardXP } from "@/lib/gamification/xp";
 
 const photoSchema = z.object({
   key: z.string(),
@@ -93,7 +96,24 @@ export async function POST(req: Request) {
       await sendWhatsAppHookLink(customer.whatsapp, link);
     }
 
-    return NextResponse.json({ galleryId: gallery.id, magicLinkToken: gallery.magicLinkToken });
+    // Background AI auto-edit pipeline (does not block the response)
+    autoEditGallery(gallery.id).catch((e) => console.warn("autoEditGallery failed", e));
+
+    // AI hook advisor — pick the best hook image if photographer didn't star one
+    applyAutoHook(gallery.id).catch(() => {});
+
+    // Gamification — XP for the upload, plus a bonus for big batches
+    const photogXp = await awardXP(
+      data.photographerId,
+      data.photos.length >= 50 ? { action: "upload_gallery", bonus: 25 } : "upload_gallery",
+      { galleryId: gallery.id, photoCount: data.photos.length }
+    );
+
+    return NextResponse.json({
+      galleryId: gallery.id,
+      magicLinkToken: gallery.magicLinkToken,
+      gamification: photogXp,
+    });
   } catch (e) {
     const g = handleGuardError(e);
     if (g) return g;

@@ -1,40 +1,92 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { sendWhatsAppHookLink } from "@/lib/whatsapp";
+import { autoEditPhoto } from "@/lib/ai-edit";
 
-// Module 12: Real-time streaming — speed camera endpoint.
-// Receives a photo capture, identifies the customer (face vector / wristband),
-// adds it to their gallery and pings them on WhatsApp within 60s.
-export async function POST(req: NextRequest) {
-  const { wristbandCode, faceVector, s3Key, locationId } = await req.json();
+/**
+ * Speed-camera capture endpoint.
+ * Receives one frame from a registered camera, identifies the customer
+ * (wristband / digital pass face vector), attaches the photo to their gallery
+ * (creating one if needed), and falls back to an unclaimed gallery the
+ * customer can claim later via selfie or QR.
+ */
+const schema = z.object({
+  externalId: z.string().min(1).optional(),
+  cameraId: z.string().optional(),
+  locationId: z.string().min(1),
+  s3Key: z.string().min(1).optional(),
+  imageBase64: z.string().optional(),
+  imageUrl: z.string().optional(),
+  wristbandCode: z.string().optional(),
+  faceVectorHex: z.string().optional(),
+  timestamp: z.string().optional(),
+});
 
-  let customer = null;
-  if (wristbandCode) {
-    customer = await prisma.customer.findFirst({ where: { wristbandCode } });
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const parsed = schema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ success: false, error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
-  if (!customer && faceVector) {
-    customer = await prisma.customer.findFirst({ where: { hasDigitalPass: true } });
+  const data = parsed.data;
+
+  // Resolve camera (by externalId or internal id) and bump counters.
+  const camera = await prisma.camera.findFirst({
+    where: data.externalId ? { externalId: data.externalId } : data.cameraId ? { id: data.cameraId } : { id: "__none__" },
+  });
+  if (!camera) {
+    return NextResponse.json({ success: false, error: "Camera not registered" }, { status: 404 });
   }
-  if (!customer)
-    return NextResponse.json({ matched: false, reason: "no customer match" }, { status: 202 });
+  if (camera.locationId !== data.locationId) {
+    return NextResponse.json({ success: false, error: "Camera/location mismatch" }, { status: 400 });
+  }
 
-  if (!customer.hasDigitalPass)
-    return NextResponse.json({ matched: true, delivered: false, reason: "no digital pass" });
+  // Identify customer
+  let customer = null as Awaited<ReturnType<typeof prisma.customer.findFirst>>;
+  if (data.wristbandCode) {
+    customer = await prisma.customer.findFirst({ where: { wristbandCode: data.wristbandCode } });
+  }
+  if (!customer && data.faceVectorHex) {
+    // Placeholder face match: pick the first digital-pass holder at the location.
+    customer = await prisma.customer.findFirst({
+      where: { hasDigitalPass: true, locationId: data.locationId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
 
-  // Find or create active gallery for this customer
+  // Locate or create the active gallery
+  const photographer = await prisma.user.findFirst({
+    where: { role: "PHOTOGRAPHER", locationId: data.locationId },
+  });
+  if (!photographer) {
+    return NextResponse.json({ success: false, error: "No photographer assigned to location" }, { status: 409 });
+  }
+
+  let isUnclaimed = false;
+  if (!customer) {
+    isUnclaimed = true;
+    customer = await prisma.customer.create({
+      data: {
+        name: `Unclaimed @ ${camera.name}`,
+        locationId: data.locationId,
+      },
+    });
+  }
+
   let gallery = await prisma.gallery.findFirst({
-    where: { customerId: customer.id, status: "DIGITAL_PASS" },
+    where: {
+      customerId: customer.id,
+      locationId: data.locationId,
+      createdAt: { gte: new Date(Date.now() - 24 * 60 * 60 * 1000) },
+    },
     orderBy: { createdAt: "desc" },
   });
-
   if (!gallery) {
-    const photographer = await prisma.user.findFirst({ where: { role: "PHOTOGRAPHER" } });
-    if (!photographer || !locationId)
-      return NextResponse.json({ error: "missing photographer or location" }, { status: 400 });
     gallery = await prisma.gallery.create({
       data: {
-        status: "DIGITAL_PASS",
-        locationId,
+        status: customer.hasDigitalPass ? "DIGITAL_PASS" : "HOOK_ONLY",
+        locationId: data.locationId,
         photographerId: photographer.id,
         customerId: customer.id,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
@@ -42,14 +94,40 @@ export async function POST(req: NextRequest) {
     });
   }
 
+  // Persist photo. In production this `s3Key` would come from a presigned upload.
+  const s3Key = data.s3Key || `cam/${camera.externalId}/${Date.now()}.jpg`;
   const photo = await prisma.photo.create({
-    data: { galleryId: gallery.id, s3Key_highRes: s3Key },
+    data: {
+      galleryId: gallery.id,
+      s3Key_highRes: s3Key,
+      sortOrder: 0,
+    },
   });
 
-  // Real-time WhatsApp ping (within 60s)
-  if (customer.whatsapp) {
-    await sendWhatsAppHookLink(customer.whatsapp, gallery.magicLinkToken).catch(() => {});
+  // Update gallery total + camera capture count
+  await prisma.$transaction([
+    prisma.gallery.update({ where: { id: gallery.id }, data: { totalCount: { increment: 1 } } }),
+    prisma.camera.update({
+      where: { id: camera.id },
+      data: { captureCount: { increment: 1 }, lastPingAt: new Date() },
+    }),
+  ]);
+
+  // Background AI cull + edit (Stage 1 + 2 of pipeline)
+  autoEditPhoto(photo.id, gallery.editQuality).catch(() => {});
+
+  // Real-time WhatsApp ping for digital-pass holders
+  if (customer.hasDigitalPass && customer.whatsapp) {
+    const link = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/gallery/${gallery.magicLinkToken}`;
+    await sendWhatsAppHookLink(customer.whatsapp, link).catch(() => {});
   }
 
-  return NextResponse.json({ matched: true, delivered: true, photoId: photo.id, galleryId: gallery.id });
+  return NextResponse.json({
+    success: true,
+    photoId: photo.id,
+    galleryId: gallery.id,
+    matched: !isUnclaimed,
+    customerId: customer.id,
+    isUnclaimed,
+  });
 }

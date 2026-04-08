@@ -1,447 +1,247 @@
-'use client';
+"use client";
+import { useEffect, useState } from "react";
+import { Camera, Check, Loader2, RefreshCw, Upload, ListOrdered, Star, Banknote, CreditCard, Printer, LogOut } from "lucide-react";
+import PinPad from "@/components/kiosk/PinPad";
+import Receipt, { ReceiptData } from "@/components/kiosk/Receipt";
+import { cleanUrl } from "@/lib/cloudinary";
 
-import { useEffect, useState, useCallback } from 'react';
-import {
-  Upload, Inbox, BarChart3, User, CreditCard, Banknote, Smartphone, Lock,
-  Check, X, Loader2, Printer, ArrowLeft, Camera, TrendingUp,
-} from 'lucide-react';
-import PinPad from '@/components/kiosk/PinPad';
-import CashCalculator from '@/components/kiosk/CashCalculator';
-import OrderNotification, { type IncomingOrder } from '@/components/kiosk/OrderNotification';
-import ConnectionStatus from '@/components/kiosk/ConnectionStatus';
-import Receipt, { type ReceiptOrder } from '@/components/kiosk/Receipt';
-
-const VALID_PIN = '1234';
-
-type Tab = 'incoming' | 'upload' | 'sales' | 'stats';
-type RightView = 'idle' | 'order' | 'pay-card' | 'pay-cash' | 'pay-qr' | 'success' | 'receipt';
-
-interface MockOrder {
+type Staff = { id: string; name: string; role: string };
+type SaleOrder = {
   id: string;
-  customer: string;
-  room: string;
-  itemCount: number;
-  total: number;
-  items: { name: string; quantity: number; price: number }[];
-}
+  totalCents: number;
+  photoIds: string[];
+  createdAt: string;
+  gallery: any;
+};
 
-const MOCK_ORDERS: MockOrder[] = [
-  { id: 'ord_001', customer: 'Mueller Family', room: '412', itemCount: 8, total: 49,
-    items: [{ name: 'Digital Gallery', quantity: 1, price: 49 }] },
-  { id: 'ord_002', customer: 'Tanaka',        room: '208', itemCount: 3, total: 24,
-    items: [{ name: 'Digital Download', quantity: 3, price: 5 }, { name: 'Print 8×10', quantity: 1, price: 9 }] },
-  { id: 'ord_003', customer: 'Dupont',        room: '116', itemCount: 12, total: 130,
-    items: [{ name: 'Premium Album', quantity: 1, price: 130 }] },
-];
+export default function SalePointPage() {
+  const [staff, setStaff] = useState<Staff | null>(null);
+  const [tab, setTab] = useState<"sales" | "upload">("sales");
+  const [orders, setOrders] = useState<SaleOrder[]>([]);
+  const [active, setActive] = useState<SaleOrder | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [receipt, setReceipt] = useState<ReceiptData | null>(null);
+  const [cashAmt, setCashAmt] = useState("");
 
-const TODAY_SALES = [
-  { time: '09:14', customer: 'Schmidt',   total: 49,  method: 'Card' },
-  { time: '10:32', customer: 'Rossi',     total: 24,  method: 'Cash' },
-  { time: '11:08', customer: 'Anderson',  total: 130, method: 'Card' },
-  { time: '12:45', customer: 'Garcia',    total: 15,  method: 'QR'   },
-  { time: '14:20', customer: 'Lefevre',   total: 79,  method: 'Card' },
-];
-
-function playBeep(freq = 660) {
-  try {
-    const ctx = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.frequency.value = freq;
-    gain.gain.setValueAtTime(0.15, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.2);
-  } catch {}
-}
-
-function playChaChing() {
-  playBeep(880);
-  setTimeout(() => playBeep(1100), 120);
-  setTimeout(() => playBeep(1320), 240);
-}
-
-export default function SalePointKioskPage() {
-  const [unlocked, setUnlocked] = useState(false);
-  const [shake, setShake] = useState(false);
-  const [attempts, setAttempts] = useState(0);
-  const [locked, setLocked] = useState(false);
-
-  const [tab, setTab] = useState<Tab>('incoming');
-  const [selected, setSelected] = useState<MockOrder | null>(null);
-  const [right, setRight] = useState<RightView>('idle');
-  const [notif, setNotif] = useState<IncomingOrder | null>(null);
-  const [orders, setOrders] = useState(MOCK_ORDERS);
-  const [completedOrder, setCompletedOrder] = useState<ReceiptOrder | null>(null);
-
-  const handlePin = (pin: string) => {
-    if (pin === VALID_PIN) {
-      setUnlocked(true);
-      playBeep(880);
-    } else {
-      setShake(true);
-      playBeep(220);
-      setTimeout(() => setShake(false), 500);
-      const next = attempts + 1;
-      setAttempts(next);
-      if (next >= 3) {
-        setLocked(true);
-        setTimeout(() => {
-          setLocked(false);
-          setAttempts(0);
-        }, 5000);
-      }
-    }
-  };
-
-  const completeSale = useCallback((method: string) => {
-    if (!selected) return;
-    playChaChing();
-    setCompletedOrder({
-      id: selected.id,
-      items: selected.items,
-      total: selected.total,
-      paymentMethod: method,
-      date: new Date(),
-    });
-    setOrders((o) => o.filter((x) => x.id !== selected.id));
-    setRight('success');
-    setTimeout(() => setRight('receipt'), 1500);
-  }, [selected]);
-
-  // Mock incoming order every 45s
+  // Auto-poll for new orders every 5s
   useEffect(() => {
-    if (!unlocked) return;
-    const t = setInterval(() => {
-      setNotif({
-        id: `ord_${Date.now()}`,
-        customer: 'New Guest',
-        itemCount: Math.floor(Math.random() * 10) + 1,
-        total: Math.floor(Math.random() * 100) + 10,
-      });
-    }, 45000);
+    if (!staff || tab !== "sales") return;
+    load();
+    const t = setInterval(load, 5000);
     return () => clearInterval(t);
-  }, [unlocked]);
+  }, [staff, tab]);
 
-  // Keyboard shortcuts
+  // Auto-lock after 2min idle
   useEffect(() => {
-    if (!unlocked) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 's' || e.key === 'S') setTab('incoming');
-      if (e.key === 'u' || e.key === 'U') setTab('upload');
-      if (e.key === 'p' || e.key === 'P') setRight('receipt');
-      if (e.key === 'Escape') {
-        setRight('idle');
-        setSelected(null);
-      }
+    if (!staff) return;
+    let lastActivity = Date.now();
+    const onActivity = () => (lastActivity = Date.now());
+    window.addEventListener("mousemove", onActivity);
+    window.addEventListener("keydown", onActivity);
+    const id = setInterval(() => {
+      if (Date.now() - lastActivity > 2 * 60 * 1000) setStaff(null);
+    }, 5000);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener("mousemove", onActivity);
+      window.removeEventListener("keydown", onActivity);
     };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [unlocked]);
+  }, [staff]);
 
-  if (!unlocked) {
+  async function load() {
+    const r = await fetch("/api/kiosk/sale-orders").then((r) => r.json());
+    setOrders(r.orders || []);
+  }
+
+  async function confirm(method: "POS" | "CASH") {
+    if (!active || !staff) return;
+    setBusy(true);
+    const received = method === "CASH" ? Math.round(parseFloat(cashAmt || "0") * 100) : undefined;
+    const r = await fetch("/api/kiosk/sale-orders", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        id: active.id,
+        paymentMethod: method,
+        receivedCents: received,
+        staffId: staff.id,
+      }),
+    }).then((r) => r.json());
+    setBusy(false);
+    if (r.ok) {
+      setReceipt({
+        date: new Date().toLocaleString(),
+        location: active.gallery?.photographer?.locationId || "PixelHoliday",
+        photographer: active.gallery?.photographer?.name || staff.name,
+        customer: active.gallery?.customer?.name || "Guest",
+        items: [{ label: `${active.photoIds.length} photos`, qty: 1, price: active.totalCents / 100 }],
+        total: active.totalCents / 100,
+        paymentMethod: method === "CASH" ? "Cash" : "POS terminal",
+        receiptCode: r.receiptCode,
+        galleryUrl: `${window.location.origin}/gallery/${active.gallery?.magicLinkToken}`,
+      });
+      setActive(null);
+      setCashAmt("");
+      load();
+    }
+  }
+
+  // ── PIN screen ──
+  if (!staff) {
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-navy-800">
-        <div className="text-center">
-          <div className="w-20 h-20 rounded-full bg-coral-500/20 flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-10 h-10 text-coral-500" />
-          </div>
-          <h1 className="font-display text-4xl mb-2">Staff Login</h1>
-          <p className="text-slate-400 mb-8">
-            {locked ? 'Locked — try again in a moment' : 'Enter your 4-digit PIN'}
-          </p>
-          {!locked && <PinPad onComplete={handlePin} shake={shake} />}
-          {attempts > 0 && !locked && (
-            <p className="text-coral-500 mt-4">{3 - attempts} attempt{3 - attempts === 1 ? '' : 's'} remaining</p>
-          )}
-        </div>
+      <div className="fixed inset-0 bg-navy-900 flex flex-col items-center justify-center p-8">
+        <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold mb-3">Sale point</div>
+        <PinPad onVerified={(u) => setStaff(u)} />
       </div>
     );
   }
 
   return (
-    <div className="absolute inset-0 bg-navy-800 flex flex-col">
-      {/* Top status bar */}
-      <div className="h-16 bg-[#1A1F2E] border-b border-[#2A3042] flex items-center justify-between px-6">
-        <div className="flex items-center gap-4">
-          <div className="font-display text-xl text-gold-500 tracking-wider">PIXELHOLIDAY · POS</div>
-          <span className="text-slate-500">|</span>
-          <span className="text-slate-300">Hilton Monastir</span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-sm text-slate-400">
-            Today: <span className="text-white font-semibold">€{TODAY_SALES.reduce((s, x) => s + x.total, 0)}</span>
+    <div className="fixed inset-0 bg-navy-900 text-white flex flex-col">
+      {/* Header */}
+      <header className="bg-navy-800/70 backdrop-blur p-5 flex items-center justify-between border-b border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-coral-500/15 ring-1 ring-coral-500/30 flex items-center justify-center">
+            <Camera className="h-5 w-5 text-coral-400" />
           </div>
-          <ConnectionStatus />
-          <button
-            onClick={() => setUnlocked(false)}
-            className="press flex items-center gap-2 px-4 py-2 rounded-full bg-[#2A3042]"
-          >
-            <User className="w-4 h-4" /> Logout
+          <div>
+            <div className="font-display text-xl">Sale point</div>
+            <div className="text-xs text-white/50">{staff.name} · {staff.role}</div>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={() => setTab("sales")} className={`px-4 py-2 rounded-xl text-sm font-semibold ${tab === "sales" ? "bg-coral-500 text-white" : "bg-white/10 text-white/70"}`}>
+            <ListOrdered className="h-4 w-4 inline mr-1" /> Sales {orders.length > 0 && <span className="ml-1 bg-white text-navy-900 rounded-full px-1.5 text-[10px]">{orders.length}</span>}
+          </button>
+          <button onClick={() => setTab("upload")} className={`px-4 py-2 rounded-xl text-sm font-semibold ${tab === "upload" ? "bg-coral-500 text-white" : "bg-white/10 text-white/70"}`}>
+            <Upload className="h-4 w-4 inline mr-1" /> Upload
+          </button>
+          <button onClick={() => setStaff(null)} className="px-3 py-2 rounded-xl bg-white/10 text-white/70 text-sm">
+            <LogOut className="h-4 w-4" />
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* Split screen */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* LEFT 70% */}
-        <div className="w-[70%] flex flex-col border-r border-[#2A3042]">
-          <div className="flex bg-[#1A1F2E] border-b border-[#2A3042]">
-            {([
-              { id: 'incoming', label: 'Incoming Orders', Icon: Inbox },
-              { id: 'upload',   label: 'Upload',          Icon: Upload },
-              { id: 'sales',    label: "Today's Sales",   Icon: BarChart3 },
-              { id: 'stats',    label: 'My Stats',        Icon: TrendingUp },
-            ] as const).map(({ id, label, Icon }) => (
-              <button
-                key={id}
-                onClick={() => setTab(id)}
-                className={`flex-1 flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
-                  tab === id ? 'text-coral-500 border-b-2 border-coral-500' : 'text-slate-400'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                {label}
-              </button>
-            ))}
+      {receipt && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur z-30 flex items-center justify-center p-6">
+          <div className="max-h-[90vh] overflow-y-auto">
+            <Receipt data={receipt} />
+            <button onClick={() => setReceipt(null)} className="btn-ghost text-white mt-4 mx-auto block">
+              Close
+            </button>
           </div>
+        </div>
+      )}
 
-          <div className="flex-1 overflow-y-auto p-6">
-            {tab === 'incoming' && (
-              <div className="space-y-3">
-                {orders.length === 0 && (
-                  <div className="text-center text-slate-500 py-20">
-                    <Inbox className="w-16 h-16 mx-auto mb-4 opacity-30" />
-                    <p>No pending orders</p>
-                  </div>
-                )}
+      {tab === "sales" && (
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 overflow-hidden">
+          <aside className="border-r border-white/5 overflow-y-auto">
+            <div className="p-4 flex items-center justify-between text-xs text-white/40 uppercase tracking-widest">
+              Pending orders
+              <button onClick={load} className="text-white/60"><RefreshCw className="h-3.5 w-3.5" /></button>
+            </div>
+            {orders.length === 0 ? (
+              <div className="p-8 text-center text-white/40 text-sm">No pending orders.</div>
+            ) : (
+              <ul>
                 {orders.map((o) => (
-                  <button
-                    key={o.id}
-                    onClick={() => { setSelected(o); setRight('order'); }}
-                    className={`press w-full text-left bg-[#1A1F2E] border rounded-xl p-5 flex items-center justify-between hover:border-coral-500 ${
-                      selected?.id === o.id ? 'border-coral-500' : 'border-[#2A3042]'
-                    }`}
-                  >
-                    <div>
-                      <p className="text-xl font-semibold">{o.customer}</p>
-                      <p className="text-slate-400">Room {o.room} · {o.itemCount} items</p>
-                    </div>
-                    <p className="text-3xl font-bold text-gold-500">€{o.total}</p>
-                  </button>
+                  <li key={o.id}>
+                    <button
+                      onClick={() => setActive(o)}
+                      className={`w-full text-left p-4 border-l-4 transition ${
+                        active?.id === o.id ? "border-coral-500 bg-coral-500/10" : "border-transparent hover:bg-white/5"
+                      }`}
+                    >
+                      <div className="font-semibold">{o.gallery?.customer?.name || "Guest"}</div>
+                      <div className="text-xs text-white/50">{o.photoIds.length} photos · €{(o.totalCents / 100).toFixed(2)}</div>
+                      <div className="text-[10px] text-white/30 mt-1">{new Date(o.createdAt).toLocaleTimeString()}</div>
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
             )}
+          </aside>
 
-            {tab === 'upload' && (
-              <div className="bg-[#1A1F2E] border-2 border-dashed border-[#2A3042] rounded-2xl p-16 text-center">
-                <Camera className="w-20 h-20 mx-auto text-coral-500 mb-4" />
-                <h3 className="font-display text-3xl mb-2">Upload Photos</h3>
-                <p className="text-slate-400 mb-6">Drag and drop files or tap to browse</p>
-                <button className="press bg-coral-500 px-8 py-4 rounded-xl font-semibold text-lg">
-                  Select Files
-                </button>
+          <main className="lg:col-span-2 overflow-y-auto p-6 lg:p-8">
+            {!active ? (
+              <div className="h-full flex items-center justify-center text-white/40">
+                Select an order to begin
               </div>
-            )}
-
-            {tab === 'sales' && (
-              <div className="space-y-2">
-                {TODAY_SALES.map((s, i) => (
-                  <div key={i} className="bg-[#1A1F2E] border border-[#2A3042] rounded-xl p-4 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                      <span className="text-slate-400 font-mono">{s.time}</span>
-                      <span className="text-white font-semibold">{s.customer}</span>
-                      <span className="text-slate-500 text-sm bg-[#2A3042] px-2 py-1 rounded">{s.method}</span>
-                    </div>
-                    <span className="text-xl font-bold text-gold-500">€{s.total}</span>
+            ) : (
+              <>
+                <div className="flex items-end justify-between mb-6">
+                  <div>
+                    <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold mb-1">Confirm sale</div>
+                    <h2 className="font-display text-3xl">{active.gallery?.customer?.name}</h2>
+                    <div className="text-white/50 text-sm">{active.photoIds.length} photos selected</div>
                   </div>
-                ))}
-              </div>
-            )}
+                  <div className="font-display text-5xl text-gold-400">€{(active.totalCents / 100).toFixed(2)}</div>
+                </div>
 
-            {tab === 'stats' && (
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: 'Sales Today', value: '€297', sub: '5 orders' },
-                  { label: 'Conversion',  value: '68%',  sub: 'Above target' },
-                  { label: 'Avg Order',   value: '€59',  sub: '+12% vs last week' },
-                  { label: 'Commission',  value: '€29',  sub: 'Earned today' },
-                ].map((s, i) => (
-                  <div key={i} className="bg-[#1A1F2E] border border-[#2A3042] rounded-xl p-6">
-                    <p className="text-slate-400 text-sm uppercase tracking-wider">{s.label}</p>
-                    <p className="font-display text-4xl text-gold-500 my-2">{s.value}</p>
-                    <p className="text-slate-500 text-sm">{s.sub}</p>
+                <div className="grid grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+                  {(active.gallery?.photos || []).map((p: any) => (
+                    <div key={p.id} className="aspect-square rounded-xl overflow-hidden ring-1 ring-white/10">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={cleanUrl(p.cloudinaryId || p.s3Key_highRes, 800)} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="card !bg-white/5 !border-white/5 p-5">
+                    <div className="flex items-center gap-2 mb-3 text-white">
+                      <CreditCard className="h-5 w-5" /> <span className="font-semibold">POS terminal</span>
+                    </div>
+                    <p className="text-white/50 text-sm mb-4">Confirm payment received from card reader.</p>
+                    <button disabled={busy} onClick={() => confirm("POS")} className="btn-primary w-full !py-3">
+                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Confirm POS payment
+                    </button>
                   </div>
-                ))}
-              </div>
+                  <div className="card !bg-white/5 !border-white/5 p-5">
+                    <div className="flex items-center gap-2 mb-3 text-white">
+                      <Banknote className="h-5 w-5" /> <span className="font-semibold">Cash</span>
+                    </div>
+                    <input
+                      type="number"
+                      className="input !text-navy-900"
+                      placeholder="Amount received"
+                      value={cashAmt}
+                      onChange={(e) => setCashAmt(e.target.value)}
+                    />
+                    {cashAmt && parseFloat(cashAmt) >= active.totalCents / 100 && (
+                      <div className="text-sm text-gold-400 mt-2">
+                        Change: €{(parseFloat(cashAmt) - active.totalCents / 100).toFixed(2)}
+                      </div>
+                    )}
+                    <button
+                      disabled={busy || !cashAmt || parseFloat(cashAmt) < active.totalCents / 100}
+                      onClick={() => confirm("CASH")}
+                      className="btn-primary w-full !py-3 mt-3"
+                    >
+                      {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />} Confirm cash
+                    </button>
+                  </div>
+                </div>
+              </>
             )}
+          </main>
+        </div>
+      )}
+
+      {tab === "upload" && (
+        <div className="flex-1 flex items-center justify-center p-8 text-center">
+          <div className="max-w-md">
+            <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-coral-500/15 text-coral-300 mb-4">
+              <Upload className="h-6 w-6" />
+            </div>
+            <h2 className="font-display text-3xl mb-2">SD card upload</h2>
+            <p className="text-white/60 mb-6">Use the dedicated SD upload kiosk to insert and import photos.</p>
+            <a href="/kiosk/sd-upload" className="btn-primary inline-flex">
+              <Upload className="h-4 w-4" /> Open SD upload
+            </a>
           </div>
         </div>
-
-        {/* RIGHT 30% */}
-        <div className="w-[30%] bg-[#1A1F2E] flex flex-col overflow-hidden">
-          {right === 'idle' && (
-            <div className="flex-1 p-6 flex flex-col">
-              <h3 className="font-display text-2xl mb-4">Today&apos;s Summary</h3>
-              <div className="space-y-3">
-                <div className="bg-navy-900 rounded-xl p-4">
-                  <p className="text-slate-400 text-sm">Total Revenue</p>
-                  <p className="font-display text-4xl text-gold-500">€{TODAY_SALES.reduce((s, x) => s + x.total, 0)}</p>
-                </div>
-                <div className="bg-navy-900 rounded-xl p-4">
-                  <p className="text-slate-400 text-sm">Sales</p>
-                  <p className="font-display text-4xl">{TODAY_SALES.length}</p>
-                </div>
-                <div className="bg-navy-900 rounded-xl p-4">
-                  <p className="text-slate-400 text-sm">Pending</p>
-                  <p className="font-display text-4xl">{orders.length}</p>
-                </div>
-              </div>
-              <div className="mt-auto text-xs text-slate-500 space-y-1">
-                <p>Shortcuts: <span className="text-slate-300">S</span> Sales · <span className="text-slate-300">U</span> Upload</p>
-                <p><span className="text-slate-300">P</span> Print · <span className="text-slate-300">ESC</span> Back</p>
-              </div>
-            </div>
-          )}
-
-          {right === 'order' && selected && (
-            <div className="flex-1 flex flex-col p-6 anim-slide-right">
-              <button onClick={() => { setRight('idle'); setSelected(null); }} className="press flex items-center gap-2 mb-4 text-slate-400">
-                <ArrowLeft className="w-4 h-4" /> Back
-              </button>
-              <h3 className="font-display text-2xl">{selected.customer}</h3>
-              <p className="text-slate-400 mb-4">Room {selected.room}</p>
-
-              <div className="space-y-2 mb-6">
-                {selected.items.map((it, i) => (
-                  <div key={i} className="bg-navy-900 rounded-lg p-3 flex justify-between">
-                    <span>{it.quantity}× {it.name}</span>
-                    <span className="font-semibold">€{it.price * it.quantity}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-navy-900 rounded-xl p-4 mb-6">
-                <p className="text-slate-400 text-sm">Total Due</p>
-                <p className="font-display text-4xl text-gold-500">€{selected.total}</p>
-              </div>
-
-              <div className="space-y-2 mt-auto">
-                <button onClick={() => setRight('pay-card')} className="press w-full bg-coral-500 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2">
-                  <CreditCard className="w-5 h-5" /> Card
-                </button>
-                <button onClick={() => setRight('pay-cash')} className="press w-full bg-green-500 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2">
-                  <Banknote className="w-5 h-5" /> Cash
-                </button>
-                <button onClick={() => setRight('pay-qr')} className="press w-full bg-[#2A3042] text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2">
-                  <Smartphone className="w-5 h-5" /> QR Pay
-                </button>
-              </div>
-            </div>
-          )}
-
-          {right === 'pay-card' && selected && (
-            <PayCard total={selected.total} onSuccess={() => completeSale('Card')} onBack={() => setRight('order')} />
-          )}
-
-          {right === 'pay-cash' && selected && (
-            <div className="flex-1 overflow-y-auto p-4 anim-slide-right">
-              <button onClick={() => setRight('order')} className="press flex items-center gap-2 mb-4 text-slate-400">
-                <ArrowLeft className="w-4 h-4" /> Back
-              </button>
-              <CashCalculator amountDue={selected.total} onConfirm={() => completeSale('Cash')} />
-            </div>
-          )}
-
-          {right === 'pay-qr' && selected && (
-            <div className="flex-1 p-6 anim-slide-right text-center">
-              <button onClick={() => setRight('order')} className="press flex items-center gap-2 mb-4 text-slate-400">
-                <ArrowLeft className="w-4 h-4" /> Back
-              </button>
-              <p className="text-slate-400 mb-2">Scan to pay</p>
-              <p className="font-display text-3xl text-gold-500 mb-4">€{selected.total}</p>
-              <div className="bg-white p-4 rounded-2xl mx-auto inline-block">
-                <svg width="200" height="200" viewBox="0 0 80 80">
-                  <rect width="80" height="80" fill="white" />
-                  {Array.from({ length: 64 }).map((_, i) => {
-                    const x = (i % 8) * 10;
-                    const y = Math.floor(i / 8) * 10;
-                    const fill = (i * 11 + 7) % 3 === 0;
-                    return fill ? <rect key={i} x={x} y={y} width="10" height="10" fill="black" /> : null;
-                  })}
-                </svg>
-              </div>
-              <button onClick={() => completeSale('QR')} className="press w-full mt-6 bg-green-500 py-4 rounded-xl font-semibold">
-                Mark as Paid
-              </button>
-            </div>
-          )}
-
-          {right === 'success' && (
-            <div className="flex-1 flex flex-col items-center justify-center anim-fade-up">
-              <div className="w-24 h-24 rounded-full bg-green-500 flex items-center justify-center mb-4 anim-pulse-ring">
-                <Check className="w-12 h-12 text-white" />
-              </div>
-              <p className="font-display text-3xl">Payment Complete</p>
-            </div>
-          )}
-
-          {right === 'receipt' && completedOrder && (
-            <div className="flex-1 overflow-y-auto p-4 anim-fade-up">
-              <Receipt order={completedOrder} />
-              <div className="space-y-2 mt-4">
-                <button className="press w-full bg-coral-500 py-4 rounded-xl font-semibold flex items-center justify-center gap-2">
-                  <Printer className="w-5 h-5" /> Print Receipt
-                </button>
-                <button
-                  onClick={() => { setRight('idle'); setSelected(null); setCompletedOrder(null); }}
-                  className="press w-full bg-[#2A3042] py-4 rounded-xl font-semibold"
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {notif && (
-        <OrderNotification
-          order={notif}
-          onView={() => setNotif(null)}
-          onDismiss={() => setNotif(null)}
-        />
       )}
-    </div>
-  );
-}
-
-function PayCard({ total, onSuccess, onBack }: { total: number; onSuccess: () => void; onBack: () => void }) {
-  const [stage, setStage] = useState<'waiting' | 'processing' | 'done'>('waiting');
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setStage('processing'), 1500);
-    const t2 = setTimeout(() => setStage('done'), 3000);
-    const t3 = setTimeout(onSuccess, 3500);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, [onSuccess]);
-
-  return (
-    <div className="flex-1 p-6 flex flex-col items-center justify-center anim-slide-right">
-      <button onClick={onBack} className="press absolute top-4 left-4 flex items-center gap-2 text-slate-400">
-        <X className="w-5 h-5" />
-      </button>
-      <CreditCard className="w-20 h-20 text-coral-500 mb-4" />
-      <p className="font-display text-2xl mb-2">€{total.toFixed(2)}</p>
-      {stage === 'waiting' && <p className="text-slate-400">Insert or tap card...</p>}
-      {stage === 'processing' && (
-        <p className="text-yellow-400 flex items-center gap-2">
-          <Loader2 className="w-4 h-4 anim-spin-slow" /> Processing...
-        </p>
-      )}
-      {stage === 'done' && <p className="text-green-400">Approved</p>}
     </div>
   );
 }

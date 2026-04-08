@@ -1,69 +1,53 @@
-'use client';
+"use client";
+import { useEffect, useState } from "react";
+import { Wifi, WifiOff, Loader2 } from "lucide-react";
 
-import { useEffect, useState } from 'react';
-import { Wifi, WifiOff, Loader2, X } from 'lucide-react';
+type State = "connecting" | "connected" | "offline";
 
-type Status = 'connected' | 'connecting' | 'offline';
-
-export default function ConnectionStatus() {
-  const [status, setStatus] = useState<Status>('connected');
-  const [open, setOpen] = useState(false);
+export default function ConnectionStatus({ baseUrl }: { baseUrl?: string }) {
+  const [state, setState] = useState<State>("connecting");
+  const [name, setName] = useState<string>("");
 
   useEffect(() => {
-    const onOnline = () => setStatus('connected');
-    const onOffline = () => setStatus('offline');
-    if (typeof navigator !== 'undefined') {
-      setStatus(navigator.onLine ? 'connected' : 'offline');
-    }
-    window.addEventListener('online', onOnline);
-    window.addEventListener('offline', onOffline);
-    return () => {
-      window.removeEventListener('online', onOnline);
-      window.removeEventListener('offline', onOffline);
+    const url = `${baseUrl || ""}/api/local/status`;
+    let cancelled = false;
+    const ping = async () => {
+      try {
+        const r = await fetch(url, { cache: "no-store" });
+        if (cancelled) return;
+        if (r.ok) {
+          const j = await r.json();
+          setState("connected");
+          setName(j?.name || "PixelHoliday");
+        } else {
+          setState("offline");
+        }
+      } catch {
+        if (!cancelled) setState("offline");
+      }
     };
-  }, []);
+    ping();
+    const id = setInterval(ping, 10000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [baseUrl]);
 
-  const config: Record<Status, { label: string; cls: string; Icon: typeof Wifi }> = {
-    connected:  { label: 'Online',     cls: 'bg-green-500/20 text-green-400 border-green-500/40', Icon: Wifi },
-    connecting: { label: 'Connecting', cls: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/40', Icon: Loader2 },
-    offline:    { label: 'Offline',    cls: 'bg-red-500/20 text-red-400 border-red-500/40', Icon: WifiOff },
-  };
-  const { label, cls, Icon } = config[status];
+  const color =
+    state === "connected" ? "bg-green-500" : state === "connecting" ? "bg-amber-500" : "bg-coral-500";
+  const Icon = state === "connecting" ? Loader2 : state === "connected" ? Wifi : WifiOff;
+  const label =
+    state === "connected" ? `Connected · ${name || "Sale Point"}` : state === "connecting" ? "Connecting…" : "Offline";
 
   return (
-    <>
-      <button
-        onClick={() => setOpen(true)}
-        className={`press flex items-center gap-2 px-4 py-2 rounded-full border ${cls} text-sm font-semibold`}
-      >
-        <Icon className={`w-4 h-4 ${status === 'connecting' ? 'anim-spin-slow' : ''}`} />
-        {label}
-      </button>
-
-      {open && (
-        <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 anim-fade-up"
-          onClick={() => setOpen(false)}
-        >
-          <div
-            className="bg-[#1A1F2E] border border-[#2A3042] rounded-2xl p-8 max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-start mb-4">
-              <h3 className="font-display text-2xl">Connection Status</h3>
-              <button onClick={() => setOpen(false)} className="press p-2"><X /></button>
-            </div>
-            <div className="space-y-3 text-slate-300">
-              <p>Status: <span className="font-semibold text-white">{label}</span></p>
-              <p>Local Network: <span className="text-green-400">Active</span></p>
-              <p>Last Sync: <span className="text-white">2 min ago</span></p>
-              <p className="text-sm text-slate-400 pt-2">
-                Kiosk operates offline-first. Sales are queued and synced when connection is stable.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+    <div className="fixed top-4 right-4 z-30 inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur border border-white/15 px-3 py-1.5 text-xs text-white">
+      <span className={`relative flex h-2 w-2`}>
+        <span className={`absolute inline-flex h-2 w-2 rounded-full ${color} animate-ping opacity-60`} />
+        <span className={`relative inline-flex h-2 w-2 rounded-full ${color}`} />
+      </span>
+      <Icon className={`h-3 w-3 ${state === "connecting" ? "animate-spin" : ""}`} />
+      <span>{label}</span>
+    </div>
   );
 }

@@ -25,6 +25,16 @@ import {
   Menu,
   X,
   ChevronRight,
+  Wallet,
+  Tag,
+  Moon,
+  Wifi,
+  Printer,
+  TrendingUp,
+  Banknote,
+  ShoppingBag,
+  Truck,
+  Ticket,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -37,6 +47,8 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/upload", label: "Upload Hub", icon: Upload },
       { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
+      { href: "/admin/cameras", label: "Cameras", icon: Camera },
+      { href: "/admin/kiosks", label: "Kiosks", icon: LayoutDashboard },
     ],
   },
   {
@@ -51,10 +63,35 @@ const SECTIONS: NavSection[] = [
   {
     title: "Business",
     items: [
+      { href: "/admin/payroll", label: "Payroll", icon: Wallet },
+      { href: "/admin/commissions", label: "Commissions", icon: TrendingUp },
+      { href: "/admin/pricing", label: "Pricing", icon: Tag },
+      { href: "/admin/cash", label: "Cash management", icon: Banknote },
+      { href: "/admin/finance", label: "Finance", icon: Wallet },
+      { href: "/admin/sleeping-money", label: "Sleeping money", icon: Moon },
       { href: "/admin/b2b", label: "B2B Barter", icon: Handshake },
       { href: "/admin/franchise", label: "Franchise", icon: Building2 },
       { href: "/admin/ai-insights", label: "AI Insights", icon: Brain },
       { href: "/admin/hr/jobs", label: "HR / Jobs", icon: Briefcase },
+    ],
+  },
+  {
+    title: "Store",
+    items: [
+      { href: "/admin/store/orders", label: "Orders", icon: ShoppingBag },
+      { href: "/admin/store/labs", label: "Print Labs", icon: Truck },
+      { href: "/admin/store/coupons", label: "Coupons", icon: Ticket },
+    ],
+  },
+  {
+    title: "Hardware",
+    items: [
+      { href: "/admin/cameras", label: "Cameras", icon: Camera },
+      { href: "/admin/kiosks", label: "Kiosks", icon: LayoutDashboard },
+      { href: "/admin/kiosk-setup", label: "Kiosk network", icon: Wifi },
+      { href: "/admin/wifi-transfer", label: "Wi-Fi routing", icon: Wifi },
+      { href: "/admin/photo-flow", label: "Photo flow", icon: Sparkles },
+      { href: "/kiosk/print-queue", label: "Print queue", icon: Printer },
     ],
   },
   {
@@ -68,6 +105,34 @@ const SECTIONS: NavSection[] = [
   },
 ];
 
+const ROLE_ALLOWED: Record<string, string[]> = {
+  CEO: [
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
+    "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
+    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
+    "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs",
+    "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
+  ],
+  OPERATIONS_MANAGER: [
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
+    "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
+    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
+    "/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
+  ],
+  SUPERVISOR: [
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",
+    "/admin/academy","/admin/blog","/admin/reviews",
+  ],
+  PHOTOGRAPHER: ["/admin/upload","/admin/bookings"],
+  SALES_STAFF: ["/admin/bookings"],
+  RECEPTIONIST: ["/admin/bookings"],
+  ACADEMY_TRAINEE: ["/admin/academy"],
+};
+
 export default function AdminShell({
   children,
   user,
@@ -77,6 +142,10 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const allowed = ROLE_ALLOWED[user.role] || [];
+  const visibleSections = SECTIONS
+    .map((s) => ({ ...s, items: s.items.filter((i) => allowed.includes(i.href)) }))
+    .filter((s) => s.items.length > 0);
 
   return (
     <div className="min-h-screen bg-cream-100">
@@ -93,7 +162,7 @@ export default function AdminShell({
           <span className="font-display text-xl tracking-tight">PixelHoliday</span>
         </div>
         <nav className="px-3 py-5 overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin">
-          {SECTIONS.map((section) => (
+          {visibleSections.map((section) => (
             <div key={section.title} className="mb-6">
               <div className="px-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 mb-2">
                 {section.title}

@@ -27,45 +27,59 @@ export async function POST(req: Request) {
     const session = event.data.object;
     const galleryId = session.metadata?.galleryId;
     if (galleryId) {
-      const gallery = await prisma.gallery.update({
-        where: { id: galleryId },
-        data: { status: "PAID" },
-        include: { customer: true, photos: true, photographer: true },
-      });
-      const order = await prisma.order.create({
-        data: {
-          galleryId,
-          customerId: gallery.customerId,
-          amount: (session.amount_total || 0) / 100,
-          paymentMethod: "STRIPE_ONLINE",
-          stripeSessionId: session.id,
-          status: "COMPLETED",
-        },
-      });
+      try {
+        const gallery = await prisma.gallery.update({
+          where: { id: galleryId },
+          data: { status: "PAID" },
+          include: { customer: true, photos: true, photographer: true },
+        });
+        const amount = (session.amount_total || 0) / 100;
+        // Order has @unique on galleryId — upsert so re-runs and seeded test data don't collide
+        const order = await prisma.order.upsert({
+          where: { galleryId },
+          update: {
+            amount,
+            paymentMethod: "STRIPE_ONLINE",
+            stripeSessionId: session.id,
+            status: "COMPLETED",
+          },
+          create: {
+            galleryId,
+            customerId: gallery.customerId,
+            amount,
+            paymentMethod: "STRIPE_ONLINE",
+            stripeSessionId: session.id,
+            status: "COMPLETED",
+          },
+        });
 
-      // Commissions: photographer 10% + SaaS 2% ledger row
-      await recordCommission({
-        userId: gallery.photographerId,
-        orderId: order.id,
-        type: "PHOTO_SALE",
-        amount: order.amount,
-      });
+        // Photographer 10% (helper is itself idempotent on orderId)
+        await recordCommission({
+          userId: gallery.photographerId,
+          orderId: order.id,
+          type: "PHOTO_SALE",
+          amount: order.amount,
+        });
 
-      // Delivery email
-      if (process.env.RESEND_API_KEY && gallery.customer.email) {
-        try {
-          const resend = new Resend(process.env.RESEND_API_KEY);
-          await resend.emails.send({
-            from: process.env.FROM_EMAIL || "hello@pixelholiday.local",
-            to: gallery.customer.email,
-            subject: "✨ Your PixelHoliday memories are ready!",
-            html: `<p>Your gallery is unlocked. <a href="${process.env.NEXT_PUBLIC_APP_URL}/gallery/${gallery.magicLinkToken}">View now</a></p>`,
-          });
-        } catch (e) {
-          console.warn("Resend failed", e);
+        // Delivery email
+        if (process.env.RESEND_API_KEY && gallery.customer.email) {
+          try {
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            await resend.emails.send({
+              from: process.env.FROM_EMAIL || "hello@pixelholiday.local",
+              to: gallery.customer.email,
+              subject: "✨ Your PixelHoliday memories are ready!",
+              html: `<p>Your gallery is unlocked. <a href="${process.env.NEXT_PUBLIC_APP_URL}/gallery/${gallery.magicLinkToken}">View now</a></p>`,
+            });
+          } catch (e) {
+            console.warn("Resend failed", e);
+          }
+        } else {
+          console.log(`[Email MOCK → ${gallery.customer.email}] Gallery PAID, link: /gallery/${gallery.magicLinkToken}`);
         }
-      } else {
-        console.log(`[Email MOCK → ${gallery.customer.email}] Gallery PAID, link: /gallery/${gallery.magicLinkToken}`);
+      } catch (e: any) {
+        console.error("stripe webhook handler error", e);
+        return NextResponse.json({ error: e?.message || "handler failed" }, { status: 500 });
       }
     }
   }

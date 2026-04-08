@@ -51,6 +51,10 @@ model User {
   xp                   Int                   @default(0)
   level                Int                   @default(1)
   badges               String[]              @default([])
+  streakDays           Int                   @default(0)
+  lastActivityAt       DateTime?
+  userBadges           UserBadge[]
+  xpLogs               XpLog[]
   createdAt            DateTime              @default(now())
 }
 
@@ -91,6 +95,9 @@ model Location {
   galleries         Gallery[]
   equipment         Equipment[]
   b2bDeliveries     B2BDelivery[]
+  cameras           Camera[]
+  kiosks            KioskDevice[]
+  cashRegisters     CashRegister[]
   createdAt         DateTime      @default(now())
 }
 
@@ -120,6 +127,11 @@ model Customer {
   cartAbandonedAt DateTime?
   lastViewedAt    DateTime?
   createdAt       DateTime         @default(now())
+
+  @@index([whatsapp])
+  @@index([wristbandCode])
+  @@index([email])
+  @@index([locationId])
 }
 
 enum DigitalPassType {
@@ -151,8 +163,21 @@ model Gallery {
   totalCount      Int           @default(0)
   sweepUpSentAt   DateTime?
   discountPercent Float?
+  coverMessage    String?
+  accessPassword  String?
+  downloadPin     String?
+  editQuality     EditQuality   @default(STANDARD)
+  downloadLogs    DownloadLog[]
+  viewLogs        GalleryViewLog[]
+  photoSets       PhotoSet[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
+
+  @@index([status])
+  @@index([locationId])
+  @@index([photographerId])
+  @@index([expiresAt])
+  @@index([customerId])
 }
 
 enum GalleryStatus {
@@ -180,8 +205,17 @@ model Photo {
   aiCullReason    String?
   hasMagicElement Boolean  @default(false)
   magicElementId  String?
+  setId           String?
+  set             PhotoSet? @relation(fields: [setId], references: [id])
   sortOrder       Int      @default(0)
+  cloudinaryId_edited String?
+  isAutoEdited    Boolean  @default(false)
+  editApplied     String[] @default([])
   createdAt       DateTime @default(now())
+
+  @@index([galleryId])
+  @@index([isPurchased])
+  @@index([aiCulled])
 }
 
 model Video {
@@ -252,9 +286,15 @@ model Order {
   status          OrderStatus
   items           OrderItem[]
   commissions     Commission[]
+  printJobs       PrintJob[]
+  fulfillments    FulfillmentOrder[]
   isAutomatedSale Boolean       @default(false)
   discountApplied Float?
   createdAt       DateTime      @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([customerId])
 }
 
 model OrderItem {
@@ -306,6 +346,10 @@ model Commission {
   isPaid  Boolean        @default(false)
   paidAt  DateTime?
   month   String?
+
+  @@index([userId])
+  @@index([month])
+  @@index([isPaid])
 }
 
 enum CommissionType {
@@ -544,5 +588,452 @@ enum ApplicationStatus {
 model ProcessedWebhookEvent {
   id        String   @id
   source    String
+  createdAt DateTime @default(now())
+}
+
+model Camera {
+  id           String     @id @default(cuid())
+  name         String
+  externalId   String     @unique
+  locationId   String
+  location     Location   @relation(fields: [locationId], references: [id])
+  type         CameraType
+  isActive     Boolean    @default(true)
+  lastPingAt   DateTime?
+  captureCount Int        @default(0)
+  createdAt    DateTime   @default(now())
+}
+
+enum CameraType {
+  SPEED_CAM
+  RIDE_CAM
+  ENTRANCE_CAM
+  ROAMING
+}
+
+model KioskDevice {
+  id            String   @id @default(cuid())
+  name          String
+  externalId    String   @unique
+  locationId    String
+  location      Location @relation(fields: [locationId], references: [id])
+  isOnline      Boolean  @default(false)
+  lastPingAt    DateTime?
+  todaySalesCents Int    @default(0)
+  createdAt     DateTime @default(now())
+}
+
+model PrintJob {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id])
+  status    PrintStatus @default(PENDING)
+  photoIds  String[]
+  printSize String      @default("4x6")
+  copies    Int         @default(1)
+  printedAt DateTime?
+  printedBy String?
+  createdAt DateTime    @default(now())
+}
+
+enum PrintStatus {
+  PENDING
+  PRINTING
+  COMPLETED
+  FAILED
+}
+
+model PricingConfig {
+  id         String   @id @default(cuid())
+  productKey String   @unique
+  name       String
+  price      Float
+  currency   String   @default("EUR")
+  isActive   Boolean  @default(true)
+  updatedBy  String?
+  updatedAt  DateTime @updatedAt
+  createdAt  DateTime @default(now())
+}
+
+model SaleOrder {
+  id            String          @id @default(cuid())
+  galleryId     String
+  customerId    String
+  photoIds      String[]
+  totalCents    Int
+  status        SaleOrderStatus @default(PENDING)
+  paymentMethod String?
+  receivedCents Int?
+  changeCents   Int?
+  staffId       String?
+  receiptCode   String          @unique @default(cuid())
+  createdAt     DateTime        @default(now())
+  completedAt   DateTime?
+}
+
+enum SaleOrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}
+
+model PricingHistory {
+  id        String   @id @default(cuid())
+  productKey String
+  oldPrice  Float
+  newPrice  Float
+  changedBy String?
+  createdAt DateTime @default(now())
+}
+
+model Campaign {
+  id           String   @id @default(cuid())
+  type         String   // "ABANDONED_CART_3D" | "SWEEP_UP_7D" | custom
+  name         String
+  enabled      Boolean  @default(true)
+  discountPct  Float
+  delayDays    Int
+  template     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// ── CASH MANAGEMENT ─────────────────────────────────────────────
+model CashRegister {
+  id              String              @id @default(cuid())
+  locationId      String
+  location        Location            @relation(fields: [locationId], references: [id])
+  date            DateTime            @default(now())
+  openingBalance  Float               @default(0)
+  totalCashIn     Float               @default(0)
+  totalCashOut    Float               @default(0)
+  totalExpenses   Float               @default(0)
+  expectedBalance Float               @default(0)
+  actualBalance   Float?
+  discrepancy     Float?
+  status          CashRegisterStatus  @default(OPEN)
+  openedBy        String
+  closedBy        String?
+  closedAt        DateTime?
+  transactions    CashTransaction[]
+  handovers       CashHandover[]
+  expenses        CashExpense[]
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  @@unique([locationId, date])
+}
+
+enum CashRegisterStatus {
+  OPEN
+  CLOSED
+  RECONCILED
+  DISCREPANCY
+}
+
+model CashTransaction {
+  id             String              @id @default(cuid())
+  cashRegisterId String
+  cashRegister   CashRegister        @relation(fields: [cashRegisterId], references: [id])
+  orderId        String?
+  type           CashTransactionType
+  amount         Float
+  staffId        String
+  staffPin       String
+  customerName   String?
+  description    String?
+  createdAt      DateTime            @default(now())
+}
+
+enum CashTransactionType {
+  SALE
+  CHANGE_GIVEN
+  REFUND
+  ADJUSTMENT
+  EXPENSE
+}
+
+model CashHandover {
+  id                  String       @id @default(cuid())
+  cashRegisterId      String
+  cashRegister        CashRegister @relation(fields: [cashRegisterId], references: [id])
+  fromStaffId         String
+  toStaffId           String
+  amount              Float
+  denomination        String?
+  notes               String?
+  confirmedByReceiver Boolean      @default(false)
+  confirmedAt         DateTime?
+  createdAt           DateTime     @default(now())
+}
+
+model CashExpense {
+  id             String       @id @default(cuid())
+  cashRegisterId String
+  cashRegister   CashRegister @relation(fields: [cashRegisterId], references: [id])
+  amount         Float
+  reason         String
+  staffId        String
+  approvedBy     String?
+  receiptUrl     String?
+  createdAt      DateTime     @default(now())
+}
+
+// ── GALLERY ENHANCEMENTS (Pixieset-level) ───────────────────────
+model DownloadLog {
+  id        String   @id @default(cuid())
+  galleryId String
+  gallery   Gallery  @relation(fields: [galleryId], references: [id])
+  photoId   String?
+  type      String
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model GalleryViewLog {
+  id        String   @id @default(cuid())
+  galleryId String
+  gallery   Gallery  @relation(fields: [galleryId], references: [id])
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+model PhotoSet {
+  id        String   @id @default(cuid())
+  galleryId String
+  gallery   Gallery  @relation(fields: [galleryId], references: [id])
+  name      String
+  sortOrder Int      @default(0)
+  photos    Photo[]
+  createdAt DateTime @default(now())
+}
+
+// ── STORE / PRINT LAB ───────────────────────────────────────────
+model PrintLabConfig {
+  id            String             @id @default(cuid())
+  name          String
+  type          PrintLabType
+  apiBaseUrl    String?
+  apiKey        String?
+  isActive      Boolean            @default(true)
+  isDefault     Boolean            @default(false)
+  markupPercent Float              @default(50)
+  shippingRates Json?
+  productMap    Json?
+  fulfillments  FulfillmentOrder[]
+  createdAt     DateTime           @default(now())
+}
+
+enum PrintLabType {
+  LOCAL
+  PRODIGI
+  PRINTFUL
+  GOOTEN
+  CUSTOM_API
+}
+
+model FulfillmentOrder {
+  id              String            @id @default(cuid())
+  orderId         String
+  order           Order             @relation(fields: [orderId], references: [id])
+  printLabId      String
+  printLab        PrintLabConfig    @relation(fields: [printLabId], references: [id])
+  externalOrderId String?
+  status          FulfillmentStatus @default(PENDING)
+  trackingNumber  String?
+  trackingUrl     String?
+  shippingAddress Json
+  items           Json
+  costToUs        Float
+  chargedCustomer Float
+  profit          Float
+  submittedAt     DateTime?
+  shippedAt       DateTime?
+  deliveredAt     DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+enum FulfillmentStatus {
+  PENDING
+  SUBMITTED_TO_LAB
+  IN_PRODUCTION
+  SHIPPED
+  DELIVERED
+  FAILED
+  CANCELLED
+}
+
+model Coupon {
+  id         String     @id @default(cuid())
+  code       String     @unique
+  type       CouponType
+  value      Float
+  minOrder   Float?
+  maxUses    Int?
+  usedCount  Int        @default(0)
+  expiresAt  DateTime?
+  isActive   Boolean    @default(true)
+  locationId String?
+  createdAt  DateTime   @default(now())
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+enum EditQuality {
+  NONE
+  LIGHT
+  STANDARD
+  PREMIUM
+}
+
+// ── LOCAL NETWORK / KIOSK CONFIG / SYNC ─────────────────────────
+model KioskConfig {
+  id            String   @id @default(cuid())
+  name          String
+  externalId    String   @unique
+  type          KioskAppType
+  locationId    String
+  networkMode   NetworkMode @default(ONLINE)
+  serverIp      String?       // for GALLERY_DISPLAY in LOCAL mode
+  isLocalServer Boolean  @default(false) // true on the SALE_POINT serving locally
+  lastSeenAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum KioskAppType {
+  SALE_POINT
+  GALLERY_DISPLAY
+  TV_DISPLAY
+  SD_UPLOAD
+}
+
+enum NetworkMode {
+  ONLINE
+  LOCAL
+}
+
+model SyncLog {
+  id        String     @id @default(cuid())
+  type      String     // gallery | order | photo | cash | commission
+  localId   String
+  cloudId   String?
+  status    SyncStatus @default(PENDING)
+  error     String?
+  syncedAt  DateTime?
+  createdAt DateTime   @default(now())
+}
+
+enum SyncStatus {
+  PENDING
+  SYNCING
+  SYNCED
+  FAILED
+}
+
+model SyncQueue {
+  id        String    @id @default(cuid())
+  type      String
+  action    String
+  localId   String
+  cloudId   String?
+  payload   String
+  status    String    @default("pending")
+  attempts  Int       @default(0)
+  lastError String?
+  priority  Int       @default(5)
+  createdAt DateTime  @default(now())
+  syncedAt  DateTime?
+
+  @@index([status])
+  @@index([priority])
+}
+
+// ── GAMIFICATION ───────────────────────────────────────────────
+model Badge {
+  id          String      @id @default(cuid())
+  key         String      @unique
+  name        String
+  description String
+  icon        String
+  category    String
+  xpBonus     Int         @default(0)
+  isSecret    Boolean     @default(false)
+  earned      UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  user     User     @relation(fields: [userId], references: [id])
+  badgeId  String
+  badge    Badge    @relation(fields: [badgeId], references: [id])
+  earnedAt DateTime @default(now())
+
+  @@unique([userId, badgeId])
+}
+
+model XpLog {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  amount    Int
+  context   String?  // JSON
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model DailyChallenge {
+  id         String   @id @default(cuid())
+  date       DateTime
+  locationId String?
+  challenges String   // JSON array of { title, target, xp, key }
+  createdAt  DateTime @default(now())
+
+  @@index([date])
+}
+
+// ── AI ─────────────────────────────────────────────────────────
+model AIInsight {
+  id          String   @id @default(cuid())
+  type        String   // performance | opportunity | alert | promotion | revenue
+  targetType  String   // photographer | location | system
+  targetId    String
+  title       String
+  message     String
+  priority    String   @default("medium") // high|medium|low
+  actionable  Boolean  @default(true)
+  actionTaken Boolean  @default(false)
+  actionBy    String?
+  createdAt   DateTime @default(now())
+
+  @@index([type])
+  @@index([priority])
+}
+
+model SalesCoachTip {
+  id        String  @id @default(cuid())
+  trigger   String
+  condition String  // JSON
+  message   String
+  script    String?
+  tactic    String  // urgency|value|social_proof|bundle
+  isActive  Boolean @default(true)
+}
+
+model AIBriefingLog {
+  id        String   @id @default(cuid())
+  scope     String   // ceo | photographer | location
+  scopeId   String?
+  payload   String   // JSON
   createdAt DateTime @default(now())
 }

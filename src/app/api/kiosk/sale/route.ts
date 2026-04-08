@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { PRICES } from "@/lib/stripe";
 import { requireStaff, handleGuardError } from "@/lib/guards";
 import { recordCommission } from "@/lib/commissions";
+import { awardXP } from "@/lib/gamification/xp";
 
 const schema = z.object({
   galleryId: z.string().min(1),
@@ -83,7 +84,22 @@ export async function POST(req: Request) {
       });
     }
 
-    return NextResponse.json({ ok: true, orderId: order.id });
+    // Gamification — XP for the photographer based on sale tier, and for the
+    // closer if different. Big sales unlock badges via checkAndAwardBadges
+    // (called inside awardXP).
+    const tier =
+      order.amount >= 200 ? "sale_close_200plus" : order.amount >= 100 ? "sale_close_100plus" : "sale_close";
+    const photogXp = await awardXP(gallery.photographerId, tier, { orderId: order.id, amount: order.amount });
+    let closerXp = null;
+    if (staff.id !== gallery.photographerId) {
+      closerXp = await awardXP(staff.id, "sale_close", { orderId: order.id });
+    }
+
+    return NextResponse.json({
+      ok: true,
+      orderId: order.id,
+      gamification: { photographer: photogXp, closer: closerXp },
+    });
   } catch (e) {
     const g = handleGuardError(e);
     if (g) return g;
