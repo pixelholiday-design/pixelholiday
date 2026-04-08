@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { ShoppingBag, Truck } from "lucide-react";
+import RefundButton from "./RefundButton";
 
 export const dynamic = "force-dynamic";
 
@@ -62,6 +63,7 @@ export default async function StoreOrdersPage() {
                 <th className="px-6 py-3">Amount</th>
                 <th className="px-6 py-3">Status</th>
                 <th className="px-6 py-3">Fulfillment</th>
+                <th className="px-6 py-3 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-cream-300/70">
@@ -81,6 +83,14 @@ export default async function StoreOrdersPage() {
                     {o.fulfillments.length > 0
                       ? `${o.fulfillments[0].status} · ${o.fulfillments[0].printLab.name}`
                       : "—"}
+                  </td>
+                  <td className="px-6 py-3 text-right">
+                    <RefundButton
+                      orderId={o.id}
+                      amount={o.amount}
+                      refunded={(o as any).refundedAmount || 0}
+                      status={o.status}
+                    />
                   </td>
                 </tr>
               ))}

@@ -23,10 +23,16 @@ export async function openRegister(opts: { locationId: string; openingBalance: n
 export async function recomputeRegister(id: string) {
   const reg = await prisma.cashRegister.findUnique({ where: { id }, include: { transactions: true, expenses: true } });
   if (!reg) return null;
-  const cashIn = reg.transactions.filter((t) => t.type === "SALE").reduce((s, t) => s + t.amount, 0);
-  const cashOut = reg.transactions.filter((t) => t.type === "CHANGE_GIVEN" || t.type === "REFUND").reduce((s, t) => s + Math.abs(t.amount), 0);
-  const expenses = reg.expenses.reduce((s, e) => s + e.amount, 0);
-  const expected = reg.openingBalance + cashIn - cashOut - expenses;
+  // Sum in cents to avoid float drift, then convert back.
+  const toCents = (n: number) => Math.round(n * 100);
+  const cashInC = reg.transactions.filter((t) => t.type === "SALE").reduce((s, t) => s + toCents(t.amount), 0);
+  const cashOutC = reg.transactions.filter((t) => t.type === "CHANGE_GIVEN" || t.type === "REFUND").reduce((s, t) => s + toCents(Math.abs(t.amount)), 0);
+  const expensesC = reg.expenses.reduce((s, e) => s + toCents(e.amount), 0);
+  const expectedC = toCents(reg.openingBalance) + cashInC - cashOutC - expensesC;
+  const cashIn = cashInC / 100;
+  const cashOut = cashOutC / 100;
+  const expenses = expensesC / 100;
+  const expected = expectedC / 100;
   return prisma.cashRegister.update({
     where: { id },
     data: { totalCashIn: cashIn, totalCashOut: cashOut, totalExpenses: expenses, expectedBalance: expected },

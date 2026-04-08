@@ -362,6 +362,11 @@ model Order {
   fulfillments    FulfillmentOrder[]
   isAutomatedSale Boolean            @default(false)
   discountApplied Float?
+  refundedAmount  Float              @default(0)
+  refundedAt      DateTime?
+  refundReason    String?
+  refundedBy      String?
+  stripeRefundId  String?
   createdAt       DateTime           @default(now())
 
   @@index([status])
