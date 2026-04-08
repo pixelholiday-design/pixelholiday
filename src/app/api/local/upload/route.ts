@@ -132,6 +132,18 @@ export async function POST(req: Request) {
     data: { totalCount: existingCount + data.photos.length },
   });
 
+  // AI photography coaching (non-fatal)
+  try {
+    const { analyzeGalleryPhotos } = await import("@/lib/ai/photo-analyzer");
+    await analyzeGalleryPhotos(gallery.id);
+    const { calculateSkillProfile } = await import("@/lib/ai/skill-profile");
+    const { autoAssignTraining } = await import("@/lib/ai/auto-training");
+    await calculateSkillProfile(gallery.photographerId);
+    await autoAssignTraining(gallery.photographerId);
+  } catch (e) {
+    console.error("AI coaching failed (non-fatal):", e);
+  }
+
   return NextResponse.json({
     ok: true,
     galleryId: gallery.id,

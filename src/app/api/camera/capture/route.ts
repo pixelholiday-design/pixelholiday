@@ -116,6 +116,14 @@ export async function POST(req: Request) {
   // Background AI cull + edit (Stage 1 + 2 of pipeline)
   autoEditPhoto(photo.id, gallery.editQuality).catch(() => {});
 
+  // AI photography coaching (non-fatal)
+  try {
+    const { analyzePhoto } = await import("@/lib/ai/photo-analyzer");
+    await analyzePhoto({ photoId: photo.id, photographerId: gallery.photographerId });
+  } catch (e) {
+    console.error("AI coaching failed (non-fatal):", e);
+  }
+
   // Real-time WhatsApp ping for digital-pass holders
   if (customer.hasDigitalPass && customer.whatsapp) {
     const link = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/gallery/${gallery.magicLinkToken}`;

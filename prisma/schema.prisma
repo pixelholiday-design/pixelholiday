@@ -10,52 +10,56 @@ datasource db {
 
 // ── USERS & AUTH ──────────────────────────────
 model Organization {
-  id                 String         @id @default(cuid())
+  id                 String           @id @default(cuid())
   name               String
   type               OrgType
   parentOrgId        String?
-  parentOrg          Organization?  @relation("FranchiseTree", fields: [parentOrgId], references: [id])
-  children           Organization[] @relation("FranchiseTree")
+  parentOrg          Organization?    @relation("FranchiseTree", fields: [parentOrgId], references: [id])
+  children           Organization[]   @relation("FranchiseTree")
   locations          Location[]
   staff              User[]
   subscriptionTier   SubscriptionTier @default(STARTER)
-  saasCommissionRate Float          @default(0.02)
-  sleepingMoneyShare Float          @default(0.50)
-  createdAt          DateTime       @default(now())
+  saasCommissionRate Float            @default(0.02)
+  sleepingMoneyShare Float            @default(0.50)
+  createdAt          DateTime         @default(now())
 }
 
 model User {
-  id                   String                @id @default(cuid())
+  id                   String                    @id @default(cuid())
   name                 String
-  email                String                @unique
+  email                String                    @unique
   password             String?
   phone                String?
   pin                  String?
   role                 StaffRole
   orgId                String
-  org                  Organization          @relation(fields: [orgId], references: [id])
+  org                  Organization              @relation(fields: [orgId], references: [id])
   locationId           String?
-  location             Location?             @relation(fields: [locationId], references: [id])
-  isRepeater           Boolean               @default(false)
-  repeaterYears        Int                   @default(0)
+  location             Location?                 @relation(fields: [locationId], references: [id])
+  isRepeater           Boolean                   @default(false)
+  repeaterYears        Int                       @default(0)
   salary               Float?
-  rating               Float                 @default(0)
+  rating               Float                     @default(0)
   equipmentAssignments EquipmentAssignment[]
-  galleries            Gallery[]             @relation("PhotographerGalleries")
-  appointments         Appointment[]         @relation("AssignedPhotographer")
+  galleries            Gallery[]                 @relation("PhotographerGalleries")
+  appointments         Appointment[]             @relation("AssignedPhotographer")
   commissions          Commission[]
   shifts               Shift[]
   housing              StaffHousing?
   blogPosts            BlogPost[]
   chatMessages         ChatMessage[]
-  xp                   Int                   @default(0)
-  level                Int                   @default(1)
-  badges               String[]              @default([])
-  streakDays           Int                   @default(0)
+  xp                   Int                       @default(0)
+  level                Int                       @default(1)
+  badges               String[]                  @default([])
+  streakDays           Int                       @default(0)
   lastActivityAt       DateTime?
   userBadges           UserBadge[]
   xpLogs               XpLog[]
-  createdAt            DateTime              @default(now())
+  photoAnalyses        PhotoAnalysis[]           @relation("PhotographerAnalyses")
+  skillProfile         PhotographerSkillProfile? @relation("UserSkillProfile")
+  trainingAssignments  TrainingAssignment[]      @relation("UserTrainingAssignments")
+  weeklySkillReports   WeeklySkillReport[]       @relation("UserWeeklyReports")
+  createdAt            DateTime                  @default(now())
 }
 
 enum StaffRole {
@@ -82,11 +86,11 @@ enum SubscriptionTier {
 
 // ── LOCATIONS ─────────────────────────────────
 model Location {
-  id                String        @id @default(cuid())
+  id                String         @id @default(cuid())
   name              String
   type              LocationType
   orgId             String
-  org               Organization  @relation(fields: [orgId], references: [id])
+  org               Organization   @relation(fields: [orgId], references: [id])
   address           String?
   partnerCommission Float?
   rentCost          Float?
@@ -98,7 +102,7 @@ model Location {
   cameras           Camera[]
   kiosks            KioskDevice[]
   cashRegisters     CashRegister[]
-  createdAt         DateTime      @default(now())
+  createdAt         DateTime       @default(now())
 }
 
 enum LocationType {
@@ -142,15 +146,15 @@ enum DigitalPassType {
 
 // ── GALLERIES ─────────────────────────────────
 model Gallery {
-  id              String        @id @default(cuid())
-  magicLinkToken  String        @unique @default(cuid())
+  id              String           @id @default(cuid())
+  magicLinkToken  String           @unique @default(cuid())
   status          GalleryStatus
   locationId      String
-  location        Location      @relation(fields: [locationId], references: [id])
+  location        Location         @relation(fields: [locationId], references: [id])
   photographerId  String
-  photographer    User          @relation("PhotographerGalleries", fields: [photographerId], references: [id])
+  photographer    User             @relation("PhotographerGalleries", fields: [photographerId], references: [id])
   customerId      String
-  customer        Customer      @relation(fields: [customerId], references: [id])
+  customer        Customer         @relation(fields: [customerId], references: [id])
   roomNumber      String?
   photos          Photo[]
   videos          Video[]
@@ -158,20 +162,20 @@ model Gallery {
   expiresAt       DateTime
   appointment     Appointment?
   order           Order?
-  partialPurchase Boolean       @default(false)
-  purchasedCount  Int           @default(0)
-  totalCount      Int           @default(0)
+  partialPurchase Boolean          @default(false)
+  purchasedCount  Int              @default(0)
+  totalCount      Int              @default(0)
   sweepUpSentAt   DateTime?
   discountPercent Float?
   coverMessage    String?
   accessPassword  String?
   downloadPin     String?
-  editQuality     EditQuality   @default(STANDARD)
+  editQuality     EditQuality      @default(STANDARD)
   downloadLogs    DownloadLog[]
   viewLogs        GalleryViewLog[]
   photoSets       PhotoSet[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@index([status])
   @@index([locationId])
@@ -191,27 +195,28 @@ enum GalleryStatus {
 
 // ── PHOTOS & VIDEOS ───────────────────────────
 model Photo {
-  id              String   @id @default(cuid())
-  galleryId       String
-  gallery         Gallery  @relation(fields: [galleryId], references: [id])
-  s3Key_highRes   String
-  s3Key_raw       String?
-  cloudinaryId    String?
-  isHookImage     Boolean  @default(false)
-  isFavorited     Boolean  @default(false)
-  isPurchased     Boolean  @default(false)
-  isRetouched     Boolean  @default(false)
-  aiCulled        Boolean  @default(false)
-  aiCullReason    String?
-  hasMagicElement Boolean  @default(false)
-  magicElementId  String?
-  setId           String?
-  set             PhotoSet? @relation(fields: [setId], references: [id])
-  sortOrder       Int      @default(0)
+  id                  String         @id @default(cuid())
+  galleryId           String
+  gallery             Gallery        @relation(fields: [galleryId], references: [id])
+  s3Key_highRes       String
+  s3Key_raw           String?
+  cloudinaryId        String?
+  isHookImage         Boolean        @default(false)
+  isFavorited         Boolean        @default(false)
+  isPurchased         Boolean        @default(false)
+  isRetouched         Boolean        @default(false)
+  aiCulled            Boolean        @default(false)
+  aiCullReason        String?
+  hasMagicElement     Boolean        @default(false)
+  magicElementId      String?
+  setId               String?
+  set                 PhotoSet?      @relation(fields: [setId], references: [id])
+  sortOrder           Int            @default(0)
   cloudinaryId_edited String?
-  isAutoEdited    Boolean  @default(false)
-  editApplied     String[] @default([])
-  createdAt       DateTime @default(now())
+  isAutoEdited        Boolean        @default(false)
+  editApplied         String[]       @default([])
+  analysis            PhotoAnalysis?
+  createdAt           DateTime       @default(now())
 
   @@index([galleryId])
   @@index([isPurchased])
@@ -272,13 +277,13 @@ enum BookingSource {
 
 // ── ORDERS & PAYMENTS ─────────────────────────
 model Order {
-  id              String        @id @default(cuid())
-  galleryId       String        @unique
-  gallery         Gallery       @relation(fields: [galleryId], references: [id])
+  id              String             @id @default(cuid())
+  galleryId       String             @unique
+  gallery         Gallery            @relation(fields: [galleryId], references: [id])
   customerId      String
-  customer        Customer      @relation(fields: [customerId], references: [id])
+  customer        Customer           @relation(fields: [customerId], references: [id])
   amount          Float
-  currency        String        @default("EUR")
+  currency        String             @default("EUR")
   paymentMethod   PaymentMethod
   stripeSessionId String?
   stripePaymentId String?
@@ -288,9 +293,9 @@ model Order {
   commissions     Commission[]
   printJobs       PrintJob[]
   fulfillments    FulfillmentOrder[]
-  isAutomatedSale Boolean       @default(false)
+  isAutomatedSale Boolean            @default(false)
   discountApplied Float?
-  createdAt       DateTime      @default(now())
+  createdAt       DateTime           @default(now())
 
   @@index([status])
   @@index([createdAt])
@@ -524,13 +529,14 @@ enum MagicElementType {
 
 // ── ACADEMY & HR ──────────────────────────────
 model AcademyModule {
-  id          String            @id @default(cuid())
-  title       String
-  description String
-  type        AcademyModuleType
-  contentUrl  String?
-  sortOrder   Int
-  isRequired  Boolean           @default(false)
+  id                  String               @id @default(cuid())
+  title               String
+  description         String
+  type                AcademyModuleType
+  contentUrl          String?
+  sortOrder           Int
+  isRequired          Boolean              @default(false)
+  trainingAssignments TrainingAssignment[]
 }
 
 enum AcademyModuleType {
@@ -612,15 +618,15 @@ enum CameraType {
 }
 
 model KioskDevice {
-  id            String   @id @default(cuid())
-  name          String
-  externalId    String   @unique
-  locationId    String
-  location      Location @relation(fields: [locationId], references: [id])
-  isOnline      Boolean  @default(false)
-  lastPingAt    DateTime?
-  todaySalesCents Int    @default(0)
-  createdAt     DateTime @default(now())
+  id              String    @id @default(cuid())
+  name            String
+  externalId      String    @unique
+  locationId      String
+  location        Location  @relation(fields: [locationId], references: [id])
+  isOnline        Boolean   @default(false)
+  lastPingAt      DateTime?
+  todaySalesCents Int       @default(0)
+  createdAt       DateTime  @default(now())
 }
 
 model PrintJob {
@@ -678,48 +684,48 @@ enum SaleOrderStatus {
 }
 
 model PricingHistory {
-  id        String   @id @default(cuid())
+  id         String   @id @default(cuid())
   productKey String
-  oldPrice  Float
-  newPrice  Float
-  changedBy String?
-  createdAt DateTime @default(now())
+  oldPrice   Float
+  newPrice   Float
+  changedBy  String?
+  createdAt  DateTime @default(now())
 }
 
 model Campaign {
-  id           String   @id @default(cuid())
-  type         String   // "ABANDONED_CART_3D" | "SWEEP_UP_7D" | custom
-  name         String
-  enabled      Boolean  @default(true)
-  discountPct  Float
-  delayDays    Int
-  template     String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String   @id @default(cuid())
+  type        String // "ABANDONED_CART_3D" | "SWEEP_UP_7D" | custom
+  name        String
+  enabled     Boolean  @default(true)
+  discountPct Float
+  delayDays   Int
+  template    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ── CASH MANAGEMENT ─────────────────────────────────────────────
 model CashRegister {
-  id              String              @id @default(cuid())
+  id              String             @id @default(cuid())
   locationId      String
-  location        Location            @relation(fields: [locationId], references: [id])
-  date            DateTime            @default(now())
-  openingBalance  Float               @default(0)
-  totalCashIn     Float               @default(0)
-  totalCashOut    Float               @default(0)
-  totalExpenses   Float               @default(0)
-  expectedBalance Float               @default(0)
+  location        Location           @relation(fields: [locationId], references: [id])
+  date            DateTime           @default(now())
+  openingBalance  Float              @default(0)
+  totalCashIn     Float              @default(0)
+  totalCashOut    Float              @default(0)
+  totalExpenses   Float              @default(0)
+  expectedBalance Float              @default(0)
   actualBalance   Float?
   discrepancy     Float?
-  status          CashRegisterStatus  @default(OPEN)
+  status          CashRegisterStatus @default(OPEN)
   openedBy        String
   closedBy        String?
   closedAt        DateTime?
   transactions    CashTransaction[]
   handovers       CashHandover[]
   expenses        CashExpense[]
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
 
   @@unique([locationId, date])
 }
@@ -894,17 +900,17 @@ enum EditQuality {
 
 // ── LOCAL NETWORK / KIOSK CONFIG / SYNC ─────────────────────────
 model KioskConfig {
-  id            String   @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String
-  externalId    String   @unique
+  externalId    String       @unique
   type          KioskAppType
   locationId    String
-  networkMode   NetworkMode @default(ONLINE)
-  serverIp      String?       // for GALLERY_DISPLAY in LOCAL mode
-  isLocalServer Boolean  @default(false) // true on the SALE_POINT serving locally
+  networkMode   NetworkMode  @default(ONLINE)
+  serverIp      String? // for GALLERY_DISPLAY in LOCAL mode
+  isLocalServer Boolean      @default(false) // true on the SALE_POINT serving locally
   lastSeenAt    DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 }
 
 enum KioskAppType {
@@ -921,7 +927,7 @@ enum NetworkMode {
 
 model SyncLog {
   id        String     @id @default(cuid())
-  type      String     // gallery | order | photo | cash | commission
+  type      String // gallery | order | photo | cash | commission
   localId   String
   cloudId   String?
   status    SyncStatus @default(PENDING)
@@ -985,7 +991,7 @@ model XpLog {
   user      User     @relation(fields: [userId], references: [id])
   action    String
   amount    Int
-  context   String?  // JSON
+  context   String? // JSON
   createdAt DateTime @default(now())
 
   @@index([userId])
@@ -996,7 +1002,7 @@ model DailyChallenge {
   id         String   @id @default(cuid())
   date       DateTime
   locationId String?
-  challenges String   // JSON array of { title, target, xp, key }
+  challenges String // JSON array of { title, target, xp, key }
   createdAt  DateTime @default(now())
 
   @@index([date])
@@ -1005,8 +1011,8 @@ model DailyChallenge {
 // ── AI ─────────────────────────────────────────────────────────
 model AIInsight {
   id          String   @id @default(cuid())
-  type        String   // performance | opportunity | alert | promotion | revenue
-  targetType  String   // photographer | location | system
+  type        String // performance | opportunity | alert | promotion | revenue
+  targetType  String // photographer | location | system
   targetId    String
   title       String
   message     String
@@ -1023,17 +1029,145 @@ model AIInsight {
 model SalesCoachTip {
   id        String  @id @default(cuid())
   trigger   String
-  condition String  // JSON
+  condition String // JSON
   message   String
   script    String?
-  tactic    String  // urgency|value|social_proof|bundle
+  tactic    String // urgency|value|social_proof|bundle
   isActive  Boolean @default(true)
 }
 
 model AIBriefingLog {
   id        String   @id @default(cuid())
-  scope     String   // ceo | photographer | location
+  scope     String // ceo | photographer | location
   scopeId   String?
-  payload   String   // JSON
+  payload   String // JSON
   createdAt DateTime @default(now())
+}
+
+// ── AI PHOTOGRAPHY COACHING ─────────────────────────────────
+model PoseCategory {
+  id                 String   @id @default(cuid())
+  name               String   @unique
+  description        String
+  subjectType        String
+  difficulty         String
+  tags               String
+  exampleDescription String
+  isActive           Boolean  @default(true)
+  sortOrder          Int      @default(0)
+  createdAt          DateTime @default(now())
+}
+
+model PhotoAnalysis {
+  id             String @id @default(cuid())
+  photoId        String @unique
+  photo          Photo  @relation(fields: [photoId], references: [id], onDelete: Cascade)
+  photographerId String
+  photographer   User   @relation("PhotographerAnalyses", fields: [photographerId], references: [id])
+
+  detectedPoseCategory String?
+  poseConfidence       Float   @default(0)
+  poseVariety          Boolean @default(false)
+
+  subjectCount   Int     @default(1)
+  subjectType    String?
+  facesDetected  Int     @default(0)
+  smilesDetected Int     @default(0)
+  eyesOpen       Boolean @default(true)
+
+  sharpnessScore   Int @default(50)
+  exposureScore    Int @default(50)
+  compositionScore Int @default(50)
+  lightingScore    Int @default(50)
+  framingScore     Int @default(50)
+
+  emotionScore  Int @default(50)
+  actionScore   Int @default(50)
+  hookPotential Int @default(50)
+  wowFactor     Int @default(50)
+
+  technicalTotal Int @default(50)
+  salesTotal     Int @default(50)
+  overallScore   Int @default(50)
+
+  improvements   String?
+  poseSuggestion String?
+
+  createdAt DateTime @default(now())
+
+  @@index([photographerId, createdAt])
+}
+
+model PhotographerSkillProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation("UserSkillProfile", fields: [userId], references: [id], onDelete: Cascade)
+
+  individualPoses Int @default(50)
+  couplePoses     Int @default(50)
+  familyPoses     Int @default(50)
+  kidsPoses       Int @default(50)
+  actionPoses     Int @default(50)
+  portraitPoses   Int @default(50)
+
+  avgSharpness   Int @default(50)
+  avgExposure    Int @default(50)
+  avgComposition Int @default(50)
+  avgLighting    Int @default(50)
+  avgFraming     Int @default(50)
+
+  avgHookRate        Int @default(50)
+  avgSalesConversion Int @default(50)
+  avgEmotionCapture  Int @default(50)
+
+  weakestPoseCategory String?
+  weakestTechnical    String?
+  strongestArea       String?
+
+  trainingAssigned String?
+  lastTrainingDate DateTime?
+  improvementRate  Float     @default(0)
+
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model TrainingAssignment {
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation("UserTrainingAssignments", fields: [userId], references: [id], onDelete: Cascade)
+  moduleId    String?
+  module      AcademyModule? @relation(fields: [moduleId], references: [id])
+  reason      String
+  priority    String
+  status      String         @default("assigned")
+  assignedBy  String
+  dueDate     DateTime?
+  completedAt DateTime?
+  skillBefore Int?
+  skillAfter  Int?
+  createdAt   DateTime       @default(now())
+
+  @@index([userId, status])
+}
+
+model WeeklySkillReport {
+  id              String    @id @default(cuid())
+  userId          String
+  user            User      @relation("UserWeeklyReports", fields: [userId], references: [id], onDelete: Cascade)
+  weekStart       DateTime
+  weekEnd         DateTime
+  photosAnalyzed  Int       @default(0)
+  avgOverallScore Int       @default(50)
+  scoreChange     Int       @default(0)
+  strengths       String?
+  improvements    String?
+  recommendations String?
+  teamRank        Int?
+  aboveAverage    String?
+  belowAverage    String?
+  sentAt          DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([userId, weekStart])
 }

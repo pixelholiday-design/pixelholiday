@@ -99,6 +99,18 @@ export async function POST(req: Request) {
     // Background AI auto-edit pipeline (does not block the response)
     autoEditGallery(gallery.id).catch((e) => console.warn("autoEditGallery failed", e));
 
+    // AI photography coaching — analyze uploads, update skill profile, assign training
+    try {
+      const { analyzeGalleryPhotos } = await import("@/lib/ai/photo-analyzer");
+      await analyzeGalleryPhotos(gallery.id);
+      const { calculateSkillProfile } = await import("@/lib/ai/skill-profile");
+      const { autoAssignTraining } = await import("@/lib/ai/auto-training");
+      await calculateSkillProfile(gallery.photographerId);
+      await autoAssignTraining(gallery.photographerId);
+    } catch (e) {
+      console.error("AI coaching failed (non-fatal):", e);
+    }
+
     // AI hook advisor — pick the best hook image if photographer didn't star one
     applyAutoHook(gallery.id).catch(() => {});
 
