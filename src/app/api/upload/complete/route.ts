@@ -127,6 +127,22 @@ export async function POST(req: Request) {
       orderBy: { sortOrder: "asc" },
     });
 
+    // Wristband AI detection + auto-link (non-fatal)
+    try {
+      const { analyzePhotoForWristband, autoLinkBurstToWristband } = await import(
+        "@/lib/ai/wristband-detector"
+      );
+      for (const p of createdPhotos) {
+        await analyzePhotoForWristband(p.id);
+      }
+      await autoLinkBurstToWristband(
+        createdPhotos.map((p) => p.id),
+        data.photographerId
+      );
+    } catch (e) {
+      console.error("Wristband detection failed (non-fatal):", e);
+    }
+
     return NextResponse.json({
       galleryId: gallery.id,
       magicLinkToken: gallery.magicLinkToken,

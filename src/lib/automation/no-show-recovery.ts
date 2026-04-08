@@ -15,7 +15,7 @@ export async function runNoShowRecovery() {
   for (const a of stale) {
     console.log(
       "[mock-whatsapp] to=%s body=Hey, still on for your viewing? Reply YES to keep your photos.",
-      a.gallery.customer.whatsapp ?? "n/a",
+      a.gallery?.customer?.whatsapp ?? a.customerPhone ?? "n/a",
     );
     messaged.push(a.id);
   }

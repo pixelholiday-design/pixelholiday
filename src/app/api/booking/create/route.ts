@@ -25,10 +25,12 @@ export async function POST(req: NextRequest) {
     },
     include: { assignedPhotographer: true, gallery: { include: { customer: true } } },
   });
-  if (appointment.gallery.customer.whatsapp) {
+  if (appointment.gallery?.customer?.whatsapp) {
     await sendWhatsAppBookingConfirmation(appointment.gallery.customer.whatsapp, appointment.scheduledTime);
   }
-  await notifyPhotographerNewBooking(appointment.assignedPhotographer.name, appointment.scheduledTime);
+  if (appointment.assignedPhotographer) {
+    await notifyPhotographerNewBooking(appointment.assignedPhotographer.name, appointment.scheduledTime);
+  }
   return NextResponse.json({ appointment });
 }
 

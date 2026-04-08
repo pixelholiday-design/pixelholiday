@@ -116,6 +116,14 @@ export async function POST(req: Request) {
   // Background AI cull + edit (Stage 1 + 2 of pipeline)
   autoEditPhoto(photo.id, gallery.editQuality).catch(() => {});
 
+  // Wristband AI detection (non-fatal)
+  try {
+    const { analyzePhotoForWristband } = await import("@/lib/ai/wristband-detector");
+    await analyzePhotoForWristband(photo.id);
+  } catch (e) {
+    console.error("Wristband detection failed (non-fatal):", e);
+  }
+
   // AI photography coaching (non-fatal)
   try {
     const { analyzePhoto } = await import("@/lib/ai/photo-analyzer");

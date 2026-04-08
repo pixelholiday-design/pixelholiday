@@ -88,6 +88,7 @@ export async function POST(req: Request) {
   const existingCount = await prisma.photo.count({ where: { galleryId: gallery.id } });
   let hasHook = await prisma.photo.findFirst({ where: { galleryId: gallery.id, isHookImage: true } });
   let written = 0;
+  const createdPhotoIds: string[] = [];
 
   for (let i = 0; i < data.photos.length; i++) {
     const p = data.photos[i];
@@ -102,6 +103,7 @@ export async function POST(req: Request) {
         sortOrder: existingCount + i,
       },
     });
+    createdPhotoIds.push(photo.id);
 
     if (p.base64) {
       try {
@@ -131,6 +133,19 @@ export async function POST(req: Request) {
     where: { id: gallery.id },
     data: { totalCount: existingCount + data.photos.length },
   });
+
+  // Wristband AI detection + auto-link (non-fatal)
+  try {
+    const { analyzePhotoForWristband, autoLinkBurstToWristband } = await import(
+      "@/lib/ai/wristband-detector"
+    );
+    for (const id of createdPhotoIds) {
+      await analyzePhotoForWristband(id);
+    }
+    await autoLinkBurstToWristband(createdPhotoIds, data.photographerId);
+  } catch (e) {
+    console.error("Wristband detection failed (non-fatal):", e);
+  }
 
   // AI photography coaching (non-fatal)
   try {

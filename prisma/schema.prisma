@@ -145,6 +145,7 @@ model Location {
   contractEndDate    DateTime?
   isActive           Boolean         @default(true)
   pricingConfigs     PricingConfig[]
+  appointments       Appointment[]
   createdAt          DateTime        @default(now())
 }
 
@@ -238,28 +239,30 @@ enum GalleryStatus {
 
 // ── PHOTOS & VIDEOS ───────────────────────────
 model Photo {
-  id                  String         @id @default(cuid())
-  galleryId           String
-  gallery             Gallery        @relation(fields: [galleryId], references: [id])
-  s3Key_highRes       String
-  s3Key_raw           String?
-  cloudinaryId        String?
-  isHookImage         Boolean        @default(false)
-  isFavorited         Boolean        @default(false)
-  isPurchased         Boolean        @default(false)
-  isRetouched         Boolean        @default(false)
-  aiCulled            Boolean        @default(false)
-  aiCullReason        String?
-  hasMagicElement     Boolean        @default(false)
-  magicElementId      String?
-  setId               String?
-  set                 PhotoSet?      @relation(fields: [setId], references: [id])
-  sortOrder           Int            @default(0)
-  cloudinaryId_edited String?
-  isAutoEdited        Boolean        @default(false)
-  editApplied         String[]       @default([])
-  analysis            PhotoAnalysis?
-  createdAt           DateTime       @default(now())
+  id                     String         @id @default(cuid())
+  galleryId              String
+  gallery                Gallery        @relation(fields: [galleryId], references: [id])
+  s3Key_highRes          String
+  s3Key_raw              String?
+  cloudinaryId           String?
+  isHookImage            Boolean        @default(false)
+  isFavorited            Boolean        @default(false)
+  isPurchased            Boolean        @default(false)
+  isRetouched            Boolean        @default(false)
+  aiCulled               Boolean        @default(false)
+  aiCullReason           String?
+  hasMagicElement        Boolean        @default(false)
+  magicElementId         String?
+  setId                  String?
+  set                    PhotoSet?      @relation(fields: [setId], references: [id])
+  sortOrder              Int            @default(0)
+  cloudinaryId_edited    String?
+  isAutoEdited           Boolean        @default(false)
+  editApplied            String[]       @default([])
+  analysis               PhotoAnalysis?
+  isWristbandPhoto       Boolean        @default(false)
+  extractedWristbandCode String?
+  createdAt              DateTime       @default(now())
 
   @@index([galleryId])
   @@index([isPurchased])
@@ -289,13 +292,25 @@ enum VideoType {
 // ── APPOINTMENTS & BOOKINGS ───────────────────
 model Appointment {
   id                     String            @id @default(cuid())
-  galleryId              String            @unique
-  gallery                Gallery           @relation(fields: [galleryId], references: [id])
+  galleryId              String?           @unique
+  gallery                Gallery?          @relation(fields: [galleryId], references: [id])
   scheduledTime          DateTime
   status                 AppointmentStatus
   assignedPhotographerId String
   assignedPhotographer   User              @relation("AssignedPhotographer", fields: [assignedPhotographerId], references: [id])
   source                 BookingSource
+  sourceDetail           String?
+  externalRef            String?
+  notes                  String?
+  customerName           String?
+  customerPhone          String?
+  customerEmail          String?
+  partySize              Int               @default(1)
+  sessionType            String            @default("STANDARD")
+  estimatedDuration      Int               @default(30)
+  specialRequests        String?
+  locationId             String?
+  location               Location?         @relation(fields: [locationId], references: [id])
   qrCodeId               String?
   qrCode                 QRCode?           @relation(fields: [qrCodeId], references: [id])
   createdAt              DateTime          @default(now())
