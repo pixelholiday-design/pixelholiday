@@ -89,8 +89,8 @@ export async function POST(req: Request) {
   }
 
   const isFull = ids.length === gallery.photos.length;
-  const fullPrice = await getPrice("full_gallery");
-  const singlePrice = await getPrice("single_photo");
+  const fullPrice = await getPrice("full_gallery", gallery.locationId);
+  const singlePrice = await getPrice("single_photo", gallery.locationId);
   const totalCents = Math.round((isFull ? fullPrice : ids.length * singlePrice) * 100);
 
   const order = await prisma.saleOrder.create({

@@ -152,8 +152,8 @@ async function main() {
   }
 
   // ── F1: Mark anchor pricing ───────────────
-  const fullGallery = await prisma.pricingConfig.findUnique({
-    where: { productKey: "full_gallery" },
+  const fullGallery = await prisma.pricingConfig.findFirst({
+    where: { productKey: "full_gallery", locationId: null },
   });
   if (fullGallery) {
     await prisma.pricingConfig.update({

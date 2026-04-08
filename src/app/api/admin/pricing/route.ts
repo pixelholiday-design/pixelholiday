@@ -33,7 +33,9 @@ export async function POST(req: Request) {
     const parsed = updateSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
 
-    const existing = await prisma.pricingConfig.findUnique({ where: { productKey: parsed.data.productKey } });
+    const existing = await prisma.pricingConfig.findFirst({
+      where: { productKey: parsed.data.productKey, locationId: null },
+    });
     if (!existing) return NextResponse.json({ error: "Unknown product key" }, { status: 404 });
 
     // If isAnchor=true, ensure no other product is the anchor
@@ -51,7 +53,7 @@ export async function POST(req: Request) {
     if (parsed.data.displayOrder !== undefined) data.displayOrder = parsed.data.displayOrder;
 
     const updated = await prisma.pricingConfig.update({
-      where: { productKey: parsed.data.productKey },
+      where: { id: existing.id },
       data,
     });
 
