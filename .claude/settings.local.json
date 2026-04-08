@@ -70,7 +70,12 @@
       "Bash(curl -s -o /c/Users/JOE/AppData/Local/Temp/dl.bin -w 'status=%{http_code} size=%{size_download}\\\\n' http://localhost:3000/api/local/photo/cmnp31l7w000mwtgqq39qlgp9/file)",
       "Read(//c/Users/JOE/AppData/Local/Temp/**)",
       "Bash(xxd)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git merge:*)",
+      "Bash(git -C \"C:/Users/JOE/Desktop/pixeleco\" merge claude/focused-engelbart --no-edit)",
+      "Bash(git -C \"C:/Users/JOE/Desktop/pixeleco\" push origin main)",
+      "Bash(ls .env*)",
+      "Bash(ls ../../.env*)"
     ]
   }
 }

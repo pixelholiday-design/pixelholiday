@@ -23,21 +23,15 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
  */
 export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
   if (!publicIdOrUrl) return "";
+  if (/^https?:\/\//.test(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `l_${WATERMARK},w_0.5,g_center,o_40/c_limit,w_${width},q_60,f_webp,a_exif`;
-  if (/^https?:\/\//.test(publicIdOrUrl)) {
-    const encoded = encodeURIComponent(publicIdOrUrl);
-    return `https://res.cloudinary.com/${CLOUD}/image/fetch/${transform}/${encoded}`;
-  }
   return `https://res.cloudinary.com/${CLOUD}/image/upload/${transform}/${publicIdOrUrl}`;
 }
 
 /** Clean (unwatermarked) URL — only for PAID galleries */
 export function cleanUrl(publicIdOrUrl: string, width = 1600): string {
   if (!publicIdOrUrl) return "";
+  if (/^https?:\/\//.test(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `c_limit,w_${width},q_85,f_auto,a_exif`;
-  if (/^https?:\/\//.test(publicIdOrUrl)) {
-    const encoded = encodeURIComponent(publicIdOrUrl);
-    return `https://res.cloudinary.com/${CLOUD}/image/fetch/${transform}/${encoded}`;
-  }
   return `https://res.cloudinary.com/${CLOUD}/image/upload/${transform}/${publicIdOrUrl}`;
 }
