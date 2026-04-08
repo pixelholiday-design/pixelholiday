@@ -171,6 +171,7 @@ export async function generatePerformanceInsights() {
   const created: number[] = [];
   for (const p of photographers) {
     const recent = p.commissions.filter((c) => {
+      if (!c.order) return false;
       const age = Date.now() - new Date(c.order.createdAt).getTime();
       return age < 14 * 24 * 60 * 60 * 1000;
     });

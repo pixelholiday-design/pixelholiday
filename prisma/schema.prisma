@@ -59,6 +59,8 @@ model User {
   skillProfile         PhotographerSkillProfile? @relation("UserSkillProfile")
   trainingAssignments  TrainingAssignment[]      @relation("UserTrainingAssignments")
   weeklySkillReports   WeeklySkillReport[]       @relation("UserWeeklyReports")
+  zoneAssignments      ZoneAssignment[]          @relation("UserZoneAssignments")
+  appointmentOutcomes  AppointmentOutcome[]      @relation("UserAppointmentOutcomes")
   createdAt            DateTime                  @default(now())
 }
 
@@ -102,6 +104,11 @@ model Location {
   cameras           Camera[]
   kiosks            KioskDevice[]
   cashRegisters     CashRegister[]
+  locationType      String         @default("LUXURY")
+  targetAOV         Float?
+  maxShiftHours     Int            @default(8)
+  siestaStart       String?
+  siestaEnd         String?
   createdAt         DateTime       @default(now())
 }
 
@@ -343,8 +350,8 @@ model Commission {
   id      String         @id @default(cuid())
   userId  String
   user    User           @relation(fields: [userId], references: [id])
-  orderId String
-  order   Order          @relation(fields: [orderId], references: [id])
+  orderId String?
+  order   Order?         @relation(fields: [orderId], references: [id])
   type    CommissionType
   amount  Float
   rate    Float
@@ -363,6 +370,7 @@ enum CommissionType {
   APPOINTMENT_BOOKING
   QR_REFERRAL
   SLEEPING_MONEY
+  ATTENDANCE_BONUS
 }
 
 // ── QR CODES ──────────────────────────────────
@@ -650,15 +658,19 @@ enum PrintStatus {
 }
 
 model PricingConfig {
-  id         String   @id @default(cuid())
-  productKey String   @unique
-  name       String
-  price      Float
-  currency   String   @default("EUR")
-  isActive   Boolean  @default(true)
-  updatedBy  String?
-  updatedAt  DateTime @updatedAt
-  createdAt  DateTime @default(now())
+  id                 String   @id @default(cuid())
+  productKey         String   @unique
+  name               String
+  price              Float
+  currency           String   @default("EUR")
+  isActive           Boolean  @default(true)
+  isAnchor           Boolean  @default(false)
+  isHidden           Boolean  @default(false)
+  displayOrder       Int      @default(0)
+  anchorDelaySeconds Int      @default(10)
+  updatedBy          String?
+  updatedAt          DateTime @updatedAt
+  createdAt          DateTime @default(now())
 }
 
 model SaleOrder {
@@ -1170,4 +1182,135 @@ model WeeklySkillReport {
   createdAt       DateTime  @default(now())
 
   @@index([userId, weekStart])
+}
+
+// ──────────────────────────────────────────────
+// PIXEL ACADEMY MODELS
+// ──────────────────────────────────────────────
+
+model UpsellScript {
+  id             String   @id @default(cuid())
+  scriptName     String
+  trigger        String
+  condition      String
+  script         String
+  demographic    String?
+  locationType   String?
+  priority       Int      @default(0)
+  isActive       Boolean  @default(true)
+  conversionRate Float    @default(0)
+  timesShown     Int      @default(0)
+  timesConverted Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model ApproachHook {
+  id           String   @id @default(cuid())
+  name         String
+  demographic  String?
+  location     String?
+  locationType String?
+  timeOfDay    String?
+  script       String
+  notes        String?
+  successRate  Float    @default(0)
+  timesUsed    Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model AppointmentOutcome {
+  id             String    @id @default(cuid())
+  appointmentId  String    @unique
+  arrivedAt      DateTime?
+  didArrive      Boolean   @default(false)
+  didBuy         Boolean   @default(false)
+  orderAmount    Float?
+  hookUsed       String?
+  noShowReason   String?
+  photographerId String?
+  photographer   User?     @relation("UserAppointmentOutcomes", fields: [photographerId], references: [id])
+  createdAt      DateTime  @default(now())
+}
+
+model SneakPeek {
+  id              String   @id @default(cuid())
+  customerId      String
+  galleryId       String
+  photoId         String?
+  sentAt          DateTime @default(now())
+  wasOpened       Boolean  @default(false)
+  customerArrived Boolean  @default(false)
+}
+
+model ZoneAssignment {
+  id             String    @id @default(cuid())
+  photographerId String
+  photographer   User      @relation("UserZoneAssignments", fields: [photographerId], references: [id])
+  locationId     String
+  zoneName       String
+  startedAt      DateTime  @default(now())
+  endedAt        DateTime?
+  isOutdoor      Boolean   @default(false)
+  temperature    Float?
+  rotatedOnTime  Boolean?
+}
+
+model SiteEvaluation {
+  id               String   @id @default(cuid())
+  locationId       String?
+  locationName     String
+  evaluatedBy      String?
+  trafficScore     Int
+  affluenceScore   Int
+  spaceScore       Int
+  partnerScore     Int
+  competitionScore Int
+  totalScore       Int
+  passed           Boolean
+  expectedTraffic  Int?
+  expectedAOV      Float?
+  monthlyGross     Float?
+  rentCeiling      Float?
+  proposedRent     Float?
+  status           String   @default("DRAFT")
+  createdAt        DateTime @default(now())
+}
+
+model ScalingGate {
+  id          String    @id @default(cuid())
+  orgId       String
+  gateNumber  Int
+  gateName    String
+  requirement String
+  passed      Boolean   @default(false)
+  passedAt    DateTime?
+  evidence    String?
+
+  @@unique([orgId, gateNumber])
+}
+
+model ProofSubmission {
+  id          String    @id @default(cuid())
+  locationId  String
+  month       String
+  type        String
+  status      String    @default("pending")
+  fileUrl     String?
+  submittedBy String?
+  submittedAt DateTime?
+  verifiedBy  String?
+  verifiedAt  DateTime?
+  notes       String?
+
+  @@unique([locationId, month, type])
+}
+
+model KioskEvent {
+  id         String   @id @default(cuid())
+  type       String
+  photoCount Int?
+  amount     Float?
+  locationId String?
+  createdAt  DateTime @default(now())
 }

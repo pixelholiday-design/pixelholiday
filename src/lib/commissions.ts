@@ -7,6 +7,7 @@ const RATES: Record<CommissionType, number> = {
   APPOINTMENT_BOOKING: 0.05,
   QR_REFERRAL: 0.05,
   SLEEPING_MONEY: 0.20,
+  ATTENDANCE_BONUS: 0,
 };
 
 export async function recordCommission(opts: {

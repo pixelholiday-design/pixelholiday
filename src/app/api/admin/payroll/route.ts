@@ -40,7 +40,7 @@ export async function GET(req: Request) {
           unpaidCommission: 0,
           rows: 0,
         } as Row);
-      r.totalSales += c.order.amount;
+      r.totalSales += c.order?.amount ?? 0;
       r.commission += c.amount;
       if (c.isPaid) r.paidCommission += c.amount;
       else r.unpaidCommission += c.amount;
