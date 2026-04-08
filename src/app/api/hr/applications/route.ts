@@ -1,39 +1,65 @@
 import { NextResponse } from "next/server";
-import fs from "node:fs";
-import path from "node:path";
+import { prisma } from "@/lib/db";
+import { z } from "zod";
 
-const STORE = path.join(process.cwd(), "logs", "hr-applications.json");
-const STATUSES = ["RECEIVED", "SHORTLISTED", "INTERVIEWED", "OFFERED", "REJECTED"];
+export const dynamic = "force-dynamic";
 
-function read(): any[] { try { return JSON.parse(fs.readFileSync(STORE, "utf8")); } catch { return []; } }
-function write(arr: any[]) { fs.mkdirSync(path.dirname(STORE), { recursive: true }); fs.writeFileSync(STORE, JSON.stringify(arr, null, 2)); }
+const STATUSES = ["RECEIVED", "SHORTLISTED", "INTERVIEWED", "OFFERED", "REJECTED"] as const;
 
-export async function GET() { return NextResponse.json({ applications: read(), statuses: STATUSES }); }
-
-export async function POST(req: Request) {
-  const body = await req.json();
-  const arr = read();
-  const app = {
-    id: `app_${Date.now()}`,
-    jobId: body.jobId,
-    applicantName: body.applicantName,
-    applicantEmail: body.applicantEmail,
-    cvUrl: body.cvUrl || null,
-    status: "RECEIVED",
-    createdAt: new Date().toISOString(),
-  };
-  arr.push(app);
-  write(arr);
-  return NextResponse.json({ ok: true, application: app });
+export async function GET() {
+  const applications = await prisma.jobApplication.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { job: { select: { id: true, title: true } } },
+  });
+  return NextResponse.json({ applications, statuses: STATUSES });
 }
 
+const createSchema = z.object({
+  jobId: z.string().min(1),
+  applicantName: z.string().min(1),
+  applicantEmail: z.string().email(),
+  cvUrl: z.string().url().optional().nullable(),
+});
+
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const parsed = createSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
+  }
+  try {
+    const application = await prisma.jobApplication.create({
+      data: {
+        jobId: parsed.data.jobId,
+        applicantName: parsed.data.applicantName,
+        applicantEmail: parsed.data.applicantEmail,
+        cvUrl: parsed.data.cvUrl || null,
+        status: "RECEIVED",
+      },
+    });
+    return NextResponse.json({ ok: true, application });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e?.message || "Internal error" }, { status: 500 });
+  }
+}
+
+const patchSchema = z.object({
+  id: z.string().min(1),
+  status: z.enum(STATUSES),
+});
+
 export async function PATCH(req: Request) {
-  const body = await req.json();
-  if (!STATUSES.includes(body.status)) return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-  const arr = read();
-  const idx = arr.findIndex((a) => a.id === body.id);
-  if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  arr[idx].status = body.status;
-  write(arr);
-  return NextResponse.json({ ok: true, application: arr[idx] });
+  const body = await req.json().catch(() => ({}));
+  const parsed = patchSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ ok: false, error: "Invalid status" }, { status: 400 });
+  try {
+    const application = await prisma.jobApplication.update({
+      where: { id: parsed.data.id },
+      data: { status: parsed.data.status },
+    });
+    return NextResponse.json({ ok: true, application });
+  } catch (e: any) {
+    if (e?.code === "P2025") return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+    return NextResponse.json({ ok: false, error: e?.message || "Internal error" }, { status: 500 });
+  }
 }

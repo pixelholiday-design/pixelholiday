@@ -1,43 +1,77 @@
 import { NextResponse } from "next/server";
-import fs from "node:fs";
-import path from "node:path";
+import { prisma } from "@/lib/db";
+import { z } from "zod";
 
-const STORE = path.join(process.cwd(), "logs", "hr-jobs.json");
-function read(): any[] { try { return JSON.parse(fs.readFileSync(STORE, "utf8")); } catch { return []; } }
-function write(arr: any[]) { fs.mkdirSync(path.dirname(STORE), { recursive: true }); fs.writeFileSync(STORE, JSON.stringify(arr, null, 2)); }
+export const dynamic = "force-dynamic";
 
-export async function GET() { return NextResponse.json({ jobs: read() }); }
-
-export async function POST(req: Request) {
-  const body = await req.json();
-  const arr = read();
-  const job = {
-    id: `job_${Date.now()}`,
-    title: body.title,
-    locationId: body.locationId || null,
-    requirements: body.requirements || "",
-    status: body.status || "OPEN",
-    createdAt: new Date().toISOString(),
-  };
-  arr.push(job);
-  write(arr);
-  return NextResponse.json({ ok: true, job });
+export async function GET() {
+  const jobs = await prisma.jobPosting.findMany({
+    orderBy: { createdAt: "desc" },
+    include: { _count: { select: { applications: true } } },
+  });
+  return NextResponse.json({ jobs });
 }
 
+const createSchema = z.object({
+  title: z.string().min(1),
+  locationId: z.string().optional().nullable(),
+  requirements: z.string().optional().default(""),
+  description: z.string().optional(), // accept legacy "description" field too
+  status: z.enum(["OPEN", "FILLED", "CLOSED"]).optional(),
+});
+
+export async function POST(req: Request) {
+  const body = await req.json().catch(() => ({}));
+  const parsed = createSchema.safeParse(body);
+  if (!parsed.success) {
+    return NextResponse.json({ ok: false, error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
+  }
+  try {
+    const job = await prisma.jobPosting.create({
+      data: {
+        title: parsed.data.title,
+        locationId: parsed.data.locationId || null,
+        requirements: parsed.data.requirements || parsed.data.description || "",
+        status: parsed.data.status || "OPEN",
+      },
+    });
+    return NextResponse.json({ ok: true, job });
+  } catch (e: any) {
+    return NextResponse.json({ ok: false, error: e?.message || "Internal error" }, { status: 500 });
+  }
+}
+
+const patchSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().optional(),
+  locationId: z.string().optional().nullable(),
+  requirements: z.string().optional(),
+  status: z.enum(["OPEN", "FILLED", "CLOSED"]).optional(),
+});
+
 export async function PATCH(req: Request) {
-  const body = await req.json();
-  const arr = read();
-  const idx = arr.findIndex((j) => j.id === body.id);
-  if (idx < 0) return NextResponse.json({ error: "Not found" }, { status: 404 });
-  arr[idx] = { ...arr[idx], ...body };
-  write(arr);
-  return NextResponse.json({ ok: true, job: arr[idx] });
+  const body = await req.json().catch(() => ({}));
+  const parsed = patchSchema.safeParse(body);
+  if (!parsed.success) return NextResponse.json({ ok: false, error: "Invalid input" }, { status: 400 });
+  const { id, ...data } = parsed.data;
+  try {
+    const job = await prisma.jobPosting.update({ where: { id }, data });
+    return NextResponse.json({ ok: true, job });
+  } catch (e: any) {
+    if (e?.code === "P2025") return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+    return NextResponse.json({ ok: false, error: e?.message || "Internal error" }, { status: 500 });
+  }
 }
 
 export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url);
   const id = searchParams.get("id");
-  const arr = read().filter((j) => j.id !== id);
-  write(arr);
-  return NextResponse.json({ ok: true });
+  if (!id) return NextResponse.json({ ok: false, error: "id required" }, { status: 400 });
+  try {
+    await prisma.jobPosting.delete({ where: { id } });
+    return NextResponse.json({ ok: true });
+  } catch (e: any) {
+    if (e?.code === "P2025") return NextResponse.json({ ok: false, error: "Not found" }, { status: 404 });
+    return NextResponse.json({ ok: false, error: e?.message || "Internal error" }, { status: 500 });
+  }
 }
