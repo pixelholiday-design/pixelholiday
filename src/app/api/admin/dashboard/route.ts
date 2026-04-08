@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
 export async function GET(req: Request) {
+  try {
   const url = new URL(req.url);
   const locationId = url.searchParams.get("locationId") || undefined;
   const division = url.searchParams.get("division") || undefined; // LUXURY | SPLASH | ATTRACTION
@@ -89,4 +90,8 @@ export async function GET(req: Request) {
     digitalPasses,
     equipmentCost,
   });
+  } catch (e: any) {
+    console.error("admin/dashboard error", e);
+    return NextResponse.json({ error: e?.message || "Internal error" }, { status: 500 });
+  }
 }

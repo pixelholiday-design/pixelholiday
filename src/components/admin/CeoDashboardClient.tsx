@@ -20,14 +20,22 @@ export default function CeoDashboardClient() {
   const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
 
   useEffect(() => {
-    fetch("/api/admin/dashboard")
-      .then((r) => r.json())
-      .then((d) => setLocations((d.revenueByLocation || []).map((l: any, i: number) => ({ id: l.id || String(i), name: l.name })) || []))
+    fetch("/api/admin/dashboard", { cache: "no-store" })
+      .then(async (r) => {
+        if (!r.ok) return null;
+        const text = await r.text();
+        try { return text ? JSON.parse(text) : null; } catch { return null; }
+      })
+      .then((d) => {
+        if (!d) return;
+        setLocations((d.revenueByLocation || []).map((l: any, i: number) => ({ id: l.id || String(i), name: l.name })));
+      })
       .catch(() => {});
   }, []);
 
   useEffect(() => {
     setData(null);
+    setErr(null);
     let url: string;
     if (locationId) {
       url = `/api/admin/dashboard?locationId=${locationId}`;
@@ -36,10 +44,23 @@ export default function CeoDashboardClient() {
     } else {
       url = `/api/admin/dashboard?division=${division}`;
     }
-    fetch(url)
-      .then((r) => r.json())
-      .then(setData)
-      .catch((e) => setErr(String(e)));
+    fetch(url, { cache: "no-store" })
+      .then(async (r) => {
+        const text = await r.text();
+        if (!r.ok) {
+          if (r.status === 401) {
+            setErr("Your session has expired. Please sign in again.");
+            return null;
+          }
+          let msg = `HTTP ${r.status}`;
+          try { const j = JSON.parse(text); if (j?.error) msg = j.error; } catch {}
+          setErr(msg);
+          return null;
+        }
+        try { return text ? JSON.parse(text) : null; } catch { setErr("Bad response"); return null; }
+      })
+      .then((d) => { if (d) setData(d); })
+      .catch((e) => setErr(String(e?.message || e)));
   }, [division, locationId]);
 
   if (err) {
