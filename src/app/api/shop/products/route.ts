@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
-import { PRODUCTS } from "@/lib/shopProducts";
+import { loadShopProducts } from "@/lib/shopProducts";
+
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return NextResponse.json(PRODUCTS);
+  const { all, byCategory } = await loadShopProducts();
+  return NextResponse.json({ products: all, byCategory });
 }
