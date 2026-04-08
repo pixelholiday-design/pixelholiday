@@ -1,4 +1,5 @@
 .claude
 data
 prisma/dev.db
+node_modules
 *.log
