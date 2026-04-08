@@ -1,0 +1,122 @@
+/* PixelHoliday Kiosk Design Tokens & Animations */
+
+:root {
+  --kiosk-bg: #08111C;
+  --kiosk-card: #1A1F2E;
+  --kiosk-border: #2A3042;
+  --kiosk-coral: #E8593C;
+  --kiosk-gold: #D4A853;
+  --kiosk-touch-min: 60px;
+}
+
+/* Disable scrollbars and selection on kiosk pages */
+html.kiosk,
+html.kiosk body {
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+
+html.kiosk *::-webkit-scrollbar {
+  display: none;
+}
+html.kiosk * {
+  scrollbar-width: none;
+}
+
+/* Touch target utility */
+.touch-target {
+  min-height: var(--kiosk-touch-min);
+  min-width: var(--kiosk-touch-min);
+  padding: 16px;
+}
+
+/* ───────── Animations ───────── */
+@keyframes slide-in-right {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes slide-in-left {
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+@keyframes slide-down {
+  from { transform: translateY(-100%); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0   rgba(232, 89, 60, 0.6); }
+  70%  { box-shadow: 0 0 0 32px rgba(232, 89, 60, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(232, 89, 60, 0); }
+}
+@keyframes bounce-heart {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.4); }
+  60%  { transform: scale(0.85); }
+  100% { transform: scale(1); }
+}
+@keyframes confetti-burst {
+  0%   { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+  100% { transform: translate(var(--cx, 0), var(--cy, 200px)) rotate(720deg); opacity: 0; }
+}
+@keyframes number-roll {
+  0%   { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes scale-press {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-12px); }
+  40%      { transform: translateX(12px); }
+  60%      { transform: translateX(-8px); }
+  80%      { transform: translateX(8px); }
+}
+@keyframes ticker {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(-100%); }
+}
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.anim-slide-right { animation: slide-in-right 300ms ease-out both; }
+.anim-slide-left  { animation: slide-in-left 300ms ease-out both; }
+.anim-slide-down  { animation: slide-down 300ms ease-out both; }
+.anim-fade-up     { animation: fade-in-up 200ms ease-out both; }
+.anim-pulse-ring  { animation: pulse-ring 2s infinite; }
+.anim-bounce-heart{ animation: bounce-heart 400ms ease-out; }
+.anim-shake       { animation: shake 400ms ease-in-out; }
+.anim-number-roll { animation: number-roll 300ms ease-out both; }
+.anim-spin-slow   { animation: spin-slow 1.2s linear infinite; }
+
+.press:active { animation: scale-press 200ms ease-out; }
+
+.ticker-track {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 30s linear infinite;
+}
+
+/* Skeleton shimmer */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #1A1F2E 0%, #2A3042 50%, #1A1F2E 100%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s linear infinite;
+}
