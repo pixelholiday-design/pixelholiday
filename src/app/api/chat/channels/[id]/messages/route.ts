@@ -29,6 +29,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
 
     return NextResponse.json({ messages });
   } catch (err) {
+    console.error("[chat messages GET] failed:", err);
     return handleGuardError(err) ?? NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
