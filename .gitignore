@@ -41,3 +41,8 @@ next-env.d.ts
 # Local test infrastructure
 data/local-pg/
 data/photos/
+
+.env.production
+.env.local
+.env.*.local
+data/local-pg/
