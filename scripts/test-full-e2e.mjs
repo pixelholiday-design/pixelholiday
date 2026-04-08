@@ -75,29 +75,58 @@ function rec(section, id, name, status, evidence) {
 // ── Helpers: shared fixtures loaded once ──
 let fixtures = {};
 
+async function createFreshUnsoldGallery(tag, photographer, location) {
+  // Create a disposable Gallery + 3 Photos for a kiosk sale test. Always fresh, no unique conflicts.
+  const customer = await prisma.customer.create({
+    data: {
+      name: `E2E Kiosk Test (${tag})`,
+      email: `e2e-kiosk-${tag}-${Date.now()}@test.com`,
+      locationId: location.id,
+    },
+  });
+  const gallery = await prisma.gallery.create({
+    data: {
+      status: 'PREVIEW_ECOM',
+      locationId: location.id,
+      photographerId: photographer.id,
+      customerId: customer.id,
+      expiresAt: new Date(Date.now() + 7 * 86400000),
+      totalCount: 3,
+    },
+  });
+  const photos = [];
+  for (let i = 0; i < 3; i++) {
+    const p = await prisma.photo.create({
+      data: {
+        galleryId: gallery.id,
+        s3Key_highRes: `e2e/${gallery.id}/photo-${i}.jpg`,
+        cloudinaryId: `e2e-test/${gallery.id}-${i}`,
+        sortOrder: i,
+      },
+    });
+    photos.push(p);
+  }
+  return { ...gallery, photos };
+}
+
 async function loadFixtures() {
   const locations = await prisma.location.findMany({ select: { id: true, name: true, locationType: true } });
   const previewGallery = await prisma.gallery.findFirst({ where: { status: 'PREVIEW_ECOM' }, include: { photos: { take: 3 } } });
-  // Two UNSOLD galleries for the kiosk sale tests (Order.galleryId is @unique, so we need fresh ones per test)
-  const unsoldForCash = await prisma.gallery.findFirst({
-    where: { status: { in: ['PREVIEW_ECOM', 'HOOK_ONLY'] }, order: null, photos: { some: {} } },
-    include: { photos: { take: 3 } },
-  });
-  const unsoldForCard = await prisma.gallery.findFirst({
-    where: {
-      status: { in: ['PREVIEW_ECOM', 'HOOK_ONLY'] },
-      order: null,
-      photos: { some: {} },
-      NOT: unsoldForCash ? { id: unsoldForCash.id } : undefined,
-    },
-    include: { photos: { take: 3 } },
-  });
   const paidGallery = await prisma.gallery.findFirst({ where: { status: 'PAID' } });
   const hookGallery = await prisma.gallery.findFirst({ where: { status: 'HOOK_ONLY' } });
   const qr = await prisma.qRCode.findFirst();
   const customerWithRoom = await prisma.customer.findFirst({ where: { roomNumber: { not: null } } });
   const org = await prisma.organization.findFirst();
   const photographer = await prisma.user.findFirst({ where: { role: 'PHOTOGRAPHER' } });
+
+  // Create two fresh, disposable galleries for the kiosk sale tests (idempotent across runs)
+  const location = locations.find((l) => l.locationType === 'LUXURY') || locations[0];
+  let unsoldForCash = null, unsoldForCard = null;
+  if (photographer && location) {
+    unsoldForCash = await createFreshUnsoldGallery('cash', photographer, location);
+    unsoldForCard = await createFreshUnsoldGallery('card', photographer, location);
+  }
+
   fixtures = { locations, previewGallery, unsoldForCash, unsoldForCard, paidGallery, hookGallery, qr, customerWithRoom, org, photographer };
 }
 

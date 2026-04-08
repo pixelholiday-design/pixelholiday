@@ -211,7 +211,7 @@
         "id": "A1.2",
         "name": "Dashboard loads + data",
         "status": "PASS",
-        "evidence": "status=200 totalRev=545"
+        "evidence": "status=200 totalRev=743"
       },
       {
         "id": "A1.3",
@@ -223,13 +223,13 @@
         "id": "A1.4",
         "name": "Luxury/Splash tabs filter data",
         "status": "PASS",
-        "evidence": "all=545 lux=263 spl=282"
+        "evidence": "all=743 lux=461 spl=282"
       },
       {
         "id": "A1.5",
         "name": "Staff list",
         "status": "PASS",
-        "evidence": "count=13"
+        "evidence": "count=15"
       },
       {
         "id": "A1.6",
@@ -811,19 +811,19 @@
         "id": "B3.2",
         "name": "Kiosk unsold gallery",
         "status": "PASS",
-        "evidence": "gallery=cmnpwj6w photos=2"
+        "evidence": "gallery=cmnq6hg1 photos=3"
       },
       {
         "id": "B3.3",
         "name": "Photos selected",
         "status": "PASS",
-        "evidence": "2 photos"
+        "evidence": "3 photos"
       },
       {
         "id": "B3.4",
         "name": "Kiosk sale CASH POST",
         "status": "PASS",
-        "evidence": "status=200 body={\"ok\":true,\"orderId\":\"cmnq5j8yd0018vr8pwo7xm13m\",\"gamification\":{\"photographer\":{\"amount\":50,\"newXp\""
+        "evidence": "status=200 body={\"ok\":true,\"orderId\":\"cmnq6ikdw00121ttzj5iefwf3\",\"gamification\":{\"photographer\":{\"amount\":50,\"newXp\""
       },
       {
         "id": "B3.5",
@@ -835,7 +835,7 @@
         "id": "B3.6",
         "name": "Photos marked purchased",
         "status": "PASS",
-        "evidence": "purchased=2"
+        "evidence": "purchased=3"
       },
       {
         "id": "B3.7",
@@ -861,7 +861,7 @@
         "id": "B4.1",
         "name": "Kiosk sale STRIPE_TERMINAL",
         "status": "PASS",
-        "evidence": "status=200 body={\"ok\":true,\"orderId\":\"cmnq5jks80024vr8pbw2rzhtz\",\"gamification\":{\"photographer\":"
+        "evidence": "status=200 body={\"ok\":true,\"orderId\":\"cmnq6j3rc002j1ttzg4p59qd5\",\"gamification\":{\"photographer\":"
       },
       {
         "id": "B4.2",
@@ -911,7 +911,7 @@
         "id": "B5.5",
         "name": "Sale kiosk pulls order",
         "status": "PASS",
-        "evidence": "orders=4"
+        "evidence": "orders=6"
       },
       {
         "id": "B5.6",
@@ -981,7 +981,7 @@
         "id": "B7.5",
         "name": "scanCount incremented",
         "status": "PASS",
-        "evidence": "48→49"
+        "evidence": "49→50"
       }
     ],
     "B8-Shop": [
@@ -1169,7 +1169,7 @@
         "id": "C3.3",
         "name": "CashExpense table",
         "status": "PASS",
-        "evidence": "count=2"
+        "evidence": "count=4"
       },
       {
         "id": "C4.1",
