@@ -114,3 +114,5 @@ POST /api/gdpr/delete
 ## License
 
 Proprietary · © PixelHoliday
+
+<!-- Deploy trigger: 2026-04-08T12:47:15 -->
