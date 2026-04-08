@@ -88,28 +88,64 @@ enum SubscriptionTier {
 
 // ── LOCATIONS ─────────────────────────────────
 model Location {
-  id                String         @id @default(cuid())
-  name              String
-  type              LocationType
-  orgId             String
-  org               Organization   @relation(fields: [orgId], references: [id])
-  address           String?
-  partnerCommission Float?
-  rentCost          Float?
-  qrCodes           QRCode[]
-  staff             User[]
-  galleries         Gallery[]
-  equipment         Equipment[]
-  b2bDeliveries     B2BDelivery[]
-  cameras           Camera[]
-  kiosks            KioskDevice[]
-  cashRegisters     CashRegister[]
-  locationType      String         @default("LUXURY")
-  targetAOV         Float?
-  maxShiftHours     Int            @default(8)
-  siestaStart       String?
-  siestaEnd         String?
-  createdAt         DateTime       @default(now())
+  id                 String          @id @default(cuid())
+  name               String
+  type               LocationType
+  orgId              String
+  org                Organization    @relation(fields: [orgId], references: [id])
+  address            String?
+  partnerCommission  Float?
+  rentCost           Float?
+  qrCodes            QRCode[]
+  staff              User[]
+  galleries          Gallery[]
+  equipment          Equipment[]
+  b2bDeliveries      B2BDelivery[]
+  cameras            Camera[]
+  kiosks             KioskDevice[]
+  cashRegisters      CashRegister[]
+  locationType       String          @default("LUXURY")
+  targetAOV          Float?
+  maxShiftHours      Int             @default(8)
+  siestaStart        String?
+  siestaEnd          String?
+  country            String          @default("Tunisia")
+  city               String?
+  timezone           String          @default("Africa/Tunis")
+  currency           String          @default("EUR")
+  taxRate            Float           @default(0.19)
+  rentAmount         Float?
+  rentType           String?
+  rentPercentage     Float?
+  targetDailyRevenue Float?
+  targetCaptureRate  Float?
+  scheduleType       String          @default("SIESTA")
+  morningStart       String?
+  morningEnd         String?
+  eveningStart       String?
+  eveningEnd         String?
+  rotationHours      Int?
+  commissionType     String          @default("FLAT")
+  commissionRate     Float           @default(0.10)
+  attendanceBonus    Float           @default(2.0)
+  vipCloserBonus     Float           @default(0.05)
+  tier1Threshold     Float?
+  tier1Rate          Float?
+  tier2Threshold     Float?
+  tier2Rate          Float?
+  tier3Rate          Float?
+  supervisorOverride Float?
+  partnerName        String?
+  partnerContact     String?
+  partnerEmail       String?
+  partnerPhone       String?
+  roomCount          Int?
+  occupancyRate      Float?
+  contractStartDate  DateTime?
+  contractEndDate    DateTime?
+  isActive           Boolean         @default(true)
+  pricingConfigs     PricingConfig[]
+  createdAt          DateTime        @default(now())
 }
 
 enum LocationType {
@@ -658,19 +694,23 @@ enum PrintStatus {
 }
 
 model PricingConfig {
-  id                 String   @id @default(cuid())
-  productKey         String   @unique
+  id                 String    @id @default(cuid())
+  productKey         String
   name               String
   price              Float
-  currency           String   @default("EUR")
-  isActive           Boolean  @default(true)
-  isAnchor           Boolean  @default(false)
-  isHidden           Boolean  @default(false)
-  displayOrder       Int      @default(0)
-  anchorDelaySeconds Int      @default(10)
+  currency           String    @default("EUR")
+  isActive           Boolean   @default(true)
+  isAnchor           Boolean   @default(false)
+  isHidden           Boolean   @default(false)
+  displayOrder       Int       @default(0)
+  anchorDelaySeconds Int       @default(10)
+  locationId         String?
+  location           Location? @relation(fields: [locationId], references: [id])
   updatedBy          String?
-  updatedAt          DateTime @updatedAt
-  createdAt          DateTime @default(now())
+  updatedAt          DateTime  @updatedAt
+  createdAt          DateTime  @default(now())
+
+  @@unique([productKey, locationId])
 }
 
 model SaleOrder {

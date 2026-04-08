@@ -2,12 +2,26 @@ export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const url = new URL(req.url);
+  const locationId = url.searchParams.get("locationId") || undefined;
+  const orderWhere: any = { status: "COMPLETED" };
+  const galleryWhere: any = {};
+  const userGalleryWhere: any = {};
+  if (locationId) {
+    orderWhere.gallery = { locationId };
+    galleryWhere.locationId = locationId;
+    userGalleryWhere.locationId = locationId;
+  }
+
   const [orders, galleries, locations, users, commissions, equipment, passes] = await Promise.all([
-    prisma.order.findMany({ where: { status: "COMPLETED" }, include: { gallery: { include: { location: true, photographer: true } } } }),
-    prisma.gallery.findMany({ include: { photographer: true, location: true, order: true } }),
+    prisma.order.findMany({ where: orderWhere, include: { gallery: { include: { location: true, photographer: true } } } }),
+    prisma.gallery.findMany({ where: galleryWhere, include: { photographer: true, location: true, order: true } }),
     prisma.location.findMany(),
-    prisma.user.findMany({ where: { role: "PHOTOGRAPHER" }, include: { galleries: true } }),
+    prisma.user.findMany({
+      where: { role: "PHOTOGRAPHER" },
+      include: { galleries: { where: userGalleryWhere } },
+    }),
     prisma.commission.findMany({ where: { isPaid: false } }),
     prisma.equipment.findMany(),
     prisma.customer.findMany({ where: { hasDigitalPass: true } }),
@@ -17,6 +31,7 @@ export async function GET() {
   const pendingPayouts = commissions.reduce((s, c) => s + c.amount, 0);
 
   const revenueByLocation = locations.map((loc) => ({
+    id: loc.id,
     name: loc.name,
     type: loc.type,
     revenue: orders.filter((o) => o.gallery.locationId === loc.id).reduce((s, o) => s + o.amount, 0),

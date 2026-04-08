@@ -330,7 +330,12 @@ async function main() {
     { productKey: "video_reel", name: "Video Reel add-on", price: 10 },
   ];
   for (const p of DEFAULT_PRICES) {
-    await prisma.pricingConfig.upsert({ where: { productKey: p.productKey }, update: {}, create: p });
+    const existing = await prisma.pricingConfig.findFirst({
+      where: { productKey: p.productKey, locationId: null },
+    });
+    if (!existing) {
+      await prisma.pricingConfig.create({ data: { ...p, locationId: null } });
+    }
   }
 
   // ── DEFAULT CAMPAIGNS ─────────────────────────

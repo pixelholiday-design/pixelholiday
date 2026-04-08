@@ -15,17 +15,31 @@ export default function DashboardPage() {
   const [data, setData] = useState<Dash | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const [division, setDivision] = useState<Division>("ALL");
+  const [locationId, setLocationId] = useState<string>("");
+  const [locations, setLocations] = useState<Array<{ id: string; name: string }>>([]);
+
+  useEffect(() => {
+    fetch("/api/admin/dashboard")
+      .then((r) => r.json())
+      .then((d) => setLocations((d.revenueByLocation || []).map((l: any, i: number) => ({ id: l.id || String(i), name: l.name })) || []))
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     setData(null);
-    const url = division === "ALL"
-      ? "/api/admin/dashboard"
-      : `/api/admin/dashboard-division?division=${division}`;
+    let url: string;
+    if (locationId) {
+      url = `/api/admin/dashboard?locationId=${locationId}`;
+    } else if (division === "ALL") {
+      url = "/api/admin/dashboard";
+    } else {
+      url = `/api/admin/dashboard-division?division=${division}`;
+    }
     fetch(url)
       .then((r) => r.json())
       .then(setData)
       .catch((e) => setErr(String(e)));
-  }, [division]);
+  }, [division, locationId]);
 
   if (err) {
     return (
@@ -60,6 +74,16 @@ export default function DashboardPage() {
               </button>
             ))}
           </div>
+          <select
+            value={locationId}
+            onChange={(e) => setLocationId(e.target.value)}
+            className="text-sm bg-white rounded-xl px-4 py-2 shadow-card border border-cream-300/60 text-navy-700"
+          >
+            <option value="">All Locations</option>
+            {locations.map((l) => (
+              <option key={l.id} value={l.id}>{l.name}</option>
+            ))}
+          </select>
           <div className="flex items-center gap-2 text-sm text-navy-500 bg-white rounded-xl px-4 py-2 shadow-card border border-cream-300/60">
             <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
             Live
