@@ -9,17 +9,23 @@ import {
 } from "lucide-react";
 
 type Dash = any;
+type Division = "ALL" | "LUXURY" | "SPLASH";
 
 export default function DashboardPage() {
   const [data, setData] = useState<Dash | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [division, setDivision] = useState<Division>("ALL");
 
   useEffect(() => {
-    fetch("/api/admin/dashboard")
+    setData(null);
+    const url = division === "ALL"
+      ? "/api/admin/dashboard"
+      : `/api/admin/dashboard-division?division=${division}`;
+    fetch(url)
       .then((r) => r.json())
       .then(setData)
       .catch((e) => setErr(String(e)));
-  }, []);
+  }, [division]);
 
   if (err) {
     return (
@@ -36,9 +42,28 @@ export default function DashboardPage() {
           <h1 className="heading text-4xl mt-1">Studio Dashboard</h1>
           <p className="text-navy-400 mt-1">Real-time revenue, conversion, and team performance.</p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-navy-500 bg-white rounded-xl px-4 py-2 shadow-card border border-cream-300/60">
-          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-          Live
+        <div className="flex items-center gap-3">
+          <div className="inline-flex rounded-xl bg-white shadow-card border border-cream-300/60 p-1 text-sm">
+            {(["ALL", "LUXURY", "SPLASH"] as const).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDivision(d)}
+                className={`px-3 py-1.5 rounded-lg font-medium transition ${
+                  division === d
+                    ? d === "LUXURY" ? "bg-gold-500 text-white"
+                    : d === "SPLASH" ? "bg-coral-500 text-white"
+                    : "bg-navy-800 text-white"
+                    : "text-navy-500 hover:bg-cream-100"
+                }`}
+              >
+                {d === "ALL" ? "All" : d === "LUXURY" ? "Pixel Luxury" : "Pixel Splash"}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-navy-500 bg-white rounded-xl px-4 py-2 shadow-card border border-cream-300/60">
+            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+            Live
+          </div>
         </div>
       </header>
 

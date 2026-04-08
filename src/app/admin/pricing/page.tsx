@@ -1,8 +1,17 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Save, History, Tag, Loader2 } from "lucide-react";
+import { Save, History, Tag, Loader2, Star, EyeOff } from "lucide-react";
 
-type Price = { id: string; productKey: string; name: string; price: number; currency: string };
+type Price = {
+  id: string;
+  productKey: string;
+  name: string;
+  price: number;
+  currency: string;
+  isAnchor?: boolean;
+  isHidden?: boolean;
+  displayOrder?: number;
+};
 type Hist = { id: string; productKey: string; oldPrice: number; newPrice: number; changedBy: string | null; createdAt: string };
 
 export default function PricingPage() {
@@ -35,6 +44,17 @@ export default function PricingPage() {
     load();
   }
 
+  async function toggleFlag(productKey: string, flag: "isAnchor" | "isHidden", value: boolean) {
+    setSaving(productKey);
+    await fetch("/api/admin/pricing", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productKey, [flag]: value }),
+    });
+    setSaving(null);
+    load();
+  }
+
   return (
     <div className="space-y-8">
       <header>
@@ -60,13 +80,19 @@ export default function PricingPage() {
                 <th className="px-6 py-3">Key</th>
                 <th className="px-6 py-3">Current</th>
                 <th className="px-6 py-3">New price</th>
+                <th className="px-6 py-3 text-center" title="Anchor product — shown first on kiosk">Anchor</th>
+                <th className="px-6 py-3 text-center" title="Hidden from kiosk — staff offers verbally">Hidden</th>
                 <th className="px-6 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-cream-300/70">
               {prices.map((p) => (
-                <tr key={p.id} className="hover:bg-cream-100/60">
-                  <td className="px-6 py-3 font-medium text-navy-900">{p.name}</td>
+                <tr key={p.id} className={`hover:bg-cream-100/60 ${p.isAnchor ? "bg-gold-500/5" : ""}`}>
+                  <td className="px-6 py-3 font-medium text-navy-900">
+                    {p.name}
+                    {p.isAnchor && <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-gold-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-gold-600"><Star className="h-3 w-3" />Anchor</span>}
+                    {p.isHidden && <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-navy-800/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-navy-700"><EyeOff className="h-3 w-3" />Hidden</span>}
+                  </td>
                   <td className="px-6 py-3 text-navy-400 font-mono text-xs">{p.productKey}</td>
                   <td className="px-6 py-3 text-navy-600">€{p.price.toFixed(2)}</td>
                   <td className="px-6 py-3">
@@ -78,6 +104,24 @@ export default function PricingPage() {
                       placeholder={p.price.toFixed(2)}
                       value={drafts[p.productKey] ?? ""}
                       onChange={(e) => setDrafts((d) => ({ ...d, [p.productKey]: e.target.value }))}
+                    />
+                  </td>
+                  <td className="px-6 py-3 text-center">
+                    <input
+                      type="checkbox"
+                      checked={!!p.isAnchor}
+                      disabled={saving === p.productKey}
+                      onChange={(e) => toggleFlag(p.productKey, "isAnchor", e.target.checked)}
+                      className="h-4 w-4 accent-gold-500"
+                    />
+                  </td>
+                  <td className="px-6 py-3 text-center">
+                    <input
+                      type="checkbox"
+                      checked={!!p.isHidden}
+                      disabled={saving === p.productKey}
+                      onChange={(e) => toggleFlag(p.productKey, "isHidden", e.target.checked)}
+                      className="h-4 w-4 accent-navy-700"
                     />
                   </td>
                   <td className="px-6 py-3 text-right">
