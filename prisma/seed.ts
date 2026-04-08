@@ -396,6 +396,7 @@ async function main() {
     { productKey: "pass_vip", name: "Digital Pass VIP", price: 150 },
     { productKey: "magic_shot", name: "Magic Shot add-on", price: 5 },
     { productKey: "video_reel", name: "Video Reel add-on", price: 10 },
+    { productKey: "auto_reel", name: "Auto-Reel highlight clip", price: 20 },
   ];
   for (const p of DEFAULT_PRICES) {
     const existing = await prisma.pricingConfig.findFirst({

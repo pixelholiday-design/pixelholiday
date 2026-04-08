@@ -220,6 +220,7 @@ model Gallery {
   downloadLogs    DownloadLog[]
   viewLogs        GalleryViewLog[]
   photoSets       PhotoSet[]
+  videoReels      VideoReel[]
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -1477,4 +1478,21 @@ model KioskEvent {
   amount     Float?
   locationId String?
   createdAt  DateTime @default(now())
+}
+
+// ── AI AUTO-REELS (Module 9) ─────────────────
+model VideoReel {
+  id           String   @id @default(cuid())
+  galleryId    String
+  gallery      Gallery  @relation(fields: [galleryId], references: [id])
+  photoIds     String   // JSON-encoded array of photo IDs in playback order
+  musicTrack   String?  // "upbeat" | "romantic" | "adventure"
+  duration     Int      @default(15) // total runtime in seconds
+  status       String   @default("READY") // GENERATING | READY | FAILED
+  previewHtml  String?  @db.Text // standalone HTML slideshow preview
+  thumbnailUrl String?
+  createdAt    DateTime @default(now())
+
+  @@index([galleryId])
+  @@index([status])
 }

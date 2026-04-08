@@ -10,5 +10,10 @@ export default async function Page({ params }: { params: { magicLinkToken: strin
     include: { photos: { orderBy: { sortOrder: "asc" } }, customer: true, photographer: true, location: true },
   });
   if (!gallery) return notFound();
-  return <GalleryView gallery={gallery as any} />;
+  const reel = await prisma.videoReel.findFirst({
+    where: { galleryId: gallery.id, status: "READY" },
+    orderBy: { createdAt: "desc" },
+    select: { id: true, duration: true, thumbnailUrl: true },
+  });
+  return <GalleryView gallery={gallery as any} reel={reel} />;
 }

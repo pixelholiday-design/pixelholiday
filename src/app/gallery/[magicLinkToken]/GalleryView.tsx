@@ -10,6 +10,7 @@ import FomoTimer from "@/components/gallery/FomoTimer";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
 import Lightbox from "@/components/gallery/Lightbox";
 import ShareMenu from "@/components/gallery/ShareMenu";
+import ReelOverlay, { type ReelInfo } from "./ReelOverlay";
 
 type Photo = {
   id: string;
@@ -32,7 +33,7 @@ type Gallery = {
   location: { name: string };
 };
 
-export default function GalleryView({ gallery }: { gallery: Gallery }) {
+export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?: ReelInfo | null }) {
   const [favOnly, setFavOnly] = useState(false);
   const [favDrawerOpen, setFavDrawerOpen] = useState(false);
   const [lbIdx, setLbIdx] = useState<number | null>(null);
@@ -141,6 +142,7 @@ export default function GalleryView({ gallery }: { gallery: Gallery }) {
             >
               {favOnly ? "All" : "Filter favs"}
             </button>
+            {reel && <ReelOverlay reel={reel} />}
             <ShareMenu url={galleryUrl} title={`PixelHoliday — ${gallery.location.name}`} />
             {isClean && <DownloadAllButton token={gallery.magicLinkToken} />}
           </div>

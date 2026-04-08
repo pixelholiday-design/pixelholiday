@@ -146,6 +146,13 @@ export async function POST(req: Request) {
       console.error("Wristband detection failed (non-fatal):", e);
     }
 
+    // Auto-Reel (Module 9): if 5+ photos uploaded, generate a reel in the background.
+    if (createdPhotos.length >= 5) {
+      import("@/lib/ai/reel-generator")
+        .then((m) => m.maybeAutoGenerateReel(gallery.id, createdPhotos.length))
+        .catch((e) => console.warn("auto-reel generation failed (non-fatal):", e));
+    }
+
     return NextResponse.json({
       galleryId: gallery.id,
       magicLinkToken: gallery.magicLinkToken,
