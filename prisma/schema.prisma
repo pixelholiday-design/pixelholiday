@@ -331,6 +331,13 @@ enum BookingSource {
   WALK_IN
   PRE_ARRIVAL
   WEBSITE
+  INSTAGRAM
+  FACEBOOK
+  EMAIL
+  PHONE
+  WHATSAPP
+  HOTEL_CONCIERGE
+  PARTNER_REFERRAL
 }
 
 // ── ORDERS & PAYMENTS ─────────────────────────
