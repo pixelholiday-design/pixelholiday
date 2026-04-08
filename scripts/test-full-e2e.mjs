@@ -78,13 +78,27 @@ let fixtures = {};
 async function loadFixtures() {
   const locations = await prisma.location.findMany({ select: { id: true, name: true, locationType: true } });
   const previewGallery = await prisma.gallery.findFirst({ where: { status: 'PREVIEW_ECOM' }, include: { photos: { take: 3 } } });
+  // Two UNSOLD galleries for the kiosk sale tests (Order.galleryId is @unique, so we need fresh ones per test)
+  const unsoldForCash = await prisma.gallery.findFirst({
+    where: { status: { in: ['PREVIEW_ECOM', 'HOOK_ONLY'] }, order: null, photos: { some: {} } },
+    include: { photos: { take: 3 } },
+  });
+  const unsoldForCard = await prisma.gallery.findFirst({
+    where: {
+      status: { in: ['PREVIEW_ECOM', 'HOOK_ONLY'] },
+      order: null,
+      photos: { some: {} },
+      NOT: unsoldForCash ? { id: unsoldForCash.id } : undefined,
+    },
+    include: { photos: { take: 3 } },
+  });
   const paidGallery = await prisma.gallery.findFirst({ where: { status: 'PAID' } });
   const hookGallery = await prisma.gallery.findFirst({ where: { status: 'HOOK_ONLY' } });
   const qr = await prisma.qRCode.findFirst();
   const customerWithRoom = await prisma.customer.findFirst({ where: { roomNumber: { not: null } } });
   const org = await prisma.organization.findFirst();
   const photographer = await prisma.user.findFirst({ where: { role: 'PHOTOGRAPHER' } });
-  fixtures = { locations, previewGallery, paidGallery, hookGallery, qr, customerWithRoom, org, photographer };
+  fixtures = { locations, previewGallery, unsoldForCash, unsoldForCard, paidGallery, hookGallery, qr, customerWithRoom, org, photographer };
 }
 
 // ─────────────────────────────────────────────
@@ -126,13 +140,12 @@ async function testCEO() {
   const payroll = await get('/api/admin/payroll', cookie);
   rec(S, 'A1.7', 'Payroll monthly data', payroll.status === 200 ? 'PASS' : 'FAIL', `status=${payroll.status}`);
 
-  // A1.8 Mark commission paid
+  // A1.8 Mark commission paid (PATCH, not POST)
   const firstUnpaid = await prisma.commission.findFirst({ where: { isPaid: false } });
   if (firstUnpaid) {
-    const mark = await post('/api/admin/commissions', { id: firstUnpaid.id, isPaid: true }, cookie);
+    const mark = await patch('/api/admin/commissions', { id: firstUnpaid.id, isPaid: true }, cookie);
     const after = await prisma.commission.findUnique({ where: { id: firstUnpaid.id } });
-    rec(S, 'A1.8', 'Mark commission paid', after?.isPaid ? 'PASS' : 'FAIL', `before=false after=${after?.isPaid} mark=${mark.status}`);
-    // Revert
+    rec(S, 'A1.8', 'Mark commission paid', after?.isPaid ? 'PASS' : 'FAIL', `before=false after=${after?.isPaid} patch=${mark.status}`);
     if (after?.isPaid) await prisma.commission.update({ where: { id: firstUnpaid.id }, data: { isPaid: false } });
   } else {
     rec(S, 'A1.8', 'Mark commission paid', 'SKIP', 'no unpaid commission');
@@ -185,9 +198,21 @@ async function testCEO() {
     rec(S, id, `GET ${path}`, r.status === 200 ? 'PASS' : 'FAIL', `status=${r.status}`);
   }
 
-  // A1.18 Create expense (needs API — check if /api/admin/finance/expenses or similar exists)
-  const expense = await post('/api/admin/cash/expense', { locationId: fixtures.locations[0].id, category: 'Office supplies', amount: 50, note: 'E2E test' }, cookie);
-  rec(S, 'A1.18', 'Create expense (cash/expense)', [200, 201].includes(expense.status) ? 'PASS' : 'FAIL', `status=${expense.status}`);
+  // A1.18 Create expense — needs real cashRegisterId + valid staffPin
+  const expRegister = await prisma.cashRegister.findFirst();
+  const expPhotog = await prisma.user.findFirst({ where: { role: 'PHOTOGRAPHER', pin: '1111' } });
+  if (expRegister && expPhotog) {
+    const expense = await post('/api/admin/cash/expense', {
+      cashRegisterId: expRegister.id,
+      amount: 50,
+      reason: 'Office supplies (E2E)',
+      staffId: expPhotog.id,
+      staffPin: '1111',
+    }, cookie);
+    rec(S, 'A1.18', 'Create cash expense', [200, 201].includes(expense.status) ? 'PASS' : 'FAIL', `status=${expense.status}`);
+  } else {
+    rec(S, 'A1.18', 'Create cash expense', 'SKIP', 'no register or photographer with PIN 1111');
+  }
 
   // A1.23 Bookings list
   const bookings = await get('/api/admin/bookings', cookie);
@@ -328,61 +353,58 @@ async function testCustomerFlows() {
 
   // Need photographer session cookie for /api/kiosk/sale (requireStaff)
   const photogCookie = await login('photo1@pixelholiday.local', 'password123');
-  if (g && g.photos?.length >= 3 && photogCookie) {
-    rec(S_KIOSK, 'B3.2', 'Kiosk gallery accessible', 'PASS', `gallery found`);
-    rec(S_KIOSK, 'B3.3', '3 photos selected', 'PASS', '3 photos');
+  const cashG = fixtures.unsoldForCash;
+  if (cashG && cashG.photos?.length >= 1 && photogCookie) {
+    rec(S_KIOSK, 'B3.2', 'Kiosk unsold gallery', 'PASS', `gallery=${cashG.id.slice(0, 8)} photos=${cashG.photos.length}`);
+    rec(S_KIOSK, 'B3.3', 'Photos selected', 'PASS', `${Math.min(cashG.photos.length, 3)} photos`);
 
-    const ordersBefore = await prisma.order.count({ where: { galleryId: g.id } });
     const sale = await post('/api/kiosk/sale', {
-      galleryId: g.id,
-      photoIds: g.photos.slice(0, 3).map(p => p.id),
+      galleryId: cashG.id,
+      photoIds: cashG.photos.slice(0, Math.min(cashG.photos.length, 3)).map(p => p.id),
       paymentMethod: 'CASH',
       cashPin: '1111',
     }, photogCookie);
-    rec(S_KIOSK, 'B3.4', 'Kiosk sale POST', [200, 201].includes(sale.status) ? 'PASS' : 'FAIL', `status=${sale.status} body=${JSON.stringify(sale.body).slice(0, 100)}`);
+    rec(S_KIOSK, 'B3.4', 'Kiosk sale CASH POST', [200, 201].includes(sale.status) ? 'PASS' : 'FAIL', `status=${sale.status} body=${JSON.stringify(sale.body).slice(0, 100)}`);
 
     if ([200, 201].includes(sale.status)) {
-      const ordersAfter = await prisma.order.count({ where: { galleryId: g.id } });
-      const order = await prisma.order.findFirst({ where: { galleryId: g.id }, orderBy: { createdAt: 'desc' } });
-      rec(S_KIOSK, 'B3.5', 'Order created', ordersAfter > ordersBefore ? 'PASS' : 'FAIL', `before=${ordersBefore} after=${ordersAfter}`);
-      const purchased = await prisma.photo.count({ where: { galleryId: g.id, isPurchased: true } });
-      rec(S_KIOSK, 'B3.6', 'Photos marked purchased', purchased >= 3 ? 'PASS' : 'PARTIAL', `purchased=${purchased}`);
+      const order = await prisma.order.findFirst({ where: { galleryId: cashG.id }, orderBy: { createdAt: 'desc' } });
+      rec(S_KIOSK, 'B3.5', 'Order created', order ? 'PASS' : 'FAIL', `order=${!!order} amount=${order?.amount}`);
+      const purchased = await prisma.photo.count({ where: { galleryId: cashG.id, isPurchased: true } });
+      rec(S_KIOSK, 'B3.6', 'Photos marked purchased', purchased >= 1 ? 'PASS' : 'FAIL', `purchased=${purchased}`);
       const comm = await prisma.commission.findFirst({ where: { orderId: order?.id } });
       rec(S_KIOSK, 'B3.7', 'Commission created', comm ? 'PASS' : 'FAIL', `comm=${!!comm} amount=${comm?.amount}`);
       const cashTx = await prisma.cashTransaction.findFirst({ where: { orderId: order?.id } });
       rec(S_KIOSK, 'B3.8', 'CashTransaction logged', cashTx ? 'PASS' : 'PARTIAL', `tx=${!!cashTx}`);
-      const galleryAfter = await prisma.gallery.findUnique({ where: { id: g.id } });
-      rec(S_KIOSK, 'B3.9', 'Gallery status updated', ['PAID', 'PARTIAL_PAID'].includes(galleryAfter?.status || '') ? 'PASS' : 'PARTIAL', `status=${galleryAfter?.status}`);
+      const galleryAfter = await prisma.gallery.findUnique({ where: { id: cashG.id } });
+      rec(S_KIOSK, 'B3.9', 'Gallery status → PAID/PARTIAL_PAID', ['PAID', 'PARTIAL_PAID'].includes(galleryAfter?.status || '') ? 'PASS' : 'FAIL', `status=${galleryAfter?.status}`);
     } else {
       for (const id of ['B3.5', 'B3.6', 'B3.7', 'B3.8', 'B3.9']) rec(S_KIOSK, id, 'DB state', 'FAIL', 'sale POST failed');
     }
   } else {
-    rec(S_KIOSK, 'B3.2', 'Kiosk gallery', 'SKIP', 'no gallery/session');
-    rec(S_KIOSK, 'B3.3', 'photos', 'SKIP', '');
-    rec(S_KIOSK, 'B3.4', 'sale', 'SKIP', '');
-    for (const id of ['B3.5', 'B3.6', 'B3.7', 'B3.8', 'B3.9']) rec(S_KIOSK, id, 'DB state', 'SKIP', '');
+    for (const id of ['B3.2', 'B3.3', 'B3.4', 'B3.5', 'B3.6', 'B3.7', 'B3.8', 'B3.9']) rec(S_KIOSK, id, 'Kiosk cash', 'SKIP', 'no unsold gallery');
   }
 
-  // B4 — Kiosk Card (STRIPE_TERMINAL in schema)
-  if (g && g.photos?.length >= 1 && photogCookie) {
+  // B4 — Kiosk Card (STRIPE_TERMINAL) — fresh gallery
+  const cardG = fixtures.unsoldForCard;
+  if (cardG && cardG.photos?.length >= 1 && photogCookie) {
     const saleCard = await post('/api/kiosk/sale', {
-      galleryId: g.id,
-      photoIds: [g.photos[0].id],
+      galleryId: cardG.id,
+      photoIds: [cardG.photos[0].id],
       paymentMethod: 'STRIPE_TERMINAL',
     }, photogCookie);
-    rec(S_KIOSK_CARD, 'B4.1', 'Kiosk sale CARD (STRIPE_TERMINAL)', [200, 201].includes(saleCard.status) ? 'PASS' : 'FAIL', `status=${saleCard.status}`);
+    rec(S_KIOSK_CARD, 'B4.1', 'Kiosk sale STRIPE_TERMINAL', [200, 201].includes(saleCard.status) ? 'PASS' : 'FAIL', `status=${saleCard.status} body=${JSON.stringify(saleCard.body).slice(0, 80)}`);
     if ([200, 201].includes(saleCard.status)) {
-      const order = await prisma.order.findFirst({ where: { galleryId: g.id, paymentMethod: 'STRIPE_TERMINAL' }, orderBy: { createdAt: 'desc' } });
+      const order = await prisma.order.findFirst({ where: { galleryId: cardG.id, paymentMethod: 'STRIPE_TERMINAL' }, orderBy: { createdAt: 'desc' } });
       rec(S_KIOSK_CARD, 'B4.2', 'Order created', order ? 'PASS' : 'FAIL', `order=${!!order}`);
       const cashTx = await prisma.cashTransaction.findFirst({ where: { orderId: order?.id } });
       rec(S_KIOSK_CARD, 'B4.3', 'No CashTransaction for card', !cashTx ? 'PASS' : 'FAIL', `cashTx=${!!cashTx}`);
       const comm = await prisma.commission.findFirst({ where: { orderId: order?.id } });
-      rec(S_KIOSK_CARD, 'B4.4', 'Commission created', comm ? 'PASS' : 'PARTIAL', `comm=${!!comm}`);
+      rec(S_KIOSK_CARD, 'B4.4', 'Commission created', comm ? 'PASS' : 'FAIL', `comm=${!!comm}`);
     } else {
-      rec(S_KIOSK_CARD, 'B4.2', 'Order created', 'FAIL', 'sale POST failed');
-      rec(S_KIOSK_CARD, 'B4.3', 'No CashTransaction for card', 'FAIL', 'sale POST failed');
-      rec(S_KIOSK_CARD, 'B4.4', 'Commission created', 'FAIL', 'sale POST failed');
+      for (const id of ['B4.2', 'B4.3', 'B4.4']) rec(S_KIOSK_CARD, id, 'DB state', 'FAIL', 'sale POST failed');
     }
+  } else {
+    for (const id of ['B4.1', 'B4.2', 'B4.3', 'B4.4']) rec(S_KIOSK_CARD, id, 'Kiosk card', 'SKIP', 'no second unsold gallery');
   }
 
   // B5 — Self-service kiosk
