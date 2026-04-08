@@ -233,30 +233,16 @@ export default function GalleryKiosk() {
     );
   }
 
-  // ── STEP checkout ──
+  // ── STEP checkout — 3-screen VIP anchor reveal ──
   if (step === "checkout" && active) {
-    const total = selected.size === active.photos.length ? 99 : selected.size * 5;
-    return (
-      <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 gap-8">
-        <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold">Choose how to pay</div>
-        <h1 className="font-display text-5xl">{selected.size} photos · €{total}</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full">
-          <button onClick={payNow} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
-            <Sparkles className="h-8 w-8 text-coral-400 mb-3" />
-            <div className="font-display text-2xl text-white">Pay now</div>
-            <p className="text-white/60 text-sm mt-2">Scan a QR with your phone to pay. Digital photos delivered instantly via WhatsApp.</p>
-          </button>
-          <button onClick={orderAtCounter} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
-            <ShoppingCart className="h-8 w-8 text-gold-400 mb-3" />
-            <div className="font-display text-2xl text-white">Order at counter</div>
-            <p className="text-white/60 text-sm mt-2">Send your selection to the photographer. Pay by card or cash at the sale point.</p>
-          </button>
-        </div>
-        <button onClick={() => setStep("browse")} className="btn-ghost text-white/70">
-          ← Back to browse
-        </button>
-      </div>
-    );
+    return <AnchorCheckout
+      active={active}
+      selected={selected}
+      busy={busy}
+      onPayNow={payNow}
+      onOrderAtCounter={orderAtCounter}
+      onBack={() => setStep("browse")}
+    />;
   }
 
   // ── STEP done ──
@@ -283,6 +269,168 @@ export default function GalleryKiosk() {
         <RefreshCw className="h-4 w-4" /> Start over
       </button>
       <p className="mt-2 text-xs text-white/40">Auto-reset in 30s</p>
+    </div>
+  );
+}
+
+function AnchorCheckout({
+  active,
+  selected,
+  busy,
+  onPayNow,
+  onOrderAtCounter,
+  onBack,
+}: {
+  active: any;
+  selected: Set<string>;
+  busy: boolean;
+  onPayNow: () => void;
+  onOrderAtCounter: () => void;
+  onBack: () => void;
+}) {
+  // Three screens: anchor → compromise → individual
+  const [screen, setScreen] = useState<"anchor" | "compromise" | "individual">("anchor");
+  const [tick, setTick] = useState(0);
+  const ANCHOR_DELAY = 10; // seconds before "See options" appears
+
+  // Countdown on anchor screen
+  useEffect(() => {
+    if (screen !== "anchor") return;
+    const t = setInterval(() => setTick((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [screen]);
+
+  const ANCHOR_PRICE = 130;
+  const partialPrice = selected.size * 5;
+  const fullPrice = active.photos.length * 5;
+  const showSeeOptions = tick >= ANCHOR_DELAY;
+
+  // SCREEN 1 — THE ANCHOR
+  if (screen === "anchor") {
+    const heroPhotos = active.photos.slice(0, 5);
+    const heroIndex = tick % Math.max(1, heroPhotos.length);
+    const hero = heroPhotos[heroIndex];
+    return (
+      <div className="fixed inset-0 bg-navy-900 text-white flex flex-col">
+        <div className="flex-1 relative overflow-hidden">
+          {hero && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={hero.id}
+              src={cleanUrl(hero.cloudinaryId || hero.s3Key_highRes, 1600)}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover opacity-90 anim-fade-up"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-900 via-navy-900/50 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-12 text-center">
+            <div className="text-gold-400 uppercase tracking-[0.3em] text-xs font-bold mb-2 inline-block">
+              <Sparkles className="h-3 w-3 inline mr-1" /> Your Complete Memory Collection
+            </div>
+            <h1 className="font-display text-7xl mb-2">€{ANCHOR_PRICE}</h1>
+            <p className="text-white/70 text-xl mb-6">
+              All {active.photos.length} high-resolution photos · Delivered to your phone
+            </p>
+            <button
+              onClick={onPayNow}
+              disabled={busy}
+              className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-coral-500 to-gold-500 px-12 py-5 text-2xl font-bold text-white shadow-lift hover:scale-105 transition"
+            >
+              <Sparkles className="h-6 w-6" /> Unlock All
+            </button>
+          </div>
+        </div>
+        <div className="p-4 flex items-center justify-between bg-navy-900 border-t border-white/5">
+          <button onClick={onBack} className="text-white/50 text-sm hover:text-white">
+            ← Back
+          </button>
+          {showSeeOptions ? (
+            <button
+              onClick={() => setScreen("compromise")}
+              className="text-gold-400 text-sm font-semibold underline-offset-4 hover:underline"
+            >
+              See other options →
+            </button>
+          ) : (
+            <span className="text-white/30 text-xs">{ANCHOR_DELAY - tick}s</span>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // SCREEN 2 — THE COMPROMISE (3 cards, anchor highlighted)
+  if (screen === "compromise") {
+    return (
+      <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 gap-8">
+        <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold">Choose your package</div>
+        <h1 className="font-display text-4xl">3 ways to take your memories home</h1>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl w-full">
+          {/* BEST VALUE — Anchor */}
+          <button
+            onClick={onPayNow}
+            disabled={busy}
+            className="relative rounded-2xl bg-gradient-to-br from-gold-500/20 to-coral-500/15 border-2 border-gold-500 p-6 text-left hover:scale-105 transition shadow-lift"
+          >
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold-500 text-navy-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+              Best Value
+            </div>
+            <Sparkles className="h-7 w-7 text-gold-400 mb-3" />
+            <div className="font-display text-2xl mb-1">All Photos Pass</div>
+            <div className="font-display text-4xl text-gold-400 mb-2">€{ANCHOR_PRICE}</div>
+            <p className="text-white/70 text-sm">Every photo, full resolution, delivered instantly to your phone.</p>
+          </button>
+
+          {/* Selected — Standard */}
+          <button
+            onClick={() => setScreen("individual")}
+            className="rounded-2xl bg-white/5 border border-white/10 p-6 text-left hover:bg-white/10 transition"
+          >
+            <ShoppingCart className="h-7 w-7 text-coral-400 mb-3" />
+            <div className="font-display text-2xl mb-1">Selected Photos</div>
+            <div className="font-display text-3xl text-white mb-2">€{partialPrice || 45}</div>
+            <p className="text-white/60 text-sm">{selected.size || "Pick"} photos · pay only for what you choose.</p>
+          </button>
+
+          {/* Single — De-emphasized */}
+          <button
+            onClick={() => setScreen("individual")}
+            className="rounded-2xl bg-white/[0.02] border border-white/5 p-6 text-left hover:bg-white/5 transition"
+          >
+            <div className="font-display text-lg mb-1 text-white/60">Individual Photos</div>
+            <div className="text-xl text-white/50 mb-2">from €5</div>
+            <p className="text-white/40 text-xs">Buy one photo at a time.</p>
+          </button>
+        </div>
+
+        <button onClick={() => setScreen("anchor")} className="btn-ghost text-white/50 text-sm">
+          ← Back
+        </button>
+      </div>
+    );
+  }
+
+  // SCREEN 3 — INDIVIDUAL (the original 2-button checkout)
+  return (
+    <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 gap-8">
+      <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold">Choose how to pay</div>
+      <h1 className="font-display text-5xl">{selected.size} photos · €{partialPrice}</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full">
+        <button onClick={onPayNow} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
+          <Sparkles className="h-8 w-8 text-coral-400 mb-3" />
+          <div className="font-display text-2xl text-white">Pay now</div>
+          <p className="text-white/60 text-sm mt-2">Scan a QR with your phone. Photos delivered instantly via WhatsApp.</p>
+        </button>
+        <button onClick={onOrderAtCounter} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
+          <ShoppingCart className="h-8 w-8 text-gold-400 mb-3" />
+          <div className="font-display text-2xl text-white">Order at counter</div>
+          <p className="text-white/60 text-sm mt-2">Send your selection to the photographer. Pay by card or cash.</p>
+        </button>
+      </div>
+      <button onClick={() => setScreen("compromise")} className="btn-ghost text-white/70 text-sm">
+        ← Back
+      </button>
     </div>
   );
 }

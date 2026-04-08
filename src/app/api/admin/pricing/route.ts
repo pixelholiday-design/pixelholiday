@@ -20,7 +20,10 @@ export async function GET() {
 
 const updateSchema = z.object({
   productKey: z.string().min(1),
-  price: z.number().positive().max(100000),
+  price: z.number().positive().max(100000).optional(),
+  isAnchor: z.boolean().optional(),
+  isHidden: z.boolean().optional(),
+  displayOrder: z.number().int().optional(),
 });
 
 export async function POST(req: Request) {
@@ -33,18 +36,35 @@ export async function POST(req: Request) {
     const existing = await prisma.pricingConfig.findUnique({ where: { productKey: parsed.data.productKey } });
     if (!existing) return NextResponse.json({ error: "Unknown product key" }, { status: 404 });
 
+    // If isAnchor=true, ensure no other product is the anchor
+    if (parsed.data.isAnchor === true) {
+      await prisma.pricingConfig.updateMany({
+        where: { isAnchor: true, productKey: { not: parsed.data.productKey } },
+        data: { isAnchor: false },
+      });
+    }
+
+    const data: Record<string, unknown> = { updatedBy: user.email };
+    if (parsed.data.price !== undefined) data.price = parsed.data.price;
+    if (parsed.data.isAnchor !== undefined) data.isAnchor = parsed.data.isAnchor;
+    if (parsed.data.isHidden !== undefined) data.isHidden = parsed.data.isHidden;
+    if (parsed.data.displayOrder !== undefined) data.displayOrder = parsed.data.displayOrder;
+
     const updated = await prisma.pricingConfig.update({
       where: { productKey: parsed.data.productKey },
-      data: { price: parsed.data.price, updatedBy: user.email },
+      data,
     });
-    await prisma.pricingHistory.create({
-      data: {
-        productKey: parsed.data.productKey,
-        oldPrice: existing.price,
-        newPrice: parsed.data.price,
-        changedBy: user.email,
-      },
-    });
+
+    if (parsed.data.price !== undefined && parsed.data.price !== existing.price) {
+      await prisma.pricingHistory.create({
+        data: {
+          productKey: parsed.data.productKey,
+          oldPrice: existing.price,
+          newPrice: parsed.data.price,
+          changedBy: user.email,
+        },
+      });
+    }
     return NextResponse.json({ ok: true, price: updated });
   } catch (e) {
     const g = handleGuardError(e); if (g) return g;

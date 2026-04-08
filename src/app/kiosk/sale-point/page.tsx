@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import SalesCoach from "@/components/kiosk/SalesCoach";
 import { Camera, Check, Loader2, RefreshCw, Upload, ListOrdered, Star, Banknote, CreditCard, Printer, LogOut } from "lucide-react";
 import PinPad from "@/components/kiosk/PinPad";
 import Receipt, { ReceiptData } from "@/components/kiosk/Receipt";
@@ -185,6 +186,14 @@ export default function SalePointPage() {
                       <img src={cleanUrl(p.cloudinaryId || p.s3Key_highRes, 800)} alt="" className="w-full h-full object-cover" />
                     </div>
                   ))}
+                </div>
+
+                <div className="mb-4">
+                  <SalesCoach
+                    cartItemCount={active.photoIds.length}
+                    cartTotal={active.totalCents / 100}
+                    locationType="LUXURY"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
