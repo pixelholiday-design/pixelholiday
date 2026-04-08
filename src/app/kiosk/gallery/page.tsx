@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles } from "lucide-react";
+import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag } from "lucide-react";
 import { cleanUrl } from "@/lib/cloudinary";
 import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
@@ -20,6 +20,7 @@ export default function GalleryKiosk() {
   const [err, setErr] = useState<string | null>(null);
   const [qrText, setQrText] = useState<string | null>(null);
   const [orderMsg, setOrderMsg] = useState<string | null>(null);
+  const [wristbandInput, setWristbandInput] = useState("");
 
   // 5min cart timeout
   useEffect(() => {
@@ -117,15 +118,12 @@ export default function GalleryKiosk() {
         </div>
         <h1 className="font-display text-6xl mb-4">Find your photos</h1>
         <p className="text-white/60 text-xl mb-12">Choose how you'd like to identify yourself.</p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 max-w-6xl w-full">
           <IdCard
             icon={<ScanLine className="h-10 w-10" />}
             title="Scan wristband"
             sub="QR on your waterproof band"
-            onClick={() => {
-              const v = prompt("Wristband code (e.g. WRIST-TEST-001)");
-              if (v) identify("WRISTBAND", v);
-            }}
+            onClick={() => identify("WRISTBAND", "SCAN")}
           />
           <IdCard
             icon={<User className="h-10 w-10" />}
@@ -142,6 +140,37 @@ export default function GalleryKiosk() {
               if (v) identify("ROOM", v);
             }}
           />
+          <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
+            <div className="h-20 w-20 rounded-2xl bg-brand-500/15 text-brand-300 flex items-center justify-center mb-5">
+              <Tag className="h-10 w-10" />
+            </div>
+            <div className="font-display text-2xl mb-1 text-white">Enter wristband code</div>
+            <div className="text-white/50 mb-4">Type the code on your band</div>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                const v = wristbandInput.trim();
+                if (v) identify("WRISTBAND", v);
+              }}
+              className="w-full flex flex-col gap-3"
+            >
+              <input
+                value={wristbandInput}
+                onChange={(e) => setWristbandInput(e.target.value.toUpperCase())}
+                placeholder="WRIST-..."
+                className="w-full min-h-[48px] px-4 py-3 rounded-xl bg-white/10 text-white placeholder-white/30 text-center tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-brand-400"
+                autoComplete="off"
+                autoCapitalize="characters"
+              />
+              <button
+                type="submit"
+                disabled={!wristbandInput.trim() || busy}
+                className="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-brand-500 to-brand-700 text-white font-semibold disabled:opacity-40"
+              >
+                Find my photos
+              </button>
+            </form>
+          </div>
         </div>
         {err && <div className="mt-6 text-coral-400">{err}</div>}
         {busy && <div className="mt-6 text-white/60">Searching…</div>}

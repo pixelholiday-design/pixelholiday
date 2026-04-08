@@ -104,8 +104,10 @@ async function main() {
       await prisma.photo.create({
         data: {
           galleryId: gallery.id,
+          // Real HTTPS URL so cleanUrl/watermarkedUrl can fall through when
+          // Cloudinary isn't configured in the target env.
           s3Key_highRes: demoUrl(idx),
-          cloudinaryId: `sample-${idx}`,
+          cloudinaryId: null,
           isHookImage: p === 0,
           sortOrder: p,
           isPurchased: statuses[g] === GalleryStatus.PAID || (statuses[g] === GalleryStatus.PARTIAL_PAID && p < 2),

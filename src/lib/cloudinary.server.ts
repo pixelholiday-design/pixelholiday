@@ -30,7 +30,14 @@ export async function uploadToCloudinary(url: string, folder: string) {
     return null;
   }
   try {
-    const res = await cloudinary.uploader.upload(url, { folder, resource_type: "auto" });
+    const res = await cloudinary.uploader.upload(url, {
+      folder,
+      resource_type: "auto",
+      // Auto-rotate based on EXIF orientation and bake the result, so downstream
+      // renders don't need to honor EXIF. Equivalent to `sharp(buf).rotate()`.
+      angle: "exif",
+      image_metadata: false,
+    });
     return { public_id: res.public_id, secure_url: res.secure_url };
   } catch (e) {
     console.warn("uploadToCloudinary failed", e);

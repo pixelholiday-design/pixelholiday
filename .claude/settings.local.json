@@ -72,7 +72,12 @@
       "Bash(xxd)",
       "Bash(ls .env*)",
       "Bash(grep -l \"DATABASE_URL\" .env*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(git fetch:*)",
+      "Bash(git push:*)",
+      "Bash(node -e \"console.log\\(process.env.DATABASE_URL || '\\(unset\\)'\\)\")",
+      "Bash(ls -la .env*)",
+      "Bash(ls src/app/gallery/[magicLinkToken]/)"
     ]
   }
 }
