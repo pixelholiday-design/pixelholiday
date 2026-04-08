@@ -246,17 +246,83 @@ async function main() {
     data: { code: "QR-WRIST-AQUA-001", type: QRCodeType.WRISTBAND, locationId: park.id, scanCount: 47 },
   });
 
-  // ── CHAT MESSAGES ─────────────────────────────
-  const chatMsgs = [
-    { senderId: ceo.id, content: "Team, great work last weekend — water park hit a record." },
-    { senderId: ops.id, content: "All cameras synced for the morning shift." },
-    { senderId: photo1.id, content: "Heading to room 214 now for the family booking." },
-    { senderId: sales.id, content: "Just closed a €150 album sale at the kiosk 🎉" },
-    { senderId: reception.id, content: "Two QR pre-bookings came in via the lobby card." },
+  // ── CHAT CHANNELS + MEMBERS + MESSAGES ────────
+  const hiltonChannel = await prisma.chatChannel.create({
+    data: {
+      name: "Hilton Team",
+      type: "LOCATION",
+      description: "Hilton Monastir on-site team",
+      locationId: hotel.id,
+      isSystem: true,
+    },
+  });
+  const aquaChannel = await prisma.chatChannel.create({
+    data: {
+      name: "AquaSplash Team",
+      type: "LOCATION",
+      description: "AquaSplash Water Park crew",
+      locationId: park.id,
+      isSystem: true,
+    },
+  });
+  const photogChannel = await prisma.chatChannel.create({
+    data: {
+      name: "All Photographers",
+      type: "ROLE",
+      description: "Cross-site photographer chat",
+      role: "PHOTOGRAPHER",
+      isSystem: true,
+    },
+  });
+  const announceChannel = await prisma.chatChannel.create({
+    data: {
+      name: "Announcements",
+      type: "ANNOUNCEMENT",
+      description: "Company-wide announcements",
+      isSystem: true,
+    },
+  });
+  const mgmtChannel = await prisma.chatChannel.create({
+    data: {
+      name: "Management",
+      type: "ROLE",
+      description: "CEO, Ops, and Supervisors",
+      role: "MANAGEMENT",
+      isSystem: true,
+    },
+  });
+
+  const addMembers = async (channelId: string, userIds: string[]) => {
+    for (const userId of userIds) {
+      await prisma.chatMember.create({ data: { channelId, userId } });
+    }
+  };
+  await addMembers(hiltonChannel.id, [ceo.id, ops.id, supervisor.id, photo1.id, sales.id, reception.id, trainee.id]);
+  await addMembers(aquaChannel.id, [ceo.id, ops.id, photo2.id]);
+  await addMembers(photogChannel.id, [ceo.id, ops.id, photo1.id, photo2.id]);
+  await addMembers(announceChannel.id, [ceo.id, ops.id, supervisor.id, photo1.id, photo2.id, sales.id, reception.id, trainee.id]);
+  await addMembers(mgmtChannel.id, [ceo.id, ops.id, supervisor.id]);
+
+  const msgs: Array<{ channelId: string; senderId: string | null; content: string; type?: "TEXT" | "SYSTEM" | "ALERT" | "AI_TIP" }> = [
+    { channelId: hiltonChannel.id, senderId: ops.id, content: "All cameras synced for the morning shift." },
+    { channelId: hiltonChannel.id, senderId: photo1.id, content: "Heading to room 214 now for the family booking." },
+    { channelId: hiltonChannel.id, senderId: sales.id, content: "Just closed a €150 album sale at the kiosk 🎉" },
+    { channelId: hiltonChannel.id, senderId: null, content: "⚠️ Conversion rate on today's galleries dropped 18% — review hook images.", type: "ALERT" },
+    { channelId: aquaChannel.id, senderId: photo2.id, content: "Wristband station restocked, 40 left." },
+    { channelId: aquaChannel.id, senderId: ops.id, content: "Slides reopen at 14:00, staff back in position." },
+    { channelId: aquaChannel.id, senderId: null, content: "💡 AI Tip: Guests love burst shots on the main slide — try 6-frame bursts for auto-reels.", type: "AI_TIP" },
+    { channelId: photogChannel.id, senderId: photo1.id, content: "Anyone have a spare SD card? Mine is full." },
+    { channelId: photogChannel.id, senderId: photo2.id, content: "I've got one at AquaSplash, swing by after your shift." },
+    { channelId: photogChannel.id, senderId: null, content: "💡 AI Tip: Golden hour today is 18:42 — schedule VIP sunset sessions now.", type: "AI_TIP" },
+    { channelId: announceChannel.id, senderId: ceo.id, content: "Team, great work last weekend — water park hit a record €12,400." },
+    { channelId: announceChannel.id, senderId: ceo.id, content: "Reminder: monthly payroll closes Friday." },
+    { channelId: announceChannel.id, senderId: null, content: "📣 New pricing tier live: VIP Sunset Package €180.", type: "SYSTEM" },
+    { channelId: mgmtChannel.id, senderId: ops.id, content: "Staff cost leaderboard attached — 3 photographers flagged for review." },
+    { channelId: mgmtChannel.id, senderId: null, content: "⚠️ Cash drawer variance of €42 detected at Hilton kiosk.", type: "ALERT" },
   ];
-  for (const m of chatMsgs) {
+  for (const m of msgs) {
     await prisma.chatMessage.create({
-      data: { senderId: m.senderId, content: m.content, channelId: `location:${hotel.id}` },
+      data: { channelId: m.channelId, senderId: m.senderId, content: m.content, type: (m.type as any) ?? "TEXT" },
     });
   }
 

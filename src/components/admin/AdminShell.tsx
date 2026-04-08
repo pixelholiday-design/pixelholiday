@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   Camera,
   LayoutDashboard,
@@ -35,6 +35,7 @@ import {
   ShoppingBag,
   Truck,
   Ticket,
+  MessageSquare,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -54,6 +55,7 @@ const SECTIONS: NavSection[] = [
   {
     title: "Team",
     items: [
+      { href: "/admin/chat", label: "Team Chat", icon: MessageSquare },
       { href: "/admin/staff", label: "Staff", icon: Users },
       { href: "/admin/equipment", label: "Equipment", icon: Package },
       { href: "/admin/housing", label: "Housing", icon: HomeIcon },
@@ -109,7 +111,7 @@ const ROLE_ALLOWED: Record<string, string[]> = {
   CEO: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
     "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
-    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/chat","/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
     "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs",
     "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
@@ -118,19 +120,19 @@ const ROLE_ALLOWED: Record<string, string[]> = {
   OPERATIONS_MANAGER: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
     "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
-    "/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/chat","/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
     "/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
   ],
   SUPERVISOR: [
-    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/staff","/admin/equipment",
+    "/admin/dashboard","/admin/upload","/admin/bookings","/admin/chat","/admin/staff","/admin/equipment",
     "/admin/academy","/admin/blog","/admin/reviews",
   ],
-  PHOTOGRAPHER: ["/admin/upload","/admin/bookings"],
-  SALES_STAFF: ["/admin/bookings"],
-  RECEPTIONIST: ["/admin/bookings"],
-  ACADEMY_TRAINEE: ["/admin/academy"],
+  PHOTOGRAPHER: ["/admin/upload","/admin/bookings","/admin/chat"],
+  SALES_STAFF: ["/admin/bookings","/admin/chat"],
+  RECEPTIONIST: ["/admin/bookings","/admin/chat"],
+  ACADEMY_TRAINEE: ["/admin/academy","/admin/chat"],
 };
 
 export default function AdminShell({
@@ -142,6 +144,26 @@ export default function AdminShell({
 }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    let alive = true;
+    const load = async () => {
+      try {
+        const r = await fetch("/api/chat/unread", { cache: "no-store" });
+        if (r.ok && alive) {
+          const d = await r.json();
+          setUnread(d.total ?? 0);
+        }
+      } catch {}
+    };
+    load();
+    const t = setInterval(load, 30000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+    };
+  }, [pathname]);
   const allowed = ROLE_ALLOWED[user.role] || [];
   const visibleSections = SECTIONS
     .map((s) => ({ ...s, items: s.items.filter((i) => allowed.includes(i.href)) }))
@@ -211,10 +233,14 @@ export default function AdminShell({
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
             <div className="flex-1" />
-            <button className="btn-ghost relative">
+            <Link href="/admin/chat" className="btn-ghost relative" title={`${unread} unread message${unread === 1 ? "" : "s"}`}>
               <Bell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-coral-500" />
-            </button>
+              {unread > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-coral-500 text-white text-[10px] font-bold flex items-center justify-center">
+                  {unread > 99 ? "99+" : unread}
+                </span>
+              )}
+            </Link>
             <div className="flex items-center gap-3 pl-3 border-l border-cream-300/70">
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-semibold text-navy-900 leading-tight">{user.name}</div>

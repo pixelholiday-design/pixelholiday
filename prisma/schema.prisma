@@ -48,6 +48,7 @@ model User {
   housing              StaffHousing?
   blogPosts            BlogPost[]
   chatMessages         ChatMessage[]
+  chatMemberships      ChatMember[]
   xp                   Int                       @default(0)
   level                Int                       @default(1)
   badges               String[]                  @default([])
@@ -101,6 +102,7 @@ model Location {
   galleries          Gallery[]
   equipment          Equipment[]
   b2bDeliveries      B2BDelivery[]
+  chatChannels       ChatChannel[]
   cameras            Camera[]
   kiosks             KioskDevice[]
   cashRegisters      CashRegister[]
@@ -514,13 +516,62 @@ model StaffTransfer {
 }
 
 // ── CHAT & COMMUNICATION ──────────────────────
+model ChatChannel {
+  id          String          @id @default(cuid())
+  name        String
+  type        ChatChannelType
+  description String?
+  locationId  String?
+  location    Location?       @relation(fields: [locationId], references: [id])
+  role        String?         // For ROLE-type channels (e.g., "PHOTOGRAPHER")
+  isSystem    Boolean         @default(false)
+  members     ChatMember[]
+  messages    ChatMessage[]
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+enum ChatChannelType {
+  LOCATION
+  ROLE
+  DIRECT
+  ANNOUNCEMENT
+}
+
+model ChatMember {
+  id         String      @id @default(cuid())
+  channelId  String
+  channel    ChatChannel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  lastReadAt DateTime    @default(now())
+  joinedAt   DateTime    @default(now())
+
+  @@unique([channelId, userId])
+  @@index([userId])
+}
+
 model ChatMessage {
-  id        String   @id @default(cuid())
-  senderId  String
-  sender    User     @relation(fields: [senderId], references: [id])
+  id        String          @id @default(cuid())
   channelId String
+  channel   ChatChannel     @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  senderId  String?
+  sender    User?           @relation(fields: [senderId], references: [id])
   content   String
-  createdAt DateTime @default(now())
+  type      ChatMessageType @default(TEXT)
+  edited    Boolean         @default(false)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([channelId, createdAt])
+}
+
+enum ChatMessageType {
+  TEXT
+  IMAGE
+  SYSTEM
+  ALERT
+  AI_TIP
 }
 
 // ── AI & CONTENT ──────────────────────────────
