@@ -33,7 +33,7 @@ export default function DashboardPage() {
     } else if (division === "ALL") {
       url = "/api/admin/dashboard";
     } else {
-      url = `/api/admin/dashboard-division?division=${division}`;
+      url = `/api/admin/dashboard?division=${division}`;
     }
     fetch(url)
       .then((r) => r.json())

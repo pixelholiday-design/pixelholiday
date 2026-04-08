@@ -1,0 +1,764 @@
+{
+  "pages": [
+    {
+      "route": "/",
+      "filled": "/",
+      "status": 307,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/academy",
+      "filled": "/admin/academy",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/academy/progress",
+      "filled": "/admin/academy/progress",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/ai-insights",
+      "filled": "/admin/ai-insights",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/b2b",
+      "filled": "/admin/b2b",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/blog",
+      "filled": "/admin/blog",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/bookings",
+      "filled": "/admin/bookings",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/cameras",
+      "filled": "/admin/cameras",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/cash",
+      "filled": "/admin/cash",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/cash/[locationId]",
+      "filled": "/admin/cash/cmnpwe8py0004e3tr2tgv9scd",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/commissions",
+      "filled": "/admin/commissions",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/dashboard",
+      "filled": "/admin/dashboard",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/equipment",
+      "filled": "/admin/equipment",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance",
+      "filled": "/admin/finance",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance/accounts",
+      "filled": "/admin/finance/accounts",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance/budget",
+      "filled": "/admin/finance/budget",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance/close-month",
+      "filled": "/admin/finance/close-month",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance/expenses",
+      "filled": "/admin/finance/expenses",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance/invoices",
+      "filled": "/admin/finance/invoices",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance/revenue",
+      "filled": "/admin/finance/revenue",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/finance/tax",
+      "filled": "/admin/finance/tax",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/franchise",
+      "filled": "/admin/franchise",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/franchise/[orgId]",
+      "filled": "/admin/franchise/cmnpwe8ir0000e3tr4ahes60p",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/gamification",
+      "filled": "/admin/gamification",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/housing",
+      "filled": "/admin/housing",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/hr/applications",
+      "filled": "/admin/hr/applications",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/hr/jobs",
+      "filled": "/admin/hr/jobs",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/kiosk-setup",
+      "filled": "/admin/kiosk-setup",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/kiosks",
+      "filled": "/admin/kiosks",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/magic-elements",
+      "filled": "/admin/magic-elements",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/payroll",
+      "filled": "/admin/payroll",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/photo-flow",
+      "filled": "/admin/photo-flow",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/pricing",
+      "filled": "/admin/pricing",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/retouch",
+      "filled": "/admin/retouch",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/reviews",
+      "filled": "/admin/reviews",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/sites/evaluate",
+      "filled": "/admin/sites/evaluate",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/sleeping-money",
+      "filled": "/admin/sleeping-money",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/staff",
+      "filled": "/admin/staff",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/staff/[id]",
+      "filled": "/admin/staff/cmnpwe8to0006e3trl6pq1529",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/store/coupons",
+      "filled": "/admin/store/coupons",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/store/labs",
+      "filled": "/admin/store/labs",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/store/orders",
+      "filled": "/admin/store/orders",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/upload",
+      "filled": "/admin/upload",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/wifi-transfer",
+      "filled": "/admin/wifi-transfer",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/admin/zones",
+      "filled": "/admin/zones",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/book/[qrCodeId]",
+      "filled": "/book/sample",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/gallery/[magicLinkToken]",
+      "filled": "/gallery/cmnpweap90017e3tr5kv7um8x",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/[galleryId]",
+      "filled": "/kiosk/cmnpweap90016e3truah07cxo",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/gallery",
+      "filled": "/kiosk/gallery",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/print-queue",
+      "filled": "/kiosk/print-queue",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/sale-point",
+      "filled": "/kiosk/sale-point",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/sd-upload",
+      "filled": "/kiosk/sd-upload",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/self-service",
+      "filled": "/kiosk/self-service",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/setup",
+      "filled": "/kiosk/setup",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/kiosk/tv-display",
+      "filled": "/kiosk/tv-display",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/login",
+      "filled": "/login",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/mobile-upload",
+      "filled": "/mobile-upload",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/my-dashboard",
+      "filled": "/my-dashboard",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/pass/[locationId]",
+      "filled": "/pass/cmnpwe8py0004e3tr2tgv9scd",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/portfolio",
+      "filled": "/portfolio",
+      "status": 200,
+      "note": "⚠️ placeholder"
+    },
+    {
+      "route": "/privacy",
+      "filled": "/privacy",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/shop",
+      "filled": "/shop",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/signup",
+      "filled": "/signup",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/terms",
+      "filled": "/terms",
+      "status": 200,
+      "note": "✅"
+    }
+  ],
+  "apis": [
+    {
+      "route": "/api/academy/modules",
+      "filled": "/api/academy/modules",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/academy/progress",
+      "filled": "/api/academy/progress",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/ai/briefing",
+      "filled": "/api/admin/ai/briefing",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/ai/insights",
+      "filled": "/api/admin/ai/insights",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/appointments-kpi",
+      "filled": "/api/admin/appointments-kpi",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/badges",
+      "filled": "/api/admin/badges",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/bookings",
+      "filled": "/api/admin/bookings",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/cash",
+      "filled": "/api/admin/cash",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/cash/[locationId]",
+      "filled": "/api/admin/cash/cmnpwe8py0004e3tr2tgv9scd",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/cash/export",
+      "filled": "/api/admin/cash/export",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/commissions",
+      "filled": "/api/admin/commissions",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/dashboard",
+      "filled": "/api/admin/dashboard",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/dashboard-division",
+      "filled": "/api/admin/dashboard-division",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/equipment",
+      "filled": "/api/admin/equipment",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/housing",
+      "filled": "/api/admin/housing",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/kiosk-config",
+      "filled": "/api/admin/kiosk-config",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/leaderboard",
+      "filled": "/api/admin/leaderboard",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/magic-elements",
+      "filled": "/api/admin/magic-elements",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/payroll",
+      "filled": "/api/admin/payroll",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/payroll-gated",
+      "filled": "/api/admin/payroll-gated",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/pricing",
+      "filled": "/api/admin/pricing",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/print-jobs",
+      "filled": "/api/admin/print-jobs",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/proofs",
+      "filled": "/api/admin/proofs",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/scaling-gates",
+      "filled": "/api/admin/scaling-gates",
+      "status": 400,
+      "note": "⚠️ 400"
+    },
+    {
+      "route": "/api/admin/shifts",
+      "filled": "/api/admin/shifts",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/sites/evaluations",
+      "filled": "/api/admin/sites/evaluations",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/sleeping-money",
+      "filled": "/api/admin/sleeping-money",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/staff",
+      "filled": "/api/admin/staff",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/staff/[id]",
+      "filled": "/api/admin/staff/cmnpwe8to0006e3trl6pq1529",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/admin/zones/active",
+      "filled": "/api/admin/zones/active",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/ai/coaching-insights",
+      "filled": "/api/ai/coaching-insights",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/ai/growth",
+      "filled": "/api/ai/growth",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/ai/skill-profile/[userId]",
+      "filled": "/api/ai/skill-profile/cmnpwe8to0006e3trl6pq1529",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/ai/weekly-report/[userId]",
+      "filled": "/api/ai/weekly-report/cmnpwe8to0006e3trl6pq1529",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/automation/cron",
+      "filled": "/api/automation/cron",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/b2b/delivery",
+      "filled": "/api/b2b/delivery",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/b2b/report",
+      "filled": "/api/b2b/report",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/blog",
+      "filled": "/api/blog",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/camera/register",
+      "filled": "/api/camera/register",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/chat/channels",
+      "filled": "/api/chat/channels",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/chat/messages",
+      "filled": "/api/chat/messages",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/franchise",
+      "filled": "/api/franchise",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/franchise/[orgId]",
+      "filled": "/api/franchise/cmnpwe8ir0000e3tr4ahes60p",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/franchise/revenue",
+      "filled": "/api/franchise/revenue",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/gallery/[token]/download",
+      "filled": "/api/gallery/cmnpweap90017e3tr5kv7um8x/download",
+      "status": 302,
+      "note": "✅"
+    },
+    {
+      "route": "/api/health",
+      "filled": "/api/health",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/hooks/suggest",
+      "filled": "/api/hooks/suggest",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/hr/applications",
+      "filled": "/api/hr/applications",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/hr/jobs",
+      "filled": "/api/hr/jobs",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/kiosk/sale-orders",
+      "filled": "/api/kiosk/sale-orders",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/local/galleries",
+      "filled": "/api/local/galleries",
+      "status": 400,
+      "note": "⚠️ 400"
+    },
+    {
+      "route": "/api/local/gallery/[id]",
+      "filled": "/api/local/gallery/cmnpwe8to0006e3trl6pq1529",
+      "status": 404,
+      "note": "❌ 404"
+    },
+    {
+      "route": "/api/local/order",
+      "filled": "/api/local/order",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/local/photo/[id]/file",
+      "filled": "/api/local/photo/cmnpwe8to0006e3trl6pq1529/file",
+      "status": 404,
+      "note": "❌ 404"
+    },
+    {
+      "route": "/api/local/status",
+      "filled": "/api/local/status",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/local/sync",
+      "filled": "/api/local/sync",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/me/xp",
+      "filled": "/api/me/xp",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/saas/branding",
+      "filled": "/api/saas/branding",
+      "status": 400,
+      "note": "⚠️ 400"
+    },
+    {
+      "route": "/api/saas/subscription",
+      "filled": "/api/saas/subscription",
+      "status": 400,
+      "note": "⚠️ 400"
+    },
+    {
+      "route": "/api/shop/products",
+      "filled": "/api/shop/products",
+      "status": 200,
+      "note": "✅"
+    },
+    {
+      "route": "/api/webhooks/whatsapp",
+      "filled": "/api/webhooks/whatsapp",
+      "status": 403,
+      "note": "⚠️ 403"
+    }
+  ],
+  "deadLinks": [],
+  "placeholders": [
+    {
+      "file": "src\\app\\portfolio\\page.tsx",
+      "count": 1,
+      "sample": "coming soon"
+    }
+  ]
+}

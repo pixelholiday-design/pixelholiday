@@ -9,8 +9,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // ── PixelHoliday brand (real logo colors) ──
+        brand: {
+          50:  "#E8F6FC",
+          100: "#C5E9F7",
+          200: "#8FD4EF",
+          300: "#4FC4F0",  // Light Blue (highlights)
+          400: "#29ABE2",  // PRIMARY — turquoise cyan (THE PixelHoliday blue)
+          500: "#29ABE2",
+          600: "#1F93C5",
+          700: "#1A7BB5",  // Dark Blue (deeper elements, sidebar bg)
+          800: "#156291",
+          900: "#0F4868",
+        },
+        // Legacy coral (kept — accent + secondary CTA)
         coral: {
-          50: "#FEF3F0",
+          50:  "#FEF3F0",
           100: "#FCE4DC",
           200: "#F8C4B2",
           300: "#F39E82",
@@ -21,8 +35,9 @@ const config: Config = {
           800: "#7E2818",
           900: "#551A10",
         },
+        // Navy — dark backgrounds for kiosks + text
         navy: {
-          50: "#F0F3F8",
+          50:  "#F0F3F8",
           100: "#D9E0EC",
           200: "#A9B7CC",
           300: "#7A8EAC",
@@ -31,14 +46,16 @@ const config: Config = {
           600: "#1F3352",
           700: "#162642",
           800: "#0F1B2D",
-          900: "#08111C",
+          900: "#0C1829",  // Dark Background
         },
+        // Cream — warm page backgrounds
         cream: {
-          50: "#FFFFFE",
-          100: "#FAFAF7",
+          50:  "#FFFFFE",
+          100: "#FAFAF7",  // Cream Background
           200: "#F3F2EC",
           300: "#E9E7DD",
         },
+        // Gold — premium/VIP elements
         gold: {
           400: "#E3BC6D",
           500: "#D4A853",

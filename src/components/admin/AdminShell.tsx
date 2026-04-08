@@ -151,20 +151,19 @@ export default function AdminShell({
     <div className="min-h-screen bg-cream-100">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-navy-800 text-white transform transition-transform duration-200 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-60 bg-brand-700 text-white transform transition-transform duration-200 lg:translate-x-0 ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex items-center gap-3 px-6 h-16 border-b border-white/5">
-          <div className="h-9 w-9 rounded-xl bg-coral-500/15 ring-1 ring-coral-500/30 flex items-center justify-center">
-            <Camera className="h-4 w-4 text-coral-400" />
-          </div>
+        <div className="flex items-center gap-3 px-6 h-16 border-b border-white/10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-icon.png" alt="PixelHoliday" className="h-8 w-8 rounded-lg bg-white/95 p-0.5" />
           <span className="font-display text-xl tracking-tight">PixelHoliday</span>
         </div>
         <nav className="px-3 py-5 overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin">
           {visibleSections.map((section) => (
             <div key={section.title} className="mb-6">
-              <div className="px-3 text-[10px] font-semibold uppercase tracking-widest text-white/40 mb-2">
+              <div className="px-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/50 mb-2">
                 {section.title}
               </div>
               <div className="space-y-0.5">
@@ -177,15 +176,15 @@ export default function AdminShell({
                       key={item.href}
                       href={item.href}
                       onClick={() => setOpen(false)}
-                      className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
+                      className={`relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] transition ${
                         active
-                          ? "bg-coral-500/15 text-coral-300 ring-1 ring-coral-500/20"
+                          ? "bg-white/10 text-white font-medium"
                           : "text-white/70 hover:bg-white/5 hover:text-white"
                       }`}
                     >
-                      <Icon className="h-4 w-4 shrink-0" />
+                      {active && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r bg-coral-500" />}
+                      <Icon className="h-[18px] w-[18px] shrink-0" strokeWidth={1.5} />
                       <span>{item.label}</span>
-                      {active && <ChevronRight className="h-3.5 w-3.5 ml-auto" />}
                     </Link>
                   );
                 })}
@@ -204,7 +203,7 @@ export default function AdminShell({
       )}
 
       {/* Main column */}
-      <div className="lg:pl-64">
+      <div className="lg:pl-60">
         {/* Top bar */}
         <header className="sticky top-0 z-20 bg-cream-100/80 backdrop-blur border-b border-cream-300/60">
           <div className="flex items-center gap-3 px-4 sm:px-6 h-16">
@@ -221,7 +220,7 @@ export default function AdminShell({
                 <div className="text-sm font-semibold text-navy-900 leading-tight">{user.name}</div>
                 <div className="text-[11px] text-navy-400 uppercase tracking-wider">{user.role}</div>
               </div>
-              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-coral-400 to-gold-500 flex items-center justify-center text-white font-semibold text-sm">
+              <div className="h-9 w-9 rounded-full bg-gradient-to-br from-brand-400 to-brand-700 flex items-center justify-center text-white font-medium text-sm">
                 {user.name?.charAt(0) || "?"}
               </div>
               <button onClick={() => signOut({ callbackUrl: "/login" })} className="btn-ghost" title="Sign out">

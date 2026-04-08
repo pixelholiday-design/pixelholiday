@@ -24,12 +24,15 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-cream-100">
       {/* LEFT — Visual */}
-      <aside className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden bg-resort-pattern">
-        <div className="absolute inset-0 bg-navy-900/20" />
+      <aside className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden bg-gradient-to-br from-brand-700 via-brand-500 to-brand-400">
+        {/* Subtle wave pattern overlay */}
+        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+          <path d="M0,300 Q200,240 400,300 T800,300 L800,600 L0,600 Z" fill="white" />
+          <path d="M0,400 Q200,340 400,400 T800,400 L800,600 L0,600 Z" fill="white" opacity="0.5" />
+        </svg>
         <div className="relative z-10 flex items-center gap-3 text-white">
-          <div className="h-11 w-11 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center ring-1 ring-white/20">
-            <Camera className="h-5 w-5" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-icon.png" alt="PixelHoliday" className="h-11 w-11 rounded-xl bg-white p-1 shadow-lift" />
           <span className="font-display text-2xl tracking-tight">PixelHoliday</span>
         </div>
         <div className="relative z-10 text-white max-w-md">
@@ -61,8 +64,9 @@ export default function LoginPage() {
       {/* RIGHT — Form */}
       <main className="flex items-center justify-center px-6 py-12">
         <div className="w-full max-w-sm animate-slide-up">
-          <div className="flex items-center gap-2 text-coral-500 lg:hidden mb-6">
-            <Camera className="h-5 w-5" />
+          <div className="flex items-center gap-2 lg:hidden mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-icon.png" alt="PixelHoliday" className="h-8 w-8" />
             <span className="font-display text-xl text-navy-900">PixelHoliday</span>
           </div>
           <h1 className="heading text-4xl mb-2">Welcome back</h1>
