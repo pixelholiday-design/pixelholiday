@@ -496,12 +496,40 @@ model Shift {
 }
 
 model StaffHousing {
-  id            String  @id @default(cuid())
-  userId        String  @unique
-  user          User    @relation(fields: [userId], references: [id])
-  address       String
-  monthlyCost   Float
-  documentation String?
+  id                String           @id @default(cuid())
+  userId            String           @unique
+  user              User             @relation(fields: [userId], references: [id])
+  propertyName      String?
+  address           String
+  type              String?          // APARTMENT, SHARED_ROOM, HOTEL_ROOM, STUDIO
+  capacity          Int              @default(1)
+  monthlyCost       Float
+  deposit           Float?
+  utilitiesIncluded Boolean          @default(false)
+  wifiIncluded      Boolean          @default(false)
+  distanceToResort  String?
+  contractStart     DateTime?
+  contractEnd       DateTime?
+  notes             String?
+  documentation     String?
+  expenses          HousingExpense[]
+  createdAt         DateTime         @default(now())
+}
+
+model HousingExpense {
+  id        String       @id @default(cuid())
+  housingId String
+  housing   StaffHousing @relation(fields: [housingId], references: [id], onDelete: Cascade)
+  type      String       // RENT, UTILITIES, REPAIR, DEPOSIT, FURNITURE, CLEANING
+  amount    Float
+  date      DateTime
+  paidBy    String       // COMPANY, STAFF, SHARED
+  receipt   String?
+  notes     String?
+  createdAt DateTime     @default(now())
+
+  @@index([housingId])
+  @@index([date])
 }
 
 model StaffTransfer {
@@ -908,6 +936,24 @@ model CashExpense {
   approvedBy     String?
   receiptUrl     String?
   createdAt      DateTime     @default(now())
+}
+
+model OperatingExpense {
+  id          String   @id @default(cuid())
+  category    String   // RENT, SALARY, EQUIPMENT, TRAVEL, ACCOMMODATION, SUPPLIES, MARKETING, INSURANCE, LICENSE, UTILITIES, OTHER
+  amount      Float
+  date        DateTime
+  locationId  String?
+  paidBy      String?  // "Company account", "Petty cash", "Manager card"
+  receiptUrl  String?
+  description String?
+  recurring   Boolean  @default(false)
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  @@index([category])
+  @@index([date])
+  @@index([locationId])
 }
 
 // ── GALLERY ENHANCEMENTS (Pixieset-level) ───────────────────────
