@@ -36,24 +36,19 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
  */
 export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
   if (!publicIdOrUrl) return "";
-  if (!HAS_CLOUDINARY && isHttpsUrl(publicIdOrUrl)) return publicIdOrUrl;
+  // HTTPS URLs (seed picsum, R2 public URLs, etc.) pass through unchanged.
+  // Cloudinary's image/fetch is unreliable cross-host and was breaking production
+  // galleries. Real uploads go through the cloudinary publicId branch below.
+  if (isHttpsUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `l_${WATERMARK},w_0.5,g_center,o_40/c_limit,w_${width},q_60,f_webp,a_exif`;
-  if (isHttpsUrl(publicIdOrUrl)) {
-    const encoded = encodeURIComponent(publicIdOrUrl);
-    return `https://res.cloudinary.com/${CLOUD || "demo"}/image/fetch/${transform}/${encoded}`;
-  }
   return `https://res.cloudinary.com/${CLOUD || "demo"}/image/upload/${transform}/${publicIdOrUrl}`;
 }
 
 /** Clean (unwatermarked) URL — only for PAID galleries */
 export function cleanUrl(publicIdOrUrl: string, width = 1600): string {
   if (!publicIdOrUrl) return "";
-  if (!HAS_CLOUDINARY && isHttpsUrl(publicIdOrUrl)) return publicIdOrUrl;
-  // a_exif → auto-rotate based on EXIF orientation. c_limit preserves aspect.
+  // HTTPS URLs pass through unchanged — see watermarkedUrl note.
+  if (isHttpsUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `c_limit,w_${width},q_85,f_auto,a_exif`;
-  if (isHttpsUrl(publicIdOrUrl)) {
-    const encoded = encodeURIComponent(publicIdOrUrl);
-    return `https://res.cloudinary.com/${CLOUD || "demo"}/image/fetch/${transform}/${encoded}`;
-  }
   return `https://res.cloudinary.com/${CLOUD || "demo"}/image/upload/${transform}/${publicIdOrUrl}`;
 }
