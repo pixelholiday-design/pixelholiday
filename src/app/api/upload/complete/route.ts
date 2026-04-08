@@ -121,9 +121,16 @@ export async function POST(req: Request) {
       { galleryId: gallery.id, photoCount: data.photos.length }
     );
 
+    const createdPhotos = await prisma.photo.findMany({
+      where: { galleryId: gallery.id },
+      select: { id: true },
+      orderBy: { sortOrder: "asc" },
+    });
+
     return NextResponse.json({
       galleryId: gallery.id,
       magicLinkToken: gallery.magicLinkToken,
+      photoIds: createdPhotos.map((p) => p.id),
       gamification: photogXp,
     });
   } catch (e) {

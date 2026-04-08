@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { format, startOfWeek, addDays } from "date-fns";
+import SkillRadar from "@/components/ai/SkillRadar";
 
 export default function StaffDetail({ params }: { params: { id: string } }) {
   const [user, setUser] = useState<any>(null);
@@ -70,6 +71,8 @@ export default function StaffDetail({ params }: { params: { id: string } }) {
           <div className="text-gray-500">No housing assigned</div>
         )}
       </div>
+
+      <SkillRadar userId={params.id} />
 
       <div className="bg-white p-4 rounded shadow">
         <h2 className="font-semibold mb-2">Commissions ({user.commissions?.length || 0})</h2>

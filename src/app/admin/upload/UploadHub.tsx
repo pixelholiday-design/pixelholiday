@@ -2,6 +2,7 @@
 import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Star, Upload, Loader2, Check, ImageIcon, Film, Sparkles, Link as LinkIcon, Copy } from "lucide-react";
+import UploadCoach from "@/components/ai/UploadCoach";
 
 type LocOpt = { id: string; name: string; type: string };
 type PhotogOpt = { id: string; name: string };
@@ -17,7 +18,7 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
   const [status, setStatus] = useState<"HOOK_ONLY" | "PREVIEW_ECOM" | "DIGITAL_PASS">("PREVIEW_ECOM");
   const [items, setItems] = useState<Item[]>([]);
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ link: string } | null>(null);
+  const [done, setDone] = useState<{ link: string; photoIds: string[] } | null>(null);
 
   const onDrop = useCallback((accepted: File[]) => {
     const next = accepted.map((f) => ({ file: f, preview: URL.createObjectURL(f), isHook: false }));
@@ -81,7 +82,7 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
 
     setBusy(false);
     if (res.magicLinkToken) {
-      setDone({ link: `${window.location.origin}/gallery/${res.magicLinkToken}` });
+      setDone({ link: `${window.location.origin}/gallery/${res.magicLinkToken}`, photoIds: res.photoIds || [] });
     }
   }
 
@@ -195,6 +196,11 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
                   <Copy className="h-3.5 w-3.5" />
                 </button>
               </div>
+              {done.photoIds.length > 0 && (
+                <div className="mt-3">
+                  <UploadCoach photoIds={done.photoIds} />
+                </div>
+              )}
             </div>
           )}
         </aside>

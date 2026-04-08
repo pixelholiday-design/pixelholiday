@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Trophy, Flame, Star, Zap, Loader2, TrendingUp } from "lucide-react";
+import SkillRadar from "@/components/ai/SkillRadar";
 
 type Stats = {
   user: { id: string; name: string; xp: number; level: number; streakDays: number; userBadges: any[] };
@@ -108,6 +109,9 @@ export default function MyDashboard() {
             </div>
           )}
         </div>
+
+        {/* AI skill radar */}
+        <SkillRadar userId={stats.user.id} />
 
         {/* Leaderboard */}
         <div className="card overflow-hidden">

@@ -35,15 +35,18 @@ type Briefing = {
 export default function AIInsightsPage() {
   const [insights, setInsights] = useState<Insight[] | null>(null);
   const [briefing, setBriefing] = useState<Briefing | null>(null);
+  const [coaching, setCoaching] = useState<{ heatmap: any[]; alerts: any[] } | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function load() {
-    const [i, b] = await Promise.all([
+    const [i, b, c] = await Promise.all([
       fetch("/api/admin/ai/insights").then((r) => r.json()),
       fetch("/api/admin/ai/briefing").then((r) => r.json()),
+      fetch("/api/ai/coaching-insights").then((r) => r.json()).catch(() => null),
     ]);
     setInsights(i.insights || []);
     setBriefing(b.briefing || null);
+    setCoaching(c);
   }
 
   async function regenerate() {
@@ -87,6 +90,63 @@ export default function AIInsightsPage() {
           Regenerate briefing
         </button>
       </header>
+
+      {/* Photographer coaching heatmap */}
+      {coaching && coaching.heatmap?.length > 0 && (
+        <div className="card p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Brain className="h-5 w-5 text-coral-500" />
+            <h2 className="heading text-xl">Photographer coaching heatmap</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-navy-400">
+                  <th className="py-2 pr-4">Photographer</th>
+                  <th className="py-2 px-2">Individual</th>
+                  <th className="py-2 px-2">Couple</th>
+                  <th className="py-2 px-2">Family</th>
+                  <th className="py-2 px-2">Kids</th>
+                  <th className="py-2 px-2">Action</th>
+                  <th className="py-2 px-2">Portrait</th>
+                  <th className="py-2 pl-2">Avg</th>
+                </tr>
+              </thead>
+              <tbody>
+                {coaching.heatmap.map((row: any) => {
+                  const cell = (v: number) =>
+                    v >= 70
+                      ? "bg-green-100 text-green-800"
+                      : v >= 40
+                        ? "bg-amber-100 text-amber-800"
+                        : "bg-red-100 text-red-800";
+                  return (
+                    <tr key={row.userId} className="border-t border-cream-200">
+                      <td className="py-2 pr-4 font-medium">{row.name}</td>
+                      <td className="py-1 px-2"><span className={`inline-block rounded px-2 py-1 ${cell(row.individual)}`}>{row.individual}</span></td>
+                      <td className="py-1 px-2"><span className={`inline-block rounded px-2 py-1 ${cell(row.couple)}`}>{row.couple}</span></td>
+                      <td className="py-1 px-2"><span className={`inline-block rounded px-2 py-1 ${cell(row.family)}`}>{row.family}</span></td>
+                      <td className="py-1 px-2"><span className={`inline-block rounded px-2 py-1 ${cell(row.kids)}`}>{row.kids}</span></td>
+                      <td className="py-1 px-2"><span className={`inline-block rounded px-2 py-1 ${cell(row.action)}`}>{row.action}</span></td>
+                      <td className="py-1 px-2"><span className={`inline-block rounded px-2 py-1 ${cell(row.portrait)}`}>{row.portrait}</span></td>
+                      <td className="py-1 pl-2 font-semibold">{row.avgOverall}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {coaching.alerts?.length > 0 && (
+            <div className="mt-4 space-y-2">
+              {coaching.alerts.map((a: any, i: number) => (
+                <div key={i} className="text-xs text-amber-800 bg-amber-50 rounded px-3 py-2">
+                  ⚠️ {a.message}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Daily briefing */}
       {briefing && (

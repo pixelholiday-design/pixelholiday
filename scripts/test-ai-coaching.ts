@@ -1,8 +1,8 @@
 import { PrismaClient } from "@prisma/client";
-import { analyzeGalleryPhotos, analyzePhoto } from "../src/lib/ai/photo-analyzer.ts";
-import { calculateSkillProfile } from "../src/lib/ai/skill-profile.ts";
-import { autoAssignTraining } from "../src/lib/ai/auto-training.ts";
-import { generateWeeklyReport } from "../src/lib/ai/weekly-report.ts";
+import { analyzeGalleryPhotos, analyzePhoto } from "../src/lib/ai/photo-analyzer";
+import { calculateSkillProfile } from "../src/lib/ai/skill-profile";
+import { autoAssignTraining } from "../src/lib/ai/auto-training";
+import { generateWeeklyReport } from "../src/lib/ai/weekly-report";
 
 const prisma = new PrismaClient();
 
