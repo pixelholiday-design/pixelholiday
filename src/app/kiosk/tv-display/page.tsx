@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Camera, Sparkles, ScanLine } from "lucide-react";
-import { cleanUrl } from "@/lib/cloudinary";
+import { cleanUrl, photoRef } from "@/lib/cloudinary";
 
 type Photo = { id: string; cloudinaryId: string | null; s3Key_highRes: string };
 
@@ -83,7 +83,7 @@ export default function TvDisplayPage() {
           {matchedPhotos.slice(0, 8).map((p) => (
             <div key={p.id} className="rounded-2xl overflow-hidden bg-white/5 ring-1 ring-white/10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={cleanUrl(p.cloudinaryId || p.s3Key_highRes, 1200)} alt="" className="w-full h-full object-cover" />
+              <img src={cleanUrl(photoRef(p), 1200)} alt="" className="w-full h-full object-cover" />
             </div>
           ))}
         </div>
@@ -100,7 +100,7 @@ export default function TvDisplayPage() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={current.id}
-            src={cleanUrl(current.cloudinaryId || current.s3Key_highRes, 2000)}
+            src={cleanUrl(photoRef(current), 2000)}
             alt=""
             className="absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 animate-fade-in"
           />

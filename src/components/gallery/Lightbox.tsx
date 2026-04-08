@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Heart, Download, ShoppingCart, Share2, Lock } from "lucide-react";
-import { cleanUrl, watermarkedUrl } from "@/lib/cloudinary";
+import { cleanUrl, watermarkedUrl, photoRef } from "@/lib/cloudinary";
 
 type Photo = {
   id: string;
@@ -52,7 +52,7 @@ export default function Lightbox({
       const p = photos[i];
       if (p) {
         const im = new Image();
-        im.src = cleanUrl(p.cloudinaryId || p.s3Key_highRes, 1600);
+        im.src = cleanUrl(photoRef(p), 1600);
       }
     });
   }, [idx, photos]);
@@ -60,7 +60,7 @@ export default function Lightbox({
   const p = photos[idx];
   if (!p) return null;
   const clean = isPaid || (isPartial && p.isPurchased);
-  const src = clean ? cleanUrl(p.cloudinaryId || p.s3Key_highRes, 2000) : watermarkedUrl(p.cloudinaryId || p.s3Key_highRes, 2000);
+  const src = clean ? cleanUrl(photoRef(p), 2000) : watermarkedUrl(photoRef(p), 2000);
 
   function logDownload(type: string) {
     fetch(`/api/gallery/${token}/track`, {
@@ -131,7 +131,7 @@ export default function Lightbox({
                 ].map((sz) => (
                   <a
                     key={sz.label}
-                    href={cleanUrl(p.cloudinaryId || p.s3Key_highRes, sz.w)}
+                    href={cleanUrl(photoRef(p), sz.w)}
                     download={`pixelholiday-${p.id.slice(0, 8)}-${sz.w}.jpg`}
                     onClick={() => logDownload(`individual_${sz.w}`)}
                     className="block px-3 py-2 rounded-lg hover:bg-cream-100 text-sm"

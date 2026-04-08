@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { Heart, Lock, Download, ShoppingCart, LayoutGrid, Columns3, Play, Pause } from "lucide-react";
-import { cleanUrl, watermarkedUrl } from "@/lib/cloudinary";
+import { cleanUrl, watermarkedUrl, photoRef } from "@/lib/cloudinary";
 
 export type Photo = {
   id: string;
@@ -40,7 +40,7 @@ export default function GalleryGrid({
 
   function imgSrc(p: Photo, w: number) {
     const clean = isPaid || (isPartial && p.isPurchased);
-    const src = p.cloudinaryId || p.s3Key_highRes;
+    const src = photoRef(p);
     return clean ? cleanUrl(src, w) : watermarkedUrl(src, w);
   }
 

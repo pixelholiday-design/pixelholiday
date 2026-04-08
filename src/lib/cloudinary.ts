@@ -22,10 +22,19 @@ function isHttpsUrl(s: string): boolean {
  * Prefers a stored full URL when present; falls back to cloudinary publicId.
  */
 export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: string | null }): string {
-  const url = p.s3Key_highRes || "";
-  if (isHttpsUrl(url)) return url;
-  if (p.cloudinaryId && p.cloudinaryId.length > 0) return p.cloudinaryId;
-  return url || "";
+  const raw = p.s3Key_highRes || "";
+  // Best case: s3Key_highRes already holds a full URL.
+  if (isHttpsUrl(raw)) return raw;
+  // Bare R2 object key (e.g. "uploads/1775..." from older uploads): expand to public R2 URL.
+  if (raw && raw.includes("/")) {
+    const base = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "";
+    if (base) return `${base.replace(/\/$/, "")}/${raw.replace(/^\//, "")}`;
+  }
+  // Cloudinary publicId — only trust if it does NOT look like an R2 path. Old broken records
+  // stored the R2 key in cloudinaryId, which Cloudinary resolves to a 404.
+  const cid = p.cloudinaryId || "";
+  if (cid && !cid.startsWith("uploads/")) return cid;
+  return raw || "";
 }
 
 /**

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { ScanLine, User, KeyRound, Check, Heart, ArrowRight, RefreshCw, Sparkles } from "lucide-react";
-import { cleanUrl } from "@/lib/cloudinary";
+import { cleanUrl, photoRef } from "@/lib/cloudinary";
 
 type Photo = { id: string; cloudinaryId: string | null; s3Key_highRes: string };
 type Gallery = { id: string; magicLinkToken: string; photos: Photo[] };
@@ -173,7 +173,7 @@ export default function SelfServiceKiosk() {
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={cleanUrl(p.cloudinaryId || p.s3Key_highRes, 1600)} alt="" className="w-full h-full object-cover" />
+                  <img src={cleanUrl(photoRef(p), 1600)} alt="" className="w-full h-full object-cover" />
                   {active && (
                     <div className="absolute top-3 right-3 h-12 w-12 rounded-full bg-coral-500 flex items-center justify-center shadow-lift">
                       <Check className="h-6 w-6 text-white" strokeWidth={3} />

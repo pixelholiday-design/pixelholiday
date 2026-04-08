@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Check, CreditCard, Banknote, Loader2, Sparkles } from "lucide-react";
-import { cleanUrl } from "@/lib/cloudinary";
+import { cleanUrl, photoRef } from "@/lib/cloudinary";
 
 type Photo = { id: string; s3Key_highRes: string; cloudinaryId: string | null; isFavorited: boolean };
 type Gallery = { id: string; photos: Photo[]; customer: { name: string | null } };
@@ -104,7 +104,7 @@ export default function KioskView({ gallery }: { gallery: Gallery }) {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={cleanUrl(p.cloudinaryId || p.s3Key_highRes, 1600)}
+                  src={cleanUrl(photoRef(p), 1600)}
                   alt=""
                   className="w-full h-full object-cover"
                 />

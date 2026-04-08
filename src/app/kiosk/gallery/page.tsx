@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
 import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag } from "lucide-react";
-import { cleanUrl } from "@/lib/cloudinary";
+import { cleanUrl, photoRef } from "@/lib/cloudinary";
 import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
 
@@ -206,7 +206,7 @@ export default function GalleryKiosk() {
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={cleanUrl(p.cloudinaryId || p.s3Key_highRes, 1200)} alt="" className="w-full h-full object-cover" />
+                    <img src={cleanUrl(photoRef(p), 1200)} alt="" className="w-full h-full object-cover" />
                   </button>
                   <button
                     onClick={() => toggle(p.id)}
@@ -226,7 +226,7 @@ export default function GalleryKiosk() {
           <div className="fixed inset-0 bg-black/95 z-30 flex flex-col" onClick={() => setPreviewId(null)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={cleanUrl(previewPhoto.cloudinaryId || previewPhoto.s3Key_highRes, 2400)}
+              src={cleanUrl(photoRef(previewPhoto), 2400)}
               alt=""
               className="flex-1 object-contain w-full"
             />
@@ -346,7 +346,7 @@ function AnchorCheckout({
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={hero.id}
-              src={cleanUrl(hero.cloudinaryId || hero.s3Key_highRes, 1600)}
+              src={cleanUrl(photoRef(hero), 1600)}
               alt=""
               className="absolute inset-0 h-full w-full object-cover opacity-90 anim-fade-up"
             />

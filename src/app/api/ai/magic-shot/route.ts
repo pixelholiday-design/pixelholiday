@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { cloudinary } from "@/lib/cloudinary.server";
+import { photoRef } from "@/lib/cloudinary";
 
 // Module 10: Magic Shots & AR — composite an overlay element onto a photo.
 export async function POST(req: NextRequest) {
@@ -16,7 +17,7 @@ export async function POST(req: NextRequest) {
   // Cloudinary overlay transformation
   let compositeUrl = "#";
   try {
-    compositeUrl = cloudinary.url(photo.cloudinaryId || photo.s3Key_highRes, {
+    compositeUrl = cloudinary.url(photoRef(photo), {
       transformation: [
         { overlay: element.assetUrl, gravity: "south_east", width: 300, opacity: 90 },
         { quality: "auto", fetch_format: "auto" },

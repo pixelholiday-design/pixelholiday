@@ -4,7 +4,7 @@ import SalesCoach from "@/components/kiosk/SalesCoach";
 import { Camera, Check, Loader2, RefreshCw, Upload, ListOrdered, Star, Banknote, CreditCard, Printer, LogOut } from "lucide-react";
 import PinPad from "@/components/kiosk/PinPad";
 import Receipt, { ReceiptData } from "@/components/kiosk/Receipt";
-import { cleanUrl } from "@/lib/cloudinary";
+import { cleanUrl, photoRef } from "@/lib/cloudinary";
 
 type Staff = { id: string; name: string; role: string };
 type SaleOrder = {
@@ -183,7 +183,7 @@ export default function SalePointPage() {
                   {(active.gallery?.photos || []).map((p: any) => (
                     <div key={p.id} className="aspect-square rounded-xl overflow-hidden ring-1 ring-white/10">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={cleanUrl(p.cloudinaryId || p.s3Key_highRes, 800)} alt="" className="w-full h-full object-cover" />
+                      <img src={cleanUrl(photoRef(p), 800)} alt="" className="w-full h-full object-cover" />
                     </div>
                   ))}
                 </div>
