@@ -1566,6 +1566,9 @@ model VideoReel {
   status       String   @default("READY") // GENERATING | READY | FAILED
   previewHtml  String?  @db.Text // standalone HTML slideshow preview
   thumbnailUrl String?
+  videoUrl     String?  // Cloudinary video slideshow URL (real MP4)
+  videoFormat  String?  // "mp4" or "webm"
+  cloudinaryId String?  // Cloudinary public ID of generated video
   createdAt    DateTime @default(now())
 
   @@index([galleryId])

@@ -26,16 +26,21 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     photoIds = JSON.parse(reel.photoIds);
   } catch {}
 
-  // Download mode: return the reel HTML as a downloadable file
-  if (download && reel.previewHtml) {
-    const galleryId = reel.gallery?.id || reel.galleryId;
-    const filename = `fotiqo-reel-${galleryId.slice(0, 8)}.html`;
-    return new Response(reel.previewHtml, {
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        "Content-Disposition": `attachment; filename="${filename}"`,
-      },
-    });
+  // Download mode: redirect to Cloudinary video if available, else serve HTML
+  if (download) {
+    if ((reel as any).videoUrl) {
+      return NextResponse.redirect((reel as any).videoUrl, 302);
+    }
+    if (reel.previewHtml) {
+      const galleryId = reel.gallery?.id || reel.galleryId;
+      const filename = `fotiqo-reel-${galleryId.slice(0, 8)}.html`;
+      return new Response(reel.previewHtml, {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Content-Disposition": `attachment; filename="${filename}"`,
+        },
+      });
+    }
   }
 
   return NextResponse.json({
@@ -49,6 +54,8 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     status: reel.status,
     thumbnailUrl: reel.thumbnailUrl,
     previewHtml: reel.previewHtml,
+    videoUrl: (reel as any).videoUrl || null,
+    videoFormat: (reel as any).videoFormat || null,
     createdAt: reel.createdAt,
   });
 }
