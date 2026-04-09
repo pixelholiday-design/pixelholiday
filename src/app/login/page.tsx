@@ -6,7 +6,7 @@ import { Camera, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@fotiqo.local");
+  const [email, setEmail] = useState("admin@pixelholiday.local");
   const [password, setPassword] = useState("password123");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
