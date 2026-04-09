@@ -24,7 +24,7 @@ import {
   type CardTemplate,
   type CardQuantity,
 } from "@/lib/card-templates";
-import { photoRef } from "@/lib/cloudinary";
+import { getPhotoSrc } from "@/lib/cloudinary";
 
 /* ────────────────────────────────────────────── */
 /*  Types                                         */
@@ -88,7 +88,7 @@ export default function CardDesignerPage() {
   const stepIdx = STEPS.findIndex((s) => s.id === step);
   const template = templateId ? getTemplateById(templateId) : null;
   const selectedPhoto = photos.find((p) => p.id === selectedPhotoId);
-  const photoUrl = selectedPhoto ? photoRef(selectedPhoto) : "";
+  const photoUrl = selectedPhoto ? getPhotoSrc(selectedPhoto, false) : "";
 
   const availableTemplates = useMemo(
     () => (cardType ? getTemplatesByType(cardType) : []),
@@ -354,7 +354,7 @@ export default function CardDesignerPage() {
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={photoRef(p)}
+                      src={getPhotoSrc(p, false)}
                       alt=""
                       className="w-full h-full object-cover"
                       draggable={false}

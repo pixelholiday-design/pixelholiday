@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { X, Plus, Minus, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
-import { photoRef, cleanUrl, watermarkedUrl } from "@/lib/cloudinary";
+import { getPhotoSrc } from "@/lib/cloudinary";
 import type { CartItem, CartPhoto } from "@/components/gallery/ShopCart";
 
 type CatalogProduct = {
@@ -22,6 +22,8 @@ type Photo = {
   s3Key_highRes: string;
   cloudinaryId: string | null;
   isPurchased?: boolean;
+  _signedWm?: string;
+  _signedClean?: string;
 };
 
 function ProductMockup({
@@ -33,11 +35,8 @@ function ProductMockup({
   photo: Photo | null;
   isPaid: boolean;
 }) {
-  const ref = photo ? photoRef(photo) : null;
-  const imgSrc = ref
-    ? isPaid || photo?.isPurchased
-      ? cleanUrl(ref, 800)
-      : watermarkedUrl(ref, 800)
+  const imgSrc = photo
+    ? getPhotoSrc(photo, !!(isPaid || photo?.isPurchased))
     : null;
 
   const type = product.mockupType ?? "default";
@@ -253,8 +252,7 @@ export default function ProductPickerModal({
           <div className="relative overflow-x-auto">
             <div className="flex gap-2 p-3 pb-2">
               {photos.slice(0, 20).map((p, i) => {
-                const ref = photoRef(p);
-                const src = isPaid || p.isPurchased ? cleanUrl(ref, 200) : watermarkedUrl(ref, 200);
+                const src = getPhotoSrc(p, !!(isPaid || p.isPurchased));
                 return (
                   <button
                     key={p.id}

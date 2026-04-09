@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getPrice } from "@/lib/pricing";
 import { photoRef, watermarkedUrl } from "@/lib/cloudinary";
+import { signPhotoSource } from "@/lib/cloudinary/signed-url";
 
 const PRESETS = ["auto", "warm", "cool", "vibrant", "portrait"] as const;
 type Preset = (typeof PRESETS)[number];
@@ -81,8 +82,10 @@ export async function POST(req: Request, { params }: { params: { token: string }
     const previewUrl = buildPreviewUrl(ref, preset);
     const isPaid = gallery.status === "PAID" || gallery.status === "DIGITAL_PASS";
     // Only expose the unwatermarked original for paid galleries;
-    // unpaid galleries get a watermarked version to prevent bypass.
-    const originalUrl = isPaid ? buildOriginalUrl(ref) : watermarkedUrl(ref);
+    // unpaid galleries get a signed watermarked version to prevent bypass.
+    const originalUrl = isPaid
+      ? signPhotoSource(ref, { width: 1200, watermark: false })
+      : signPhotoSource(ref, { width: 1200, watermark: true });
     const price = await getPrice("retouch_credit", gallery.locationId);
 
     return NextResponse.json({

@@ -1,4 +1,4 @@
-import { watermarkedUrl, cleanUrl } from "@/lib/cloudinary";
+import { watermarkedUrl, cleanUrl, isSignedCloudinaryUrl } from "@/lib/cloudinary";
 
 export function WatermarkedImage({
   src,
@@ -13,7 +13,12 @@ export function WatermarkedImage({
   unwatermarked?: boolean;
   className?: string;
 }) {
-  const url = unwatermarked ? cleanUrl(src, width) : watermarkedUrl(src, width);
+  // If already a signed URL, pass through (don't re-transform)
+  const url = isSignedCloudinaryUrl(src)
+    ? src
+    : unwatermarked
+      ? cleanUrl(src, width)
+      : watermarkedUrl(src, width);
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={url} alt={alt || ""} className={className} loading="lazy" />;
 }

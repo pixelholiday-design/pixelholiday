@@ -22,8 +22,19 @@ function isProxyUrl(s: string): boolean {
 }
 
 /**
+ * Detect whether a URL is already a **signed** Cloudinary URL.
+ * Signed URLs contain a `s--<hash>--` component in the transformation path.
+ */
+export function isSignedCloudinaryUrl(url: string): boolean {
+  return /res\.cloudinary\.com\/.+\/s--[A-Za-z0-9_-]+--\//.test(url);
+}
+
+/**
  * Resolve a Photo (with cloudinaryId + s3Key_highRes) to the best image source.
  * Prefers a stored full URL when present; falls back to cloudinary publicId.
+ *
+ * If `_signedWm` or `_signedClean` are present (pre-computed by the server
+ * component), those signed URLs are available via `getPhotoSrc()`.
  */
 export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: string | null }): string {
   const raw = p.s3Key_highRes || "";
@@ -59,9 +70,14 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
  * When given an HTTPS URL (R2, picsum, etc.) and Cloudinary is configured, uses
  * Cloudinary's image/fetch endpoint so the watermark is applied server-side.
  * Falls back to passing the URL through when Cloudinary is not configured (dev/seed mode).
+ *
+ * NOTE: If the URL is already a signed Cloudinary URL, it is returned as-is
+ * to avoid double-transforming and breaking the signature.
  */
 export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
   if (!publicIdOrUrl) return "";
+  // Already a signed Cloudinary URL — pass through (transformation is baked in)
+  if (isSignedCloudinaryUrl(publicIdOrUrl)) return publicIdOrUrl;
   // Proxy URLs can't be watermarked server-side — pass through
   if (isProxyUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `l_${WATERMARK},w_0.5,g_center,o_40/c_limit,w_${width},q_60,f_webp,a_exif`;
@@ -77,18 +93,66 @@ export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
 /**
  * Signed watermarked URL for extra security — prevents URL tampering.
  * Requires CLOUDINARY_API_SECRET to be available server-side for signing.
- * TODO: implement signing using cloudinary.url() with sign_url:true from cloudinary.server.ts
+ *
+ * In production this is handled by pre-signing in the server component
+ * (see gallery/[magicLinkToken]/page.tsx). This client-safe version falls
+ * back to the unsigned watermarkedUrl.
  */
 export function signedWatermarkUrl(publicIdOrUrl: string, width = 1200): string {
-  // TODO: call cloudinary.url(publicIdOrUrl, { sign_url: true, transformation: [...] }) server-side
   return watermarkedUrl(publicIdOrUrl, width);
 }
 
-/** Clean (unwatermarked) URL — only for PAID galleries */
+/**
+ * Clean (unwatermarked) URL — only for PAID galleries.
+ *
+ * NOTE: If the URL is already a signed Cloudinary URL, it is returned as-is.
+ */
 export function cleanUrl(publicIdOrUrl: string, width = 1600): string {
   if (!publicIdOrUrl) return "";
+  // Already a signed Cloudinary URL — pass through (transformation is baked in)
+  if (isSignedCloudinaryUrl(publicIdOrUrl)) return publicIdOrUrl;
   // HTTPS URLs and proxy URLs pass through unchanged.
   if (isHttpsUrl(publicIdOrUrl) || isProxyUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `c_limit,w_${width},q_85,f_auto,a_exif`;
   return `https://res.cloudinary.com/${CLOUD || "demo"}/image/upload/${transform}/${publicIdOrUrl}`;
+}
+
+// ─── Unified photo source resolver ──────────────────────────────────────────
+
+/**
+ * Photo type with optional pre-signed URLs from the server component.
+ * When `_signedWm` and `_signedClean` are set (by the gallery page server
+ * component), they take priority over computed URLs — preventing URL tampering.
+ */
+export type PhotoWithSignedUrls = {
+  id?: string;
+  cloudinaryId?: string | null;
+  s3Key_highRes?: string | null;
+  isPurchased?: boolean;
+  /** Pre-signed watermarked URL (set by server component) */
+  _signedWm?: string;
+  /** Pre-signed clean URL (set by server component) */
+  _signedClean?: string;
+};
+
+/**
+ * Get the display URL for a photo, respecting pre-signed URLs when available.
+ *
+ * @param photo  - Photo object (may include `_signedWm` / `_signedClean` from server)
+ * @param clean  - `true` for unwatermarked (PAID), `false` for watermarked
+ * @param width  - Target width (only used when falling back to unsigned URLs)
+ * @returns The best available URL for displaying this photo
+ */
+export function getPhotoSrc(
+  photo: PhotoWithSignedUrls,
+  clean: boolean,
+  width?: number,
+): string {
+  // Prefer pre-signed URLs from the server component
+  if (clean && photo._signedClean) return photo._signedClean;
+  if (!clean && photo._signedWm) return photo._signedWm;
+
+  // Fallback: compute URL client-side (unsigned — for dev/seed/admin)
+  const ref = photoRef(photo);
+  return clean ? cleanUrl(ref, width) : watermarkedUrl(ref, width);
 }

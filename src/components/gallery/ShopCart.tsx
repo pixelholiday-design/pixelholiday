@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import { ShoppingBag, X, Plus, Minus, Trash2, Tag, Truck, CreditCard, ChevronRight } from "lucide-react";
-import { photoRef, cleanUrl, watermarkedUrl } from "@/lib/cloudinary";
+import { getPhotoSrc } from "@/lib/cloudinary";
 
 export type CartPhoto = {
   id: string;
   s3Key_highRes: string;
   cloudinaryId: string | null;
   isPurchased?: boolean;
+  _signedWm?: string;
+  _signedClean?: string;
 };
 
 export type CartItem = {
@@ -188,9 +190,8 @@ export default function ShopCart({
                 </div>
               ) : (
                 items.map((item) => {
-                  const ref = item.photo ? photoRef(item.photo) : null;
-                  const imgSrc = ref
-                    ? (isPaid || item.photo?.isPurchased ? cleanUrl(ref, 200) : watermarkedUrl(ref, 200))
+                  const imgSrc = item.photo
+                    ? getPhotoSrc(item.photo, !!(isPaid || item.photo?.isPurchased))
                     : null;
                   return (
                     <div key={item.id} className="flex gap-3 bg-cream-100 rounded-2xl p-3">

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { Heart, Lock, Download, ShoppingCart, LayoutGrid, Columns3, Play, Pause, Sparkles } from "lucide-react";
-import { cleanUrl, watermarkedUrl, photoRef } from "@/lib/cloudinary";
+import { getPhotoSrc } from "@/lib/cloudinary";
 
 export type Photo = {
   id: string;
@@ -10,6 +10,10 @@ export type Photo = {
   isFavorited: boolean;
   isPurchased: boolean;
   isMagicShot?: boolean;
+  /** Pre-signed watermarked URL (from server) */
+  _signedWm?: string;
+  /** Pre-signed clean URL (from server) */
+  _signedClean?: string;
 };
 
 type Layout = "masonry" | "grid" | "slideshow";
@@ -41,10 +45,9 @@ export default function GalleryGrid({
     return () => clearInterval(t);
   }, [playing, layout, photos.length]);
 
-  function imgSrc(p: Photo, w: number) {
+  function imgSrc(p: Photo) {
     const clean = isPaid || (isPartial && p.isPurchased);
-    const src = photoRef(p);
-    return clean ? cleanUrl(src, w) : watermarkedUrl(src, w);
+    return getPhotoSrc(p, clean);
   }
 
   function isClean(p: Photo) {
@@ -87,7 +90,7 @@ export default function GalleryGrid({
       {layout === "masonry" && (
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 [column-fill:_balance]">
           {photos.map((p, i) => (
-            <Card key={p.id} p={p} i={i} clean={isClean(p)} src={imgSrc(p, 1200)} onOpen={onOpen} onFavorite={onFavorite} onAddToCart={onAddToCart} onMagic={onMagic} masonry />
+            <Card key={p.id} p={p} i={i} clean={isClean(p)} src={imgSrc(p)} onOpen={onOpen} onFavorite={onFavorite} onAddToCart={onAddToCart} onMagic={onMagic} masonry />
           ))}
         </div>
       )}
@@ -101,7 +104,7 @@ export default function GalleryGrid({
               className="relative aspect-square rounded-xl overflow-hidden bg-cream-200 ring-1 ring-cream-300 hover:shadow-lift transition group"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imgSrc(p, 800)} alt="" className="w-full h-full object-cover transition group-hover:scale-105 duration-500" />
+              <img src={imgSrc(p)} alt="" className="w-full h-full object-cover transition group-hover:scale-105 duration-500" />
               {!isClean(p) && (
                 <div className="absolute top-2 left-2 inline-flex items-center gap-1 bg-navy-900/80 text-white rounded-full px-2 py-0.5 text-[10px] font-semibold">
                   <Lock className="h-3 w-3" /> LOCKED
@@ -117,7 +120,7 @@ export default function GalleryGrid({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             key={photos[slideIdx].id}
-            src={imgSrc(photos[slideIdx], 2000)}
+            src={imgSrc(photos[slideIdx])}
             alt=""
             className="w-full max-h-[75vh] object-contain animate-fade-in"
           />

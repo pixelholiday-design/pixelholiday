@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useState, useTransition, useCallback } from "react";
 import { Heart, Camera, MapPin, X, ShoppingBag, LayoutGrid } from "lucide-react";
-import { watermarkedUrl, cleanUrl, photoRef } from "@/lib/cloudinary";
+import { getPhotoSrc } from "@/lib/cloudinary";
 import { toggleFavorite } from "./actions";
 import BookingTimePicker from "./BookingTimePicker";
 import StripeCheckoutButton from "@/components/gallery/StripeCheckoutButton";
@@ -25,6 +25,8 @@ type Photo = {
   isPurchased: boolean;
   isMagicShot?: boolean;
   parentPhotoId?: string | null;
+  _signedWm?: string;
+  _signedClean?: string;
 };
 
 type Gallery = {
@@ -150,7 +152,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
           <div className="relative z-10 max-w-3xl mx-auto px-6 mt-10">
             <div className="rounded-2xl overflow-hidden shadow-lift ring-1 ring-white/10 relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={watermarkedUrl(photoRef(hookPhoto))} alt="" className="w-full block" />
+              <img src={getPhotoSrc(hookPhoto, false)} alt="" className="w-full block" />
               {/* CSS watermark overlay (always shown on HOOK_ONLY) */}
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
                 <span className="text-white/30 font-display text-5xl sm:text-7xl font-bold tracking-widest rotate-[-25deg]">
@@ -182,7 +184,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
       <section className="relative h-[55vh] min-h-[420px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={cleanUrl(photoRef(hookPhoto), 2400)}
+          src={getPhotoSrc(hookPhoto, true)}
           alt=""
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -350,9 +352,8 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                       return p.category === shopCat;
                     })
                     .map((product) => {
-                      const hookRef = hookPhoto ? photoRef(hookPhoto) : null;
-                      const previewSrc = hookRef
-                        ? (isClean ? cleanUrl(hookRef, 400) : watermarkedUrl(hookRef, 400))
+                      const previewSrc = hookPhoto
+                        ? getPhotoSrc(hookPhoto, isClean)
                         : null;
                       return (
                         <button
@@ -455,7 +456,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                     <div key={p.id} className="relative aspect-square rounded-xl overflow-hidden bg-cream-200">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={(isClean || (isPartial && p.isPurchased) ? cleanUrl : watermarkedUrl)(photoRef(p), 600)}
+                        src={getPhotoSrc(p, isClean || (isPartial && p.isPurchased))}
                         alt=""
                         className="w-full h-full object-cover"
                       />

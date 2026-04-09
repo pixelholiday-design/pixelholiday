@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { archiveUrl } from "@/lib/cloudinary.server";
+import { signedClean } from "@/lib/cloudinary/signed-url";
 
 export async function GET(_req: Request, { params }: { params: { token: string } }) {
   const gallery = await prisma.gallery.findUnique({
@@ -43,9 +44,9 @@ export async function GET(_req: Request, { params }: { params: { token: string }
   const urls = gallery.photos
     .filter((p) => p.s3Key_highRes)
     .map((p) => {
-      // If cloudinaryId is available, use the Cloudinary delivery URL directly.
+      // If cloudinaryId is available, use a signed Cloudinary URL (prevents URL tampering).
       if (p.cloudinaryId && cloudinaryConfigured) {
-        return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${p.cloudinaryId}`;
+        return signedClean(p.cloudinaryId);
       }
       // Otherwise route through the R2 photo proxy.
       const key = encodeURIComponent(p.s3Key_highRes);

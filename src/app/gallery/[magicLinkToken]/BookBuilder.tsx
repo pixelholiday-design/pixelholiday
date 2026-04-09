@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { X, Check, Shuffle, ChevronLeft, ChevronRight, BookOpen, ShoppingBag } from "lucide-react";
-import { photoRef, cleanUrl, watermarkedUrl } from "@/lib/cloudinary";
+import { getPhotoSrc } from "@/lib/cloudinary";
 import type { CartItem } from "@/components/gallery/ShopCart";
 
 type Photo = {
@@ -10,6 +10,8 @@ type Photo = {
   s3Key_highRes: string;
   cloudinaryId: string | null;
   isPurchased?: boolean;
+  _signedWm?: string;
+  _signedClean?: string;
 };
 
 type BookType = {
@@ -263,8 +265,7 @@ export default function BookBuilder({
 
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2">
               {photos.map((p) => {
-                const ref = photoRef(p);
-                const src = isPaid || p.isPurchased ? cleanUrl(ref, 400) : watermarkedUrl(ref, 400);
+                const src = getPhotoSrc(p, !!(isPaid || p.isPurchased));
                 const sel = selectedIds.has(p.id);
                 return (
                   <button
@@ -407,9 +408,7 @@ export default function BookBuilder({
                         <div className="w-full h-full overflow-hidden rounded">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={isPaid || spreads[previewSpread][0]?.isPurchased
-                              ? cleanUrl(photoRef(spreads[previewSpread][0]!), 600)
-                              : watermarkedUrl(photoRef(spreads[previewSpread][0]!), 600)}
+                            src={getPhotoSrc(spreads[previewSpread][0]!, !!(isPaid || spreads[previewSpread][0]?.isPurchased))}
                             alt=""
                             className="w-full h-full object-cover rounded"
                           />
@@ -426,9 +425,7 @@ export default function BookBuilder({
                         <div className="w-full h-full overflow-hidden rounded">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            src={isPaid || spreads[previewSpread][1]?.isPurchased
-                              ? cleanUrl(photoRef(spreads[previewSpread][1]!), 600)
-                              : watermarkedUrl(photoRef(spreads[previewSpread][1]!), 600)}
+                            src={getPhotoSrc(spreads[previewSpread][1]!, !!(isPaid || spreads[previewSpread][1]?.isPurchased))}
                             alt=""
                             className="w-full h-full object-cover rounded"
                           />
@@ -468,8 +465,7 @@ export default function BookBuilder({
             {/* Thumbnail strip */}
             <div className="flex gap-2 overflow-x-auto pb-2">
               {orderedPhotos.map((p, i) => {
-                const ref = photoRef(p);
-                const src = isPaid || p.isPurchased ? cleanUrl(ref, 200) : watermarkedUrl(ref, 200);
+                const src = getPhotoSrc(p, !!(isPaid || p.isPurchased));
                 const spreadIdx = Math.floor(i / 2);
                 return (
                   <button
@@ -511,9 +507,7 @@ export default function BookBuilder({
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={isPaid || selectedPhotos[0].isPurchased
-                      ? cleanUrl(photoRef(selectedPhotos[0]), 600)
-                      : watermarkedUrl(photoRef(selectedPhotos[0]), 600)}
+                    src={getPhotoSrc(selectedPhotos[0], !!(isPaid || selectedPhotos[0].isPurchased))}
                     alt=""
                     className="w-full h-full object-cover"
                   />

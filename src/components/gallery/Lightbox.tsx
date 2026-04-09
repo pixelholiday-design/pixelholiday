@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight, Heart, Download, ShoppingCart, Share2, Lock } from "lucide-react";
-import { cleanUrl, watermarkedUrl, photoRef } from "@/lib/cloudinary";
+import { getPhotoSrc } from "@/lib/cloudinary";
 
 type Photo = {
   id: string;
@@ -9,6 +9,10 @@ type Photo = {
   s3Key_highRes: string;
   isFavorited: boolean;
   isPurchased: boolean;
+  /** Pre-signed watermarked URL */
+  _signedWm?: string;
+  /** Pre-signed clean URL */
+  _signedClean?: string;
 };
 
 export default function Lightbox({
@@ -52,7 +56,7 @@ export default function Lightbox({
       const p = photos[i];
       if (p) {
         const im = new Image();
-        im.src = cleanUrl(photoRef(p), 1600);
+        im.src = getPhotoSrc(p, true);
       }
     });
   }, [idx, photos]);
@@ -60,7 +64,7 @@ export default function Lightbox({
   const p = photos[idx];
   if (!p) return null;
   const clean = isPaid || (isPartial && p.isPurchased);
-  const src = clean ? cleanUrl(photoRef(p), 2000) : watermarkedUrl(photoRef(p), 2000);
+  const src = getPhotoSrc(p, clean);
 
   function logDownload(type: string) {
     fetch(`/api/gallery/${token}/track`, {
@@ -131,7 +135,7 @@ export default function Lightbox({
                 ].map((sz) => (
                   <a
                     key={sz.label}
-                    href={cleanUrl(photoRef(p), sz.w)}
+                    href={getPhotoSrc(p, true)}
                     download={`fotiqo-${p.id.slice(0, 8)}-${sz.w}.jpg`}
                     onClick={() => logDownload(`individual_${sz.w}`)}
                     className="block px-3 py-2 rounded-lg hover:bg-cream-100 text-sm"
