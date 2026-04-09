@@ -5,35 +5,47 @@ export const SUBSCRIPTION_TIERS: Record<Tier, {
   priceMonthly: number; // cents
   photosPerMonth: number; // -1 = unlimited
   activeGalleries: number; // -1 = unlimited
+  locations: number; // max locations, -1 = unlimited
   features: string[];
+  popular?: boolean;
+  cta: string;
 }> = {
   STARTER: {
-    name: "Starter",
-    priceMonthly: 999,
+    name: "Free",
+    priceMonthly: 0,
     photosPerMonth: 100,
     activeGalleries: 1,
-    features: ["Basic templates", "Magic link sharing"],
+    locations: 1,
+    features: ["1 location", "100 photos/month", "Magic link sharing", "Basic watermarking"],
+    cta: "Get Started Free",
   },
   PROFESSIONAL: {
-    name: "Professional",
-    priceMonthly: 2999,
-    photosPerMonth: 1000,
-    activeGalleries: 10,
-    features: ["Custom branding", "Logo upload", "Color scheme"],
+    name: "Pro",
+    priceMonthly: 4900,
+    photosPerMonth: -1,
+    activeGalleries: -1,
+    locations: 5,
+    features: ["5 locations", "Unlimited photos", "Custom branding", "Stripe payments", "WhatsApp delivery", "Analytics dashboard"],
+    popular: true,
+    cta: "Start Pro Trial",
   },
   BUSINESS: {
     name: "Business",
-    priceMonthly: 7999,
-    photosPerMonth: 5000,
+    priceMonthly: 14900,
+    photosPerMonth: -1,
     activeGalleries: -1,
-    features: ["Unlimited galleries", "Priority support"],
+    locations: -1,
+    features: ["Unlimited locations", "Unlimited photos", "Kiosk POS system", "AI culling & reels", "Digital passes", "Priority support"],
+    cta: "Go Business",
   },
   ENTERPRISE: {
     name: "Enterprise",
-    priceMonthly: 19999,
+    priceMonthly: 0, // custom pricing
     photosPerMonth: -1,
     activeGalleries: -1,
-    features: ["White-label", "API access", "Dedicated support"],
+    locations: -1,
+    features: ["White-label branding", "Franchise system", "Custom API access", "Dedicated account manager", "SLA guarantee", "Custom integrations"],
+    cta: "Contact Sales",
   },
 };
 

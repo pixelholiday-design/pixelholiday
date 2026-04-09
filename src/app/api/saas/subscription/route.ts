@@ -33,38 +33,57 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  // Update tier (mock Stripe subscription create)
   try {
     const { orgId, tier } = await req.json();
     if (!SUBSCRIPTION_TIERS[tier as Tier]) {
       return NextResponse.json({ error: "Invalid tier" }, { status: 400 });
     }
+
+    const tierConfig = SUBSCRIPTION_TIERS[tier as Tier];
+
+    // Free tier: just update, no Stripe needed
+    if (tierConfig.priceMonthly === 0) {
+      const org = await prisma.organization.update({
+        where: { id: orgId },
+        data: { subscriptionTier: tier },
+      });
+      return NextResponse.json({ ok: true, org, mocked: true });
+    }
+
     const org = await prisma.organization.update({
       where: { id: orgId },
       data: { subscriptionTier: tier },
     });
 
-    // Mock: in production, create Stripe subscription
-    let stripeSubId: string | null = null;
+    // Create Stripe checkout session for paid tiers
+    let stripeSessionId: string | null = null;
     if (process.env.STRIPE_SECRET_KEY && process.env.STRIPE_SECRET_KEY !== "sk_test_xxx") {
       try {
         const session = await stripe.checkout.sessions.create({
           mode: "subscription",
           line_items: [{ price_data: {
             currency: "usd",
-            product_data: { name: `PixelHoliday ${tier}` },
-            unit_amount: SUBSCRIPTION_TIERS[tier as Tier].priceMonthly,
+            product_data: { name: `PixelHoliday ${tierConfig.name}` },
+            unit_amount: tierConfig.priceMonthly,
             recurring: { interval: "month" },
           }, quantity: 1 }],
-          success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/my-dashboard?sub=success`,
+          success_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/dashboard?sub=success`,
           cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/signup`,
           metadata: { orgId, tier },
         });
-        stripeSubId = session.id;
+        stripeSessionId = session.id;
+
+        // Store Stripe IDs on the org
+        if (session.customer) {
+          await prisma.organization.update({
+            where: { id: orgId },
+            data: { stripeCustomerId: session.customer as string },
+          });
+        }
       } catch {}
     }
 
-    return NextResponse.json({ ok: true, org, stripeSessionId: stripeSubId, mocked: !stripeSubId });
+    return NextResponse.json({ ok: true, org, stripeSessionId, mocked: !stripeSessionId });
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }

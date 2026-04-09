@@ -21,6 +21,14 @@ model Organization {
   subscriptionTier   SubscriptionTier @default(STARTER)
   saasCommissionRate Float            @default(0.02)
   sleepingMoneyShare Float            @default(0.50)
+  // Franchise branding (white-label)
+  brandColor         String?
+  logoUrl            String?
+  tagline            String?
+  customDomain       String?
+  // Stripe subscription
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
   createdAt          DateTime         @default(now())
 }
 
@@ -173,9 +181,13 @@ model Customer {
   locationId      String?
   galleries       Gallery[]
   orders          Order[]
+  checkInDate     DateTime?
+  checkOutDate    DateTime?
   cartAbandoned   Boolean          @default(false)
   cartAbandonedAt DateTime?
   lastViewedAt    DateTime?
+  preArrivalOfferSentAt DateTime?
+  checkoutReminderSentAt DateTime?
   createdAt       DateTime         @default(now())
 
   @@index([whatsapp])
@@ -459,6 +471,8 @@ model QRCode {
   locationId        String
   location          Location      @relation(fields: [locationId], references: [id])
   assignedToStaffId String?
+  customerId        String?
+  roomNumber        String?
   scanCount         Int           @default(0)
   appointments      Appointment[]
   createdAt         DateTime      @default(now())
