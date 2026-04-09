@@ -148,9 +148,15 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
             </p>
           </header>
           <div className="relative z-10 max-w-3xl mx-auto px-6 mt-10">
-            <div className="rounded-2xl overflow-hidden shadow-lift ring-1 ring-white/10">
+            <div className="rounded-2xl overflow-hidden shadow-lift ring-1 ring-white/10 relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={watermarkedUrl(photoRef(hookPhoto))} alt="" className="w-full block" />
+              {/* CSS watermark overlay (always shown on HOOK_ONLY) */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
+                <span className="text-white/30 font-display text-5xl sm:text-7xl font-bold tracking-widest rotate-[-25deg]">
+                  FOTIQO
+                </span>
+              </div>
             </div>
           </div>
         </div>

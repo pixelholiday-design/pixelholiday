@@ -44,9 +44,9 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
     if (base && base !== "https://example.r2.dev") return `${base.replace(/\/$/, "")}/${raw.replace(/^\//, "")}`;
     return `/api/photo/${encodeURIComponent(raw)}`;
   }
-  // Cloudinary publicId — only trust if it does NOT look like an R2 path.
+  // Cloudinary publicId — only trust if it looks like a real upload, not a placeholder.
   const cid = p.cloudinaryId || "";
-  if (cid && !cid.startsWith("uploads/")) return cid;
+  if (cid && !cid.startsWith("uploads/") && !cid.startsWith("sample") && cid.includes("/")) return cid;
   if (raw) return `/api/photo/${encodeURIComponent(raw)}`;
   return "";
 }
