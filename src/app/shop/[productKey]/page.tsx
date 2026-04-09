@@ -83,8 +83,26 @@ export default function ProductDetailPage() {
           const opts = parseOptions(found.options);
           setSelectedSize(found.defaultSize ?? (sizes[0]?.key ?? null));
           setSelectedOption(found.defaultOption ?? (opts[0]?.key ?? null));
-          // Related = same category, different product
-          setRelated(all.filter((p) => p.category === found.category && p.productKey !== found.productKey).slice(0, 4));
+          // Related = same subcategory first, then same category, up to 4
+          const sameSubcat = found.subcategory
+            ? all.filter(
+                (p) =>
+                  p.productKey !== found.productKey &&
+                  p.category === found.category &&
+                  p.subcategory === found.subcategory
+              )
+            : [];
+          if (sameSubcat.length >= 4) {
+            setRelated(sameSubcat.slice(0, 4));
+          } else {
+            const sameCat = all.filter(
+              (p) =>
+                p.productKey !== found.productKey &&
+                p.category === found.category &&
+                !sameSubcat.some((s) => s.productKey === p.productKey)
+            );
+            setRelated([...sameSubcat, ...sameCat].slice(0, 4));
+          }
         }
         setLoading(false);
       })
@@ -155,11 +173,41 @@ export default function ProductDetailPage() {
       </nav>
 
       {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-4 pt-6">
-        <Link href="/shop" className="inline-flex items-center gap-1 text-sm text-navy-500 hover:text-navy-900 transition">
+      <nav aria-label="Breadcrumb" className="max-w-7xl mx-auto px-4 pt-6">
+        <ol className="flex items-center flex-wrap gap-1 text-sm text-navy-500">
+          <li>
+            <Link href="/shop" className="hover:text-navy-900 transition font-medium">
+              Shop
+            </Link>
+          </li>
+          {product && (
+            <>
+              <li className="text-navy-300" aria-hidden>›</li>
+              <li>
+                <Link
+                  href={`/shop?category=${product.category}`}
+                  className="hover:text-navy-900 transition font-medium capitalize"
+                >
+                  {product.category.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}
+                </Link>
+              </li>
+              <li className="text-navy-300" aria-hidden>›</li>
+              <li className="text-navy-900 font-semibold truncate max-w-[200px] sm:max-w-none">
+                {product.name}
+              </li>
+            </>
+          )}
+          {!product && loading && (
+            <>
+              <li className="text-navy-300" aria-hidden>›</li>
+              <li className="text-navy-300">…</li>
+            </>
+          )}
+        </ol>
+        <Link href="/shop" className="inline-flex items-center gap-1 text-sm text-navy-400 hover:text-navy-900 transition mt-2">
           <ArrowLeft className="h-4 w-4" /> Back to shop
         </Link>
-      </div>
+      </nav>
 
       {/* Product detail */}
       <div className="max-w-7xl mx-auto px-4 py-8">

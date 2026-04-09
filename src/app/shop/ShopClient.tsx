@@ -48,17 +48,26 @@ type CartItem = {
 const STORAGE_KEY = "pixelvo.cart.v2";
 
 const DISPLAY_TABS = [
-  { key: "ALL", label: "All" },
-  { key: "PRINTS", label: "Prints" },
-  { key: "WALL_ART", label: "Wall Art" },
-  { key: "PHOTO_BOOK", label: "Books" },
-  { key: "GIFT", label: "Gifts" },
-  { key: "CARD", label: "Cards" },
-  { key: "SOUVENIR", label: "Souvenirs" },
-  { key: "DIGITAL", label: "Digital" },
-  { key: "PASSES", label: "Passes" },
-  { key: "ADD_ONS", label: "Add-ons" },
+  { key: "ALL",           label: "All" },
+  { key: "DIGITAL",       label: "Digital" },
+  { key: "PRINT",         label: "Prints" },
+  { key: "PRINTS",        label: "Prints" },      // legacy alias
+  { key: "WALL_ART",      label: "Wall Art" },
+  { key: "SPECIALTY_WALL",label: "Specialty Wall" },
+  { key: "PHOTO_BOOK",    label: "Books & Albums" },
+  { key: "GIFT",          label: "Gifts" },
+  { key: "CARD",          label: "Cards" },
+  { key: "SOUVENIR",      label: "Souvenirs" },
+  { key: "BUNDLE",        label: "Bundles" },
+  { key: "DISPLAY",       label: "Tabletop" },
+  { key: "PASSES",        label: "Passes" },
+  { key: "ADD_ONS",       label: "Add-ons" },
 ];
+
+// Collapse legacy alias tabs — only one entry per label shown
+const DEDUP_TAB_LABELS = new Set<string>();
+
+const CATEGORY_PAGE_SIZE = 12;
 
 // ── Cart hook ─────────────────────────────────────────────────────────────────
 
@@ -120,6 +129,7 @@ export default function ShopClient() {
     message: string;
   } | null>(null);
   const [couponChecking, setCouponChecking] = useState(false);
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   // Shipping form state
   const [needsShipping, setNeedsShipping] = useState(false);
   const [shippingForm, setShippingForm] = useState({
@@ -156,9 +166,15 @@ export default function ShopClient() {
 
   const visibleTabs = useMemo(() => {
     if (!catalog) return DISPLAY_TABS.slice(0, 1);
-    return DISPLAY_TABS.filter(
-      (t) => t.key === "ALL" || (catalog.byCategory[t.key]?.length ?? 0) > 0,
-    );
+    DEDUP_TAB_LABELS.clear();
+    const result: typeof DISPLAY_TABS = [];
+    for (const t of DISPLAY_TABS) {
+      if (t.key !== "ALL" && (catalog.byCategory[t.key]?.length ?? 0) === 0) continue;
+      if (t.key !== "ALL" && DEDUP_TAB_LABELS.has(t.label)) continue;
+      DEDUP_TAB_LABELS.add(t.label);
+      result.push(t);
+    }
+    return result;
   }, [catalog]);
 
   const itemCount = items.reduce((n, i) => n + i.qty, 0);
@@ -248,23 +264,35 @@ export default function ShopClient() {
         {loaded && itemCount > 0 ? `${itemCount} · €${total.toFixed(0)}` : "Cart"}
       </button>
 
-      {/* Category sticky tabs */}
+      {/* Category sticky tabs — scrollable on mobile */}
       <div className="sticky top-[65px] z-10 bg-white/90 backdrop-blur border-b border-cream-300 shadow-card">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex gap-1 overflow-x-auto scrollbar-hide py-2">
-            {visibleTabs.map((tab) => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? "bg-brand-700 text-white shadow-card"
-                    : "text-navy-600 hover:bg-cream-200"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+          <div className="flex gap-1 overflow-x-auto scrollbar-hide py-2 -mx-1 px-1">
+            {visibleTabs.map((tab) => {
+              const count = tab.key === "ALL"
+                ? (catalog?.products.length ?? 0)
+                : (catalog?.byCategory[tab.key]?.length ?? 0);
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold transition whitespace-nowrap ${
+                    activeTab === tab.key
+                      ? "bg-brand-700 text-white shadow-card"
+                      : "text-navy-600 hover:bg-cream-200"
+                  }`}
+                >
+                  {tab.label}
+                  {catalog && count > 0 && (
+                    <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 leading-none ${
+                      activeTab === tab.key ? "bg-white/20 text-white" : "bg-cream-300 text-navy-500"
+                    }`}>
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -296,29 +324,85 @@ export default function ShopClient() {
 
         {catalog && visibleProducts.length > 0 && (
           <>
+            {/* Popular section — featured products shown before tabs, only on ALL view */}
+            {activeTab === "ALL" && (() => {
+              const featured = catalog.products.filter((p) => p.isFeatured);
+              if (featured.length === 0) return null;
+              return (
+                <section className="mb-14">
+                  <div className="flex items-end justify-between mb-6">
+                    <div>
+                      <p className="text-gold-600 text-xs font-semibold uppercase tracking-[0.2em]">
+                        ⭐ Most Popular
+                      </p>
+                      <h2 className="font-display text-2xl text-navy-900 mt-0.5">Customer Favourites</h2>
+                      <p className="text-navy-500 text-sm mt-1">Our top-rated products loved by guests.</p>
+                    </div>
+                  </div>
+                  <ProductGrid products={featured} items={items} add={add} dec={dec} />
+                </section>
+              );
+            })()}
+
             {/* Category heading when ALL is selected — group by category */}
             {activeTab === "ALL" ? (
               catalog.categories.map((cat) => {
                 const prods = catalog.byCategory[cat] ?? [];
                 if (prods.length === 0) return null;
-                const meta = categoryMeta[cat] ?? { label: cat, blurb: "", icon: "📦" };
+                const meta = categoryMeta[cat] ?? { label: cat, blurb: "", icon: "" };
+                const isExpanded = expandedCategories.has(cat);
+                const displayProds = isExpanded ? prods : prods.slice(0, CATEGORY_PAGE_SIZE);
+                const hasMore = prods.length > CATEGORY_PAGE_SIZE;
                 return (
                   <section key={cat} className="mb-14">
                     <div className="flex items-end justify-between mb-6">
                       <div>
                         <p className="text-brand-700 text-xs font-semibold uppercase tracking-[0.2em]">
-                          {meta.icon} {meta.label}
+                          {meta.label}
                         </p>
                         <h2 className="font-display text-2xl text-navy-900 mt-0.5">{meta.label}</h2>
                         {meta.blurb && <p className="text-navy-500 text-sm mt-1">{meta.blurb}</p>}
                       </div>
+                      {hasMore && !isExpanded && (
+                        <span className="text-xs text-navy-400">{prods.length} products</span>
+                      )}
                     </div>
-                    <ProductGrid products={prods} items={items} add={add} dec={dec} />
+                    <ProductGrid products={displayProds} items={items} add={add} dec={dec} />
+                    {hasMore && !isExpanded && (
+                      <div className="mt-6 text-center">
+                        <button
+                          onClick={() => setExpandedCategories((prev) => { const n = new Set(Array.from(prev)); n.add(cat); return n; })}
+                          className="inline-flex items-center gap-2 text-sm font-semibold text-brand-700 hover:text-brand-900 transition"
+                        >
+                          View all {prods.length} products →
+                        </button>
+                      </div>
+                    )}
                   </section>
                 );
               })
             ) : (
-              <ProductGrid products={visibleProducts} items={items} add={add} dec={dec} />
+              (() => {
+                const cat = activeTab;
+                const isExpanded = expandedCategories.has(cat);
+                const displayProds = isExpanded ? visibleProducts : visibleProducts.slice(0, CATEGORY_PAGE_SIZE);
+                const hasMore = visibleProducts.length > CATEGORY_PAGE_SIZE;
+                return (
+                  <>
+                    <ProductGrid products={displayProds} items={items} add={add} dec={dec} />
+                    {hasMore && !isExpanded && (
+                      <div className="mt-8 text-center">
+                        <button
+                          onClick={() => setExpandedCategories((prev) => { const n = new Set(Array.from(prev)); n.add(cat); return n; })}
+                          className="inline-flex items-center gap-2 bg-cream-200 hover:bg-cream-300 text-navy-700 font-semibold px-6 py-3 rounded-full transition text-sm"
+                        >
+                          View all {visibleProducts.length} products →
+                        </button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()
             )}
           </>
         )}

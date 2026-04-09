@@ -280,21 +280,52 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
             </div>
           ) : (
             <>
-              {/* Category tabs */}
-              <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none">
-                {[{ key: "ALL", label: "All" }, ...shopCategories].map((cat) => (
-                  <button
-                    key={cat.key}
-                    onClick={() => setShopCat(cat.key)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition ${
-                      shopCat === cat.key
-                        ? "bg-navy-900 text-white"
-                        : "bg-white border border-cream-300 text-navy-600 hover:bg-cream-100"
-                    }`}
-                  >
-                    {cat.label}
-                  </button>
-                ))}
+              {/* Category chips — scrollable on mobile */}
+              <div className="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-none -mx-1 px-1">
+                {[
+                  { key: "ALL",            label: "All" },
+                  { key: "DIGITAL",        label: "Digital" },
+                  { key: "PRINT",          label: "Prints" },
+                  { key: "WALL_ART",       label: "Wall Art" },
+                  { key: "SPECIALTY_WALL", label: "Specialty Wall" },
+                  { key: "PHOTO_BOOK",     label: "Books & Albums" },
+                  { key: "GIFT",           label: "Gifts" },
+                  { key: "CARD",           label: "Cards" },
+                  { key: "SOUVENIR",       label: "Souvenirs" },
+                  { key: "BUNDLE",         label: "Bundles" },
+                  { key: "DISPLAY",        label: "Tabletop" },
+                  { key: "PASSES",         label: "Passes" },
+                  { key: "ADD_ONS",        label: "Add-ons" },
+                ]
+                  .filter((cat) =>
+                    cat.key === "ALL" ||
+                    shopProducts.some((p) => p.category === cat.key)
+                  )
+                  .map((cat) => {
+                    const count = cat.key === "ALL"
+                      ? shopProducts.length
+                      : shopProducts.filter((p) => p.category === cat.key).length;
+                    return (
+                      <button
+                        key={cat.key}
+                        onClick={() => setShopCat(cat.key)}
+                        className={`flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold transition whitespace-nowrap ${
+                          shopCat === cat.key
+                            ? "bg-navy-900 text-white"
+                            : "bg-white border border-cream-300 text-navy-600 hover:bg-cream-100"
+                        }`}
+                      >
+                        {cat.label}
+                        {count > 0 && (
+                          <span className={`text-[10px] font-bold rounded-full px-1.5 py-0.5 leading-none ${
+                            shopCat === cat.key ? "bg-white/20 text-white" : "bg-cream-200 text-navy-500"
+                          }`}>
+                            {count}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
               </div>
 
               {/* Product grid */}
@@ -308,7 +339,8 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                   {shopProducts
                     .filter((p) => {
                       if (shopCat === "ALL") return true;
-                      if (shopCat === "BOOKS") return p.productKey.startsWith("book_") || p.category === "PHOTO_BOOK" || p.category === "BOOKS";
+                      // PRINT is the canonical key; also accept legacy PRINTS
+                      if (shopCat === "PRINT") return p.category === "PRINT" || p.category === "PRINTS";
                       return p.category === shopCat;
                     })
                     .map((product) => {
