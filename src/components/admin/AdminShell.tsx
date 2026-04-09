@@ -39,6 +39,8 @@ import {
   MessageSquare,
   CreditCard,
   Shield,
+  Film,
+  Trophy,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -60,6 +62,7 @@ const SECTIONS: NavSection[] = [
     items: [
       { href: "/admin/chat", label: "Team Chat", icon: MessageSquare },
       { href: "/admin/staff", label: "Staff", icon: Users },
+      { href: "/admin/shifts", label: "Shifts", icon: CalendarDays },
       { href: "/admin/equipment", label: "Equipment", icon: Package },
       { href: "/admin/housing", label: "Housing", icon: HomeIcon },
       { href: "/admin/academy", label: "Academy", icon: GraduationCap },
@@ -76,6 +79,7 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/sleeping-money", label: "Sleeping money", icon: Moon },
       { href: "/admin/b2b", label: "B2B Barter", icon: Handshake },
       { href: "/admin/franchise", label: "Franchise", icon: Building2 },
+      { href: "/admin/hotel-integration", label: "Hotel Integration", icon: Building2 },
       { href: "/admin/ai-insights", label: "AI Insights", icon: Brain },
       { href: "/admin/fraud-alerts", label: "Fraud Alerts", icon: Shield },
       { href: "/admin/hr/jobs", label: "HR / Jobs", icon: Briefcase },
@@ -108,6 +112,8 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/reviews", label: "Reviews", icon: Star },
       { href: "/admin/magic-elements", label: "Magic Elements", icon: Wand2 },
       { href: "/admin/retouch", label: "Retouch", icon: Sparkles },
+      { href: "/admin/reels", label: "Auto Reels", icon: Film },
+      { href: "/admin/gamification", label: "Gamification", icon: Trophy },
     ],
   },
 ];
@@ -116,19 +122,19 @@ const ROLE_ALLOWED: Record<string, string[]> = {
   CEO: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
     "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
-    "/admin/chat","/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/chat","/admin/staff","/admin/shifts","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
-    "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/fraud-alerts","/admin/hr/jobs",
-    "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/b2b","/admin/franchise","/admin/hotel-integration","/admin/ai-insights","/admin/fraud-alerts","/admin/hr/jobs",
+    "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch","/admin/reels","/admin/gamification",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
     "/admin/subscription",
   ],
   OPERATIONS_MANAGER: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
     "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
-    "/admin/chat","/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/chat","/admin/staff","/admin/shifts","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
-    "/admin/b2b","/admin/fraud-alerts","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/b2b","/admin/hotel-integration","/admin/fraud-alerts","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch","/admin/reels","/admin/gamification",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
     "/admin/subscription",
   ],

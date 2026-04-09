@@ -42,7 +42,7 @@ function SeverityBadge({ severity }: { severity: AlertSeverity }) {
       ? "bg-red-100 text-red-700 border border-red-200"
       : severity === "MEDIUM"
       ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
-      : "bg-blue-100 text-blue-700 border border-blue-200";
+      : "bg-brand-100 text-brand-700 border border-brand-200";
 
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${classes}`}>
@@ -121,8 +121,8 @@ export default function FraudAlertsPage() {
           </div>
         </div>
         <div className="card px-6 py-4 flex items-center gap-4">
-          <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
-            <Info className="h-5 w-5 text-blue-600" />
+          <div className="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center">
+            <Info className="h-5 w-5 text-brand-600" />
           </div>
           <div>
             <div className="text-2xl font-bold text-navy-900">{lowCount}</div>
@@ -191,7 +191,7 @@ export default function FraudAlertsPage() {
                   ) : alert.severity === "MEDIUM" ? (
                     <AlertTriangle className="h-5 w-5 text-yellow-500" />
                   ) : (
-                    <Info className="h-5 w-5 text-blue-500" />
+                    <Info className="h-5 w-5 text-brand-500" />
                   )}
                 </div>
                 <div className="flex-1 min-w-0">
