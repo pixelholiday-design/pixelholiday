@@ -13,6 +13,19 @@ html, body {
   font-feature-settings: "cv11", "ss01";
 }
 
+/* RTL support for Arabic */
+html[dir="rtl"] {
+  text-align: right;
+}
+html[dir="rtl"] .flex-row-reverse-rtl {
+  flex-direction: row-reverse;
+}
+/* Keep numbers/prices LTR in RTL mode */
+html[dir="rtl"] .ltr-numbers {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
 * {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

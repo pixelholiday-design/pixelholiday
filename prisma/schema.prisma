@@ -127,6 +127,7 @@ model Location {
   country            String          @default("Tunisia")
   city               String?
   timezone           String          @default("Africa/Tunis")
+  defaultLocale      String          @default("en")
   currency           String          @default("EUR")
   taxRate            Float           @default(0.19)
   rentAmount         Float?
@@ -185,6 +186,7 @@ model Customer {
   nfcTag          String?
   hasDigitalPass  Boolean          @default(false)
   digitalPassType DigitalPassType?
+  preferredLocale String?
   locationId      String?
   galleries       Gallery[]
   orders          Order[]

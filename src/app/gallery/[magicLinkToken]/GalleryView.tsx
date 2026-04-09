@@ -16,6 +16,8 @@ import ShopCart, { type CartItem } from "@/components/gallery/ShopCart";
 import ProductPickerModal from "./ProductPickerModal";
 import BookBuilder from "./BookBuilder";
 import LiveGalleryStream from "@/components/gallery/LiveGalleryStream";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslations } from "@/lib/i18n-client";
 
 type Photo = {
   id: string;
@@ -58,6 +60,10 @@ type CatalogProduct = {
 type ActiveTab = "photos" | "favorites" | "shop";
 
 export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?: ReelInfo | null }) {
+  const tGallery = useTranslations("gallery");
+  const tCommon = useTranslations("common");
+  const tShop = useTranslations("shop");
+  const tFooter = useTranslations("footer");
   const [activeTab, setActiveTab] = useState<ActiveTab>("photos");
   const [favOnly, setFavOnly] = useState(false);
   const [favDrawerOpen, setFavDrawerOpen] = useState(false);
@@ -165,7 +171,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold-400 mb-3">
               <Camera className="h-3.5 w-3.5" /> Fotiqo
             </div>
-            <h1 className="font-display text-4xl sm:text-5xl leading-tight">A sneak peek of your memory</h1>
+            <h1 className="font-display text-4xl sm:text-5xl leading-tight">{tGallery("sneakPeek")}</h1>
             <p className="text-white/70 mt-3 inline-flex items-center gap-2">
               <MapPin className="h-3.5 w-3.5" /> {gallery.location.name} · Captured by {gallery.photographer.name}
             </p>
@@ -186,8 +192,8 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
         <div className="max-w-3xl mx-auto px-6 py-12">
           <div className="flex justify-center"><FomoTimer expiresAt={gallery.expiresAt} /></div>
           <div className="mt-10 card p-8 text-navy-900">
-            <h2 className="heading text-2xl mb-1">Book your viewing</h2>
-            <p className="text-sm text-navy-400 mb-6">See all your photos in stunning quality at our studio.</p>
+            <h2 className="heading text-2xl mb-1">{tGallery("bookViewing")}</h2>
+            <p className="text-sm text-navy-400 mb-6">{tGallery("bookViewingDesc")}</p>
             <BookingTimePicker token={gallery.magicLinkToken} />
           </div>
         </div>
@@ -239,7 +245,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                   className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold bg-white border border-cream-300 text-navy-600 hover:bg-cream-100 transition"
                 >
                   <Heart className={`h-3.5 w-3.5 ${favCount > 0 ? "fill-coral-500 text-coral-500" : ""}`} />
-                  {favCount} favorite{favCount === 1 ? "" : "s"}
+                  {favCount} {tGallery("favorites").toLowerCase()}
                 </button>
                 <button
                   onClick={() => setFavOnly((v) => !v)}
@@ -247,13 +253,14 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                     favOnly ? "bg-coral-500 text-white" : "bg-white border border-cream-300 text-navy-600"
                   }`}
                 >
-                  {favOnly ? "All" : "Filter favs"}
+                  {favOnly ? tGallery("showAll") : tGallery("filterFavs")}
                 </button>
               </>
             )}
             {reel && <ReelOverlay reel={reel} />}
             <ShareMenu url={galleryUrl} title={`Fotiqo — ${gallery.location.name}`} />
             {isClean && activeTab === "photos" && <DownloadAllButton token={gallery.magicLinkToken} />}
+            <LanguageSwitcher />
           </div>
         </div>
         {/* Tab bar */}
@@ -261,9 +268,9 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
           <div className="flex items-center gap-1 border-b border-cream-200">
             {(
               [
-                { key: "photos", label: "Photos", icon: LayoutGrid },
-                { key: "favorites", label: `Favorites${favCount > 0 ? ` (${favCount})` : ""}`, icon: Heart },
-                { key: "shop", label: "Shop", icon: ShoppingBag },
+                { key: "photos", label: `${tGallery("photos")}`, icon: LayoutGrid },
+                { key: "favorites", label: `${tGallery("favorites")}${favCount > 0 ? ` (${favCount})` : ""}`, icon: Heart },
+                { key: "shop", label: tGallery("shop"), icon: ShoppingBag },
               ] as const
             ).map(({ key, label, icon: Icon }) => (
               <button
@@ -422,15 +429,15 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
         <div className="fixed bottom-0 inset-x-0 z-30 bg-gradient-to-t from-navy-900 via-navy-900/95 to-navy-900/80 border-t border-white/5">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-4">
             <div className="text-white">
-              <div className="font-display text-xl sm:text-2xl leading-tight">Unlock your memories</div>
+              <div className="font-display text-xl sm:text-2xl leading-tight">{tGallery("unlockMemories")}</div>
               <div className="text-white/60 text-xs sm:text-sm">
-                Full-resolution downloads · no expiry · instant delivery
+                {tGallery("fullResolution")}
               </div>
               <a
                 href="/shop"
                 className="mt-1 inline-flex items-center gap-1 text-xs text-gold-400 hover:text-gold-300 underline underline-offset-2 transition"
               >
-                Want prints? Canvas, photobook &amp; more →
+                {tGallery("wantPrints")} →
               </a>
             </div>
             <StripeCheckoutButton token={gallery.magicLinkToken} />
@@ -441,11 +448,11 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
       {/* Footer with legal links */}
       <footer className="border-t border-cream-300/70 bg-white/60 mt-8 mb-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-2 text-xs text-navy-400">
-          <div>© {new Date().getFullYear()} Fotiqo</div>
+          <div>{tFooter("copyright", { year: String(new Date().getFullYear()) })}</div>
           <div className="flex gap-4">
-            <a href="/privacy" className="hover:text-coral-600">Privacy</a>
-            <a href="/terms" className="hover:text-coral-600">Terms</a>
-            <a href="mailto:support@fotiqo.com" className="hover:text-coral-600">Contact</a>
+            <a href="/privacy" className="hover:text-coral-600">{tFooter("privacy")}</a>
+            <a href="/terms" className="hover:text-coral-600">{tFooter("terms")}</a>
+            <a href="mailto:support@fotiqo.com" className="hover:text-coral-600">{tFooter("contact")}</a>
           </div>
         </div>
       </footer>
@@ -469,7 +476,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
           <div className="flex-1 bg-black/40" />
           <aside className="w-full max-w-sm bg-cream-100 h-full shadow-lift overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-5 border-b border-cream-300 flex items-center justify-between">
-              <h3 className="heading text-xl">Favorites</h3>
+              <h3 className="heading text-xl">{tGallery("favorites")}</h3>
               <button onClick={() => setFavDrawerOpen(false)} className="btn-ghost"><X className="h-4 w-4" /></button>
             </div>
             <div className="p-5">

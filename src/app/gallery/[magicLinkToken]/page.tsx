@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
+import { cookies, headers } from "next/headers";
 import GalleryView from "./GalleryView";
 import { photoRef } from "@/lib/cloudinary";
 import {
@@ -8,6 +9,8 @@ import {
   signPhotoSource,
   hasSigningCapability,
 } from "@/lib/cloudinary/signed-url";
+import { detectLocale, loadMessages, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
+import { I18nProvider } from "@/lib/i18n-client";
 
 export const dynamic = "force-dynamic";
 
@@ -85,7 +88,13 @@ function sanitizePhotos(
   });
 }
 
-export default async function Page({ params }: { params: { magicLinkToken: string } }) {
+export default async function Page({
+  params,
+  searchParams,
+}: {
+  params: { magicLinkToken: string };
+  searchParams: { lang?: string };
+}) {
   const gallery = await prisma.gallery.findUnique({
     where: { magicLinkToken: params.magicLinkToken },
     include: {
@@ -113,5 +122,20 @@ export default async function Page({ params }: { params: { magicLinkToken: strin
     orderBy: { createdAt: "desc" },
     select: { id: true, duration: true, thumbnailUrl: true },
   });
-  return <GalleryView gallery={safeGallery as any} reel={reel} />;
+
+  // Detect locale from URL param > cookie > Accept-Language
+  const cookieStore = cookies();
+  const headersList = headers();
+  const locale = detectLocale({
+    searchParams,
+    cookie: cookieStore.get(LOCALE_COOKIE)?.value,
+    acceptLanguage: headersList.get("accept-language") || undefined,
+  });
+  const messages = await loadMessages(locale);
+
+  return (
+    <I18nProvider locale={locale} messages={messages}>
+      <GalleryView gallery={safeGallery as any} reel={reel} />
+    </I18nProvider>
+  );
 }
