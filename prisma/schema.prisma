@@ -70,6 +70,7 @@ model User {
   weeklySkillReports   WeeklySkillReport[]       @relation("UserWeeklyReports")
   zoneAssignments      ZoneAssignment[]          @relation("UserZoneAssignments")
   appointmentOutcomes  AppointmentOutcome[]      @relation("UserAppointmentOutcomes")
+  photographerProfile  PhotographerProfile?      @relation("UserPhotographerProfile")
   createdAt            DateTime                  @default(now())
 }
 
@@ -1684,4 +1685,112 @@ model ShopOrderItem {
   createdAt     DateTime    @default(now())
 
   @@index([shopOrderId])
+}
+
+// ── PHOTOGRAPHER PROFILE & WEBSITE BUILDER ────
+model PhotographerProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation("UserPhotographerProfile", fields: [userId], references: [id])
+  username        String   @unique // slug for /p/[username]
+  businessName    String?
+  tagline         String?
+  bio             String?  @db.Text
+  profilePhotoUrl String?
+  coverPhotoUrl   String?
+  specialties     String[] @default([]) // ["wedding","portrait","landscape","event","resort","commercial"]
+  experience      String?  // "1-3 years", "3-5 years", "5-10 years", "10+ years"
+  equipment       String[] @default([]) // ["Canon R5","Sony A7IV"]
+  languages       String[] @default([]) // ["English","French","Arabic"]
+  city            String?
+  country         String?
+  latitude        Float?
+  longitude       Float?
+  serviceAreaKm   Int?
+  priceRange      String?  // "€50-€100/hour"
+  socialInstagram String?
+  socialFacebook  String?
+  socialWebsite   String?
+  socialTiktok    String?
+  isPublicProfile Boolean  @default(true)
+  // Website builder settings
+  websiteTheme    String   @default("minimal") // minimal, bold, classic, modern, dark, light
+  primaryColor    String   @default("#29ABE2")
+  fontChoice      String   @default("inter") // inter, playfair, montserrat, lora, raleway
+  logoUrl         String?
+  sections        String?  @db.Text // JSON array of section config [{type,order,visible}]
+  customDomain    String?  @unique
+  seoTitle        String?
+  seoDescription  String?
+  seoImage        String?
+  // Portfolio galleries (which galleries to feature)
+  featuredGalleryIds String[] @default([])
+  // Services offered
+  services        PhotographerService[]
+  // Testimonials
+  testimonials    PhotographerTestimonial[]
+  // Inquiries
+  inquiries       PhotographerInquiry[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([username])
+  @@index([isPublicProfile])
+  @@index([city, country])
+}
+
+model PhotographerService {
+  id          String              @id @default(cuid())
+  profileId   String
+  profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  description String?             @db.Text
+  startingAt  Float?              // Starting price
+  currency    String              @default("EUR")
+  duration    String?             // "2 hours", "Full day"
+  sortOrder   Int                 @default(0)
+  createdAt   DateTime            @default(now())
+
+  @@index([profileId])
+}
+
+model PhotographerTestimonial {
+  id          String              @id @default(cuid())
+  profileId   String
+  profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  clientName  String
+  content     String              @db.Text
+  rating      Int                 @default(5) // 1-5
+  eventType   String?             // "Wedding", "Portrait"
+  date        DateTime?
+  isVisible   Boolean             @default(true)
+  sortOrder   Int                 @default(0)
+  createdAt   DateTime            @default(now())
+
+  @@index([profileId])
+}
+
+model PhotographerInquiry {
+  id          String              @id @default(cuid())
+  profileId   String
+  profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  phone       String?
+  eventType   String?
+  eventDate   DateTime?
+  message     String              @db.Text
+  budget      String?
+  status      InquiryStatus       @default(NEW)
+  createdAt   DateTime            @default(now())
+
+  @@index([profileId])
+  @@index([status])
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  BOOKED
+  DECLINED
 }
