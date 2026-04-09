@@ -88,6 +88,62 @@ export async function POST(req: Request) {
       }
     }
 
+    // Handle package booking payment (Bokun-style instant booking)
+    const packageBookingId = session.metadata?.packageBookingId;
+    if (packageBookingId) {
+      try {
+        const { recordPackageBookingCommission } = await import("@/lib/commissions");
+
+        const pkgBooking = await prisma.packageBooking.update({
+          where: { id: packageBookingId },
+          data: {
+            stripeSessionId: session.id,
+            stripePaymentId: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id,
+            isPaid: true,
+            paidAt: new Date(),
+            status: "PAID",
+          },
+        });
+
+        // Calculate and record commission
+        if (pkgBooking.assignedPhotographerId) {
+          await recordPackageBookingCommission({
+            bookingId: packageBookingId,
+            photographerId: pkgBooking.assignedPhotographerId,
+            totalPrice: pkgBooking.totalPrice,
+            paymentMethod: "STRIPE_ONLINE",
+          });
+        }
+
+        // Send confirmation email
+        if (process.env.RESEND_API_KEY && pkgBooking.customerEmail) {
+          try {
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://pixelholiday.vercel.app";
+            await resend.emails.send({
+              from: process.env.FROM_EMAIL || "hello@pixelvo.local",
+              to: pkgBooking.customerEmail,
+              subject: `Booking Confirmed! ${pkgBooking.confirmationCode}`,
+              html: `
+                <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+                  <h1 style="color: #0C1829;">Booking Confirmed!</h1>
+                  <p>Your confirmation code: <strong style="font-size: 24px; letter-spacing: 2px;">${pkgBooking.confirmationCode}</strong></p>
+                  <p><strong>Date:</strong> ${pkgBooking.sessionDate.toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+                  <p><strong>Time:</strong> ${pkgBooking.sessionStartTime}</p>
+                  <p><strong>Amount Paid:</strong> ${pkgBooking.currency} ${pkgBooking.totalPrice.toFixed(2)}</p>
+                  <p><a href="${baseUrl}/book/confirmation/${pkgBooking.id}" style="display: inline-block; padding: 12px 24px; background: #E8593C; color: white; text-decoration: none; border-radius: 8px; margin-top: 16px;">View Booking Details</a></p>
+                </div>
+              `,
+            });
+          } catch (e) {
+            console.warn("[Stripe] Package booking email failed:", e);
+          }
+        }
+      } catch (e: any) {
+        console.error("[Stripe] Package booking payment error:", e.message);
+      }
+    }
+
     // Handle marketplace booking payment
     const bookingId = session.metadata?.bookingId;
     if (bookingId) {

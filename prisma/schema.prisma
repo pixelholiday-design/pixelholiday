@@ -74,6 +74,7 @@ model User {
   reviews              PhotographerReview[]       @relation("PhotographerReviews")
   availability         PhotographerAvailability[] @relation("PhotographerAvailabilities")
   marketplaceBookings  MarketplaceBooking[]       @relation("PhotographerMarketplaceBookings")
+  packageBookings      PackageBooking[]           @relation("PackageBookingPhotographer")
   createdAt            DateTime                  @default(now())
 }
 
@@ -160,6 +161,8 @@ model Location {
   isActive           Boolean         @default(true)
   pricingConfigs     PricingConfig[]
   appointments       Appointment[]
+  photoPackages      PhotoPackage[]
+  packageBookings    PackageBooking[]
   createdAt          DateTime        @default(now())
 }
 
@@ -193,6 +196,7 @@ model Customer {
   lastViewedAt    DateTime?
   preArrivalOfferSentAt DateTime?
   checkoutReminderSentAt DateTime?
+  packageBookings PackageBooking[]
   createdAt       DateTime         @default(now())
 
   @@index([whatsapp])
@@ -350,6 +354,7 @@ model Appointment {
   location               Location?         @relation(fields: [locationId], references: [id])
   qrCodeId               String?
   qrCode                 QRCode?           @relation(fields: [qrCodeId], references: [id])
+  packageBooking         PackageBooking?
   createdAt              DateTime          @default(now())
 }
 
@@ -372,6 +377,7 @@ enum BookingSource {
   FACEBOOK
   EMAIL
   PHONE
+  PACKAGE_BOOKING
   WHATSAPP
   HOTEL_CONCIERGE
   PARTNER_REFERRAL
@@ -491,6 +497,7 @@ enum CommissionType {
   QR_REFERRAL
   SLEEPING_MONEY
   ATTENDANCE_BONUS
+  PACKAGE_BOOKING
 }
 
 // ── QR CODES ──────────────────────────────────
@@ -1982,4 +1989,130 @@ model PortfolioPhoto {
 
   @@index([profileId])
   @@index([category])
+}
+
+// ── PHOTO PACKAGES (Bokun-style instant booking) ──
+
+enum PackageCategory {
+  FAMILY
+  COUPLE
+  SOLO
+  GROUP
+  KIDS
+  EVENT
+  SPECIALTY
+}
+
+enum PackageBookingStatus {
+  PENDING
+  CONFIRMED
+  PAID
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+  REFUNDED
+}
+
+model PhotoPackage {
+  id                String          @id @default(cuid())
+  name              String
+  slug              String          @unique
+  description       String          @db.Text
+  shortDescription  String?
+  category          PackageCategory
+  sessionType       String          @default("MIXED") // PORTRAIT, ACTION, CANDID, MIXED
+  duration          Int             // minutes
+  deliveredPhotos   Int             // minimum guaranteed photos
+  price             Float           // base price in currency
+  depositAmount     Float?          // if null, full payment upfront
+  currency          String          @default("EUR")
+  coverImage        String?
+  galleryImages     String[]        @default([])
+  whatsIncluded     String[]        @default([])
+  whatToBring       String[]        @default([])
+  cancellationPolicy String?        @db.Text
+  maxGroupSize      Int             @default(6)
+  minGroupSize      Int             @default(1)
+  isActive          Boolean         @default(true)
+  isFeatured        Boolean         @default(false)
+  sortOrder         Int             @default(0)
+  locationId        String?
+  location          Location?       @relation(fields: [locationId], references: [id])
+  addOns            PackageAddOn[]
+  bookings          PackageBooking[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([slug])
+  @@index([category])
+  @@index([isActive, sortOrder])
+}
+
+model PackageAddOn {
+  id          String       @id @default(cuid())
+  packageId   String
+  package     PhotoPackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  price       Float
+  currency    String       @default("EUR")
+  isDefault   Boolean      @default(false)
+  sortOrder   Int          @default(0)
+  createdAt   DateTime     @default(now())
+
+  @@index([packageId])
+}
+
+model PackageBooking {
+  id                  String               @id @default(cuid())
+  confirmationCode    String               @unique
+  // Package
+  packageId           String
+  package             PhotoPackage         @relation(fields: [packageId], references: [id])
+  // Photographer (auto-assigned)
+  assignedPhotographerId String?
+  assignedPhotographer   User?             @relation("PackageBookingPhotographer", fields: [assignedPhotographerId], references: [id])
+  // Appointment link
+  appointmentId       String?              @unique
+  appointment         Appointment?         @relation(fields: [appointmentId], references: [id])
+  // Customer
+  customerId          String?
+  customer            Customer?            @relation(fields: [customerId], references: [id])
+  customerName        String
+  customerEmail       String
+  customerPhone       String?
+  // Session details
+  sessionDate         DateTime
+  sessionStartTime    String               // "17:00"
+  groupSize           Int                  @default(1)
+  specialRequests     String?              @db.Text
+  // Pricing
+  basePrice           Float
+  addOnsTotal         Float                @default(0)
+  addOnsSelected      String[]             @default([]) // add-on names for display
+  totalPrice          Float
+  currency            String               @default("EUR")
+  // Platform fees
+  platformFeeRate     Float                @default(0.15) // 15% for resort packages
+  platformFee         Float?
+  photographerPayout  Float?
+  stripeFee           Float?
+  // Payment
+  stripeSessionId     String?
+  stripePaymentId     String?
+  isPaid              Boolean              @default(false)
+  paidAt              DateTime?
+  // Status
+  status              PackageBookingStatus @default(PENDING)
+  // Location
+  locationId          String?
+  location            Location?            @relation(fields: [locationId], references: [id])
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([status])
+  @@index([sessionDate])
+  @@index([packageId])
+  @@index([confirmationCode])
 }

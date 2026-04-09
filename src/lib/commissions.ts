@@ -14,6 +14,7 @@ const DEFAULT_RATES: Record<CommissionType, number> = {
   QR_REFERRAL: 0.05,
   SLEEPING_MONEY: 0.20,
   ATTENDANCE_BONUS: 0,
+  PACKAGE_BOOKING: 0.08,
 };
 
 /**
@@ -294,4 +295,34 @@ export async function reverseCommissions(opts: {
       }
     }
   }
+}
+
+/**
+ * Record a package booking commission.
+ * Platform takes 15% of total booking price for resort packages.
+ */
+export async function recordPackageBookingCommission(opts: {
+  bookingId: string;
+  photographerId: string;
+  totalPrice: number;
+  paymentMethod?: string;
+}) {
+  const PACKAGE_FEE_RATE = 0.15; // 15%
+  const stripeFee = calculateStripeFee(opts.totalPrice, opts.paymentMethod || "STRIPE_ONLINE");
+  const netAmount = opts.totalPrice - stripeFee;
+  const platformFee = Math.round(opts.totalPrice * PACKAGE_FEE_RATE * 100) / 100;
+  const photographerPayout = Math.round((netAmount - platformFee) * 100) / 100;
+
+  // Update the booking with calculated fees
+  await prisma.packageBooking.update({
+    where: { id: opts.bookingId },
+    data: {
+      platformFeeRate: PACKAGE_FEE_RATE,
+      platformFee,
+      photographerPayout,
+      stripeFee,
+    },
+  });
+
+  return { platformFee, photographerPayout, stripeFee, netAmount };
 }

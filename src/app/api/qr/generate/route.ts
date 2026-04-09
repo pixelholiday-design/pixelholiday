@@ -28,6 +28,6 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     qr,
     scanUrl: `/qr/${qr.code}`,
-    qrCodeUrl: `${appUrl}/book/${qr.id}`,
+    qrCodeUrl: `${appUrl}/book/qr/${qr.id}`,
   });
 }

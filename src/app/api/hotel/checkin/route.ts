@@ -47,7 +47,7 @@ export async function POST(req: Request) {
     });
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const qrCodeUrl = `${appUrl}/book/${qr.id}`;
+    const qrCodeUrl = `${appUrl}/book/qr/${qr.id}`;
 
     // Send welcome WhatsApp
     if (phone) {
