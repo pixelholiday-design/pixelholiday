@@ -33,19 +33,24 @@ export default function MobileUploadPage() {
   const [photographerId, setPhotographerId] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/staff")
+    // Use /api/me — works for ALL roles (photographer, supervisor, manager, etc.)
+    fetch("/api/me")
       .then((r) => r.json())
       .then((d) => {
-        const staff = d.staff || [];
-        const locs = Array.from(
-          new Map(staff.filter((s: any) => s.location).map((s: any) => [s.location.id, s.location])).values()
-        ) as Loc[];
-        setLocations(locs);
-        const ph = staff.filter((s: any) => s.role === "PHOTOGRAPHER");
-        setPhotographers(ph);
-        if (ph[0]) {
-          setPhotographerId(ph[0].id);
-          if (ph[0].locationId) setLocationId(ph[0].locationId);
+        if (!d.ok) return;
+        // Auto-set current user as photographer if they are one
+        if (d.user?.role === "PHOTOGRAPHER") {
+          setPhotographerId(d.user.id);
+          if (d.user.locationId) setLocationId(d.user.locationId);
+        }
+        setLocations(d.locations || []);
+        setPhotographers(d.photographers || []);
+        // If not a photographer, auto-select first photographer at their location
+        if (d.user?.role !== "PHOTOGRAPHER" && d.photographers?.length) {
+          const atLoc = d.photographers.find((p: any) => p.locationId === d.user.locationId);
+          if (atLoc) setPhotographerId(atLoc.id);
+          else setPhotographerId(d.photographers[0].id);
+          if (d.user.locationId) setLocationId(d.user.locationId);
         }
       })
       .catch(() => {});

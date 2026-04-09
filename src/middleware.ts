@@ -6,50 +6,34 @@ import { NextResponse } from "next/server";
 const ROLE_ROUTES: Record<string, string[]> = {
   CEO: ["/admin", "/kiosk", "/my-dashboard"], // sees everything
   OPERATIONS_MANAGER: [
-    "/admin/dashboard",
-    "/admin/upload",
-    "/admin/bookings",
-    "/admin/staff",
-    "/admin/equipment",
-    "/admin/housing",
-    "/admin/academy",
-    "/admin/b2b",
-    "/admin/blog",
-    "/admin/reviews",
-    "/admin/magic-elements",
-    "/admin/retouch",
-    "/admin/hr",
-    "/admin/cameras",
-    "/admin/kiosks",
-    "/admin/kiosk-setup",
-    "/admin/wifi-transfer",
-    "/admin/photo-flow",
-    "/admin/payroll",
-    "/admin/commissions",
-    "/admin/pricing",
-    "/admin/cash",
-    "/admin/finance",
-    "/admin/sleeping-money",
-    "/admin/store",
-    "/kiosk",
-    "/my-dashboard",
+    "/admin/dashboard", "/admin/upload", "/admin/bookings", "/admin/staff",
+    "/admin/shifts", "/admin/equipment", "/admin/housing", "/admin/academy",
+    "/admin/chat", "/admin/b2b", "/admin/blog", "/admin/reviews",
+    "/admin/magic-elements", "/admin/retouch", "/admin/reels",
+    "/admin/gamification", "/admin/coaching",
+    "/admin/hr", "/admin/cameras", "/admin/kiosks", "/admin/kiosk-setup",
+    "/admin/wifi-transfer", "/admin/photo-flow",
+    "/admin/payroll", "/admin/commissions", "/admin/pricing",
+    "/admin/cash", "/admin/finance", "/admin/sleeping-money",
+    "/admin/store", "/admin/franchise", "/admin/ai-insights",
+    "/admin/fraud-alerts", "/admin/hotel-integration", "/admin/subscription",
+    "/kiosk", "/my-dashboard",
   ],
   SUPERVISOR: [
-    "/admin/dashboard",
-    "/admin/upload",
-    "/admin/bookings",
-    "/admin/staff",
-    "/admin/equipment",
-    "/admin/academy",
-    "/admin/blog",
-    "/admin/reviews",
-    "/kiosk",
-    "/my-dashboard",
+    "/admin/dashboard", "/admin/upload", "/admin/bookings",
+    "/admin/staff", "/admin/shifts", "/admin/equipment",
+    "/admin/chat", "/admin/academy", "/admin/blog", "/admin/reviews",
+    "/admin/coaching", "/admin/gamification",
+    "/kiosk", "/my-dashboard",
   ],
-  PHOTOGRAPHER: ["/admin/upload", "/admin/bookings", "/kiosk", "/my-dashboard"],
-  SALES_STAFF: ["/admin/bookings", "/kiosk", "/my-dashboard"],
-  RECEPTIONIST: ["/admin/bookings", "/my-dashboard"],
-  ACADEMY_TRAINEE: ["/admin/academy", "/my-dashboard"],
+  PHOTOGRAPHER: [
+    "/admin/upload", "/admin/bookings", "/admin/chat",
+    "/admin/gamification", "/admin/academy",
+    "/kiosk", "/my-dashboard",
+  ],
+  SALES_STAFF: ["/admin/bookings", "/admin/chat", "/kiosk", "/my-dashboard"],
+  RECEPTIONIST: ["/admin/bookings", "/admin/chat", "/my-dashboard"],
+  ACADEMY_TRAINEE: ["/admin/academy", "/admin/chat", "/my-dashboard"],
 };
 
 function isAllowed(role: string | undefined, pathname: string): boolean {
@@ -72,9 +56,11 @@ const PUBLIC_KIOSK = [
 ];
 
 // /api/admin/* is the admin REST surface — must require a session.
+// /api/me is protected but available to ALL authenticated users.
 // Other /api/* (camera, gallery/[token], kiosk pos, mobile-upload, webhooks)
 // are deliberately public; they validate via PIN, magic link, signature, etc.
 function isProtectedApi(pathname: string) {
+  if (pathname === "/api/me") return false; // available to all logged-in users
   return pathname.startsWith("/api/admin/");
 }
 
