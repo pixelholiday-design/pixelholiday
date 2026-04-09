@@ -2,8 +2,9 @@
 import { useState, useEffect, useCallback } from "react";
 import {
   Wand2, Sun, Contrast, Droplets, Palette, Eye, Sparkles, ChevronLeft,
-  ChevronRight, Check, Loader2, Image as ImageIcon, Layers, SlidersHorizontal,
+  ChevronRight, Check, Loader2, Image as ImageIcon, Layers, SlidersHorizontal, Download,
 } from "lucide-react";
+import { cleanUrl, watermarkedUrl, photoRef } from "@/lib/cloudinary";
 
 type Gallery = { id: string; magicLinkToken: string; totalCount: number; customer: { name: string | null } };
 type Photo = {
@@ -187,9 +188,19 @@ export default function RetouchPage() {
                   batchMode && batchSelected.has(p.id) ? "ring-coral-500" : selectedIdx === i ? "ring-coral-500" : "ring-transparent"
                 }`}
               >
-                <div className="w-full h-full bg-gradient-to-br from-cream-200 to-cream-300 flex items-center justify-center">
-                  <ImageIcon className="h-5 w-5 text-navy-300" />
-                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                {photoRef(p) ? (
+                  <img
+                    src={watermarkedUrl(photoRef(p), 300)}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-cream-200 to-cream-300 flex items-center justify-center">
+                    <ImageIcon className="h-5 w-5 text-navy-300" />
+                  </div>
+                )}
                 {p.isRetouched && (
                   <div className="absolute top-1 right-1 h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
                     <Check className="h-3 w-3 text-white" />
@@ -227,26 +238,41 @@ export default function RetouchPage() {
           <div className="card overflow-hidden">
             <div className="relative bg-navy-900" style={{ minHeight: 400 }}>
               {beforeAfter ? (
-                <div className="flex h-full">
-                  <div className="flex-1 flex items-center justify-center bg-cream-200 border-r-2 border-white">
-                    <div className="text-center">
-                      <ImageIcon className="h-12 w-12 text-navy-300 mx-auto" />
-                      <div className="text-xs text-navy-400 mt-2">Before</div>
-                    </div>
+                <div className="flex h-full min-h-[400px]">
+                  <div className="flex-1 relative overflow-hidden border-r-2 border-white">
+                    {photoRef(selected) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={cleanUrl(photoRef(selected), 1200)} alt="Before" className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-cream-200">
+                        <ImageIcon className="h-12 w-12 text-navy-300 mx-auto" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-2 left-2 bg-navy-900/70 text-white text-xs font-semibold px-2 py-0.5 rounded">Before</div>
                   </div>
-                  <div className="flex-1 flex items-center justify-center bg-cream-200" style={{ filter: filterStr }}>
-                    <div className="text-center">
-                      <ImageIcon className="h-12 w-12 text-navy-300 mx-auto" />
-                      <div className="text-xs text-navy-400 mt-2">After</div>
-                    </div>
+                  <div className="flex-1 relative overflow-hidden" style={{ filter: filterStr }}>
+                    {photoRef(selected) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={cleanUrl(photoRef(selected), 1200)} alt="After" className="w-full h-full object-contain" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-cream-200">
+                        <ImageIcon className="h-12 w-12 text-navy-300 mx-auto" />
+                      </div>
+                    )}
+                    <div className="absolute bottom-2 right-2 bg-navy-900/70 text-white text-xs font-semibold px-2 py-0.5 rounded">After</div>
                   </div>
                 </div>
               ) : (
-                <div className="flex items-center justify-center h-full min-h-[400px] bg-cream-200" style={{ filter: filterStr }}>
-                  <div className="text-center">
-                    <ImageIcon className="h-16 w-16 text-navy-300 mx-auto" />
-                    <div className="text-xs text-navy-400 mt-2 font-mono">{selected.id.slice(0, 12)}</div>
-                  </div>
+                <div className="flex items-center justify-center h-full min-h-[400px] bg-navy-900" style={{ filter: filterStr }}>
+                  {photoRef(selected) ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={cleanUrl(photoRef(selected), 1600)} alt="" className="max-w-full max-h-[600px] object-contain" />
+                  ) : (
+                    <div className="text-center">
+                      <ImageIcon className="h-16 w-16 text-navy-300 mx-auto" />
+                      <div className="text-xs text-navy-400 mt-2 font-mono">{selected.id.slice(0, 12)}</div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -314,6 +340,17 @@ export default function RetouchPage() {
               <button onClick={() => save(true)} disabled={saving || selectedIdx >= photos.length - 1} className="btn-secondary w-full !py-3">
                 Save & Next
               </button>
+              {selected && photoRef(selected) && (
+                <a
+                  href={cleanUrl(photoRef(selected), 3000)}
+                  download={`retouched-${selected.id.slice(0, 8)}.jpg`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-ghost w-full !py-3 inline-flex items-center justify-center gap-2"
+                >
+                  <Download className="h-4 w-4" /> Download photo
+                </a>
+              )}
             </div>
           </div>
         </div>

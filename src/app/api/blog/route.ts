@@ -85,7 +85,15 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
-  const posts = await prisma.blogPost.findMany({ orderBy: { createdAt: "desc" }, take: 50 });
+export async function GET(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const status = searchParams.get("status");
+  const where = status ? { status: status as any } : {};
+  const posts = await prisma.blogPost.findMany({
+    where,
+    include: { author: { select: { name: true } } },
+    orderBy: { createdAt: "desc" },
+    take: 50,
+  });
   return NextResponse.json(posts);
 }

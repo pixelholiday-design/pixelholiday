@@ -3,7 +3,10 @@ import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: { params: { id: string } }) {
+  const { searchParams } = new URL(req.url);
+  const download = searchParams.get("download") === "1";
+
   const reel = await prisma.videoReel.findUnique({
     where: { id: params.id },
     include: {
@@ -22,6 +25,19 @@ export async function GET(_req: Request, { params }: { params: { id: string } })
   try {
     photoIds = JSON.parse(reel.photoIds);
   } catch {}
+
+  // Download mode: return the reel HTML as a downloadable file
+  if (download && reel.previewHtml) {
+    const galleryId = reel.gallery?.id || reel.galleryId;
+    const filename = `pixelholiday-reel-${galleryId.slice(0, 8)}.html`;
+    return new Response(reel.previewHtml, {
+      headers: {
+        "Content-Type": "text/html; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${filename}"`,
+      },
+    });
+  }
+
   return NextResponse.json({
     id: reel.id,
     galleryId: reel.galleryId,

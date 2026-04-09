@@ -23,6 +23,41 @@ export async function POST(req: Request) {
     return NextResponse.json({ received: true, duplicate: true });
   }
 
+  if (event.type === "payment_intent.payment_failed") {
+    const pi = event.data.object;
+    const failureMessage = pi.last_payment_error?.message || "Unknown failure";
+    console.error(`[Stripe] payment_intent.payment_failed — id: ${pi.id}, reason: ${failureMessage}`);
+    // Update any matching pending order to FAILED status.
+    try {
+      await prisma.order.updateMany({
+        where: { stripeSessionId: pi.id, status: "PENDING" },
+        data: { status: "FAILED" },
+      });
+    } catch (e) {
+      console.warn("[Stripe] Could not update order on payment failure", e);
+    }
+  }
+
+  if (event.type === "charge.dispute.created") {
+    const dispute = event.data.object;
+    console.error(
+      `[Stripe] charge.dispute.created — dispute: ${dispute.id}, charge: ${dispute.charge}, amount: ${dispute.amount}, reason: ${dispute.reason}`
+    );
+    // Log dispute to AIGrowthLog for CEO visibility.
+    try {
+      await prisma.aIGrowthLog.create({
+        data: {
+          type: "PRICING_OPTIMIZATION",
+          description: `Stripe dispute created — charge ${dispute.charge}, reason: ${dispute.reason}`,
+          result: `Dispute ID: ${dispute.id}, Amount: ${dispute.amount / 100} ${dispute.currency?.toUpperCase()}`,
+          dataSnapshot: { disputeId: dispute.id, chargeId: dispute.charge, reason: dispute.reason, amount: dispute.amount },
+        },
+      });
+    } catch (e) {
+      console.warn("[Stripe] Could not log dispute to AIGrowthLog", e);
+    }
+  }
+
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
     const galleryId = session.metadata?.galleryId;

@@ -41,16 +41,31 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
  * Server-side watermarked URL.
  * Transformation: l_<watermark>,w_0.5,g_center,o_40 / c_limit,w_<width>,q_60,f_webp,a_exif
  * a_exif = auto-rotate based on EXIF orientation tag.
- * Falls back to the raw URL when Cloudinary isn't configured and input is already HTTPS.
+ *
+ * When given an HTTPS URL (R2, picsum, etc.) and Cloudinary is configured, uses
+ * Cloudinary's image/fetch endpoint so the watermark is applied server-side.
+ * Falls back to passing the URL through when Cloudinary is not configured (dev/seed mode).
  */
 export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
   if (!publicIdOrUrl) return "";
-  // HTTPS URLs (seed picsum, R2 public URLs, etc.) pass through unchanged.
-  // Cloudinary's image/fetch is unreliable cross-host and was breaking production
-  // galleries. Real uploads go through the cloudinary publicId branch below.
-  if (isHttpsUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `l_${WATERMARK},w_0.5,g_center,o_40/c_limit,w_${width},q_60,f_webp,a_exif`;
+  if (isHttpsUrl(publicIdOrUrl)) {
+    // Use Cloudinary fetch to apply watermark to any external/R2 URL.
+    // If Cloudinary is not configured, pass through unchanged (dev/seed mode only).
+    if (!HAS_CLOUDINARY) return publicIdOrUrl;
+    return `https://res.cloudinary.com/${CLOUD}/image/fetch/${transform}/${encodeURIComponent(publicIdOrUrl)}`;
+  }
   return `https://res.cloudinary.com/${CLOUD || "demo"}/image/upload/${transform}/${publicIdOrUrl}`;
+}
+
+/**
+ * Signed watermarked URL for extra security — prevents URL tampering.
+ * Requires CLOUDINARY_API_SECRET to be available server-side for signing.
+ * TODO: implement signing using cloudinary.url() with sign_url:true from cloudinary.server.ts
+ */
+export function signedWatermarkUrl(publicIdOrUrl: string, width = 1200): string {
+  // TODO: call cloudinary.url(publicIdOrUrl, { sign_url: true, transformation: [...] }) server-side
+  return watermarkedUrl(publicIdOrUrl, width);
 }
 
 /** Clean (unwatermarked) URL — only for PAID galleries */

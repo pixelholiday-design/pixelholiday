@@ -36,6 +36,17 @@ export async function sendWhatsAppAbandonedCart(to: string, link: string, code: 
   return sendWhatsAppMessage(to, `Missing the Tunisian sun? Get your memories now at 15% off! Code ${code}: ${link}`);
 }
 
+export async function sendWhatsAppReply(to: string, body: string) {
+  return sendWhatsAppMessage(to, body);
+}
+
+export async function sendWhatsAppHelpMenu(to: string) {
+  return sendWhatsAppMessage(
+    to,
+    `Welcome to PixelHoliday! Reply with:\n📸 "photos" - View your gallery\n📅 "book" - Book a photo session\n❓ "help" - See this menu again`
+  );
+}
+
 export async function notifyPhotographerNewBooking(photographerName: string, time: Date) {
   console.log(`[Push MOCK → ${photographerName}] New appointment at ${time.toISOString()}`);
 }

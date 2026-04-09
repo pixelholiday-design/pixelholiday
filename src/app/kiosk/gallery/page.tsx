@@ -1,9 +1,10 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag } from "lucide-react";
+import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag, Wifi } from "lucide-react";
 import { cleanUrl, photoRef } from "@/lib/cloudinary";
 import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
+import QRScanner from "@/components/mobile/QRScanner";
 
 type Photo = { id: string; cloudinaryId: string | null; s3Key_highRes: string };
 type Gallery = { id: string; magicLinkToken: string; photos: Photo[] };
@@ -21,6 +22,7 @@ export default function GalleryKiosk() {
   const [qrText, setQrText] = useState<string | null>(null);
   const [orderMsg, setOrderMsg] = useState<string | null>(null);
   const [wristbandInput, setWristbandInput] = useState("");
+  const [showQrScanner, setShowQrScanner] = useState(false);
 
   // 5min cart timeout
   useEffect(() => {
@@ -48,11 +50,12 @@ export default function GalleryKiosk() {
     setOrderMsg(null);
   }
 
-  async function identify(method: "WRISTBAND" | "SELFIE" | "ROOM", value?: string) {
+  async function identify(method: "WRISTBAND" | "SELFIE" | "ROOM" | "NFC", value?: string) {
     setBusy(true); setErr(null);
     const body: any = { locationId: locationId || "_any_", method };
     if (method === "WRISTBAND") body.wristbandCode = value;
     if (method === "ROOM") body.roomNumber = value;
+    if (method === "NFC") body.nfcTag = value;
     if (method === "SELFIE") body.selfieData = "kiosk";
     const r = await fetch(`${apiBase}/api/kiosk/identify`, {
       method: "POST",
@@ -118,13 +121,39 @@ export default function GalleryKiosk() {
         </div>
         <h1 className="font-display text-6xl mb-4">Find your photos</h1>
         <p className="text-white/60 text-xl mb-12">Choose how you'd like to identify yourself.</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 max-w-6xl w-full">
-          <IdCard
-            icon={<ScanLine className="h-10 w-10" />}
-            title="Scan wristband"
-            sub="QR on your waterproof band"
-            onClick={() => identify("WRISTBAND", "SCAN")}
-          />
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 max-w-5xl w-full">
+          {/* QR Scanner — uses BarcodeDetector or manual code entry */}
+          <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
+            <div className="h-20 w-20 rounded-2xl bg-coral-500/15 text-coral-400 flex items-center justify-center mb-5">
+              <ScanLine className="h-10 w-10" />
+            </div>
+            <div className="font-display text-2xl mb-1 text-white">Scan QR code</div>
+            <div className="text-white/50 mb-4">Wristband or booking code</div>
+            {showQrScanner ? (
+              <>
+                <QRScanner
+                  onResult={(code) => {
+                    setShowQrScanner(false);
+                    identify("WRISTBAND", code);
+                  }}
+                />
+                <button
+                  onClick={() => setShowQrScanner(false)}
+                  className="mt-3 text-white/40 text-xs hover:text-white/70"
+                >
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => setShowQrScanner(true)}
+                className="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-coral-500 to-coral-700 text-white font-semibold"
+              >
+                Open Scanner
+              </button>
+            )}
+          </div>
+
           <IdCard
             icon={<User className="h-10 w-10" />}
             title="Take a selfie"
@@ -138,6 +167,16 @@ export default function GalleryKiosk() {
             onClick={() => {
               const v = prompt("Room number");
               if (v) identify("ROOM", v);
+            }}
+          />
+          {/* NFC tap */}
+          <IdCard
+            icon={<Wifi className="h-10 w-10" />}
+            title="Tap NFC tag"
+            sub="Touch your NFC wristband or card to the reader"
+            onClick={() => {
+              const v = prompt("NFC tag ID (auto-read in production)");
+              if (v) identify("NFC", v);
             }}
           />
           <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-6 flex flex-col items-center text-center">

@@ -16,6 +16,7 @@ export async function GET() {
       contractEndDate: true,
       rentCost: true,
       rentAmount: true,
+      partnerCommission: true,
       isActive: true,
     },
     where: { isActive: true },

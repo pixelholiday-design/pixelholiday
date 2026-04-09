@@ -39,7 +39,9 @@ export async function GET() {
       prisma.customer.count({ where: { cartAbandoned: true } }),
     ]);
 
-    const conversionRate = allAuto._count > 0 ? 1 : 0; // simple proxy
+    // Conversion rate = automated sales / total abandoned-cart customers (customers who were targeted).
+    const conversionRate =
+      abandonedCount > 0 ? Math.min(1, allAuto._count / abandonedCount) : 0;
     return NextResponse.json({
       summary: {
         totalRevenue: allAuto._sum.amount || 0,

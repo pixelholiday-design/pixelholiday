@@ -22,6 +22,9 @@ import {
   AlertTriangle,
   CircleCheck,
   Loader2,
+  Code2,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 
 type Appt = {
@@ -85,7 +88,9 @@ export default function BookingsPage() {
   const [filter, setFilter] = useState({ source: "", status: "", locationId: "", photographerId: "" });
   const [selected, setSelected] = useState<Appt | null>(null);
   const [newOpen, setNewOpen] = useState(false);
+  const [embedOpen, setEmbedOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [copiedEmbed, setCopiedEmbed] = useState<"iframe" | "link" | null>(null);
 
   async function load() {
     setLoading(true);
@@ -152,11 +157,24 @@ export default function BookingsPage() {
               <ListIcon className="h-4 w-4" strokeWidth={1.5} /> List
             </button>
           </div>
+          <button onClick={() => setEmbedOpen((o) => !o)} className="btn-secondary">
+            <Code2 className="h-4 w-4" strokeWidth={1.5} /> Embed Widget
+          </button>
           <button onClick={() => setNewOpen(true)} className="btn-primary">
             <Plus className="h-4 w-4" strokeWidth={1.5} /> New Booking
           </button>
         </div>
       </header>
+
+      {/* Embed Widget Panel */}
+      {embedOpen && (
+        <EmbedPanel
+          locations={locations}
+          onClose={() => setEmbedOpen(false)}
+          copiedEmbed={copiedEmbed}
+          setCopiedEmbed={setCopiedEmbed}
+        />
+      )}
 
       {/* Filters */}
       <div className="card p-4 flex flex-wrap items-center gap-3 text-sm">
@@ -485,5 +503,106 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <div className="label-xs mb-1.5">{label}</div>
       {children}
     </label>
+  );
+}
+
+function EmbedPanel({
+  locations,
+  onClose,
+  copiedEmbed,
+  setCopiedEmbed,
+}: {
+  locations: Array<{ id: string; name: string }>;
+  onClose: () => void;
+  copiedEmbed: "iframe" | "link" | null;
+  setCopiedEmbed: (v: "iframe" | "link" | null) => void;
+}) {
+  const [selectedLocation, setSelectedLocation] = useState(locations[0]?.id || "");
+  const appUrl = typeof window !== "undefined" ? window.location.origin : "https://yoursite.com";
+  const bookUrl = selectedLocation
+    ? `${appUrl}/book?location=${selectedLocation}`
+    : `${appUrl}/book`;
+  const iframeCode = `<iframe\n  src="${bookUrl}"\n  width="100%"\n  height="600"\n  frameborder="0"\n  style="border-radius: 12px; border: 1px solid #E9E7DD;"\n  title="PixelHoliday Booking"\n></iframe>`;
+
+  async function copy(type: "iframe" | "link") {
+    await navigator.clipboard.writeText(type === "iframe" ? iframeCode : bookUrl);
+    setCopiedEmbed(type);
+    setTimeout(() => setCopiedEmbed(null), 2000);
+  }
+
+  return (
+    <div className="card p-6 border-l-4 border-brand-400 space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="heading text-lg flex items-center gap-2">
+            <Code2 className="h-4 w-4 text-brand-500" strokeWidth={1.5} />
+            Embed Booking Widget
+          </h2>
+          <p className="text-xs text-navy-400 mt-0.5">
+            Add the booking widget to your hotel website or landing page.
+          </p>
+        </div>
+        <button onClick={onClose} className="btn-ghost !p-2">
+          <X className="h-4 w-4" strokeWidth={1.5} />
+        </button>
+      </div>
+
+      {locations.length > 0 && (
+        <label className="block">
+          <div className="label-xs mb-1.5">Location</div>
+          <select
+            className="input !w-auto"
+            value={selectedLocation}
+            onChange={(e) => setSelectedLocation(e.target.value)}
+          >
+            <option value="">All locations</option>
+            {locations.map((l) => (
+              <option key={l.id} value={l.id}>{l.name}</option>
+            ))}
+          </select>
+        </label>
+      )}
+
+      {/* Direct link */}
+      <div>
+        <div className="label-xs mb-1.5">Direct booking URL</div>
+        <div className="flex items-center gap-2">
+          <code className="flex-1 block bg-cream-100 rounded-xl px-4 py-2.5 text-xs font-mono text-navy-700 break-all">
+            {bookUrl}
+          </code>
+          <button onClick={() => copy("link")} className="btn-secondary shrink-0 text-xs !px-3 !py-2">
+            {copiedEmbed === "link" ? <Check className="h-3.5 w-3.5 text-green-600" /> : <Copy className="h-3.5 w-3.5" />}
+          </button>
+          <a href={bookUrl} target="_blank" rel="noreferrer" className="btn-ghost !p-2 shrink-0">
+            <ExternalLink className="h-4 w-4" strokeWidth={1.5} />
+          </a>
+        </div>
+      </div>
+
+      {/* Iframe embed */}
+      <div>
+        <div className="label-xs mb-1.5">iframe embed code</div>
+        <div className="relative">
+          <pre className="bg-navy-900 text-green-300 text-xs font-mono rounded-xl p-4 overflow-x-auto whitespace-pre-wrap break-all">
+            {iframeCode}
+          </pre>
+          <button
+            onClick={() => copy("iframe")}
+            className="absolute top-3 right-3 inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-lg bg-white/10 text-white hover:bg-white/20 transition"
+          >
+            {copiedEmbed === "iframe" ? (
+              <><Check className="h-3 w-3 text-green-400" /> Copied!</>
+            ) : (
+              <><Copy className="h-3 w-3" /> Copy</>
+            )}
+          </button>
+        </div>
+      </div>
+
+      <p className="text-xs text-navy-400">
+        Paste the iframe code into your website's HTML where you want the booking form to appear.
+        Guests can select a time slot and photographer directly from your site.
+      </p>
+    </div>
   );
 }

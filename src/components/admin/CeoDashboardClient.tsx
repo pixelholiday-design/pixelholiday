@@ -8,6 +8,7 @@ import {
   TrendingUp, Camera, Users, Wallet, Sparkles, AlertTriangle, ArrowUpRight,
 } from "lucide-react";
 import AlertsPanel from "@/components/admin/AlertsPanel";
+import SimpleChart from "@/components/admin/SimpleChart";
 
 type Dash = any;
 type Division = "ALL" | "LUXURY" | "SPLASH";
@@ -201,6 +202,22 @@ export default function CeoDashboardClient() {
           </div>
         </div>
       </div>
+
+      {/* Revenue by location — CSS chart (no external lib) */}
+      {(data.revenueByLocation || []).length > 0 && (
+        <div className="card p-6">
+          <h2 className="heading text-xl mb-1">Revenue by location</h2>
+          <p className="text-xs text-navy-400 mb-6">All-time totals · CSS bar chart</p>
+          <SimpleChart
+            data={(data.revenueByLocation || []).map((l: any) => ({
+              label: l.name,
+              value: l.revenue || 0,
+            }))}
+            unit="€"
+            color="bg-coral-500"
+          />
+        </div>
+      )}
 
       {/* Photographer leaderboard */}
       <div className="card p-6">

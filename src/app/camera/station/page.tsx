@@ -2,10 +2,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
   Camera, Wifi, WifiOff, CircleDot, Upload, Settings, ChevronDown, ChevronUp,
-  HardDrive, Clock, Zap, ScanLine, Loader2,
+  HardDrive, Clock, Zap, ScanLine, Loader2, Video,
 } from "lucide-react";
 
-type CaptureItem = { id: string; preview: string; time: number };
+type CaptureItem = { id: string; preview: string; time: number; matched?: boolean; galleryId?: string };
+type CaptureResult = { matched: boolean; galleryId?: string; customerId?: string; isUnclaimed?: boolean; error?: string };
 
 export default function CameraStationPage() {
   const [connected, setConnected] = useState(false);
@@ -16,12 +17,19 @@ export default function CameraStationPage() {
   const [uploading, setUploading] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [cameraId, setCameraId] = useState("NK-D7000-001");
+  const [locationId, setLocationId] = useState("");
   const [kioskIp, setKioskIp] = useState("192.168.1.100");
   const [quality, setQuality] = useState<"low" | "med" | "high">("high");
   const [lastWristband, setLastWristband] = useState<string | null>(null);
   const [photosToday, setPhotosToday] = useState(0);
   const [storageUsed, setStorageUsed] = useState("0 MB");
   const [uptime, setUptime] = useState("0:00:00");
+  const [lastCaptureResult, setLastCaptureResult] = useState<CaptureResult | null>(null);
+  // WebRTC camera preview
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [cameraPreviewActive, setCameraPreviewActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const startTime = useRef(Date.now());
   const autoCaptureRef = useRef(false);
   const intervalRef = useRef(10);
@@ -45,19 +53,85 @@ export default function CameraStationPage() {
     return () => clearInterval(tick);
   }, []);
 
-  const doCapture = useCallback(() => {
-    const item: CaptureItem = {
-      id: `cap-${Date.now()}`,
-      preview: `data:image/svg+xml,${encodeURIComponent(
-        `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#1a2a44" width="200" height="200"/><text x="100" y="100" fill="#E8593C" font-size="14" text-anchor="middle" dominant-baseline="middle">${new Date().toLocaleTimeString()}</text></svg>`
-      )}`,
-      time: Date.now(),
-    };
+  // Cleanup camera stream on unmount
+  useEffect(() => {
+    return () => { cameraStream?.getTracks().forEach((t) => t.stop()); };
+  }, [cameraStream]);
+
+  async function startCameraPreview() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+      setCameraStream(stream);
+      setCameraPreviewActive(true);
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        await videoRef.current.play();
+      }
+    } catch (e: any) {
+      console.error("Camera access denied:", e);
+    }
+  }
+
+  function stopCameraPreview() {
+    cameraStream?.getTracks().forEach((t) => t.stop());
+    setCameraStream(null);
+    setCameraPreviewActive(false);
+  }
+
+  /** Snapshot from WebRTC stream → base64 → POST to API */
+  async function captureFromWebRTC() {
+    if (!videoRef.current || !canvasRef.current) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    const base64 = canvas.toDataURL("image/jpeg", 0.85).split(",")[1];
+    await doCapture(base64);
+  }
+
+  const doCapture = useCallback(async (imageBase64?: string) => {
+    // Build SVG placeholder for the local thumbnail (shown immediately)
+    const svgPreview = `data:image/svg+xml,${encodeURIComponent(
+      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#1a2a44" width="200" height="200"/><text x="100" y="100" fill="#E8593C" font-size="14" text-anchor="middle" dominant-baseline="middle">${new Date().toLocaleTimeString()}</text></svg>`
+    )}`;
+
+    const captureId = `cap-${Date.now()}`;
+    const item: CaptureItem = { id: captureId, preview: svgPreview, time: Date.now() };
     setCaptures((prev) => [item, ...prev].slice(0, 20));
     setPhotosToday((p) => p + 1);
-    setPendingUploads((p) => p + 1);
     setStorageUsed(`${((photosToday + 1) * 4.2).toFixed(1)} MB`);
-  }, [photosToday]);
+
+    // POST to real API
+    try {
+      const body: Record<string, string> = {
+        cameraId,
+        locationId: locationId || "default",
+      };
+      if (lastWristband) body.wristbandCode = lastWristband;
+      if (imageBase64) body.imageBase64 = imageBase64;
+
+      const res = await fetch("/api/camera/capture", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data: CaptureResult & { success?: boolean; error?: string } = await res.json();
+
+      if (data.success !== false) {
+        setLastCaptureResult({ matched: data.matched ?? false, galleryId: data.galleryId, customerId: data.customerId, isUnclaimed: data.isUnclaimed });
+        // Update the capture item to reflect match status
+        setCaptures((prev) => prev.map((c) => c.id === captureId ? { ...c, matched: data.matched, galleryId: data.galleryId } : c));
+        setPendingUploads((p) => p + 1);
+      } else {
+        setLastCaptureResult({ matched: false, error: data.error || "API error" });
+        setPendingUploads((p) => p + 1);
+      }
+    } catch (err: any) {
+      setLastCaptureResult({ matched: false, error: "Network error – queued locally" });
+      setPendingUploads((p) => p + 1);
+    }
+  }, [photosToday, cameraId, locationId, lastWristband]);
 
   // Auto-capture loop
   useEffect(() => {
@@ -77,7 +151,7 @@ export default function CameraStationPage() {
 
   async function uploadPending() {
     setUploading(true);
-    // Simulate batch upload
+    // Sync any locally-queued items to the cloud
     await new Promise((r) => setTimeout(r, 1500));
     setPendingUploads(0);
     setUploading(false);
@@ -116,6 +190,71 @@ export default function CameraStationPage() {
           </div>
         </div>
 
+        {/* WebRTC Camera Preview */}
+        <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
+          <div className="flex items-center justify-between px-4 pt-3 pb-2">
+            <div className="flex items-center gap-2">
+              <Video className="h-4 w-4 text-white/40" />
+              <span className="text-sm font-medium">Live Camera Preview</span>
+            </div>
+            {!cameraPreviewActive ? (
+              <button
+                onClick={startCameraPreview}
+                className="px-3 py-1.5 rounded-lg bg-coral-500/20 text-coral-400 text-xs font-medium hover:bg-coral-500/30 transition"
+              >
+                Start Preview
+              </button>
+            ) : (
+              <button
+                onClick={stopCameraPreview}
+                className="px-3 py-1.5 rounded-lg bg-white/10 text-white/60 text-xs font-medium hover:bg-white/20 transition"
+              >
+                Stop
+              </button>
+            )}
+          </div>
+          <div className="relative aspect-video bg-black/40 overflow-hidden">
+            <video ref={videoRef} className={`w-full h-full object-cover ${!cameraPreviewActive ? "hidden" : ""}`} muted playsInline />
+            <canvas ref={canvasRef} className="hidden" />
+            {!cameraPreviewActive && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <Camera className="h-12 w-12 text-white/10" />
+              </div>
+            )}
+          </div>
+          {cameraPreviewActive && (
+            <div className="p-3">
+              <button
+                onClick={captureFromWebRTC}
+                disabled={!connected}
+                className="w-full flex items-center justify-center gap-2 h-10 rounded-xl bg-coral-500/20 hover:bg-coral-500/30 text-coral-400 text-sm font-semibold transition disabled:opacity-40"
+              >
+                <CircleDot className="h-4 w-4" />
+                Capture from Camera
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Last capture result */}
+        {lastCaptureResult && (
+          <div className={`rounded-2xl p-4 border text-sm ${
+            lastCaptureResult.error
+              ? "bg-red-500/10 border-red-500/20 text-red-300"
+              : lastCaptureResult.matched
+                ? "bg-green-500/10 border-green-500/20 text-green-300"
+                : "bg-yellow-500/10 border-yellow-500/20 text-yellow-300"
+          }`}>
+            {lastCaptureResult.error ? (
+              <span>⚠ {lastCaptureResult.error}</span>
+            ) : lastCaptureResult.matched ? (
+              <span>✓ Customer matched — Gallery <span className="font-mono text-xs">{lastCaptureResult.galleryId?.slice(0, 8)}…</span></span>
+            ) : (
+              <span>○ Unclaimed capture — customer can claim via selfie or QR</span>
+            )}
+          </div>
+        )}
+
         {/* Auto Capture Toggle */}
         <div className="flex items-center justify-between bg-white/5 rounded-2xl p-4 border border-white/10">
           <div>
@@ -150,7 +289,7 @@ export default function CameraStationPage() {
 
         {/* Manual Capture button */}
         <button
-          onClick={doCapture}
+          onClick={() => doCapture()}
           disabled={!connected}
           className="w-full flex items-center justify-center gap-3 h-20 rounded-2xl bg-coral-500 hover:bg-coral-600 active:scale-[0.98] transition font-semibold text-lg shadow-lg shadow-coral-500/30 disabled:opacity-40 disabled:pointer-events-none"
         >
@@ -256,6 +395,15 @@ export default function CameraStationPage() {
                   className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-coral-500 focus:outline-none"
                   value={cameraId}
                   onChange={(e) => setCameraId(e.target.value)}
+                />
+              </label>
+              <label className="block">
+                <div className="text-xs text-white/40 mb-1.5">Location ID</div>
+                <input
+                  className="w-full bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-coral-500 focus:outline-none"
+                  placeholder="e.g. clxyz123"
+                  value={locationId}
+                  onChange={(e) => setLocationId(e.target.value)}
                 />
               </label>
               <label className="block">

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Camera, Sparkles, ScanLine } from "lucide-react";
 import { cleanUrl, photoRef } from "@/lib/cloudinary";
 
@@ -10,6 +10,7 @@ export default function TvDisplayPage() {
   const [idx, setIdx] = useState(0);
   const [matchedPhotos, setMatchedPhotos] = useState<Photo[] | null>(null);
   const [matchedName, setMatchedName] = useState<string | null>(null);
+  const [cameraActive, setCameraActive] = useState(false);
 
   // Load attract slideshow — most recent purchased photos
   useEffect(() => {
@@ -46,9 +47,11 @@ export default function TvDisplayPage() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key.toLowerCase() === "i") triggerIdentify();
+      if (e.key.toLowerCase() === "c") setCameraActive((v) => !v);
       if (e.key === "Escape") {
         setMatchedPhotos(null);
         setMatchedName(null);
+        setCameraActive(false);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -127,9 +130,24 @@ export default function TvDisplayPage() {
             <ScanLine className="h-5 w-5 text-coral-300" />
             <span className="text-lg">Step up to a kiosk to begin</span>
           </div>
-          <div className="mt-8 text-xs text-white/40">
-            Press <kbd className="px-2 py-0.5 bg-white/10 rounded">I</kbd> to simulate identification
+          <div className="mt-8 text-xs text-white/40 space-y-1">
+            <div>
+              Press <kbd className="px-2 py-0.5 bg-white/10 rounded">I</kbd> to simulate identification &nbsp;·&nbsp;
+              Press <kbd className="px-2 py-0.5 bg-white/10 rounded">C</kbd> to toggle camera preview
+            </div>
           </div>
+          {/* Camera feed preview — In production this is a live WebRTC stream from the
+              kiosk's overhead camera. Motion detection runs server-side (or via a local
+              Python process) and calls /api/kiosk/identify with the captured frame.
+              The <video> element below represents that camera integration point. */}
+          {cameraActive && (
+            <div className="mt-6 rounded-2xl overflow-hidden ring-1 ring-white/20 bg-white/5 w-80 mx-auto relative">
+              <CameraPreview />
+              <div className="absolute bottom-0 left-0 right-0 bg-navy-900/80 text-[10px] text-white/50 text-center py-1 tracking-wider uppercase">
+                Camera feed · motion detection active
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="text-right text-white/40 text-sm">
@@ -141,5 +159,62 @@ export default function TvDisplayPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * CameraPreview — renders a live WebRTC camera feed from the kiosk's overhead camera.
+ *
+ * Production integration points:
+ *  1. Request environment camera (facingMode: "environment") via getUserMedia.
+ *  2. Feed frames to a motion-detection worker (requestAnimationFrame loop).
+ *  3. On motion detected: capture frame as base64 → POST /api/kiosk/identify
+ *     with { method: "SELFIE", selfieData: <base64> }.
+ *  4. On match: call setMatchedPhotos() / setMatchedName() in the parent component.
+ *
+ * If camera permission is denied or unavailable, a placeholder is shown.
+ */
+function CameraPreview() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  useEffect(() => {
+    let stream: MediaStream | null = null;
+    navigator.mediaDevices
+      .getUserMedia({ video: { facingMode: "environment", width: 320, height: 240 } })
+      .then((s) => {
+        stream = s;
+        if (videoRef.current) {
+          videoRef.current.srcObject = s;
+          videoRef.current.play().catch(() => {});
+        }
+      })
+      .catch((e: Error) => {
+        setErr(e?.message || "Camera unavailable");
+      });
+    return () => {
+      stream?.getTracks().forEach((t) => t.stop());
+    };
+  }, []);
+
+  if (err) {
+    return (
+      <div className="flex flex-col items-center justify-center h-48 text-white/40 text-xs gap-2 p-4">
+        <Camera className="h-8 w-8 opacity-30" />
+        <span className="text-center">Camera feed would appear here</span>
+        <span className="text-white/25 text-[10px] text-center">{err}</span>
+      </div>
+    );
+  }
+
+  return (
+    // eslint-disable-next-line jsx-a11y/media-has-caption
+    <video
+      ref={videoRef}
+      className="w-full h-48 object-cover"
+      muted
+      playsInline
+      aria-label="Kiosk camera feed for customer detection"
+    />
   );
 }

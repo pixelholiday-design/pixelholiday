@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import {
   Camera, Star, Upload, Loader2, Check, ScanLine, Keyboard,
   Calendar, BarChart3, Clock, Zap, Flame, TrendingUp, User,
-  ChevronRight, Plus, X,
+  ChevronRight, Plus, X, Video, CircleDot,
 } from "lucide-react";
 
 /* ── Types ────────────────────────────────────────── */
@@ -11,7 +11,7 @@ type Loc = { id: string; name: string };
 type Photog = { id: string; name: string; locationId: string | null };
 type Item = { file: File; id: string; preview: string; isHook: boolean; progress: number; uploaded: boolean; key?: string };
 type Appt = { id: string; scheduledTime: string; status: string; gallery: { customer: { name: string | null; roomNumber: string | null } }; source: string };
-type Tab = "upload" | "scan" | "schedule" | "stats";
+type Tab = "upload" | "camera" | "scan" | "schedule" | "stats";
 
 /* ── Helpers ──────────────────────────────────────── */
 function fmtTime(iso: string) {
@@ -79,6 +79,9 @@ export default function MobileUploadPage() {
         {tab === "upload" && (
           <UploadTab locationId={locationId} photographerId={photographerId} />
         )}
+        {tab === "camera" && (
+          <CameraTab locationId={locationId} photographerId={photographerId} />
+        )}
         {tab === "scan" && (
           <ScanTab locationId={locationId} photographerId={photographerId} />
         )}
@@ -93,6 +96,7 @@ export default function MobileUploadPage() {
       {/* Bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 h-14 bg-white border-t border-cream-300 flex items-center justify-around max-w-md mx-auto z-50 shadow-lg">
         <TabBtn icon={Upload} label="Upload" active={tab === "upload"} onClick={() => setTab("upload")} />
+        <TabBtn icon={Video} label="Camera" active={tab === "camera"} onClick={() => setTab("camera")} />
         <TabBtn icon={ScanLine} label="Scan" active={tab === "scan"} onClick={() => setTab("scan")} />
         <TabBtn icon={Calendar} label="Schedule" active={tab === "schedule"} onClick={() => setTab("schedule")} />
         <TabBtn icon={BarChart3} label="Stats" active={tab === "stats"} onClick={() => setTab("stats")} />
@@ -298,6 +302,211 @@ function UploadTab({ locationId, photographerId }: { locationId: string; photogr
         {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
         {busy ? "Uploading…" : `Upload ${items.length} photo${items.length === 1 ? "" : "s"}`}
       </button>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   CAMERA TAB — WebRTC live preview + snapshot upload
+   ═══════════════════════════════════════════════════ */
+function CameraTab({ locationId, photographerId }: { locationId: string; photographerId: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  const [active, setActive] = useState(false);
+  const [snapshots, setSnapshots] = useState<{ id: string; dataUrl: string; isHook: boolean; uploaded: boolean }[]>([]);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ link: string; kept: number; rejected: number } | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  // Cleanup on unmount
+  useEffect(() => { return () => { stream?.getTracks().forEach((t) => t.stop()); }; }, [stream]);
+
+  async function startCamera() {
+    setErr(null);
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+      setStream(s);
+      setActive(true);
+      if (videoRef.current) { videoRef.current.srcObject = s; await videoRef.current.play(); }
+    } catch (e: any) {
+      setErr(e?.message || "Camera permission denied.");
+    }
+  }
+
+  function stopCamera() {
+    stream?.getTracks().forEach((t) => t.stop());
+    setStream(null);
+    setActive(false);
+  }
+
+  function takeSnapshot() {
+    if (!videoRef.current || !canvasRef.current) return;
+    const v = videoRef.current;
+    const c = canvasRef.current;
+    c.width = v.videoWidth || 640;
+    c.height = v.videoHeight || 480;
+    c.getContext("2d")?.drawImage(v, 0, 0);
+    const dataUrl = c.toDataURL("image/jpeg", 0.9);
+    setSnapshots((prev) => [{ id: `snap-${Date.now()}`, dataUrl, isHook: false, uploaded: false }, ...prev].slice(0, 20));
+  }
+
+  function toggleHook(id: string) {
+    setSnapshots((prev) => prev.map((s) => ({ ...s, isHook: s.id === id ? !s.isHook : false })));
+  }
+
+  function removeSnap(id: string) {
+    setSnapshots((prev) => prev.filter((s) => s.id !== id));
+  }
+
+  async function uploadSnapshots() {
+    if (!snapshots.length || !locationId || !photographerId) return;
+    setBusy(true);
+    const uploaded: { s3Key: string; isHookImage: boolean }[] = [];
+    for (let i = 0; i < snapshots.length; i++) {
+      const snap = snapshots[i];
+      // Convert dataUrl to Blob for upload
+      const res = await fetch(snap.dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], `snapshot-${i}.jpg`, { type: "image/jpeg" });
+      try {
+        const pre = await fetch("/api/upload/presigned", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ filename: file.name, contentType: "image/jpeg" }),
+        }).then((r) => r.json());
+        if (pre.url && pre.key) {
+          await fetch(pre.url, { method: "PUT", body: file, headers: { "Content-Type": "image/jpeg" } });
+          uploaded.push({ s3Key: pre.key, isHookImage: snap.isHook });
+        } else {
+          uploaded.push({ s3Key: `mobile/cam/${Date.now()}-${i}.jpg`, isHookImage: snap.isHook });
+        }
+      } catch {
+        uploaded.push({ s3Key: `mobile/cam/${Date.now()}-${i}.jpg`, isHookImage: snap.isHook });
+      }
+      setSnapshots((prev) => prev.map((s) => s.id === snap.id ? { ...s, uploaded: true } : s));
+    }
+
+    const r = await fetch("/api/mobile-upload", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ locationId, photographerId, photos: uploaded }),
+    }).then((r) => r.json());
+
+    setBusy(false);
+    if (r.ok) {
+      let kept = uploaded.length, rejected = 0;
+      try {
+        const cull = await fetch("/api/ai/cull", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ galleryId: r.galleryId }),
+        }).then((res) => res.json());
+        if (cull.kept !== undefined) { kept = cull.kept; rejected = cull.rejected || 0; }
+      } catch {}
+      setResult({ link: `${window.location.origin}/gallery/${r.magicLinkToken}`, kept, rejected });
+      stopCamera();
+    }
+  }
+
+  if (result) {
+    return (
+      <div className="text-center animate-fade-in space-y-5 mt-8">
+        <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-green-500 text-white shadow-lift mx-auto">
+          <Check className="h-8 w-8" strokeWidth={3} />
+        </div>
+        <h1 className="heading text-3xl">Uploaded!</h1>
+        <p className="text-sm text-navy-500">AI kept <strong>{result.kept}</strong> photos. {result.rejected > 0 && <>{result.rejected} auto-rejected.</>}</p>
+        <a className="block text-coral-600 underline break-all text-xs" href={result.link} target="_blank" rel="noreferrer">{result.link}</a>
+        <button onClick={() => { setSnapshots([]); setResult(null); }} className="btn-primary w-full !py-4 text-base">Next customer</button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-5 animate-fade-in pt-2">
+      <h1 className="heading text-2xl">Camera capture</h1>
+
+      {err && <div className="rounded-xl bg-coral-50 border border-coral-200 px-4 py-2 text-xs text-coral-700">{err}</div>}
+
+      {/* Live preview */}
+      <div className="relative aspect-video rounded-2xl overflow-hidden bg-navy-900 shadow-lift">
+        <video ref={videoRef} className={`w-full h-full object-cover ${!active ? "hidden" : ""}`} muted playsInline />
+        <canvas ref={canvasRef} className="hidden" />
+        {!active && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+            <Video className="h-12 w-12 text-white/20" />
+            <button onClick={startCamera} className="btn-primary text-sm !px-6 !py-3">
+              <Video className="h-4 w-4" /> Start Camera
+            </button>
+          </div>
+        )}
+        {active && (
+          <button
+            onClick={stopCamera}
+            className="absolute top-3 right-3 h-8 w-8 rounded-full bg-black/50 text-white/70 flex items-center justify-center"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Capture button */}
+      {active && (
+        <button
+          onClick={takeSnapshot}
+          className="w-full flex items-center justify-center gap-3 h-16 rounded-2xl bg-coral-500 hover:bg-coral-600 active:scale-[0.98] transition font-semibold text-lg shadow-lg shadow-coral-500/30"
+        >
+          <CircleDot className="h-7 w-7" />
+          Capture
+        </button>
+      )}
+
+      {/* Snapshot queue */}
+      {snapshots.length > 0 && (
+        <div className="space-y-2">
+          <div className="label-xs">Snapshots ({snapshots.length}) — tap ★ to mark as hook</div>
+          <div className="grid grid-cols-4 gap-2">
+            {snapshots.map((snap) => (
+              <div key={snap.id} className="relative aspect-square rounded-xl overflow-hidden bg-cream-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={snap.dataUrl} alt="" className="w-full h-full object-cover" />
+                {snap.uploaded && (
+                  <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                    <Check className="h-5 w-5 text-green-600" />
+                  </div>
+                )}
+                <button
+                  onClick={() => toggleHook(snap.id)}
+                  className="absolute top-1 right-1 h-6 w-6 rounded-full bg-white/90 backdrop-blur shadow flex items-center justify-center"
+                >
+                  <Star className={`h-3 w-3 ${snap.isHook ? "fill-gold-500 text-gold-500" : "text-navy-400"}`} />
+                </button>
+                {!busy && (
+                  <button
+                    onClick={() => removeSnap(snap.id)}
+                    className="absolute top-1 left-1 h-5 w-5 rounded-full bg-red-500/80 text-white flex items-center justify-center"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Upload button */}
+      {snapshots.length > 0 && (
+        <button
+          onClick={uploadSnapshots}
+          disabled={busy || !locationId}
+          className="btn-primary w-full !py-4 text-base"
+        >
+          {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : <Upload className="h-5 w-5" />}
+          {busy ? "Uploading…" : `Upload ${snapshots.length} snapshot${snapshots.length === 1 ? "" : "s"}`}
+        </button>
+      )}
     </div>
   );
 }

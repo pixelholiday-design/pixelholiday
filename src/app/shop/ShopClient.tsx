@@ -63,6 +63,9 @@ export default function ShopClient({
   const [open, setOpen] = useState(false);
   const [checkoutErr, setCheckoutErr] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [couponCode, setCouponCode] = useState("");
+  const [couponResult, setCouponResult] = useState<{ valid: boolean; discount: number; message: string } | null>(null);
+  const [couponChecking, setCouponChecking] = useState(false);
 
   const productMap = useMemo(() => {
     const m = new Map<string, ShopProduct>();
@@ -77,6 +80,29 @@ export default function ShopClient({
   }, 0);
   const currency = items[0] ? productMap.get(items[0].productKey)?.currency || "EUR" : "EUR";
 
+  async function applyCoupon() {
+    if (!couponCode.trim()) return;
+    setCouponChecking(true);
+    setCouponResult(null);
+    try {
+      const res = await fetch(`/api/shop/coupon?code=${encodeURIComponent(couponCode.trim())}`);
+      const data = await res.json().catch(() => ({}));
+      if (data.valid) {
+        setCouponResult({ valid: true, discount: data.discount || 0, message: data.message || `${data.discount}% off applied!` });
+      } else {
+        setCouponResult({ valid: false, discount: 0, message: data.error || "Invalid coupon code." });
+      }
+    } catch {
+      setCouponResult({ valid: false, discount: 0, message: "Could not verify coupon." });
+    } finally {
+      setCouponChecking(false);
+    }
+  }
+
+  const discountedTotal = couponResult?.valid
+    ? total * (1 - couponResult.discount / 100)
+    : total;
+
   async function checkout() {
     if (items.length === 0) return;
     setSubmitting(true);
@@ -85,7 +111,7 @@ export default function ShopClient({
       const res = await fetch("/api/shop/checkout", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items, couponCode: couponResult?.valid ? couponCode.trim() : undefined }),
       });
       const data = await res.json().catch(() => ({}));
       if (data.url) {
@@ -261,10 +287,47 @@ export default function ShopClient({
               )}
             </div>
             <footer className="px-6 py-5 border-t border-cream-300 bg-cream-100">
+              {/* Coupon code input */}
+              <div className="mb-4">
+                <label className="block text-xs font-semibold uppercase tracking-wider text-navy-500 mb-1.5">
+                  Coupon code
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => { setCouponCode(e.target.value); setCouponResult(null); }}
+                    placeholder="Enter code…"
+                    className="flex-1 rounded-lg border border-cream-400 bg-white px-3 py-2 text-sm text-navy-900 placeholder:text-navy-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    disabled={!couponCode.trim() || couponChecking}
+                    className="bg-navy-800 hover:bg-navy-900 disabled:opacity-40 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+                  >
+                    {couponChecking ? "…" : "Apply"}
+                  </button>
+                </div>
+                {couponResult && (
+                  <p className={`text-xs mt-1.5 font-medium ${couponResult.valid ? "text-green-700" : "text-coral-600"}`}>
+                    {couponResult.message}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-navy-500">Subtotal</span>
+                <span className="font-semibold text-navy-700">€{total.toFixed(2)}</span>
+              </div>
+              {couponResult?.valid && (
+                <div className="flex items-center justify-between mb-1 text-green-700">
+                  <span className="text-sm">Discount ({couponResult.discount}%)</span>
+                  <span className="font-semibold">-€{(total - discountedTotal).toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex items-center justify-between mb-4">
-                <span className="text-navy-500">Total</span>
+                <span className="text-navy-500 font-semibold">Total</span>
                 <span className="text-2xl font-bold text-navy-900">
-                  €{total.toFixed(2)} <span className="text-sm font-normal text-navy-400">{currency}</span>
+                  €{discountedTotal.toFixed(2)} <span className="text-sm font-normal text-navy-400">{currency}</span>
                 </span>
               </div>
               {checkoutErr && (

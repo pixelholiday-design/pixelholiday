@@ -23,6 +23,7 @@ const schema = z.object({
       })
     )
     .optional(),
+  couponCode: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid input", details: parsed.error.flatten() }, { status: 400 });
   }
-  const { token, items } = parsed.data;
+  const { token, items, couponCode } = parsed.data;
 
   const gallery = await prisma.gallery.findUnique({ where: { magicLinkToken: token } });
   if (!gallery) return NextResponse.json({ error: "Gallery not found" }, { status: 404 });
@@ -58,11 +59,51 @@ export async function POST(req: Request) {
     quantity: it.quantity || 1,
   }));
 
+  // Resolve discount: gallery.discountPercent (sleeping money) takes priority,
+  // then a manually supplied couponCode (promotion code lookup).
+  let stripeCouponId: string | undefined;
+  let stripePromotionCodeId: string | undefined;
+
+  if (gallery.discountPercent && gallery.discountPercent > 0) {
+    // Create a one-time Stripe coupon for the automated sleeping-money discount.
+    try {
+      const pct = Math.round(gallery.discountPercent * 100);
+      const coupon = await stripe.coupons.create({
+        percent_off: pct,
+        duration: "once",
+        name: `Gallery discount ${pct}%`,
+        max_redemptions: 1,
+      });
+      stripeCouponId = coupon.id;
+    } catch (e: any) {
+      console.warn("Failed to create Stripe coupon for gallery discount", e?.message);
+    }
+  } else if (couponCode) {
+    // Look up a Stripe promotion code supplied by the customer.
+    try {
+      const promoCodes = await stripe.promotionCodes.list({ code: couponCode, active: true, limit: 1 });
+      if (promoCodes.data.length > 0) {
+        stripePromotionCodeId = promoCodes.data[0].id;
+      } else {
+        return NextResponse.json({ error: "Invalid or expired coupon code" }, { status: 400 });
+      }
+    } catch (e: any) {
+      console.warn("Stripe promotion code lookup failed", e?.message);
+    }
+  }
+
+  const discounts = stripeCouponId
+    ? [{ coupon: stripeCouponId }]
+    : stripePromotionCodeId
+    ? [{ promotion_code: stripePromotionCodeId }]
+    : undefined;
+
   try {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       payment_method_types: ["card"],
       line_items: lineItems,
+      ...(discounts ? { discounts } : { allow_promotion_codes: true }),
       success_url: `${baseUrl}/gallery/${token}?paid=1`,
       cancel_url: `${baseUrl}/gallery/${token}`,
       metadata: {

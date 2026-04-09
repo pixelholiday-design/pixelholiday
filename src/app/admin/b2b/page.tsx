@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Handshake, Plus, TrendingUp, Check, ImageIcon } from "lucide-react";
+import { Handshake, Plus, TrendingUp, Check, Building2, Percent } from "lucide-react";
 
 function ROICalculator({ photos, monthlyRent, discountPercent }: { photos: number; monthlyRent: number; discountPercent: number }) {
   const photoValue = photos * 50;
@@ -18,6 +18,7 @@ function ROICalculator({ photos, monthlyRent, discountPercent }: { photos: numbe
 export default function B2BPortal() {
   const [deliveries, setDeliveries] = useState<any[]>([]);
   const [report, setReport] = useState<any>(null);
+  const [partners, setPartners] = useState<any[]>([]);
   const [form, setForm] = useState({ locationId: "", locationName: "", month: "2026-04", photoCount: 10, photoIds: "", rentDiscountPercent: 12, monthlyRent: 5000, notes: "", delivered: false });
   const [reportMonth, setReportMonth] = useState("2026-04");
 
@@ -29,7 +30,13 @@ export default function B2BPortal() {
     const r = await fetch(`/api/b2b/report?month=${reportMonth}`).then((x) => x.json());
     setReport(r);
   }
-  useEffect(() => { load(); loadReport(); /* eslint-disable-next-line */ }, []);
+  async function loadPartners() {
+    try {
+      const r = await fetch("/api/admin/locations").then((x) => x.json());
+      setPartners(Array.isArray(r) ? r : (r.locations || []));
+    } catch {}
+  }
+  useEffect(() => { load(); loadReport(); loadPartners(); /* eslint-disable-next-line */ }, []);
 
   async function create(e: React.FormEvent) {
     e.preventDefault();
@@ -79,6 +86,40 @@ export default function B2BPortal() {
           </div>
         )}
       </div>
+
+      {/* Partner / Contract section */}
+      {partners.length > 0 && (
+        <div className="card p-6">
+          <h2 className="heading text-xl mb-4 flex items-center gap-2"><Building2 className="h-4 w-4" /> Partner Locations</h2>
+          <p className="text-navy-400 text-sm mb-4">Commission rates and rent costs configured per location.</p>
+          <div className="divide-y divide-cream-300/60">
+            {partners.map((loc: any) => (
+              <div key={loc.id} className="py-3 flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-navy-900">{loc.name}</div>
+                  <div className="text-xs text-navy-400">{loc.type}</div>
+                </div>
+                <div className="flex items-center gap-6 text-sm">
+                  {loc.partnerCommission != null && (
+                    <div className="text-right">
+                      <div className="text-xs text-navy-400">Commission</div>
+                      <div className="font-semibold text-navy-900 flex items-center gap-1">
+                        <Percent className="h-3 w-3" />{(loc.partnerCommission * 100).toFixed(1)}%
+                      </div>
+                    </div>
+                  )}
+                  {loc.rentCost != null && (
+                    <div className="text-right">
+                      <div className="text-xs text-navy-400">Monthly rent</div>
+                      <div className="font-semibold text-navy-900">€{loc.rentCost.toFixed(0)}</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="card p-6">
         <h2 className="heading text-xl mb-4">All Deliveries</h2>

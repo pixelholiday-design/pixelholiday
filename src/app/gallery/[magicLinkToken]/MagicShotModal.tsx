@@ -163,17 +163,23 @@ export default function MagicShotModal({
           </div>
         )}
 
-        <footer className="px-6 py-4 border-t border-cream-300 bg-cream-100 flex items-center justify-between gap-3">
-          <div className="text-navy-500 text-xs">
-            Magic shots create a new copy — your original photo is never modified.
+        <footer className="px-6 py-4 border-t border-cream-300 bg-cream-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <div className="text-navy-500 text-xs">
+              Magic shots create a new copy — your original photo is never modified.
+            </div>
+            <div className="mt-1.5 inline-flex items-center gap-1.5 bg-gold-50 border border-gold-200 text-gold-800 rounded-full px-3 py-1 text-xs font-semibold">
+              <Sparkles className="h-3 w-3 text-gold-500" />
+              Add Magic Shot — 20 TND
+            </div>
           </div>
           <button
             onClick={save}
             disabled={!picked || saving}
-            className="bg-coral-500 hover:bg-coral-600 disabled:bg-cream-300 disabled:text-navy-400 text-white font-semibold px-6 py-2.5 rounded-full transition inline-flex items-center gap-2"
+            className="bg-coral-500 hover:bg-coral-600 disabled:bg-cream-300 disabled:text-navy-400 text-white font-semibold px-6 py-2.5 rounded-full transition inline-flex items-center gap-2 shrink-0"
           >
             {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-            {saving ? "Saving…" : "Save magic shot"}
+            {saving ? "Saving…" : "Add to cart — 20 TND"}
           </button>
         </footer>
       </div>

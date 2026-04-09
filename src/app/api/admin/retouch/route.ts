@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 
+const CLOUD = process.env.CLOUDINARY_CLOUD_NAME || "";
+const HAS_CLOUDINARY = CLOUD && CLOUD !== "demo";
+
+/** Build a Cloudinary delivery URL with transforms baked in (no re-upload needed). */
+function buildRetouchedPublicId(cloudinaryId: string, transforms: string[]): string | null {
+  if (!HAS_CLOUDINARY || !cloudinaryId || cloudinaryId.startsWith("uploads/")) return null;
+  // Store the transform chain as a "named transformation" style public_id so the
+  // URL can be reconstructed via cleanUrl(). We prefix with the transform string
+  // so callers can resolve it to a full URL when needed.
+  const transformStr = [...transforms, "q_85,f_auto"].join("/");
+  return `${transformStr}/${cloudinaryId}`;
+}
+
 // Module 13: Apply retouch preset / adjustments to photos via Cloudinary transforms.
 export async function POST(req: NextRequest) {
   const { photoIds = [], preset = "auto-color", adjustments } = await req.json();
@@ -25,24 +38,48 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // In production: apply Cloudinary transformation chain per photo
-  // const cloudinary = require('cloudinary').v2;
-  // for (const id of photoIds) {
-  //   const photo = await prisma.photo.findUnique({ where: { id } });
-  //   if (photo?.cloudinaryId) {
-  //     const editedUrl = cloudinary.url(photo.cloudinaryId, { transformation: transforms.join('/') });
-  //     const uploaded = await cloudinary.uploader.upload(editedUrl, { folder: 'pixelholiday/retouched' });
-  //     await prisma.photo.update({ where: { id }, data: { cloudinaryId_edited: uploaded.public_id, isRetouched: true, editApplied: transforms } });
-  //   }
-  // }
+  const appliedTransforms = transforms.length > 0 ? transforms : [preset];
+
+  // Apply Cloudinary transformation chain per photo and store the edited public_id
+  const editedIds: Record<string, string> = {};
+  if (HAS_CLOUDINARY) {
+    const photos = await prisma.photo.findMany({
+      where: { id: { in: photoIds } },
+      select: { id: true, cloudinaryId: true },
+    });
+    for (const photo of photos) {
+      if (photo.cloudinaryId) {
+        const editedPublicId = buildRetouchedPublicId(photo.cloudinaryId, appliedTransforms);
+        if (editedPublicId) editedIds[photo.id] = editedPublicId;
+      }
+    }
+  }
+
+  // Update each photo individually if we have an edited public_id, otherwise bulk update
+  if (Object.keys(editedIds).length > 0) {
+    await Promise.all(
+      photoIds.map((id: string) =>
+        prisma.photo.update({
+          where: { id },
+          data: {
+            isRetouched: true,
+            editApplied: appliedTransforms,
+            isAutoEdited: true,
+            ...(editedIds[id] ? { cloudinaryId_edited: editedIds[id] } : {}),
+          },
+        })
+      )
+    );
+    return NextResponse.json({ updated: photoIds.length, preset, transforms: appliedTransforms });
+  }
 
   const result = await prisma.photo.updateMany({
     where: { id: { in: photoIds } },
     data: {
       isRetouched: true,
-      editApplied: transforms.length > 0 ? transforms : [preset],
+      editApplied: appliedTransforms,
     },
   });
 
-  return NextResponse.json({ updated: result.count, preset, transforms });
+  return NextResponse.json({ updated: result.count, preset, transforms: appliedTransforms });
 }

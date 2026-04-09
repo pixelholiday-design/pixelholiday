@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { ReactNode, useEffect, useState } from "react";
+import NotificationBell from "./NotificationBell";
 import {
   Camera,
   LayoutDashboard,
@@ -36,6 +37,7 @@ import {
   Truck,
   Ticket,
   MessageSquare,
+  CreditCard,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -75,6 +77,7 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/franchise", label: "Franchise", icon: Building2 },
       { href: "/admin/ai-insights", label: "AI Insights", icon: Brain },
       { href: "/admin/hr/jobs", label: "HR / Jobs", icon: Briefcase },
+      { href: "/admin/subscription", label: "Subscription", icon: CreditCard },
     ],
   },
   {
@@ -116,6 +119,7 @@ const ROLE_ALLOWED: Record<string, string[]> = {
     "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs",
     "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
+    "/admin/subscription",
   ],
   OPERATIONS_MANAGER: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
@@ -124,6 +128,7 @@ const ROLE_ALLOWED: Record<string, string[]> = {
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
     "/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
+    "/admin/subscription",
   ],
   SUPERVISOR: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/chat","/admin/staff","/admin/equipment",
@@ -233,14 +238,7 @@ export default function AdminShell({
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
             <div className="flex-1" />
-            <Link href="/admin/chat" className="btn-ghost relative" title={`${unread} unread message${unread === 1 ? "" : "s"}`}>
-              <Bell className="h-4 w-4" />
-              {unread > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-coral-500 text-white text-[10px] font-bold flex items-center justify-center">
-                  {unread > 99 ? "99+" : unread}
-                </span>
-              )}
-            </Link>
+            <NotificationBell />
             <div className="flex items-center gap-3 pl-3 border-l border-cream-300/70">
               <div className="text-right hidden sm:block">
                 <div className="text-sm font-semibold text-navy-900 leading-tight">{user.name}</div>
