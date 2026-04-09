@@ -206,6 +206,35 @@ export async function generateReelForGallery(
     },
   });
 
+  // Generate real Cloudinary video (non-blocking)
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  if (cloudName && cloudName !== "demo") {
+    const photoSources = ordered.map((p) => {
+      if (p.cloudinaryId) return p.cloudinaryId;
+      const url = cleanUrl(photoRef(p), 1600);
+      return url; // Full URL — Cloudinary will fetch it
+    });
+
+    try {
+      const { generateSlideshowUrl } = await import(
+        "@/lib/cloudinary/slideshow"
+      );
+      const videoUrl = generateSlideshowUrl(cloudName, photoSources, {
+        duration,
+        transition: "crossfade",
+      });
+
+      if (videoUrl) {
+        await prisma.videoReel.update({
+          where: { id: reel.id },
+          data: { videoUrl, videoFormat: "mp4" },
+        });
+      }
+    } catch (e) {
+      console.warn("[Reel] Cloudinary video generation failed (non-fatal):", e);
+    }
+  }
+
   return { reelId: reel.id, photoIds: ordered.map((p) => p.id), duration };
 }
 

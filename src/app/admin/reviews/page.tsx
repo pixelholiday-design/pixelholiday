@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db";
-import { Star, ExternalLink, Send, MessageSquare, Instagram, MapPin, TrendingUp, Clock, CheckCircle, XCircle } from "lucide-react";
+import { Star, ExternalLink, Send, MessageSquare, Camera, MapPin, TrendingUp, Clock, CheckCircle, XCircle } from "lucide-react";
 import ReviewActions from "./ReviewActions";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export default async function ReviewsPage() {
     orderBy: { createdAt: "desc" },
     take: 50,
     include: {
-      profile: { select: { displayName: true, username: true } },
+      profile: { select: { businessName: true, username: true } },
     },
   }).catch(() => []);
 
@@ -68,7 +68,7 @@ export default async function ReviewsPage() {
             rel="noopener noreferrer"
             className="btn-primary !bg-gradient-to-r !from-purple-500 !to-pink-500 flex items-center gap-2 text-sm"
           >
-            <Instagram className="h-4 w-4" />
+            <Camera className="h-4 w-4" />
             Instagram
           </a>
         </div>
@@ -123,7 +123,7 @@ export default async function ReviewsPage() {
                 </a>
               </div>
               <div className="flex items-center gap-3 bg-white rounded-xl px-4 py-3 border border-cream-300">
-                <Instagram className="h-5 w-5 text-pink-500 flex-shrink-0" />
+                <Camera className="h-5 w-5 text-pink-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-semibold text-navy-500 uppercase tracking-wide">Instagram</div>
                   <div className="text-sm text-navy-700 truncate">{INSTAGRAM_LINK}</div>
@@ -260,7 +260,7 @@ export default async function ReviewsPage() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 rounded-xl px-4 py-3 bg-cream-100 hover:bg-cream-200 transition text-sm text-navy-700"
               >
-                <Instagram className="h-4 w-4 text-pink-500" />
+                <Camera className="h-4 w-4 text-pink-500" />
                 <span className="flex-1">View Instagram Page</span>
                 <ExternalLink className="h-3.5 w-3.5 text-navy-400" />
               </a>
