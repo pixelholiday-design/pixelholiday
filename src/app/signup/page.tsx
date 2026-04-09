@@ -1,204 +1,210 @@
 "use client";
 import { useState } from "react";
-import { SUBSCRIPTION_TIERS, type Tier } from "@/lib/subscriptions";
-
-const DISPLAY_TIERS: Tier[] = ["STARTER", "PROFESSIONAL", "BUSINESS", "ENTERPRISE"];
+import { Camera, Loader2, ArrowRight, Check, Mail, Lock, User, Building2 } from "lucide-react";
+import Link from "next/link";
 
 export default function SignupPage() {
-  const [form, setForm] = useState({ name: "", email: "", password: "", businessName: "", tier: "PROFESSIONAL" as Tier });
+  const [form, setForm] = useState({ name: "", email: "", password: "", businessName: "" });
   const [status, setStatus] = useState<string>("");
-  const [step, setStep] = useState<"plan" | "details">("plan");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setStatus("Creating account...");
+    setLoading(true);
+    setStatus("");
 
     const res = await fetch("/api/saas/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({ ...form, tier: "STARTER" }),
     });
     const data = await res.json();
+    setLoading(false);
 
     if (!res.ok) {
-      setStatus(`Error: ${data.error || "Signup failed"}`);
+      setStatus(data.error || "Signup failed");
       return;
     }
 
-    // For paid tiers, redirect to Stripe checkout
-    const tier = SUBSCRIPTION_TIERS[form.tier];
-    if (tier.priceMonthly > 0) {
-      setStatus("Redirecting to payment...");
-      const subRes = await fetch("/api/saas/subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orgId: data.orgId, tier: form.tier }),
-      });
-      const subData = await subRes.json();
-      if (subData.stripeSessionId && !subData.mocked) {
-        window.location.href = `/api/checkout/redirect?sessionId=${subData.stripeSessionId}`;
-        return;
-      }
-    }
+    setSuccess(true);
+    setTimeout(() => { window.location.href = "/login"; }, 2000);
+  }
 
-    setStatus("Account created! Redirecting...");
-    setTimeout(() => { window.location.href = "/admin/dashboard"; }, 1500);
+  const features = [
+    "Unlimited galleries & photos",
+    "Magic link delivery via WhatsApp",
+    "Server-side watermarking",
+    "Stripe & cash payments",
+    "Kiosk POS system",
+    "AI photo culling",
+    "Analytics dashboard",
+    "Customer booking system",
+  ];
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cream-100 to-brand-50 px-4">
+        <div className="text-center animate-slide-up">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand-100 mb-6">
+            <Check className="h-8 w-8 text-brand-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-navy-900 mb-2">Account created!</h1>
+          <p className="text-navy-500 mb-4">Redirecting you to login...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-cream-100 to-brand-50 py-12 px-4">
-      <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Start with Fotiqo</h1>
-          <p className="text-lg text-slate-600">Resort photography delivery that scales with you</p>
+    <div className="min-h-screen grid lg:grid-cols-2 bg-cream-100">
+      {/* LEFT — Value prop */}
+      <aside className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden bg-gradient-to-br from-brand-700 via-brand-500 to-brand-400">
+        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+          <path d="M0,300 Q200,240 400,300 T800,300 L800,600 L0,600 Z" fill="white" />
+          <path d="M0,400 Q200,340 400,400 T800,400 L800,600 L0,600 Z" fill="white" opacity="0.5" />
+        </svg>
+        <div className="relative z-10 flex items-center gap-3 text-white">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-11 w-11 rounded-xl bg-white p-1 shadow-lift" />
+          <span className="font-display text-2xl tracking-tight">Fotiqo</span>
         </div>
+        <div className="relative z-10 text-white max-w-md">
+          <h2 className="font-display text-4xl xl:text-5xl leading-tight mb-4">
+            100% free to start.<br />
+            <span className="text-white/80">Pay only when you sell.</span>
+          </h2>
+          <p className="text-white/70 text-lg leading-relaxed mb-8">
+            No subscriptions. No monthly fees. We only take a small 2% commission when your customers purchase photos. Your success is our success.
+          </p>
+          <ul className="space-y-3">
+            {features.map((f) => (
+              <li key={f} className="flex items-center gap-3 text-white/90">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
+                  <Check className="h-3 w-3" />
+                </span>
+                {f}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-10 rounded-xl bg-white/10 backdrop-blur px-5 py-4">
+            <div className="text-sm text-white/70 mb-1">Revenue model</div>
+            <div className="font-display text-2xl">Free platform + 2% commission on sales</div>
+            <div className="text-sm text-white/60 mt-1">No setup fees. No hidden costs. Cancel anytime.</div>
+          </div>
+        </div>
+        <div />
+      </aside>
 
-        {step === "plan" && (
-          <>
-            <div className="grid md:grid-cols-4 gap-4 mb-8">
-              {DISPLAY_TIERS.map((k) => {
-                const t = SUBSCRIPTION_TIERS[k];
-                const active = form.tier === k;
-                const isEnterprise = k === "ENTERPRISE";
+      {/* RIGHT — Form */}
+      <main className="flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm animate-slide-up">
+          <div className="flex items-center gap-2 lg:hidden mb-6">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-8 w-8" />
+            <span className="font-display text-xl text-navy-900">Fotiqo</span>
+          </div>
 
-                return (
-                  <div
-                    key={k}
-                    onClick={() => !isEnterprise && setForm({ ...form, tier: k })}
-                    className={`relative rounded-xl border-2 p-5 cursor-pointer transition-all ${
-                      active
-                        ? "border-brand-400 bg-brand-50 shadow-lg scale-[1.02]"
-                        : "border-slate-200 bg-white hover:border-slate-300"
-                    } ${isEnterprise ? "cursor-default" : ""}`}
-                  >
-                    {t.popular && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-400 text-white text-xs font-bold px-3 py-1 rounded-full">
-                        MOST POPULAR
-                      </span>
-                    )}
+          <h1 className="heading text-4xl mb-2">Create your account</h1>
+          <p className="text-navy-400 mb-8">Free forever — only 2% commission on sales</p>
 
-                    <div className="font-bold text-lg mb-1">{t.name}</div>
-
-                    {isEnterprise ? (
-                      <div className="text-2xl font-bold text-slate-800 mb-1">Custom</div>
-                    ) : t.priceMonthly === 0 ? (
-                      <div className="text-2xl font-bold text-slate-800 mb-1">Free</div>
-                    ) : (
-                      <div>
-                        <span className="text-3xl font-bold text-slate-800">
-                          ${(t.priceMonthly / 100).toFixed(0)}
-                        </span>
-                        <span className="text-sm text-slate-500">/mo</span>
-                      </div>
-                    )}
-
-                    <ul className="mt-4 space-y-2 text-sm text-slate-600">
-                      {t.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <span className="text-brand-400 mt-0.5">&#10003;</span>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (isEnterprise) {
-                          window.location.href = "mailto:sales@fotiqo.com?subject=Enterprise%20Plan";
-                        } else {
-                          setForm({ ...form, tier: k });
-                          setStep("details");
-                        }
-                      }}
-                      className={`w-full mt-5 py-2.5 rounded-lg font-semibold text-sm transition ${
-                        active
-                          ? "bg-coral-500 text-white hover:bg-coral-600"
-                          : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      }`}
-                    >
-                      {t.cta}
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-
-            <p className="text-center text-xs text-slate-400">
-              All paid plans include a 14-day free trial. Cancel anytime.
-            </p>
-          </>
-        )}
-
-        {step === "details" && (
-          <div className="max-w-md mx-auto">
-            <button
-              onClick={() => setStep("plan")}
-              className="text-sm text-slate-500 hover:text-slate-700 mb-4"
-            >
-              &larr; Back to plans
-            </button>
-
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <div className="font-bold text-lg">{SUBSCRIPTION_TIERS[form.tier].name} Plan</div>
-                  <div className="text-sm text-slate-500">
-                    {SUBSCRIPTION_TIERS[form.tier].priceMonthly === 0
-                      ? "Free forever"
-                      : `$${(SUBSCRIPTION_TIERS[form.tier].priceMonthly / 100).toFixed(0)}/month`}
-                  </div>
-                </div>
-                <button
-                  onClick={() => setStep("plan")}
-                  className="text-xs text-brand-400 hover:text-brand-700"
-                >
-                  Change plan
-                </button>
-              </div>
-
-              <form onSubmit={submit} className="space-y-3">
+          <form onSubmit={submit} className="space-y-4">
+            <div>
+              <label className="label-xs block mb-1.5">Your name</label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-300" />
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
-                  placeholder="Your name"
+                  className="input pl-10"
+                  placeholder="John Smith"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
+                  autoComplete="name"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="label-xs block mb-1.5">Business name</label>
+              <div className="relative">
+                <Building2 className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-300" />
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
-                  placeholder="Business name"
+                  className="input pl-10"
+                  placeholder="My Photography Studio"
                   value={form.businessName}
                   onChange={(e) => setForm({ ...form, businessName: e.target.value })}
                   required
+                  autoComplete="organization"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="label-xs block mb-1.5">Email address</label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-300" />
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
+                  className="input pl-10"
                   type="email"
-                  placeholder="Email"
+                  placeholder="you@studio.com"
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                   required
+                  autoComplete="email"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="label-xs block mb-1.5">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-navy-300" />
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
+                  className="input pl-10"
                   type="password"
-                  placeholder="Password"
+                  placeholder="Min. 8 characters"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                   required
                   minLength={8}
+                  autoComplete="new-password"
                 />
-                <button className="w-full bg-coral-500 text-white py-3 rounded-lg font-bold hover:bg-coral-600 transition">
-                  {SUBSCRIPTION_TIERS[form.tier].cta}
-                </button>
-                {status && <p className="text-center text-sm text-slate-600">{status}</p>}
-              </form>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+
+            {status && (
+              <div className="rounded-xl bg-coral-50 border border-coral-200 px-4 py-2.5 text-sm text-coral-700">
+                {status}
+              </div>
+            )}
+
+            <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Creating account…
+                </>
+              ) : (
+                <>
+                  Get Started Free <ArrowRight className="h-4 w-4" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <p className="mt-6 text-sm text-navy-400 text-center">
+            Already have an account?{" "}
+            <Link href="/login" className="text-brand-500 hover:text-brand-700 font-medium">
+              Sign in
+            </Link>
+          </p>
+
+          <p className="mt-4 text-xs text-navy-300 text-center">
+            By signing up, you agree to our{" "}
+            <Link href="/terms" className="underline">Terms</Link> and{" "}
+            <Link href="/privacy" className="underline">Privacy Policy</Link>.
+          </p>
+        </div>
+      </main>
     </div>
   );
 }
