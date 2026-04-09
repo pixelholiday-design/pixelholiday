@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { getPrice } from "@/lib/pricing";
-import { photoRef } from "@/lib/cloudinary";
+import { photoRef, watermarkedUrl } from "@/lib/cloudinary";
 
 const PRESETS = ["auto", "warm", "cool", "vibrant", "portrait"] as const;
 type Preset = (typeof PRESETS)[number];
@@ -60,7 +60,7 @@ export async function POST(req: Request, { params }: { params: { token: string }
 
     const gallery = await prisma.gallery.findUnique({
       where: { magicLinkToken: params.token },
-      select: { id: true, locationId: true, expiresAt: true },
+      select: { id: true, locationId: true, expiresAt: true, status: true },
     });
     if (!gallery) {
       return NextResponse.json({ error: "Gallery not found" }, { status: 404 });
@@ -79,7 +79,10 @@ export async function POST(req: Request, { params }: { params: { token: string }
 
     const ref = photoRef(photo);
     const previewUrl = buildPreviewUrl(ref, preset);
-    const originalUrl = buildOriginalUrl(ref);
+    const isPaid = gallery.status === "PAID" || gallery.status === "DIGITAL_PASS";
+    // Only expose the unwatermarked original for paid galleries;
+    // unpaid galleries get a watermarked version to prevent bypass.
+    const originalUrl = isPaid ? buildOriginalUrl(ref) : watermarkedUrl(ref);
     const price = await getPrice("retouch_credit", gallery.locationId);
 
     return NextResponse.json({

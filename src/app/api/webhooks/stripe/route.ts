@@ -218,12 +218,13 @@ export async function POST(req: Request) {
           },
         });
 
-        // Photographer commission — calculated on NET amount (after Stripe fees)
+        // Photographer commission — calculated on NET amount (after Stripe fees).
+        // Pass netAmount so the fallback path also uses the correct base.
         await recordCommission({
           userId: gallery.photographerId,
           orderId: order.id,
           type: "PHOTO_SALE",
-          amount: order.amount,
+          amount: netAmount,
         });
 
         // Delivery email

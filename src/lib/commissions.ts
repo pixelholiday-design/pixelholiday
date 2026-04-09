@@ -200,7 +200,9 @@ export async function recordMarketplaceCommission(opts: {
   const MARKETPLACE_FEE_RATE = 0.10; // 10%
   const stripeFee = calculateStripeFee(opts.totalPrice, opts.paymentMethod || "STRIPE_ONLINE");
   const netAmount = opts.totalPrice - stripeFee;
-  const platformFee = Math.round(opts.totalPrice * MARKETPLACE_FEE_RATE * 100) / 100;
+  // Platform fee is on NET (after Stripe fees), not on gross.
+  // Charging on gross would overcharge the photographer for fees Stripe already took.
+  const platformFee = Math.round(netAmount * MARKETPLACE_FEE_RATE * 100) / 100;
   const photographerPayout = Math.round((netAmount - platformFee) * 100) / 100;
 
   const month = new Date().toISOString().slice(0, 7);
@@ -310,7 +312,8 @@ export async function recordPackageBookingCommission(opts: {
   const PACKAGE_FEE_RATE = 0.15; // 15%
   const stripeFee = calculateStripeFee(opts.totalPrice, opts.paymentMethod || "STRIPE_ONLINE");
   const netAmount = opts.totalPrice - stripeFee;
-  const platformFee = Math.round(opts.totalPrice * PACKAGE_FEE_RATE * 100) / 100;
+  // Platform fee is on NET (after Stripe fees), not on gross.
+  const platformFee = Math.round(netAmount * PACKAGE_FEE_RATE * 100) / 100;
   const photographerPayout = Math.round((netAmount - platformFee) * 100) / 100;
 
   // Update the booking with calculated fees

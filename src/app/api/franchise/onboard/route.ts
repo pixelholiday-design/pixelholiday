@@ -2,13 +2,16 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { sendWelcomeEmail } from "@/lib/automation/franchise-emails";
+import { requireRole, handleGuardError } from "@/lib/guards";
 
 /**
  * POST /api/franchise/onboard
  * Create a new franchise organization with an Operations Manager account.
+ * Restricted to CEO only.
  */
 export async function POST(req: Request) {
   try {
+    await requireRole(["CEO"]);
     const body = await req.json();
     const {
       businessName,
@@ -89,9 +92,11 @@ export async function POST(req: Request) {
       ok: true,
       franchiseId: franchise.id,
       userId: user.id,
-      tempPassword, // Only returned in API response for admin reference
+      // tempPassword is sent via email only — never exposed in API response
     });
   } catch (e: any) {
+    const g = handleGuardError(e);
+    if (g) return g;
     return NextResponse.json({ error: e.message || "Franchise onboarding failed" }, { status: 500 });
   }
 }

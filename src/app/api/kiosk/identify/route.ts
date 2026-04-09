@@ -61,7 +61,8 @@ export async function POST(req: Request) {
       photos: g.photos.map((p) => ({
         id: p.id,
         cloudinaryId: p.cloudinaryId,
-        s3Key_highRes: p.s3Key_highRes,
+        // Only expose high-res keys for paid/purchased photos
+        s3Key_highRes: (g.status === "PAID" || g.status === "DIGITAL_PASS" || p.isPurchased) ? p.s3Key_highRes : undefined,
         isPurchased: p.isPurchased,
       })),
     })),
