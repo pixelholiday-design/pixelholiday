@@ -295,12 +295,18 @@ model Photo {
   aiStatus               AiCullStatus   @default(PENDING)
   isWristbandPhoto       Boolean        @default(false)
   extractedWristbandCode String?
+  // Face recognition
+  faceTokens             String?        // JSON array of face_token strings from Face++
+  faceBounds             String?        // JSON array of {top,left,width,height} bounding boxes
+  faceCount              Int            @default(0)
+  faceIndexedAt          DateTime?
   createdAt              DateTime       @default(now())
 
   @@index([galleryId])
   @@index([isPurchased])
   @@index([aiCulled])
   @@index([aiStatus])
+  @@index([faceCount])
 }
 
 model Video {

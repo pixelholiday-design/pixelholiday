@@ -132,6 +132,12 @@ export async function POST(req: Request) {
     // AI hook advisor — pick the best hook image if photographer didn't star one
     applyAutoHook(gallery.id).catch(() => {});
 
+    // Face recognition — index faces in uploaded photos (non-blocking)
+    import("@/lib/face-recognition/indexer")
+      .then(({ indexGalleryFaces }) => indexGalleryFaces(gallery.id))
+      .then((r) => r.faces > 0 && console.log(`[Face] Indexed ${r.faces} faces in ${r.indexed} photos for gallery ${gallery.id}`))
+      .catch((e) => console.warn("[Face] Indexing failed (non-fatal):", e));
+
     // Gamification — XP for the upload, plus a bonus for big batches
     const photogXp = await awardXP(
       data.photographerId,
