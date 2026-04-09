@@ -149,9 +149,17 @@ function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, maso
     <div
       className={`${masonry ? "mb-3 break-inside-avoid" : ""} relative group rounded-xl overflow-hidden bg-cream-200 ring-1 ring-cream-300/50 hover:ring-coral-300 hover:shadow-lift transition`}
     >
-      <button onClick={() => onOpen(i)} className="block w-full">
+      <button onClick={() => onOpen(i)} className="block w-full relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt="" className="w-full block transition duration-500 group-hover:scale-[1.02]" />
+        {/* CSS watermark overlay for unpaid photos (fallback when Cloudinary watermark is unavailable) */}
+        {!clean && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
+            <span className="text-white/25 font-display text-4xl sm:text-5xl font-bold tracking-widest rotate-[-25deg]">
+              FOTIQO
+            </span>
+          </div>
+        )}
       </button>
       <button
         onClick={() => onFavorite(p.id)}

@@ -93,7 +93,7 @@ export default function CeoDashboardClient() {
                     : "text-navy-500 hover:bg-cream-100"
                 }`}
               >
-                {d === "ALL" ? "All" : d === "LUXURY" ? "Pixel Luxury" : "Pixel Splash"}
+                {d === "ALL" ? "All" : d === "LUXURY" ? "Fotiqo Luxury" : "Fotiqo Splash"}
               </button>
             ))}
           </div>
