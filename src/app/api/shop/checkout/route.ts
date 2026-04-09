@@ -56,7 +56,10 @@ export async function POST(req: NextRequest) {
 
     // If gift card covers the full amount, redeem and skip Stripe
     if (giftCardDiscount >= subtotal) {
-      const result = await redeemGiftCard(giftCardCode, subtotal);
+      // Pass redemption context for proper revenue recognition tracking
+      const result = await redeemGiftCard(giftCardCode, subtotal, {
+        redeemedBy: "shop_customer",
+      });
       if (!result.success) {
         return NextResponse.json({ error: result.error }, { status: 400 });
       }
@@ -65,11 +68,14 @@ export async function POST(req: NextRequest) {
         method: "gift_card",
         amount: subtotal,
         giftCardRemaining: result.remainingBalance,
+        revenueRecognized: result.revenueRecognized, // Amount moved from deferred to earned
       });
     }
 
     // Partial gift card: redeem partial and send remaining to Stripe
-    const result = await redeemGiftCard(giftCardCode, giftCardDiscount);
+    const result = await redeemGiftCard(giftCardCode, giftCardDiscount, {
+      redeemedBy: "shop_customer",
+    });
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }

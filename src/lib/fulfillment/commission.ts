@@ -2,9 +2,11 @@
  * Pixelvo commission calculator for ShopOrders.
  *
  * Rules (from CLAUDE.md):
- *   Digital items:              2% of sale price
- *   Physical items:             50% of profit (retailPrice - costPrice)
- *   Sleeping-money items:       50% of total sale price
+ *   Digital items:              2% of sale price (after Stripe fees)
+ *   Physical items:             50% of profit (retailPrice - costPrice - Stripe fee share)
+ *   Sleeping-money items:       50% of total sale price (after Stripe fees)
+ *
+ * NOTE: Stripe fee (2.9% + €0.30) is shared proportionally across all items.
  */
 
 export type CommissionItem = {

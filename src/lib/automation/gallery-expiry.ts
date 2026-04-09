@@ -117,6 +117,8 @@ export async function runGalleryExpiryAutomation() {
         maxUses: 1,
         expiresAt: g.expiresAt,
         isActive: true,
+        // FIX: Tie coupon to this specific gallery so it can't be used on other galleries
+        galleryId: g.id,
       },
     });
 

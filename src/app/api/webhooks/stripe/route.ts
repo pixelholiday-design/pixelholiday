@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
 import { Resend } from "resend";
-import { recordCommission } from "@/lib/commissions";
+import { recordCommission, calculateStripeFee } from "@/lib/commissions";
 
 export async function POST(req: Request) {
   const sig = req.headers.get("stripe-signature") || "";
@@ -27,7 +27,6 @@ export async function POST(req: Request) {
     const pi = event.data.object;
     const failureMessage = pi.last_payment_error?.message || "Unknown failure";
     console.error(`[Stripe] payment_intent.payment_failed — id: ${pi.id}, reason: ${failureMessage}`);
-    // Update any matching pending order to FAILED status.
     try {
       await prisma.order.updateMany({
         where: { stripeSessionId: pi.id, status: "PENDING" },
@@ -43,7 +42,6 @@ export async function POST(req: Request) {
     console.error(
       `[Stripe] charge.dispute.created — dispute: ${dispute.id}, charge: ${dispute.charge}, amount: ${dispute.amount}, reason: ${dispute.reason}`
     );
-    // Log dispute to AIGrowthLog for CEO visibility.
     try {
       await prisma.aIGrowthLog.create({
         data: {
@@ -62,6 +60,7 @@ export async function POST(req: Request) {
     const session = event.data.object;
 
     // Handle gift card purchase fulfillment
+    // NOTE: Gift card purchase = DEFERRED REVENUE, not income
     if (session.metadata?.type === "GIFT_CARD") {
       try {
         const { purchaseGiftCard } = await import("@/lib/gift-cards");
@@ -89,20 +88,62 @@ export async function POST(req: Request) {
       }
     }
 
+    // Handle marketplace booking payment
+    const bookingId = session.metadata?.bookingId;
+    if (bookingId) {
+      try {
+        const amount = (session.amount_total || 0) / 100;
+        const { recordMarketplaceCommission } = await import("@/lib/commissions");
+
+        const booking = await prisma.marketplaceBooking.update({
+          where: { id: bookingId },
+          data: {
+            stripeSessionId: session.id,
+            stripePaymentId: typeof session.payment_intent === "string" ? session.payment_intent : session.payment_intent?.id,
+            isPaid: true,
+            paidAt: new Date(),
+            status: "DEPOSIT_PAID",
+            payoutStatus: "PENDING", // Funds held until session completed
+          },
+        });
+
+        // Calculate and record marketplace commission
+        await recordMarketplaceCommission({
+          bookingId,
+          photographerId: booking.photographerId,
+          totalPrice: booking.totalPrice,
+          paymentMethod: "STRIPE_ONLINE",
+        });
+      } catch (e: any) {
+        console.error("[Stripe] Marketplace booking payment error:", e.message);
+      }
+    }
+
     const galleryId = session.metadata?.galleryId;
     if (galleryId) {
       try {
         const gallery = await prisma.gallery.update({
           where: { id: galleryId },
           data: { status: "PAID" },
-          include: { customer: true, photos: true, photographer: true },
+          include: { customer: true, photos: true, photographer: true, location: true },
         });
-        const amount = (session.amount_total || 0) / 100;
+        const grossAmount = (session.amount_total || 0) / 100;
+        const stripeFee = calculateStripeFee(grossAmount, "STRIPE_ONLINE");
+        const netAmount = Math.round((grossAmount - stripeFee) * 100) / 100;
+
+        // Determine tax from location
+        const taxRate = gallery.location?.taxRate ?? 0;
+        const taxAmount = taxRate > 0 ? Math.round(grossAmount * taxRate / (1 + taxRate) * 100) / 100 : 0;
+
         // Order has @unique on galleryId — upsert so re-runs and seeded test data don't collide
         const order = await prisma.order.upsert({
           where: { galleryId },
           update: {
-            amount,
+            amount: grossAmount,
+            stripeFee,
+            netAmount,
+            taxAmount,
+            taxRate,
             paymentMethod: "STRIPE_ONLINE",
             stripeSessionId: session.id,
             status: "COMPLETED",
@@ -110,14 +151,18 @@ export async function POST(req: Request) {
           create: {
             galleryId,
             customerId: gallery.customerId,
-            amount,
+            amount: grossAmount,
+            stripeFee,
+            netAmount,
+            taxAmount,
+            taxRate,
             paymentMethod: "STRIPE_ONLINE",
             stripeSessionId: session.id,
             status: "COMPLETED",
           },
         });
 
-        // Photographer 10% (helper is itself idempotent on orderId)
+        // Photographer commission — calculated on NET amount (after Stripe fees)
         await recordCommission({
           userId: gallery.photographerId,
           orderId: order.id,
@@ -132,7 +177,7 @@ export async function POST(req: Request) {
             await resend.emails.send({
               from: process.env.FROM_EMAIL || "hello@pixelvo.local",
               to: gallery.customer.email,
-              subject: "✨ Your Pixelvo memories are ready!",
+              subject: "Your Pixelvo memories are ready!",
               html: `<p>Your gallery is unlocked. <a href="${process.env.NEXT_PUBLIC_APP_URL}/gallery/${gallery.magicLinkToken}">View now</a></p>`,
             });
           } catch (e) {
