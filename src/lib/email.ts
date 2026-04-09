@@ -60,3 +60,65 @@ export async function emailGalleryExpired(to: string) {
     `<p>Your photo gallery has expired and is no longer available. Contact us if you'd like to discuss options.</p>`,
   );
 }
+
+/* ── Rich HTML templates (email-templates/) ───────── */
+import { galleryDeliveryEmail } from "./email-templates/gallery-delivery";
+import { galleryExpiry14Email } from "./email-templates/gallery-expiry-14";
+import { galleryExpiry48Email } from "./email-templates/gallery-expiry-48";
+import { orderConfirmationEmail } from "./email-templates/order-confirmation";
+import { welcomeEmail } from "./email-templates/welcome";
+import { bookingConfirmationEmail } from "./email-templates/booking-confirmation";
+import { reviewRequestEmail } from "./email-templates/review-request";
+import { hotelWelcomeEmail } from "./email-templates/hotel-welcome";
+import { digitalPassOfferEmail } from "./email-templates/digital-pass-offer";
+import { sleepingMoneyEmail } from "./email-templates/sleeping-money";
+
+export async function sendGalleryDelivery(to: string, params: Parameters<typeof galleryDeliveryEmail>[0]) {
+  const { subject, html } = galleryDeliveryEmail(params);
+  return send(to, subject, html);
+}
+
+export async function sendGalleryExpiry14(to: string, params: Parameters<typeof galleryExpiry14Email>[0]) {
+  const { subject, html } = galleryExpiry14Email(params);
+  return send(to, subject, html);
+}
+
+export async function sendGalleryExpiry48(to: string, params: Parameters<typeof galleryExpiry48Email>[0]) {
+  const { subject, html } = galleryExpiry48Email(params);
+  return send(to, subject, html);
+}
+
+export async function sendOrderConfirmation(to: string, params: Parameters<typeof orderConfirmationEmail>[0]) {
+  const { subject, html } = orderConfirmationEmail(params);
+  return send(to, subject, html);
+}
+
+export async function sendWelcome(to: string, params: Parameters<typeof welcomeEmail>[0]) {
+  const { subject, html } = welcomeEmail(params);
+  return send(to, subject, html);
+}
+
+export async function sendBookingConfirmation(to: string, params: Parameters<typeof bookingConfirmationEmail>[0]) {
+  const { subject, html } = bookingConfirmationEmail(params);
+  return send(to, subject, html);
+}
+
+export async function sendReviewRequest(to: string, params: Parameters<typeof reviewRequestEmail>[0]) {
+  const { subject, html } = reviewRequestEmail(params);
+  return send(to, subject, html);
+}
+
+export async function sendHotelWelcome(to: string, params: Parameters<typeof hotelWelcomeEmail>[0]) {
+  const { subject, html } = hotelWelcomeEmail(params);
+  return send(to, subject, html);
+}
+
+export async function sendDigitalPassOffer(to: string, params: Parameters<typeof digitalPassOfferEmail>[0]) {
+  const { subject, html } = digitalPassOfferEmail(params);
+  return send(to, subject, html);
+}
+
+export async function sendSleepingMoney(to: string, params: Parameters<typeof sleepingMoneyEmail>[0]) {
+  const { subject, html } = sleepingMoneyEmail(params);
+  return send(to, subject, html);
+}

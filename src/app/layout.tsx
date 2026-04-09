@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Playfair_Display, DM_Sans } from "next/font/google";
+import { Inter, Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import CookieConsent from "@/components/CookieConsent";
 
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const dmSans = DM_Sans({
   subsets: ["latin"],
   weight: ["400", "500"],
-  variable: "--font-body",
+  variable: "--font-dm-sans",
   display: "swap",
 });
 const playfair = Playfair_Display({
@@ -27,7 +28,7 @@ export const viewport = { themeColor: "#0EA5A5" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${inter.variable} ${dmSans.variable} ${playfair.variable}`}>
       <body className="antialiased bg-cream-100 text-navy-900 font-sans">
         <Providers>{children}</Providers>
         <CookieConsent />

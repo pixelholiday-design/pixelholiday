@@ -22,7 +22,7 @@ const config: Config = {
           800: "#115E59",
           900: "#134E4A",
         },
-        // Keep brand alias pointing to fotiqo for backward compat during transition
+        // brand alias for backward compat
         brand: {
           50:  "#F0FDFA",
           100: "#CCFBF1",
@@ -35,7 +35,7 @@ const config: Config = {
           800: "#115E59",
           900: "#134E4A",
         },
-        // Coral → now warm orange CTA
+        // Coral → CTA orange
         coral: {
           50:  "#FFF7ED",
           100: "#FFEDD5",
@@ -47,6 +47,13 @@ const config: Config = {
           700: "#C2410C",
           800: "#9A3412",
           900: "#7C2D12",
+        },
+        // Mint accent
+        mint: {
+          200: "#A7F3D0",
+          300: "#5EEAD4",
+          400: "#2DD4BF",
+          500: "#14B8A6",
         },
         "cta-orange": "#F97316",
         "cta-orange-hover": "#EA580C",
@@ -76,12 +83,11 @@ const config: Config = {
           500: "#D4A853",
           600: "#B38B3C",
         },
-        mint: "#5EEAD4",
       },
       fontFamily: {
-        sans: ["var(--font-body)", "system-ui", "sans-serif"],
+        sans: ["var(--font-dm-sans)", "var(--font-inter)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "Georgia", "serif"],
-        body: ["var(--font-body)", "system-ui", "sans-serif"],
+        body: ["var(--font-dm-sans)", "var(--font-body)", "system-ui", "sans-serif"],
       },
       borderRadius: {
         xl: "12px",
