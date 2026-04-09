@@ -28,6 +28,11 @@ export async function getPresignedUploadUrl(key: string, contentType: string) {
 }
 
 export function publicR2Url(key: string) {
-  const base = process.env.R2_PUBLIC_URL || "https://example.r2.dev";
-  return `${base.replace(/\/$/, "")}/${key}`;
+  const base = process.env.R2_PUBLIC_URL || "";
+  if (base && base !== "https://example.r2.dev") {
+    return `${base.replace(/\/$/, "")}/${key}`;
+  }
+  // No public R2 URL configured — use the server-side photo proxy
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  return `${appUrl}/api/photo/${encodeURIComponent(key)}`;
 }
