@@ -1601,6 +1601,7 @@ model ShopOrder {
   trackingNumber  String?
   trackingUrl     String?
   pixelvoCommission Float @default(0) // 2% sales + 50% shop profit
+  notes           String?  // Internal admin notes
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 

@@ -76,12 +76,13 @@ export async function PATCH(req: NextRequest) {
     const body = await req.json().catch(() => null);
     if (!body?.id) return NextResponse.json({ error: "Missing order id" }, { status: 400 });
 
-    const { id, status, trackingNumber, trackingUrl, labOrderId } = body as {
+    const { id, status, trackingNumber, trackingUrl, labOrderId, notes } = body as {
       id: string;
       status?: string;
       trackingNumber?: string;
       trackingUrl?: string;
       labOrderId?: string;
+      notes?: string;
     };
 
     const update: Record<string, unknown> = {};
@@ -89,6 +90,7 @@ export async function PATCH(req: NextRequest) {
     if (trackingNumber !== undefined) update.trackingNumber = trackingNumber;
     if (trackingUrl !== undefined) update.trackingUrl = trackingUrl;
     if (labOrderId !== undefined) update.labOrderId = labOrderId;
+    if (notes !== undefined) update.notes = notes;
 
     const updated = await prisma.shopOrder.update({
       where: { id },

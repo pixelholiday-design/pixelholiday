@@ -2,7 +2,19 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Package, Truck, Check, RefreshCw, Send } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  ExternalLink,
+  Loader2,
+  Package,
+  RefreshCw,
+  RotateCcw,
+  Send,
+  StickyNote,
+  Truck,
+  X,
+} from "lucide-react";
 
 type ShopOrderItem = {
   id: string;
@@ -40,6 +52,7 @@ type ShopOrder = {
   trackingUrl: string | null;
   pixelvoCommission: number;
   createdAt: string;
+  updatedAt: string;
   customer: { name: string | null; email: string | null };
   items: ShopOrderItem[];
 };
@@ -59,7 +72,25 @@ const STATUS_COLORS: Record<string, string> = {
   PROCESSING: "bg-brand-100 text-brand-700",
   SHIPPED: "bg-purple-100 text-purple-700",
   DELIVERED: "bg-green-100 text-green-700",
+  ERROR: "bg-coral-100 text-coral-700",
+  CANCELLED: "bg-cream-200 text-navy-500",
 };
+
+const LAB_DASHBOARD_URLS: Record<string, string> = {
+  PRODIGI: "https://dashboard.prodigi.com/orders",
+  PRINTFUL: "https://www.printful.com/dashboard/orders",
+};
+
+// Derive a label badge color from lab name
+function labBadgeClass(labName: string | null) {
+  if (!labName) return "bg-cream-200 text-navy-600";
+  const n = labName.toUpperCase();
+  if (n.includes("PRODIGI")) return "bg-brand-100 text-brand-700";
+  if (n.includes("PRINTFUL")) return "bg-blue-100 text-blue-700";
+  if (n.includes("LOCAL") || n.includes("MANUAL")) return "bg-green-100 text-green-700";
+  if (n.includes("MOCK")) return "bg-cream-200 text-navy-500";
+  return "bg-cream-200 text-navy-600";
+}
 
 export default function FulfillmentPage() {
   const [orders, setOrders] = useState<ShopOrder[]>([]);
@@ -68,8 +99,13 @@ export default function FulfillmentPage() {
   const [activeTab, setActiveTab] = useState<Tab>("PENDING");
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [processing, setProcessing] = useState<string | null>(null);
-  // Tracking input state per order
   const [trackingInputs, setTrackingInputs] = useState<Record<string, { number: string; url: string }>>({});
+  // Notes state per order
+  const [noteInputs, setNoteInputs] = useState<Record<string, string>>({});
+  const [notesOpen, setNotesOpen] = useState<Record<string, boolean>>({});
+  // Polling state
+  const [polling, setPolling] = useState(false);
+  const [pollResult, setPollResult] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -90,6 +126,11 @@ export default function FulfillmentPage() {
 
   const filteredOrders = orders.filter((o) => TAB_STATUS_MAP[activeTab].includes(o.status));
 
+  function flash(msg: string) {
+    setActionMsg(msg);
+    setTimeout(() => setActionMsg(null), 4500);
+  }
+
   async function sendToLab(orderId: string) {
     setProcessing(orderId);
     try {
@@ -100,20 +141,19 @@ export default function FulfillmentPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (data.error) {
-        setActionMsg(`Error: ${data.error}`);
+        flash(`Error: ${data.error}`);
       } else {
-        setActionMsg(`Order fulfilled. Lab ID: ${data.labOrderId ?? "N/A"}`);
+        flash(`Order fulfilled. Lab ID: ${data.labOrderId ?? "N/A"}`);
         load();
       }
     } catch (e: any) {
-      setActionMsg(`Error: ${e.message}`);
+      flash(`Error: ${e.message}`);
     } finally {
       setProcessing(null);
-      setTimeout(() => setActionMsg(null), 4000);
     }
   }
 
-  async function updateOrder(orderId: string, patch: Record<string, string>) {
+  async function updateOrder(orderId: string, patch: Record<string, unknown>) {
     setProcessing(orderId);
     try {
       const res = await fetch("/api/admin/shop-orders", {
@@ -123,16 +163,15 @@ export default function FulfillmentPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (data.error) {
-        setActionMsg(`Error: ${data.error}`);
+        flash(`Error: ${data.error}`);
       } else {
-        setActionMsg("Updated!");
+        flash("Updated!");
         load();
       }
     } catch (e: any) {
-      setActionMsg(`Error: ${e.message}`);
+      flash(`Error: ${e.message}`);
     } finally {
       setProcessing(null);
-      setTimeout(() => setActionMsg(null), 3000);
     }
   }
 
@@ -140,8 +179,34 @@ export default function FulfillmentPage() {
     const t = trackingInputs[orderId] ?? { number: "", url: "" };
     updateOrder(orderId, { status: "SHIPPED", trackingNumber: t.number, trackingUrl: t.url });
   }
+
   function markDelivered(orderId: string) {
     updateOrder(orderId, { status: "DELIVERED" });
+  }
+
+  function saveNote(orderId: string) {
+    const note = noteInputs[orderId] ?? "";
+    updateOrder(orderId, { notes: note });
+  }
+
+  async function pollLabStatuses() {
+    setPolling(true);
+    setPollResult(null);
+    try {
+      const res = await fetch("/api/shop/poll-status");
+      const data = await res.json();
+      if (data.error) {
+        setPollResult(`Poll error: ${data.error}`);
+      } else {
+        setPollResult(`Polled ${data.polled} orders · ${data.updated} updated`);
+        if ((data.updated ?? 0) > 0) load();
+      }
+    } catch (e: any) {
+      setPollResult(`Poll error: ${e.message}`);
+    } finally {
+      setPolling(false);
+      setTimeout(() => setPollResult(null), 5000);
+    }
   }
 
   const tabs: Tab[] = ["PENDING", "PROCESSING", "SHIPPED", "DELIVERED"];
@@ -160,6 +225,14 @@ export default function FulfillmentPage() {
           <p className="text-navy-400 mt-1">Send print orders to the lab, mark shipped, and track delivery.</p>
         </div>
         <div className="flex items-center gap-3 mt-1">
+          <button
+            onClick={pollLabStatuses}
+            disabled={polling}
+            className="inline-flex items-center gap-1.5 text-sm text-navy-500 hover:text-navy-900 transition border border-cream-300 px-3 py-1.5 rounded-full hover:border-navy-300"
+          >
+            {polling ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+            Poll lab status
+          </button>
           <button onClick={load} className="inline-flex items-center gap-1.5 text-sm text-navy-500 hover:text-navy-900 transition">
             <RefreshCw className="h-4 w-4" /> Refresh
           </button>
@@ -172,6 +245,12 @@ export default function FulfillmentPage() {
       {actionMsg && (
         <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${actionMsg.startsWith("Error") ? "bg-coral-50 text-coral-700 border border-coral-200" : "bg-green-50 text-green-700 border border-green-200"}`}>
           {actionMsg}
+        </div>
+      )}
+
+      {pollResult && (
+        <div className={`rounded-xl px-4 py-3 text-sm font-semibold ${pollResult.startsWith("Poll error") ? "bg-coral-50 text-coral-700 border border-coral-200" : "bg-blue-50 text-blue-700 border border-blue-200"}`}>
+          {pollResult}
         </div>
       )}
 
@@ -211,22 +290,36 @@ export default function FulfillmentPage() {
           {filteredOrders.map((order) => {
             const physicalItems = order.items.filter((i) => i.product.fulfillmentType !== "DIGITAL");
             const trackingInput = trackingInputs[order.id] ?? { number: order.trackingNumber ?? "", url: order.trackingUrl ?? "" };
+            const noteOpen = notesOpen[order.id] ?? false;
+            const noteVal = noteInputs[order.id] ?? "";
+
+            // Lab dashboard link
+            const labDashUrl = order.labName
+              ? LAB_DASHBOARD_URLS[order.labName.toUpperCase()] || null
+              : null;
 
             return (
               <div key={order.id} className="card p-6 space-y-4">
                 {/* Order header */}
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 flex-wrap">
                       <span className="font-display text-lg text-navy-900">
                         {order.customer.name || order.customer.email || "Guest"}
                       </span>
                       <span className={`text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full ${STATUS_COLORS[order.status] ?? "bg-cream-200 text-navy-500"}`}>
                         {order.status}
                       </span>
+                      {/* Lab name badge */}
+                      {order.labName && (
+                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${labBadgeClass(order.labName)}`}>
+                          {order.labName}
+                        </span>
+                      )}
                     </div>
                     <div className="text-xs text-navy-400 mt-0.5">
                       Order #{order.id.slice(-8)} · {new Date(order.createdAt).toLocaleDateString()}
+                      {" · Updated "}{new Date(order.updatedAt).toLocaleDateString()}
                     </div>
                   </div>
                   <div className="text-right">
@@ -245,13 +338,27 @@ export default function FulfillmentPage() {
                   </div>
                 )}
 
-                {/* Lab info */}
+                {/* Lab order ID */}
                 {order.labOrderId && (
-                  <div className="text-xs text-navy-500">
-                    Lab order: <span className="font-mono font-semibold text-navy-900">{order.labOrderId}</span>
-                    {order.labName && ` · ${order.labName}`}
+                  <div className="text-xs text-navy-500 flex items-center gap-2">
+                    <span>Lab order:</span>
+                    <span className="font-mono font-semibold text-navy-900">{order.labOrderId}</span>
+                    {order.labName && <span className="text-navy-400">· {order.labName}</span>}
+                    {labDashUrl && (
+                      <a
+                        href={labDashUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-brand-700 hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Dashboard
+                      </a>
+                    )}
                   </div>
                 )}
+
+                {/* Tracking */}
                 {order.trackingNumber && (
                   <div className="text-xs text-navy-500">
                     Tracking: <span className="font-mono font-semibold text-navy-900">{order.trackingNumber}</span>
@@ -262,6 +369,25 @@ export default function FulfillmentPage() {
                     )}
                   </div>
                 )}
+
+                {/* Fulfillment timeline */}
+                <div className="flex items-center gap-2 text-xs text-navy-400 flex-wrap">
+                  <span className={`px-2 py-0.5 rounded ${["PENDING", "PAID", "PROCESSING", "SHIPPED", "DELIVERED"].includes(order.status) ? "text-green-700 font-semibold" : "text-navy-300"}`}>
+                    ✓ Placed
+                  </span>
+                  <span className="text-navy-200">→</span>
+                  <span className={`px-2 py-0.5 rounded ${["PROCESSING", "SHIPPED", "DELIVERED"].includes(order.status) ? "text-brand-700 font-semibold" : "text-navy-300"}`}>
+                    {["PROCESSING", "SHIPPED", "DELIVERED"].includes(order.status) ? "✓" : "○"} Processing
+                  </span>
+                  <span className="text-navy-200">→</span>
+                  <span className={`px-2 py-0.5 rounded ${["SHIPPED", "DELIVERED"].includes(order.status) ? "text-purple-700 font-semibold" : "text-navy-300"}`}>
+                    {["SHIPPED", "DELIVERED"].includes(order.status) ? "✓" : "○"} Shipped
+                  </span>
+                  <span className="text-navy-200">→</span>
+                  <span className={`px-2 py-0.5 rounded ${order.status === "DELIVERED" ? "text-green-700 font-semibold" : "text-navy-300"}`}>
+                    {order.status === "DELIVERED" ? "✓" : "○"} Delivered
+                  </span>
+                </div>
 
                 {/* Items list */}
                 <div>
@@ -287,6 +413,37 @@ export default function FulfillmentPage() {
                   </div>
                 </div>
 
+                {/* Notes section */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => setNotesOpen((prev) => ({ ...prev, [order.id]: !noteOpen }))}
+                    className="inline-flex items-center gap-1.5 text-xs text-navy-500 hover:text-navy-900 transition"
+                  >
+                    <StickyNote className="h-3.5 w-3.5" />
+                    {noteOpen ? "Hide notes" : "Add / view notes"}
+                  </button>
+                  {noteOpen && (
+                    <div className="mt-2 flex gap-2">
+                      <textarea
+                        rows={2}
+                        placeholder="Internal order notes…"
+                        value={noteVal}
+                        onChange={(e) => setNoteInputs((prev) => ({ ...prev, [order.id]: e.target.value }))}
+                        className="flex-1 rounded-lg border border-cream-400 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand-500 resize-none"
+                      />
+                      <button
+                        onClick={() => saveNote(order.id)}
+                        disabled={processing === order.id}
+                        className="self-start inline-flex items-center gap-1.5 bg-brand-700 hover:bg-brand-800 disabled:opacity-50 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"
+                      >
+                        {processing === order.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                        Save
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 {/* Action buttons */}
                 <div className="flex flex-wrap items-end gap-3 pt-2 border-t border-cream-300">
                   {/* Send to lab (PENDING/PAID) */}
@@ -298,6 +455,30 @@ export default function FulfillmentPage() {
                     >
                       {processing === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                       Send to Lab
+                    </button>
+                  )}
+
+                  {/* Resend to lab (PROCESSING — retry) */}
+                  {order.status === "PROCESSING" && physicalItems.length > 0 && (
+                    <button
+                      onClick={() => sendToLab(order.id)}
+                      disabled={processing === order.id}
+                      className="inline-flex items-center gap-2 border border-brand-300 text-brand-700 hover:bg-brand-50 disabled:opacity-50 px-4 py-2 rounded-full text-sm font-semibold transition"
+                    >
+                      {processing === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+                      Resend to Lab
+                    </button>
+                  )}
+
+                  {/* Cancel at lab (PENDING/PROCESSING) */}
+                  {["PENDING", "PAID", "PROCESSING"].includes(order.status) && (
+                    <button
+                      onClick={() => updateOrder(order.id, { status: "CANCELLED" })}
+                      disabled={processing === order.id}
+                      className="inline-flex items-center gap-2 border border-coral-300 text-coral-700 hover:bg-coral-50 disabled:opacity-50 px-4 py-2 rounded-full text-sm font-semibold transition"
+                    >
+                      {processing === order.id ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+                      Cancel at Lab
                     </button>
                   )}
 
@@ -340,6 +521,17 @@ export default function FulfillmentPage() {
                       Mark Delivered
                     </button>
                   )}
+
+                  {/* Customer order tracking link */}
+                  <a
+                    href={`/order/${order.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-navy-500 hover:text-navy-900 ml-auto"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                    Customer view
+                  </a>
                 </div>
               </div>
             );

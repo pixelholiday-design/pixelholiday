@@ -1,0 +1,12 @@
+{
+  "print_8x10": { "variant_id": 10163, "product_id": 1 },
+  "print_16x20": { "variant_id": 10167, "product_id": 1 },
+  "canvas_30x40": { "variant_id": 1642, "product_id": 1 },
+  "canvas_50x70": { "variant_id": 1647, "product_id": 1 },
+  "gift_mug_white": { "variant_id": 1320, "product_id": 19 },
+  "gift_tshirt": { "variant_id": 4012, "product_id": 71 },
+  "gift_hoodie": { "variant_id": 4017, "product_id": 77 },
+  "gift_tote": { "variant_id": 2936, "product_id": 83 },
+  "gift_phone_case": { "variant_id": 5765, "product_id": 335 },
+  "gift_cushion_40": { "variant_id": 3543, "product_id": 62 }
+}

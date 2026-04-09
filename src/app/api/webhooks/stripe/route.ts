@@ -60,6 +60,20 @@ export async function POST(req: Request) {
 
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
+
+    // Handle shop order fulfillment
+    const shopOrderId = session.metadata?.shopOrderId;
+    if (shopOrderId) {
+      try {
+        const { fulfillOrder } = await import("@/lib/fulfillment/index");
+        await fulfillOrder(shopOrderId).catch((e: Error) =>
+          console.error("[Stripe] Shop order fulfillment error:", e.message)
+        );
+      } catch (e: any) {
+        console.error("[Stripe] Failed to import/run fulfillOrder:", e.message);
+      }
+    }
+
     const galleryId = session.metadata?.galleryId;
     if (galleryId) {
       try {
