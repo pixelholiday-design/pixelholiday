@@ -7,8 +7,13 @@ export const dynamic = "force-dynamic";
 /** Proxy R2 photos through Next.js so they're accessible without a public R2 URL */
 export async function GET(req: NextRequest, { params }: { params: { key: string } }) {
   const key = decodeURIComponent(params.key);
-  if (!key || !isR2Configured) {
-    return new NextResponse("Not found", { status: 404 });
+  if (!key) return new NextResponse("Not found", { status: 404 });
+
+  // When R2 isn't configured, redirect to a placeholder image so galleries
+  // still render visually instead of showing broken image icons.
+  if (!isR2Configured) {
+    const seed = key.replace(/[^a-z0-9]/gi, "").slice(0, 12);
+    return NextResponse.redirect(`https://picsum.photos/seed/${seed}/1200/800`, 302);
   }
 
   try {
