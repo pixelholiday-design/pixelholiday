@@ -181,6 +181,7 @@ model Customer {
   locationId      String?
   galleries       Gallery[]
   orders          Order[]
+  shopOrders      ShopOrder[] @relation("ShopOrders")
   checkInDate     DateTime?
   checkOutDate    DateTime?
   cartAbandoned   Boolean          @default(false)
@@ -1526,4 +1527,106 @@ model VideoReel {
 
   @@index([galleryId])
   @@index([status])
+}
+
+// ── INTEGRATED SHOP & PRINT FULFILLMENT ──────
+model ShopProduct {
+  id              String   @id @default(cuid())
+  productKey      String   @unique
+  name            String
+  description     String   @default("")
+  category        String   // DIGITAL, PRINT, WALL_ART, PHOTO_BOOK, GIFT, CARD, SOUVENIR
+  subcategory     String?  // "canvas", "metal", "framed", "mug", "puzzle" etc.
+  sizes           String?  @db.Text // JSON: [{"key":"4x6","label":"4×6 inch","width":4,"height":6}]
+  defaultSize     String?
+  options         String?  @db.Text // JSON: [{"key":"lustre","label":"Lustre Paper"}]
+  defaultOption   String?
+  costPrice       Float    @default(0)
+  retailPrice     Float
+  fulfillmentType String   @default("AUTO") // AUTO, MANUAL, DIGITAL
+  labProductId    String?  // Prodigi/WHCC SKU
+  labName         String?  // PRODIGI, WHCC, ZNO, LOCAL
+  mockupUrl       String?
+  isActive        Boolean  @default(true)
+  isFeatured      Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  weight          Float?   // grams
+  shippingClass   String?  // STANDARD, OVERSIZED, FRAGILE
+  turnaround      String?  // "3-5 business days"
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  orderItems      ShopOrderItem[]
+
+  @@index([category])
+  @@index([isActive, isFeatured])
+}
+
+model PrintLabPartner {
+  id            String   @id @default(cuid())
+  name          String
+  type          String   // PRODIGI_API, WHCC_API, ZNO_API, MANUAL, LOCAL
+  apiBaseUrl    String?
+  apiKey        String?
+  isActive      Boolean  @default(true)
+  isDefault     Boolean  @default(false)
+  markupPercent Float    @default(50)
+  shippingRates String?  @db.Text // JSON
+  capabilities  String?  @db.Text // JSON: ["prints","canvas","books","cards"]
+  createdAt     DateTime @default(now())
+}
+
+model ShopOrder {
+  id              String   @id @default(cuid())
+  customerId      String
+  customer        Customer @relation("ShopOrders", fields: [customerId], references: [id])
+  galleryId       String?
+  status          String   @default("PENDING") // PENDING, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED
+  items           ShopOrderItem[]
+  shippingName    String?
+  shippingAddress String?
+  shippingCity    String?
+  shippingCountry String?
+  shippingPostal  String?
+  shippingPhone   String?
+  shippingMethod  String?  // STANDARD, EXPRESS
+  shippingCost    Float    @default(0)
+  subtotal        Float
+  discount        Float    @default(0)
+  couponCode      String?
+  tax             Float    @default(0)
+  total           Float
+  stripeSessionId String?
+  labOrderId      String?
+  labName         String?
+  trackingNumber  String?
+  trackingUrl     String?
+  pixelvoCommission Float @default(0) // 2% sales + 50% shop profit
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+}
+
+model ShopOrderItem {
+  id            String      @id @default(cuid())
+  shopOrderId   String
+  shopOrder     ShopOrder   @relation(fields: [shopOrderId], references: [id])
+  productId     String
+  product       ShopProduct @relation(fields: [productId], references: [id])
+  photoId       String?
+  size          String?
+  option        String?
+  quantity      Int         @default(1)
+  unitPrice     Float
+  totalPrice    Float
+  bookPages     Int?
+  bookCoverType String?
+  bookPhotoIds  String?     @db.Text // JSON array
+  status        String      @default("PENDING")
+  labItemId     String?
+  createdAt     DateTime    @default(now())
+
+  @@index([shopOrderId])
 }

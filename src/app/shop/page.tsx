@@ -1,23 +1,19 @@
 import Link from "next/link";
-import { loadShopProducts, type ShopCategory } from "@/lib/shopProducts";
 import ShopClient from "./ShopClient";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Pixelvo — Shop",
+  title: "Pixelvo Shop — Turn Your Memories Into Treasures",
   description:
-    "Buy your photos, prints, wall art, and digital passes from Pixelvo. Delivered straight to your phone or door.",
+    "Prints, wall art, photo books, gifts and digital downloads. Lab-quality products delivered to your door.",
 };
 
-const CATEGORY_ORDER: ShopCategory[] = ["DIGITAL", "PASSES", "PRINTS", "WALL_ART", "ADD_ONS"];
-
 export default async function ShopPage() {
-  const { byCategory, all } = await loadShopProducts();
-
+  // Products are fetched client-side from /api/shop/catalog for category-tab filtering
   return (
     <div className="min-h-screen bg-cream-100 text-navy-900">
       {/* Top nav */}
-      <nav className="bg-white border-b border-cream-300 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
+      <nav className="bg-white border-b border-cream-300 px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-card">
         <Link href="/portfolio" className="font-display text-2xl text-navy-900 tracking-tight">
           Pixelvo
         </Link>
@@ -35,34 +31,36 @@ export default async function ShopPage() {
       </nav>
 
       {/* Hero */}
-      <header className="bg-gradient-to-br from-brand-700 via-brand-500 to-brand-300 px-6 py-16 text-center">
-        <p className="text-brand-100 uppercase tracking-[0.3em] text-xs font-semibold">
-          The shop
+      <header className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-600 to-coral-500 px-6 py-20 text-center">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-gold-300 via-transparent to-transparent" />
+        <p className="relative text-brand-100 uppercase tracking-[0.3em] text-xs font-semibold">
+          The Pixelvo Shop
         </p>
-        <h1 className="text-white font-display text-4xl md:text-6xl mt-3 max-w-3xl mx-auto leading-tight">
-          Your memories, beautifully made
+        <h1 className="relative text-white font-display text-4xl md:text-6xl mt-3 max-w-3xl mx-auto leading-tight">
+          Turn Your Memories Into&nbsp;Treasures
         </h1>
-        <p className="text-white/85 text-lg mt-4 max-w-2xl mx-auto">
-          From single downloads to printed canvas. {all.length} products, transparent pricing, instant delivery.
+        <p className="relative text-white/80 text-lg mt-4 max-w-2xl mx-auto">
+          From digital downloads to printed canvas. Every product crafted from your holiday photos,
+          delivered straight to your door.
         </p>
+        <div className="relative mt-8 flex flex-wrap items-center justify-center gap-3 text-sm">
+          <span className="bg-white/15 text-white backdrop-blur-sm rounded-full px-4 py-2">
+            🚀 Instant digital delivery
+          </span>
+          <span className="bg-white/15 text-white backdrop-blur-sm rounded-full px-4 py-2">
+            🖼 Lab-quality prints
+          </span>
+          <span className="bg-white/15 text-white backdrop-blur-sm rounded-full px-4 py-2">
+            🎁 Ships worldwide
+          </span>
+        </div>
       </header>
 
-      {all.length === 0 ? (
-        <div className="max-w-2xl mx-auto px-6 py-20 text-center">
-          <p className="text-navy-500">
-            Our shop is being restocked. Please check back soon, or{" "}
-            <Link href="/book" className="text-brand-700 font-semibold hover:underline">
-              book a session
-            </Link>{" "}
-            in the meantime.
-          </p>
-        </div>
-      ) : (
-        <ShopClient byCategory={byCategory} categories={CATEGORY_ORDER} />
-      )}
+      {/* Client-side catalog with category tabs, product grid, cart */}
+      <ShopClient />
 
       {/* Footer */}
-      <footer className="bg-navy-900 text-navy-300 py-10 mt-10">
+      <footer className="bg-navy-900 text-navy-300 py-10 mt-16">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-white font-display text-xl">Pixelvo</div>
           <div className="flex gap-6 text-sm">
