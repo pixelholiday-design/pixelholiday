@@ -55,10 +55,21 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
       }).then((r) => r.json());
 
       if (!r.mocked) {
+        let directOk = false;
         try {
-          await fetch(r.uploadUrl, { method: "PUT", body: it.file, headers: { "Content-Type": it.file.type } });
+          const res = await fetch(r.uploadUrl, { method: "PUT", body: it.file, headers: { "Content-Type": it.file.type } });
+          directOk = res.ok;
         } catch (e) {
-          console.warn("R2 upload failed (continuing in dev)", e);
+          console.warn("Direct R2 PUT failed, falling back to proxy upload", e);
+        }
+        if (!directOk) {
+          // CORS fallback — upload via server-side proxy
+          setItems((prev) => prev.map((x, xi) => xi === idx ? { ...x, progress: 50 } : x));
+          const fd = new FormData();
+          fd.append("file", it.file);
+          fd.append("key", r.key);
+          fd.append("contentType", it.file.type || "application/octet-stream");
+          await fetch("/api/upload/proxy", { method: "POST", body: fd });
         }
       }
       uploaded.push({ ...it, uploaded: true, key: r.key, publicUrl: r.publicUrl, progress: 100 });

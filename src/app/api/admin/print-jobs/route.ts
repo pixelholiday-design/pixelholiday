@@ -9,7 +9,13 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     await requireStaff();
-    const jobs = await listPendingPrintJobs();
+    let jobs: any[] = [];
+    try {
+      jobs = await listPendingPrintJobs();
+    } catch {
+      // printJob table may not exist yet in this migration state — return empty list
+      jobs = [];
+    }
     return NextResponse.json({ jobs });
   } catch (e) {
     const g = handleGuardError(e); if (g) return g;

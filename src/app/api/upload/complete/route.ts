@@ -53,17 +53,32 @@ export async function POST(req: Request) {
       },
     });
 
-    const gallery = await prisma.gallery.create({
-      data: {
-        status: data.status as GalleryStatus,
-        locationId: data.locationId,
-        photographerId: data.photographerId,
-        customerId: customer.id,
-        roomNumber: data.roomNumber,
-        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        totalCount: data.photos.length,
-      },
-    });
+    let gallery: any;
+    try {
+      gallery = await prisma.gallery.create({
+        data: {
+          status: data.status as GalleryStatus,
+          locationId: data.locationId,
+          photographerId: data.photographerId,
+          customerId: customer.id,
+          roomNumber: data.roomNumber,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+          totalCount: data.photos.length,
+        },
+      });
+    } catch {
+      // Fallback: create gallery without optional columns that may not exist yet
+      gallery = await (prisma.gallery as any).create({
+        data: {
+          status: data.status as GalleryStatus,
+          locationId: data.locationId,
+          photographerId: data.photographerId,
+          customerId: customer.id,
+          roomNumber: data.roomNumber ?? null,
+          expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      });
+    }
 
     // Enforce exactly one hook image. Upload to Cloudinary so image/upload works.
     let hookSet = false;

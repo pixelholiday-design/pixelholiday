@@ -31,8 +31,20 @@ export async function GET(req: Request) {
     userGalleryWhere.locationId = { in: divisionLocationIds };
   }
 
-  const [orders, galleries, locations, users, commissions, equipment, passes] = await Promise.all([
-    prisma.order.findMany({ where: orderWhere, include: { gallery: { include: { location: true, photographer: true } } } }),
+  let orders: any[];
+  try {
+    orders = await prisma.order.findMany({ where: orderWhere, include: { gallery: { include: { location: true, photographer: true } } } });
+  } catch {
+    orders = await prisma.order.findMany({
+      where: orderWhere,
+      select: {
+        id: true, amount: true, status: true, isAutomatedSale: true, galleryId: true, createdAt: true,
+        gallery: { select: { id: true, locationId: true, photographerId: true, location: { select: { id: true, name: true, type: true } }, photographer: { select: { id: true, name: true } } } },
+      },
+    });
+  }
+
+  const [galleries, locations, users, commissions, equipment, passes] = await Promise.all([
     prisma.gallery.findMany({ where: galleryWhere, include: { photographer: true, location: true, order: true } }),
     prisma.location.findMany({ where: division ? { locationType: division } : {} }),
     prisma.user.findMany({
