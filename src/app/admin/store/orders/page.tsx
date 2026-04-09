@@ -5,16 +5,30 @@ import RefundButton from "./RefundButton";
 export const dynamic = "force-dynamic";
 
 export default async function StoreOrdersPage() {
-  const orders = await prisma.order.findMany({
-    include: {
-      customer: true,
-      gallery: { include: { location: true } },
-      items: true,
-      fulfillments: { include: { printLab: true } },
-    },
-    orderBy: { id: "desc" },
-    take: 100,
-  });
+  let orders: any[];
+  try {
+    orders = await prisma.order.findMany({
+      include: {
+        customer: true,
+        gallery: { include: { location: true } },
+        items: true,
+        fulfillments: { include: { printLab: true } },
+      },
+      orderBy: { id: "desc" },
+      take: 100,
+    });
+  } catch {
+    // fulfillments / printLab tables may not exist yet — retry without them
+    orders = await prisma.order.findMany({
+      include: {
+        customer: true,
+        gallery: { include: { location: true } },
+        items: true,
+      },
+      orderBy: { id: "desc" },
+      take: 100,
+    });
+  }
 
   const totalRevenue = orders.reduce((s, o) => s + o.amount, 0);
 
@@ -41,7 +55,7 @@ export default async function StoreOrdersPage() {
           <div className="h-9 w-9 rounded-xl bg-gold-500/10 text-gold-600 flex items-center justify-center"><Truck className="h-4 w-4" /></div>
           <div className="label-xs mt-3">Pending fulfillment</div>
           <div className="font-display text-3xl text-navy-900">
-            {orders.flatMap((o) => o.fulfillments).filter((f) => f.status === "PENDING").length}
+            {orders.flatMap((o) => o.fulfillments ?? []).filter((f: any) => f.status === "PENDING").length}
           </div>
         </div>
       </div>
@@ -80,8 +94,8 @@ export default async function StoreOrdersPage() {
                     </span>
                   </td>
                   <td className="px-6 py-3 text-xs text-navy-500">
-                    {o.fulfillments.length > 0
-                      ? `${o.fulfillments[0].status} · ${o.fulfillments[0].printLab.name}`
+                    {(o.fulfillments ?? []).length > 0
+                      ? `${o.fulfillments[0].status} · ${o.fulfillments[0].printLab?.name ?? ""}`
                       : "—"}
                   </td>
                   <td className="px-6 py-3 text-right">

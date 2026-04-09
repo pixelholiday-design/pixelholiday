@@ -13,7 +13,7 @@ export async function GET(req: Request) {
 
     const commissions = await prisma.commission.findMany({
       where: { month },
-      include: { user: true, order: true },
+      include: { user: true, order: { select: { id: true, amount: true, status: true, galleryId: true, createdAt: true } } },
     });
 
     type Row = {

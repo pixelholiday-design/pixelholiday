@@ -1,10 +1,14 @@
 "use client";
-import { useEffect, useMemo, useState } from "react";
-import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag, Wifi } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag, Wifi, Database } from "lucide-react";
 import { cleanUrl, photoRef } from "@/lib/cloudinary";
 import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
 import QRScanner from "@/components/mobile/QRScanner";
+import {
+  cacheGalleryPhotos,
+  getCachedPhotoUrl,
+} from "@/lib/kiosk-photo-cache";
 
 type Photo = { id: string; cloudinaryId: string | null; s3Key_highRes: string };
 type Gallery = { id: string; magicLinkToken: string; photos: Photo[] };
@@ -23,6 +27,47 @@ export default function GalleryKiosk() {
   const [orderMsg, setOrderMsg] = useState<string | null>(null);
   const [wristbandInput, setWristbandInput] = useState("");
   const [showQrScanner, setShowQrScanner] = useState(false);
+
+  // Photo cache state
+  const [cachedUrls, setCachedUrls] = useState<Record<string, string>>({});
+  const [cacheProgress, setCacheProgress] = useState<{ done: number; total: number } | null>(null);
+  const cacheAbortRef = useRef(false);
+
+  // Pre-cache gallery photos into IndexedDB when a gallery is loaded
+  useEffect(() => {
+    if (!active) return;
+    cacheAbortRef.current = false;
+
+    const autoCache = loadKioskSettings()?.autoCache !== false; // default on
+    if (!autoCache) return;
+
+    const photos = active.photos.map((p) => ({
+      id: p.id,
+      url: cleanUrl(photoRef(p), 1200),
+    }));
+
+    setCacheProgress({ done: 0, total: photos.length });
+
+    cacheGalleryPhotos(active.id, photos, (done, total) => {
+      if (!cacheAbortRef.current) setCacheProgress({ done, total });
+    }).then(async () => {
+      if (cacheAbortRef.current) return;
+      // Load object URLs for cached photos so they display instantly
+      const urls: Record<string, string> = {};
+      await Promise.all(
+        active.photos.map(async (p) => {
+          const blobUrl = await getCachedPhotoUrl(p.id);
+          if (blobUrl) urls[p.id] = blobUrl;
+        })
+      );
+      if (!cacheAbortRef.current) setCachedUrls(urls);
+    });
+
+    return () => {
+      cacheAbortRef.current = true;
+      setCacheProgress(null);
+    };
+  }, [active]);
 
   // 5min cart timeout
   useEffect(() => {
@@ -48,6 +93,8 @@ export default function GalleryKiosk() {
     setQrText(null);
     setErr(null);
     setOrderMsg(null);
+    setCachedUrls({});
+    setCacheProgress(null);
   }
 
   async function identify(method: "WRISTBAND" | "SELFIE" | "ROOM" | "NFC", value?: string) {
@@ -220,6 +267,8 @@ export default function GalleryKiosk() {
   // ── STEP browse ──
   if ((step === "browse" || step === "preview") && active) {
     const previewPhoto = previewId ? active.photos.find((p) => p.id === previewId) : null;
+    const cachedCount = Object.keys(cachedUrls).length;
+    const totalCount = active.photos.length;
     return (
       <div className="fixed inset-0 bg-navy-900 text-white flex flex-col">
         <header className="p-6 flex items-center justify-between border-b border-white/5">
@@ -227,14 +276,30 @@ export default function GalleryKiosk() {
             <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold mb-1">Browse</div>
             <h1 className="font-display text-2xl">Tap to preview · long-press to add</h1>
           </div>
-          <button onClick={reset} className="btn-ghost text-white/70">
-            <X className="h-4 w-4" /> Cancel
-          </button>
+          <div className="flex items-center gap-4">
+            {/* Cache status indicator */}
+            {cacheProgress && cacheProgress.done < cacheProgress.total ? (
+              <div className="inline-flex items-center gap-2 text-xs text-white/50">
+                <Database className="h-3 w-3 animate-pulse" />
+                Caching {cacheProgress.done}/{cacheProgress.total}
+              </div>
+            ) : cachedCount > 0 ? (
+              <div className="inline-flex items-center gap-1.5 text-xs text-green-400">
+                <Database className="h-3 w-3" />
+                {cachedCount}/{totalCount} cached
+              </div>
+            ) : null}
+            <button onClick={reset} className="btn-ghost text-white/70">
+              <X className="h-4 w-4" /> Cancel
+            </button>
+          </div>
         </header>
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {active.photos.map((p) => {
               const sel = selected.has(p.id);
+              const isCached = !!cachedUrls[p.id];
+              const imgSrc = cachedUrls[p.id] || cleanUrl(photoRef(p), 1200);
               return (
                 <div key={p.id} className="relative">
                   <button
@@ -245,7 +310,12 @@ export default function GalleryKiosk() {
                     }`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={cleanUrl(photoRef(p), 1200)} alt="" className="w-full h-full object-cover" />
+                    <img src={imgSrc} alt="" className="w-full h-full object-cover" />
+                    {isCached && (
+                      <span className="absolute bottom-2 left-2 bg-black/60 text-green-400 text-[10px] font-semibold px-1.5 py-0.5 rounded-full inline-flex items-center gap-1">
+                        <Database className="h-2.5 w-2.5" /> Cached
+                      </span>
+                    )}
                   </button>
                   <button
                     onClick={() => toggle(p.id)}
@@ -265,7 +335,7 @@ export default function GalleryKiosk() {
           <div className="fixed inset-0 bg-black/95 z-30 flex flex-col" onClick={() => setPreviewId(null)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src={cleanUrl(photoRef(previewPhoto), 2400)}
+              src={cachedUrls[previewPhoto.id] || cleanUrl(photoRef(previewPhoto), 2400)}
               alt=""
               className="flex-1 object-contain w-full"
             />

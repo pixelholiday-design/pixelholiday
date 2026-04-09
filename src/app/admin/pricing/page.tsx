@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Save, History, Tag, Loader2, Star, EyeOff } from "lucide-react";
+import { Save, History, Tag, Loader2, Star, EyeOff, MapPin } from "lucide-react";
 
 type Price = {
   id: string;
@@ -13,22 +13,34 @@ type Price = {
   displayOrder?: number;
 };
 type Hist = { id: string; productKey: string; oldPrice: number; newPrice: number; changedBy: string | null; createdAt: string };
+type Location = { id: string; name: string };
 
 export default function PricingPage() {
   const [prices, setPrices] = useState<Price[]>([]);
   const [history, setHistory] = useState<Hist[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
-  async function load() {
+  async function load(locationId?: string) {
     setLoading(true);
-    const r = await fetch("/api/admin/pricing").then((r) => r.json());
+    const qs = locationId ? `?locationId=${locationId}` : "";
+    const r = await fetch(`/api/admin/pricing${qs}`).then((r) => r.json());
     setPrices(r.prices || []);
     setHistory(r.history || []);
+    if (r.locations) setLocations(r.locations);
     setLoading(false);
   }
+
   useEffect(() => { load(); }, []);
+
+  function handleLocationChange(locId: string) {
+    setSelectedLocationId(locId);
+    setDrafts({});
+    load(locId || undefined);
+  }
 
   async function save(productKey: string) {
     const v = parseFloat(drafts[productKey]);
@@ -37,11 +49,15 @@ export default function PricingPage() {
     await fetch("/api/admin/pricing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productKey, price: v }),
+      body: JSON.stringify({
+        productKey,
+        price: v,
+        ...(selectedLocationId ? { locationId: selectedLocationId } : {}),
+      }),
     });
     setSaving(null);
     setDrafts((d) => { const n = { ...d }; delete n[productKey]; return n; });
-    load();
+    load(selectedLocationId || undefined);
   }
 
   async function toggleFlag(productKey: string, flag: "isAnchor" | "isHidden", value: boolean) {
@@ -49,11 +65,17 @@ export default function PricingPage() {
     await fetch("/api/admin/pricing", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productKey, [flag]: value }),
+      body: JSON.stringify({
+        productKey,
+        [flag]: value,
+        ...(selectedLocationId ? { locationId: selectedLocationId } : {}),
+      }),
     });
     setSaving(null);
-    load();
+    load(selectedLocationId || undefined);
   }
+
+  const selectedLocationName = locations.find((l) => l.id === selectedLocationId)?.name;
 
   return (
     <div className="space-y-8">
@@ -63,10 +85,36 @@ export default function PricingPage() {
         <p className="text-navy-400 mt-1">All checkout flows read from these values. Changes apply immediately.</p>
       </header>
 
+      {/* Location selector */}
+      <div className="card px-6 py-4 flex items-center gap-4">
+        <MapPin className="h-4 w-4 text-coral-500 shrink-0" />
+        <label className="text-sm font-medium text-navy-700 shrink-0">Destination:</label>
+        <select
+          className="input max-w-xs"
+          value={selectedLocationId}
+          onChange={(e) => handleLocationChange(e.target.value)}
+        >
+          <option value="">All / Default (global prices)</option>
+          {locations.map((loc) => (
+            <option key={loc.id} value={loc.id}>{loc.name}</option>
+          ))}
+        </select>
+        {selectedLocationId && (
+          <span className="text-xs text-navy-400 ml-2">
+            Showing prices for <strong className="text-navy-700">{selectedLocationName}</strong>. Changes here override global defaults for this destination only.
+          </span>
+        )}
+      </div>
+
       <div className="card overflow-hidden">
         <div className="px-6 py-4 border-b border-cream-300/70 flex items-center gap-2">
           <Tag className="h-4 w-4 text-coral-500" />
-          <h2 className="heading text-lg">Catalogue</h2>
+          <h2 className="heading text-lg">
+            Catalogue
+            {selectedLocationId && (
+              <span className="ml-2 text-sm font-normal text-navy-400">— {selectedLocationName}</span>
+            )}
+          </h2>
         </div>
         {loading ? (
           <div className="p-12 text-center text-navy-400 flex items-center justify-center gap-2">

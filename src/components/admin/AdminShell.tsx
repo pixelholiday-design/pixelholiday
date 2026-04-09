@@ -38,6 +38,7 @@ import {
   Ticket,
   MessageSquare,
   CreditCard,
+  Shield,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -76,6 +77,7 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/b2b", label: "B2B Barter", icon: Handshake },
       { href: "/admin/franchise", label: "Franchise", icon: Building2 },
       { href: "/admin/ai-insights", label: "AI Insights", icon: Brain },
+      { href: "/admin/fraud-alerts", label: "Fraud Alerts", icon: Shield },
       { href: "/admin/hr/jobs", label: "HR / Jobs", icon: Briefcase },
       { href: "/admin/subscription", label: "Subscription", icon: CreditCard },
     ],
@@ -116,7 +118,7 @@ const ROLE_ALLOWED: Record<string, string[]> = {
     "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
     "/admin/chat","/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
-    "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/hr/jobs",
+    "/admin/b2b","/admin/franchise","/admin/ai-insights","/admin/fraud-alerts","/admin/hr/jobs",
     "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
     "/admin/subscription",
@@ -126,7 +128,7 @@ const ROLE_ALLOWED: Record<string, string[]> = {
     "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
     "/admin/chat","/admin/staff","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
-    "/admin/b2b","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
+    "/admin/b2b","/admin/fraud-alerts","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
     "/admin/subscription",
   ],

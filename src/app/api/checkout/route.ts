@@ -2,6 +2,20 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { stripe, PRICES } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
+import { getPrice } from "@/lib/pricing";
+
+// Map from OrderItemType enum to PricingConfig productKey
+const ITEM_TYPE_TO_KEY: Record<string, string> = {
+  SINGLE_PHOTO: "single_photo",
+  PARTIAL_GALLERY: "ten_pack",
+  FULL_GALLERY: "full_gallery",
+  PRINTED_ALBUM: "canvas_30x40",
+  VIDEO_CLIP: "video_reel",
+  AUTO_REEL: "video_reel",
+  MAGIC_SHOT: "magic_shot",
+  DIGITAL_PASS: "pass_unlimited",
+  SOCIAL_MEDIA_PACKAGE: "ten_pack",
+};
 
 const schema = z.object({
   token: z.string().min(1),
@@ -50,14 +64,31 @@ export async function POST(req: Request) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   const cart = items && items.length ? items : [{ type: "FULL_GALLERY" as const, quantity: 1 }];
 
-  const lineItems = cart.map((it) => ({
-    price_data: {
-      currency: "eur",
-      product_data: { name: it.type.replace(/_/g, " ") },
-      unit_amount: PRICES[it.type as keyof typeof PRICES],
-    },
-    quantity: it.quantity || 1,
-  }));
+  // Resolve prices: location-specific first, then global, then hardcoded fallback
+  const locationId = gallery.locationId || null;
+  const lineItems = await Promise.all(
+    cart.map(async (it) => {
+      const productKey = ITEM_TYPE_TO_KEY[it.type];
+      let unitAmountEur: number;
+      if (productKey) {
+        try {
+          unitAmountEur = await getPrice(productKey, locationId);
+        } catch {
+          unitAmountEur = (PRICES[it.type as keyof typeof PRICES] ?? 4900) / 100;
+        }
+      } else {
+        unitAmountEur = (PRICES[it.type as keyof typeof PRICES] ?? 4900) / 100;
+      }
+      return {
+        price_data: {
+          currency: "eur",
+          product_data: { name: it.type.replace(/_/g, " ") },
+          unit_amount: Math.round(unitAmountEur * 100),
+        },
+        quantity: it.quantity || 1,
+      };
+    })
+  );
 
   // Resolve discount: gallery.discountPercent (sleeping money) takes priority,
   // then a manually supplied couponCode (promotion code lookup).

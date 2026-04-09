@@ -11,9 +11,13 @@ const DEFAULT_CAMPAIGNS = [
 ];
 
 async function ensureDefaultCampaigns() {
-  const existing = await prisma.campaign.count();
-  if (existing === 0) {
-    for (const c of DEFAULT_CAMPAIGNS) await prisma.campaign.create({ data: c });
+  try {
+    const existing = await prisma.campaign.count();
+    if (existing === 0) {
+      for (const c of DEFAULT_CAMPAIGNS) await prisma.campaign.create({ data: c });
+    }
+  } catch {
+    // Campaign table doesn't exist yet — will be created on next db push
   }
 }
 
@@ -26,10 +30,10 @@ export async function GET() {
     monthStart.setDate(1);
     monthStart.setHours(0, 0, 0, 0);
 
-    const [allAuto, monthAuto, campaigns, recentAuto, abandonedCount] = await Promise.all([
+    // Queries against tables that are guaranteed to exist (Order, Customer)
+    const [allAuto, monthAuto, recentAuto, abandonedCount] = await Promise.all([
       prisma.order.aggregate({ _sum: { amount: true }, _count: true, where: { isAutomatedSale: true } }),
       prisma.order.aggregate({ _sum: { amount: true }, where: { isAutomatedSale: true, createdAt: { gte: monthStart } } }),
-      prisma.campaign.findMany({ orderBy: { createdAt: "asc" } }),
       prisma.order.findMany({
         where: { isAutomatedSale: true },
         include: { customer: true, gallery: true },
@@ -39,6 +43,14 @@ export async function GET() {
       prisma.customer.count({ where: { cartAbandoned: true } }),
     ]);
 
+    // Campaign table may not exist yet — fetch gracefully
+    let campaigns: any[] = [];
+    try {
+      campaigns = await (prisma as any).campaign.findMany({ orderBy: { createdAt: "asc" } });
+    } catch {
+      // Campaign table doesn't exist yet — will be created on next db push
+    }
+
     // Conversion rate = automated sales / total abandoned-cart customers (customers who were targeted).
     const conversionRate =
       abandonedCount > 0 ? Math.min(1, allAuto._count / abandonedCount) : 0;
@@ -47,7 +59,7 @@ export async function GET() {
         totalRevenue: allAuto._sum.amount || 0,
         salesCount: allAuto._count,
         revenueThisMonth: monthAuto._sum.amount || 0,
-        activeCampaigns: campaigns.filter((c) => c.enabled).length,
+        activeCampaigns: campaigns.filter((c: any) => c.enabled).length,
         pendingFollowups: abandonedCount,
         conversionRate,
       },
@@ -83,7 +95,12 @@ export async function POST(req: Request) {
     const parsed = updateSchema.safeParse(body);
     if (!parsed.success) return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     const { id, ...rest } = parsed.data;
-    const updated = await prisma.campaign.update({ where: { id }, data: rest });
+    let updated: any;
+    try {
+      updated = await (prisma as any).campaign.update({ where: { id }, data: rest });
+    } catch {
+      return NextResponse.json({ error: "Campaign table not available yet" }, { status: 503 });
+    }
     return NextResponse.json({ ok: true, campaign: updated });
   } catch (e) {
     const g = handleGuardError(e); if (g) return g;

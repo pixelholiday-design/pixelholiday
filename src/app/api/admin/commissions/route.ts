@@ -6,7 +6,7 @@ export async function GET(req: NextRequest) {
   const month = searchParams.get("month") || new Date().toISOString().slice(0, 7);
   const commissions = await prisma.commission.findMany({
     where: { month },
-    include: { user: true, order: true },
+    include: { user: true, order: { select: { id: true, amount: true, status: true, galleryId: true, createdAt: true } } },
   });
   const summary = commissions.reduce((acc: Record<string, any>, c) => {
     const key = c.userId;

@@ -1,6 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Save, Loader2, Wifi, Cloud, Settings as Cog, Check } from "lucide-react";
+import { Save, Loader2, Wifi, Cloud, Settings as Cog, Check, Network, Database, Trash2, RefreshCw } from "lucide-react";
+import { getCacheStats, clearAllCache, cacheGalleryPhotos } from "@/lib/kiosk-photo-cache";
+
+type ConnectionType = "LAN" | "WIFI" | "BOTH";
+type NetworkPriority = "LAN" | "WIFI";
+
+type NetworkConfig = {
+  connectionType: ConnectionType;
+  lanIp: string;
+  wifiSsid: string;
+  wifiPassword: string;
+  priority: NetworkPriority;
+};
 
 type Settings = {
   name: string;
@@ -8,6 +20,8 @@ type Settings = {
   locationId: string;
   networkMode: "ONLINE" | "LOCAL";
   serverIp: string;
+  network: NetworkConfig;
+  autoCache: boolean;
 };
 
 const KEY = "ph-kiosk-settings";
@@ -21,6 +35,8 @@ function loadFromStorage(): Settings | null {
   }
 }
 
+type TestResult = { lan: "ok" | "err" | null; wifi: "ok" | "err" | null; cloud: "ok" | "err" | null };
+
 export default function KioskSetupPage() {
   const [settings, setSettings] = useState<Settings>({
     name: "",
@@ -28,6 +44,14 @@ export default function KioskSetupPage() {
     locationId: "",
     networkMode: "ONLINE",
     serverIp: "",
+    network: {
+      connectionType: "BOTH",
+      lanIp: "",
+      wifiSsid: "",
+      wifiPassword: "",
+      priority: "LAN",
+    },
+    autoCache: true,
   });
   const [locations, setLocations] = useState<{ id: string; name: string }[]>([]);
   const [saved, setSaved] = useState(false);
@@ -37,10 +61,30 @@ export default function KioskSetupPage() {
   const [unlocked, setUnlocked] = useState(false);
   const [autoIp, setAutoIp] = useState<string | null>(null);
 
+  // Network test state
+  const [testBusy, setTestBusy] = useState(false);
+  const [testResult, setTestResult] = useState<TestResult>({ lan: null, wifi: null, cloud: null });
+
+  // Cache stats state
+  const [cacheStats, setCacheStats] = useState<{ count: number; sizeBytes: number } | null>(null);
+  const [cacheBusy, setCacheBusy] = useState(false);
+
   useEffect(() => {
     const existing = loadFromStorage();
-    if (existing) setSettings(existing);
+    if (existing) {
+      setSettings((prev) => ({
+        ...prev,
+        ...existing,
+        network: { ...prev.network, ...(existing as any).network },
+        autoCache: (existing as any).autoCache !== undefined ? (existing as any).autoCache : true,
+      }));
+    }
   }, []);
+
+  useEffect(() => {
+    if (!unlocked) return;
+    getCacheStats().then(setCacheStats).catch(() => {});
+  }, [unlocked]);
 
   useEffect(() => {
     if (!unlocked) return;
@@ -58,6 +102,76 @@ export default function KioskSetupPage() {
     }
     // eslint-disable-next-line
   }, [unlocked]);
+
+  function setNet<K extends keyof NetworkConfig>(key: K, value: NetworkConfig[K]) {
+    setSettings((s) => ({ ...s, network: { ...s.network, [key]: value } }));
+  }
+
+  async function testConnections() {
+    setTestBusy(true);
+    setTestResult({ lan: null, wifi: null, cloud: null });
+
+    async function ping(url: string) {
+      try {
+        const r = await fetch(url, { cache: "no-store", signal: AbortSignal.timeout(3000) });
+        return r.ok ? "ok" : "err";
+      } catch {
+        return "err";
+      }
+    }
+
+    const net = settings.network;
+    const lanIp = net.lanIp.trim();
+    const serverIp = settings.serverIp.trim() || lanIp;
+
+    const [lan, wifi, cloud] = await Promise.all([
+      net.connectionType !== "WIFI" && lanIp
+        ? ping(`http://${lanIp}:3000/api/local/status`)
+        : Promise.resolve<"ok" | "err" | null>(null),
+      net.connectionType !== "LAN" && serverIp
+        ? ping(`http://${serverIp}:3000/api/local/status`)
+        : Promise.resolve<"ok" | "err" | null>(null),
+      ping("/api/local/status"),
+    ]);
+
+    setTestResult({ lan: lan as any, wifi: wifi as any, cloud: cloud as any });
+    setTestBusy(false);
+  }
+
+  async function handleClearCache() {
+    setCacheBusy(true);
+    await clearAllCache();
+    const stats = await getCacheStats();
+    setCacheStats(stats);
+    setCacheBusy(false);
+  }
+
+  async function handlePreCacheAll() {
+    setCacheBusy(true);
+    // Fetch gallery list from local or cloud API
+    const base = settings.networkMode === "LOCAL" && settings.serverIp
+      ? `http://${settings.serverIp}:3000`
+      : "";
+    try {
+      const r = await fetch(`${base}/api/kiosk/galleries?locationId=${settings.locationId}`);
+      const data = await r.json();
+      const galleries: { id: string; photos: { id: string; cloudinaryId: string | null; s3Key_highRes: string }[] }[] = data.galleries ?? [];
+      for (const g of galleries) {
+        const photos = g.photos.map((p) => ({
+          id: p.id,
+          url: p.cloudinaryId
+            ? `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "demo"}/image/upload/${p.cloudinaryId}`
+            : p.s3Key_highRes,
+        }));
+        await cacheGalleryPhotos(g.id, photos);
+      }
+    } catch {
+      // Non-fatal
+    }
+    const stats = await getCacheStats();
+    setCacheStats(stats);
+    setCacheBusy(false);
+  }
 
   async function unlock() {
     const r = await fetch("/api/kiosk/verify-pin", {
@@ -232,6 +346,195 @@ export default function KioskSetupPage() {
             </div>
           )}
 
+        </div>
+
+        {/* ── NETWORK SECTION ── */}
+        <div className="card !bg-white/5 !border-white/10 p-6 space-y-4 text-white">
+          <div className="flex items-center gap-2 mb-2">
+            <Network className="h-5 w-5 text-coral-400" />
+            <h2 className="font-display text-xl">Network</h2>
+          </div>
+
+          <div>
+            <div className="label-xs text-white/60 mb-1.5">Connection type</div>
+            <div className="grid grid-cols-3 gap-3">
+              {(["LAN", "WIFI", "BOTH"] as ConnectionType[]).map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setNet("connectionType", t)}
+                  className={`rounded-xl border p-3 text-sm font-semibold ${
+                    settings.network.connectionType === t
+                      ? "border-coral-500 bg-coral-500/10 text-white"
+                      : "border-white/10 bg-white/5 text-white/60"
+                  }`}
+                >
+                  {t === "LAN" ? "LAN (Ethernet)" : t === "WIFI" ? "WiFi only" : "Both (redundant)"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {settings.network.connectionType !== "WIFI" && (
+            <label className="block">
+              <div className="label-xs text-white/60 mb-1.5">LAN IP address</div>
+              <input
+                className="input !text-navy-900"
+                value={settings.network.lanIp}
+                onChange={(e) => setNet("lanIp", e.target.value)}
+                placeholder="192.168.1.100"
+              />
+            </label>
+          )}
+
+          {settings.network.connectionType !== "LAN" && (
+            <>
+              <label className="block">
+                <div className="label-xs text-white/60 mb-1.5">WiFi SSID</div>
+                <input
+                  className="input !text-navy-900"
+                  value={settings.network.wifiSsid}
+                  onChange={(e) => setNet("wifiSsid", e.target.value)}
+                  placeholder="PixelHoliday-5G"
+                />
+              </label>
+              <label className="block">
+                <div className="label-xs text-white/60 mb-1.5">WiFi password</div>
+                <input
+                  type="password"
+                  className="input !text-navy-900"
+                  value={settings.network.wifiPassword}
+                  onChange={(e) => setNet("wifiPassword", e.target.value)}
+                  placeholder="••••••••"
+                />
+              </label>
+            </>
+          )}
+
+          {settings.network.connectionType === "BOTH" && (
+            <div>
+              <div className="label-xs text-white/60 mb-1.5">Failover priority</div>
+              <div className="grid grid-cols-2 gap-3">
+                {(["LAN", "WIFI"] as NetworkPriority[]).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setNet("priority", p)}
+                    className={`rounded-xl border p-3 text-sm font-semibold ${
+                      settings.network.priority === p
+                        ? "border-coral-500 bg-coral-500/10 text-white"
+                        : "border-white/10 bg-white/5 text-white/60"
+                    }`}
+                  >
+                    Prefer {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Test Connection */}
+          <button
+            type="button"
+            className="btn-secondary w-full"
+            disabled={testBusy}
+            onClick={testConnections}
+          >
+            {testBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wifi className="h-4 w-4" />}
+            Test connections
+          </button>
+
+          {(testResult.lan !== null || testResult.wifi !== null || testResult.cloud !== null) && (
+            <div className="rounded-xl bg-white/5 border border-white/10 p-4 grid grid-cols-3 gap-3 text-center text-xs">
+              {settings.network.connectionType !== "WIFI" && (
+                <div>
+                  <div className="text-white/60 mb-1">LAN</div>
+                  <span className={testResult.lan === "ok" ? "text-green-400 font-bold" : "text-red-400 font-bold"}>
+                    {testResult.lan === "ok" ? "✓ OK" : testResult.lan === "err" ? "✗ Fail" : "—"}
+                  </span>
+                </div>
+              )}
+              {settings.network.connectionType !== "LAN" && (
+                <div>
+                  <div className="text-white/60 mb-1">WiFi</div>
+                  <span className={testResult.wifi === "ok" ? "text-green-400 font-bold" : "text-red-400 font-bold"}>
+                    {testResult.wifi === "ok" ? "✓ OK" : testResult.wifi === "err" ? "✗ Fail" : "—"}
+                  </span>
+                </div>
+              )}
+              <div>
+                <div className="text-white/60 mb-1">Cloud</div>
+                <span className={testResult.cloud === "ok" ? "text-green-400 font-bold" : "text-red-400 font-bold"}>
+                  {testResult.cloud === "ok" ? "✓ OK" : testResult.cloud === "err" ? "✗ Fail" : "—"}
+                </span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── PHOTO CACHE SECTION ── */}
+        <div className="card !bg-white/5 !border-white/10 p-6 space-y-4 text-white">
+          <div className="flex items-center gap-2 mb-2">
+            <Database className="h-5 w-5 text-coral-400" />
+            <h2 className="font-display text-xl">Photo Cache</h2>
+          </div>
+
+          {/* Stats */}
+          <div className="rounded-xl bg-white/5 border border-white/10 p-4 grid grid-cols-2 gap-4 text-center text-sm">
+            <div>
+              <div className="text-white/50 text-xs mb-0.5">Photos cached</div>
+              <div className="font-display text-2xl text-white">{cacheStats?.count ?? "—"}</div>
+            </div>
+            <div>
+              <div className="text-white/50 text-xs mb-0.5">Storage used</div>
+              <div className="font-display text-2xl text-white">
+                {cacheStats ? `${(cacheStats.sizeBytes / 1024 / 1024).toFixed(1)} MB` : "—"}
+              </div>
+            </div>
+          </div>
+
+          {/* Auto-cache toggle */}
+          <label className="flex items-center justify-between cursor-pointer">
+            <div>
+              <div className="font-semibold text-sm">Auto-cache new galleries</div>
+              <div className="text-white/50 text-xs">Automatically cache photos when a gallery is loaded at the kiosk</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSettings((s) => ({ ...s, autoCache: !s.autoCache }))}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                settings.autoCache ? "bg-coral-500" : "bg-white/20"
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+                  settings.autoCache ? "translate-x-6" : "translate-x-1"
+                }`}
+              />
+            </button>
+          </label>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={cacheBusy}
+              onClick={handlePreCacheAll}
+            >
+              {cacheBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              Pre-cache all galleries
+            </button>
+            <button
+              type="button"
+              className="btn-secondary !border-red-500/30 !text-red-400 hover:!bg-red-500/10"
+              disabled={cacheBusy}
+              onClick={handleClearCache}
+            >
+              {cacheBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+              Clear cache
+            </button>
+          </div>
+        </div>
+
+        <div className="card !bg-white/5 !border-white/10 p-6 space-y-4 text-white">
           <button onClick={save} disabled={busy} className="btn-primary w-full !py-3">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
             {saved ? "Saved!" : "Save settings"}
