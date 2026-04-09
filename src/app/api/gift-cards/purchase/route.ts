@@ -41,7 +41,7 @@ export async function POST(req: Request) {
           price_data: {
             currency: currency.toLowerCase(),
             product_data: {
-              name: `Pixelvo Gift Card — ${currency.toUpperCase()} ${amount}`,
+              name: `Fotiqo Gift Card — ${currency.toUpperCase()} ${amount}`,
               description: `Gift card code: ${giftCardCode}`,
             },
             unit_amount: Math.round(amount * 100),

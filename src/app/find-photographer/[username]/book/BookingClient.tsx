@@ -148,7 +148,7 @@ function StepIndicator({ current }: { current: number }) {
                 isCompleted
                   ? "bg-green-500 text-white"
                   : isActive
-                    ? "bg-[#E8593C] text-white"
+                    ? "bg-[#F97316] text-white"
                     : "bg-slate-200 text-slate-500"
               }`}
             >
@@ -158,7 +158,7 @@ function StepIndicator({ current }: { current: number }) {
             <span
               className={`mt-2 text-xs font-medium hidden sm:block ${
                 isActive
-                  ? "text-[#E8593C]"
+                  ? "text-[#F97316]"
                   : isCompleted
                     ? "text-green-600"
                     : "text-slate-400"
@@ -343,15 +343,15 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
         "flex items-center justify-center h-10 w-10 mx-auto rounded-full text-sm font-medium transition-colors ";
 
       if (isSelected) {
-        classes += "bg-[#E8593C] text-white";
+        classes += "bg-[#F97316] text-white";
       } else if (isAvailable && !isPast) {
-        classes += "bg-sky-50 text-[#0C1829] hover:bg-sky-100 cursor-pointer";
+        classes += "bg-sky-50 text-[#0C2E3D] hover:bg-sky-100 cursor-pointer";
       } else {
         classes += "text-slate-300 cursor-default";
       }
 
       if (isToday && !isSelected) {
-        classes += " ring-2 ring-[#29ABE2]";
+        classes += " ring-2 ring-[#0EA5A5]";
       }
 
       cells.push(
@@ -388,7 +388,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h3 className="text-lg font-semibold text-[#0C1829]">{monthLabel}</h3>
+          <h3 className="text-lg font-semibold text-[#0C2E3D]">{monthLabel}</h3>
           <button
             onClick={() => {
               const next = month === 11 ? { year: year + 1, month: 0 } : { year, month: month + 1 };
@@ -422,7 +422,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
   function renderStep1() {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-[#0C1829] mb-2">Select a Service</h2>
+        <h2 className="text-2xl font-bold text-[#0C2E3D] mb-2">Select a Service</h2>
         <p className="text-slate-500 mb-6">Choose the type of session you'd like to book.</p>
 
         <div className="space-y-3">
@@ -434,16 +434,16 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
                 onClick={() => setSelectedServiceId(svc.id)}
                 className={`w-full text-left p-4 md:p-5 rounded-xl border-2 transition-all ${
                   isSelected
-                    ? "border-[#E8593C] bg-red-50/40"
+                    ? "border-[#F97316] bg-red-50/40"
                     : "border-slate-200 bg-white hover:border-slate-300"
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-semibold text-[#0C1829]">{svc.name}</h3>
+                      <h3 className="font-semibold text-[#0C2E3D]">{svc.name}</h3>
                       {isSelected && (
-                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#E8593C] flex items-center justify-center">
+                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-[#F97316] flex items-center justify-center">
                           <Check className="w-3 h-3 text-white" />
                         </div>
                       )}
@@ -463,7 +463,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
                   {svc.startingAt != null && (
                     <div className="text-right ml-4 flex-shrink-0">
                       <p className="text-xs text-slate-400">Starting at</p>
-                      <p className="text-lg font-bold text-[#0C1829]">
+                      <p className="text-lg font-bold text-[#0C2E3D]">
                         {formatCurrency(svc.startingAt, svc.currency)}
                       </p>
                     </div>
@@ -487,7 +487,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
   function renderStep2() {
     return (
       <div>
-        <h2 className="text-2xl font-bold text-[#0C1829] mb-2">Pick a Date & Time</h2>
+        <h2 className="text-2xl font-bold text-[#0C2E3D] mb-2">Pick a Date & Time</h2>
         <p className="text-slate-500 mb-6">Available dates are highlighted below.</p>
 
         {renderCalendar()}
@@ -495,7 +495,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
         {/* Time slots */}
         {selectedDate && (
           <div className="mt-6">
-            <h3 className="font-semibold text-[#0C1829] mb-3">
+            <h3 className="font-semibold text-[#0C2E3D] mb-3">
               Available times for {formatDate(selectedDate)}
             </h3>
             {timeSlotsForDate.length > 0 ? (
@@ -508,8 +508,8 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
                       onClick={() => setSelectedTime(t)}
                       className={`px-3 py-2.5 rounded-lg text-sm font-medium border transition-colors ${
                         isSelected
-                          ? "bg-[#E8593C] text-white border-[#E8593C]"
-                          : "bg-white text-[#0C1829] border-slate-200 hover:border-[#29ABE2]"
+                          ? "bg-[#F97316] text-white border-[#F97316]"
+                          : "bg-white text-[#0C2E3D] border-slate-200 hover:border-[#0EA5A5]"
                       }`}
                     >
                       {formatTime(t)}
@@ -532,19 +532,19 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
     }
 
     const inputClass =
-      "w-full border border-slate-300 rounded-lg px-4 py-3 text-[#0C1829] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#29ABE2] focus:border-transparent transition-colors";
+      "w-full border border-slate-300 rounded-lg px-4 py-3 text-[#0C2E3D] placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#0EA5A5] focus:border-transparent transition-colors";
 
     return (
       <div>
-        <h2 className="text-2xl font-bold text-[#0C1829] mb-2">Your Details</h2>
+        <h2 className="text-2xl font-bold text-[#0C2E3D] mb-2">Your Details</h2>
         <p className="text-slate-500 mb-6">Tell us a bit about yourself and your session.</p>
 
         <div className="space-y-4">
           {/* Full Name */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#0C1829] mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-[#0C2E3D] mb-1.5">
               <User className="w-4 h-4 text-slate-400" />
-              Full Name <span className="text-[#E8593C]">*</span>
+              Full Name <span className="text-[#F97316]">*</span>
             </label>
             <input
               type="text"
@@ -557,9 +557,9 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
 
           {/* Email */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#0C1829] mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-[#0C2E3D] mb-1.5">
               <Mail className="w-4 h-4 text-slate-400" />
-              Email <span className="text-[#E8593C]">*</span>
+              Email <span className="text-[#F97316]">*</span>
             </label>
             <input
               type="email"
@@ -572,7 +572,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
 
           {/* Phone */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#0C1829] mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-[#0C2E3D] mb-1.5">
               <Phone className="w-4 h-4 text-slate-400" />
               Phone Number
             </label>
@@ -587,7 +587,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
 
           {/* Location */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#0C1829] mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-[#0C2E3D] mb-1.5">
               <MapPin className="w-4 h-4 text-slate-400" />
               Session Location / Address
             </label>
@@ -603,7 +603,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
           {/* Occasion + Group Size row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-[#0C1829] mb-1.5">
+              <label className="flex items-center gap-2 text-sm font-medium text-[#0C2E3D] mb-1.5">
                 <Calendar className="w-4 h-4 text-slate-400" />
                 Occasion
               </label>
@@ -622,7 +622,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium text-[#0C1829] mb-1.5">
+              <label className="flex items-center gap-2 text-sm font-medium text-[#0C2E3D] mb-1.5">
                 <Users className="w-4 h-4 text-slate-400" />
                 Group Size
               </label>
@@ -639,7 +639,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
 
           {/* Special Requests */}
           <div>
-            <label className="flex items-center gap-2 text-sm font-medium text-[#0C1829] mb-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-[#0C2E3D] mb-1.5">
               <MessageSquare className="w-4 h-4 text-slate-400" />
               Special Requests
             </label>
@@ -662,7 +662,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
 
     return (
       <div>
-        <h2 className="text-2xl font-bold text-[#0C1829] mb-2">Review Your Booking</h2>
+        <h2 className="text-2xl font-bold text-[#0C2E3D] mb-2">Review Your Booking</h2>
         <p className="text-slate-500 mb-6">Please confirm the details below before paying.</p>
 
         <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
@@ -675,12 +675,12 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
                 className="w-14 h-14 rounded-full object-cover border-2 border-slate-100"
               />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#29ABE2] to-[#E8593C] flex items-center justify-center text-white text-xl font-bold">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#0EA5A5] to-[#F97316] flex items-center justify-center text-white text-xl font-bold">
                 {photographerName.charAt(0)}
               </div>
             )}
             <div>
-              <p className="font-semibold text-[#0C1829]">{photographerName}</p>
+              <p className="font-semibold text-[#0C2E3D]">{photographerName}</p>
               {(profile.city || profile.country) && (
                 <p className="text-sm text-slate-500">
                   {[profile.city, profile.country].filter(Boolean).join(", ")}
@@ -693,57 +693,57 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
           <div className="p-5 space-y-3 text-sm">
             <div className="flex justify-between">
               <span className="text-slate-500">Service</span>
-              <span className="font-medium text-[#0C1829]">{selectedService?.name}</span>
+              <span className="font-medium text-[#0C2E3D]">{selectedService?.name}</span>
             </div>
             {selectedService?.duration && (
               <div className="flex justify-between">
                 <span className="text-slate-500">Duration</span>
-                <span className="font-medium text-[#0C1829]">{selectedService.duration}</span>
+                <span className="font-medium text-[#0C2E3D]">{selectedService.duration}</span>
               </div>
             )}
             <div className="flex justify-between">
               <span className="text-slate-500">Date</span>
-              <span className="font-medium text-[#0C1829]">
+              <span className="font-medium text-[#0C2E3D]">
                 {selectedDate ? formatDate(selectedDate) : "-"}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Time</span>
-              <span className="font-medium text-[#0C1829]">
+              <span className="font-medium text-[#0C2E3D]">
                 {selectedTime ? formatTime(selectedTime) : "-"}
               </span>
             </div>
             {formData.location && (
               <div className="flex justify-between">
                 <span className="text-slate-500">Location</span>
-                <span className="font-medium text-[#0C1829]">{formData.location}</span>
+                <span className="font-medium text-[#0C2E3D]">{formData.location}</span>
               </div>
             )}
             {formData.occasion && (
               <div className="flex justify-between">
                 <span className="text-slate-500">Occasion</span>
-                <span className="font-medium text-[#0C1829]">{formData.occasion}</span>
+                <span className="font-medium text-[#0C2E3D]">{formData.occasion}</span>
               </div>
             )}
             <div className="flex justify-between">
               <span className="text-slate-500">Group Size</span>
-              <span className="font-medium text-[#0C1829]">{formData.groupSize}</span>
+              <span className="font-medium text-[#0C2E3D]">{formData.groupSize}</span>
             </div>
 
             <hr className="border-slate-100" />
 
             <div className="flex justify-between">
               <span className="text-slate-500">Name</span>
-              <span className="font-medium text-[#0C1829]">{formData.fullName}</span>
+              <span className="font-medium text-[#0C2E3D]">{formData.fullName}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Email</span>
-              <span className="font-medium text-[#0C1829]">{formData.email}</span>
+              <span className="font-medium text-[#0C2E3D]">{formData.email}</span>
             </div>
             {formData.phone && (
               <div className="flex justify-between">
                 <span className="text-slate-500">Phone</span>
-                <span className="font-medium text-[#0C1829]">{formData.phone}</span>
+                <span className="font-medium text-[#0C2E3D]">{formData.phone}</span>
               </div>
             )}
 
@@ -751,11 +751,11 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
 
             <div className="flex justify-between text-base">
               <span className="text-slate-500">Total Price</span>
-              <span className="font-bold text-[#0C1829]">{formatCurrency(totalPrice, currency)}</span>
+              <span className="font-bold text-[#0C2E3D]">{formatCurrency(totalPrice, currency)}</span>
             </div>
             <div className="flex justify-between text-base">
               <span className="text-slate-500">Deposit Due Now (50%)</span>
-              <span className="font-bold text-[#E8593C]">
+              <span className="font-bold text-[#F97316]">
                 {formatCurrency(depositAmount, currency)}
               </span>
             </div>
@@ -773,8 +773,8 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
     if (isSubmitting) {
       return (
         <div className="flex flex-col items-center justify-center py-20">
-          <Loader2 className="w-12 h-12 text-[#29ABE2] animate-spin mb-4" />
-          <p className="text-lg font-medium text-[#0C1829]">Processing your booking...</p>
+          <Loader2 className="w-12 h-12 text-[#0EA5A5] animate-spin mb-4" />
+          <p className="text-lg font-medium text-[#0C2E3D]">Processing your booking...</p>
           <p className="text-sm text-slate-500 mt-1">Please don't close this page.</p>
         </div>
       );
@@ -786,12 +786,12 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6">
             <CheckCircle className="w-10 h-10 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-[#0C1829] mb-2">Booking Confirmed!</h2>
+          <h2 className="text-2xl font-bold text-[#0C2E3D] mb-2">Booking Confirmed!</h2>
           <p className="text-slate-500 mb-1">Your session has been booked successfully.</p>
           {bookingResult.bookingId && (
             <p className="text-sm text-slate-400 mb-6">
               Booking Reference:{" "}
-              <span className="font-mono font-medium text-[#0C1829]">
+              <span className="font-mono font-medium text-[#0C2E3D]">
                 {bookingResult.bookingId.slice(0, 12).toUpperCase()}
               </span>
             </p>
@@ -804,14 +804,14 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
               href={`/find-photographer/${profile.username}`}
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-slate-200 text-sm font-medium text-[#0C1829] hover:bg-slate-50 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg border border-slate-200 text-sm font-medium text-[#0C2E3D] hover:bg-slate-50 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Profile
             </Link>
             <Link
               href="/find-photographer"
-              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#29ABE2] text-white text-sm font-medium hover:bg-[#29ABE2]/90 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-lg bg-[#0EA5A5] text-white text-sm font-medium hover:bg-[#0EA5A5]/90 transition-colors"
             >
               Browse Photographers
             </Link>
@@ -826,14 +826,14 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
         <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6">
           <span className="text-3xl">!</span>
         </div>
-        <h2 className="text-2xl font-bold text-[#0C1829] mb-2">Something Went Wrong</h2>
+        <h2 className="text-2xl font-bold text-[#0C2E3D] mb-2">Something Went Wrong</h2>
         <p className="text-slate-500 mb-6">{bookingResult?.error ?? "Please try again."}</p>
         <button
           onClick={() => {
             setBookingResult(null);
             setStep(4);
           }}
-          className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[#E8593C] text-white text-sm font-medium hover:bg-[#E8593C]/90 transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[#F97316] text-white text-sm font-medium hover:bg-[#F97316]/90 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Go Back & Retry
@@ -858,7 +858,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
             <ArrowLeft className="w-5 h-5 text-slate-600" />
           </Link>
           <div className="min-w-0">
-            <h1 className="text-lg font-semibold text-[#0C1829] truncate">
+            <h1 className="text-lg font-semibold text-[#0C2E3D] truncate">
               Book {profile.businessName || profile.user.name}
             </h1>
             {(profile.city || profile.country) && (
@@ -888,7 +888,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
               {step > 1 ? (
                 <button
                   onClick={goBack}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-[#0C1829] transition-colors"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-[#0C2E3D] transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
@@ -901,7 +901,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
                 <button
                   onClick={goNext}
                   disabled={!canContinue()}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#E8593C] text-white text-sm font-semibold hover:bg-[#E8593C]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#F97316] text-white text-sm font-semibold hover:bg-[#F97316]/90 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                 >
                   Continue
                   <ArrowRight className="w-4 h-4" />
@@ -909,7 +909,7 @@ export default function BookingClient({ profile, preselectedServiceId }: Booking
               ) : (
                 <button
                   onClick={handleConfirmBooking}
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#E8593C] text-white text-sm font-semibold hover:bg-[#E8593C]/90 transition-colors"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-[#F97316] text-white text-sm font-semibold hover:bg-[#F97316]/90 transition-colors"
                 >
                   <CreditCard className="w-4 h-4" />
                   Confirm & Pay Deposit

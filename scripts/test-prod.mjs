@@ -1,9 +1,9 @@
 // Production smoke + integration tests against the live Vercel deployment.
-// Targets pixelholiday.vercel.app — uses Node https for HTTPS reliability on Windows.
+// Targets fotiqo.vercel.app — uses Node https for HTTPS reliability on Windows.
 import https from 'https';
 import { URLSearchParams } from 'url';
 
-const HOST = 'pixelholiday.vercel.app';
+const HOST = 'fotiqo.vercel.app';
 const results = [];
 let SESSION_COOKIE = '';
 
@@ -20,7 +20,7 @@ function req(method, path, headers = {}, body = null) {
       port: 443,
       path,
       method,
-      headers: { 'User-Agent': 'pixelholiday-prod-test', ...headers },
+      headers: { 'User-Agent': 'fotiqo-prod-test', ...headers },
     }, (res) => {
       let data = '';
       res.on('data', (c) => data += c);
@@ -79,9 +79,9 @@ async function tHealth() {
 
 async function tLogin() {
   try {
-    const ok = await login('admin@pixelholiday.local', 'password123');
+    const ok = await login('admin@fotiqo.local', 'password123');
     const session = ok ? await get('/api/auth/session', true) : null;
-    rec('2', 'Login flow', ok && session?.body?.user?.email === 'admin@pixelholiday.local' ? 'PASS' : 'FAIL',
+    rec('2', 'Login flow', ok && session?.body?.user?.email === 'admin@fotiqo.local' ? 'PASS' : 'FAIL',
       `setCookie=${ok} sessionUser=${session?.body?.user?.email || 'none'} role=${session?.body?.user?.role || 'none'}`);
   } catch (e) { rec('2', 'Login flow', 'FAIL', e.message); }
 }
@@ -120,7 +120,7 @@ async function tGalleryPage() {
     // Simpler: hit the kiosk identify endpoint which returns galleries.
     // Even simpler: just verify /portfolio renders publicly.
     const r = await get('/portfolio');
-    const ok = r.status === 200 && /pixelholiday/i.test(r.raw);
+    const ok = r.status === 200 && /fotiqo/i.test(r.raw);
     rec('4', 'Gallery / public page', ok ? 'PASS' : 'FAIL', `/portfolio status=${r.status} bodyLen=${r.raw.length}`);
   } catch (e) { rec('4', 'Gallery / public page', 'FAIL', e.message); }
 }

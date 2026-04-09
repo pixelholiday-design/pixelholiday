@@ -23,7 +23,7 @@ async function login() {
   // Step 2: post credentials
   const form = new URLSearchParams({
     csrfToken,
-    email: 'admin@pixelholiday.local',
+    email: 'admin@fotiqo.local',
     password: 'password123',
     callbackUrl: BASE + '/admin/dashboard',
     json: 'true',

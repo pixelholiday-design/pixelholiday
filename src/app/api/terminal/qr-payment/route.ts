@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       unit_amount: Math.round(amount),
       currency: currency || "eur",
       product_data: {
-        name: description || "Pixelvo Photo Gallery",
+        name: description || "Fotiqo Photo Gallery",
       },
     });
 

@@ -1,8 +1,8 @@
-# PixelHoliday
+# Fotiqo
 
 > High-volume resort photography delivery & e-commerce platform.
 
-PixelHoliday powers the entire workflow for resort, water-park, and attraction
+Fotiqo powers the entire workflow for resort, water-park, and attraction
 photography studios — from speed-camera capture all the way to printed albums,
 sleeping-money campaigns, and franchise management.
 
@@ -31,21 +31,21 @@ npx tsx prisma/seed.ts
 # 5. Run
 npm run dev
 # → http://localhost:3000/login
-# → admin@pixelholiday.local / password123
+# → admin@fotiqo.local / password123
 ```
 
 ## Test users (all `password123`)
 
 | Email | Role | PIN |
 |---|---|---|
-| `admin@pixelholiday.local` | CEO | — |
-| `ops@pixelholiday.local` | OPERATIONS_MANAGER | — |
-| `super@pixelholiday.local` | SUPERVISOR | `4444` |
-| `photo1@pixelholiday.local` | PHOTOGRAPHER | `1111` |
-| `photo2@pixelholiday.local` | PHOTOGRAPHER | `2222` |
-| `sales@pixelholiday.local` | SALES_STAFF | `3333` |
-| `reception@pixelholiday.local` | RECEPTIONIST | — |
-| `trainee@pixelholiday.local` | ACADEMY_TRAINEE | — |
+| `admin@fotiqo.local` | CEO | — |
+| `ops@fotiqo.local` | OPERATIONS_MANAGER | — |
+| `super@fotiqo.local` | SUPERVISOR | `4444` |
+| `photo1@fotiqo.local` | PHOTOGRAPHER | `1111` |
+| `photo2@fotiqo.local` | PHOTOGRAPHER | `2222` |
+| `sales@fotiqo.local` | SALES_STAFF | `3333` |
+| `reception@fotiqo.local` | RECEPTIONIST | — |
+| `trainee@fotiqo.local` | ACADEMY_TRAINEE | — |
 
 ## Architecture
 
@@ -113,7 +113,7 @@ POST /api/gdpr/delete
 
 ## License
 
-Proprietary · © PixelHoliday
+Proprietary · © Fotiqo
 
 <!-- Deploy trigger: 2026-04-08T12:47:15 -->
-# PixelHoliday
+# Fotiqo

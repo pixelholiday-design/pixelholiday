@@ -21,7 +21,7 @@ export async function generateMetadata({
   return {
     title:
       profile.seoTitle ||
-      `${profile.user.name} — Photographer | Pixelvo`,
+      `${profile.user.name} — Photographer | Fotiqo`,
     description:
       profile.seoDescription ||
       profile.tagline ||

@@ -45,7 +45,7 @@ function parseBookPhotoIds(raw: string | null | undefined): string[] | null {
  * In production this would generate a signed Cloudflare R2 / Cloudinary URL.
  */
 function buildDownloadLink(photoId: string | null, productKey: string, orderId: string): string {
-  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.pixelholiday.com";
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.fotiqo.com";
   const ref = photoId ? `photo_${photoId}` : `product_${productKey}`;
   return `${base}/download/${orderId}/${ref}`;
 }
@@ -68,7 +68,7 @@ function buildProdigiPayload(
     merchantReference: orderId,
     shippingMethod: "Standard",
     recipient: {
-      name: shippingName ?? "PixelHoliday Guest",
+      name: shippingName ?? "Fotiqo Guest",
       address: {
         line1: shippingAddress ?? "",
         townOrCity: shippingCity ?? "",

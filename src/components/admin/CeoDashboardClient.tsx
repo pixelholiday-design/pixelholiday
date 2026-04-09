@@ -173,7 +173,7 @@ export default function CeoDashboardClient() {
                   boxShadow: "0 12px 36px -12px rgba(15,27,45,.25)",
                 }}
               />
-              <Bar dataKey="revenue" fill="#E8593C" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="revenue" fill="#F97316" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

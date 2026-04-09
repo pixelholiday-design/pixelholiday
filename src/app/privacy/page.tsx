@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Camera } from "lucide-react";
 
-export const metadata = { title: "Privacy Policy — Pixelvo" };
+export const metadata = { title: "Privacy Policy — Fotiqo" };
 
 export default function PrivacyPage() {
   return (
@@ -10,7 +10,7 @@ export default function PrivacyPage() {
         <div className="max-w-3xl mx-auto px-6 py-6 flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 text-navy-900">
             <Camera className="h-5 w-5 text-coral-500" />
-            <span className="font-display text-xl">Pixelvo</span>
+            <span className="font-display text-xl">Fotiqo</span>
           </Link>
         </div>
       </header>
@@ -64,14 +64,14 @@ export default function PrivacyPage() {
         <h2 className="heading text-2xl mt-10">Your rights (GDPR / CCPA)</h2>
         <p className="text-navy-700">
           You may request a copy or deletion of all your data at any time. Email
-          <a className="text-coral-600 mx-1" href="mailto:privacy@pixelvo.com">privacy@pixelvo.com</a>
+          <a className="text-coral-600 mx-1" href="mailto:privacy@fotiqo.com">privacy@fotiqo.com</a>
           or call our automated GDPR endpoint at <code>POST /api/gdpr/delete</code> with your
           customer email. We will respond within 30 days.
         </p>
 
         <h2 className="heading text-2xl mt-10">Contact</h2>
         <p className="text-navy-700">
-          Data Protection Officer · <a className="text-coral-600" href="mailto:dpo@pixelvo.com">dpo@pixelvo.com</a>
+          Data Protection Officer · <a className="text-coral-600" href="mailto:dpo@fotiqo.com">dpo@fotiqo.com</a>
         </p>
 
         <p className="text-xs text-navy-400 mt-12">

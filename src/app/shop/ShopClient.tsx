@@ -45,7 +45,7 @@ type CartItem = {
   option?: string;
 };
 
-const STORAGE_KEY = "pixelvo.cart.v2";
+const STORAGE_KEY = "fotiqo.cart.v2";
 
 const DISPLAY_TABS = [
   { key: "ALL",           label: "All" },

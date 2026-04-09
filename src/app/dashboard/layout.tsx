@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Side navigation for photographer dashboard */}
       <nav className="fixed left-0 top-0 bottom-0 w-56 bg-white border-r border-slate-200 z-30 hidden lg:block">
         <div className="p-4 border-b border-slate-200">
-          <Link href="/" className="text-lg font-bold text-slate-900">Pixelvo</Link>
+          <Link href="/" className="text-lg font-bold text-slate-900">Fotiqo</Link>
           <p className="text-xs text-slate-500 mt-1">Photographer Studio</p>
         </div>
         <div className="p-3 space-y-1">

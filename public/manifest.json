@@ -1,15 +1,15 @@
 {
-  "name": "Pixelvo Photographer",
-  "short_name": "PH Photo",
-  "description": "Mobile upload tool for Pixelvo resort photographers.",
+  "name": "Fotiqo Photographer",
+  "short_name": "Fotiqo Photo",
+  "description": "Mobile upload tool for Fotiqo resort photographers.",
   "start_url": "/mobile-upload",
   "display": "standalone",
-  "background_color": "#FAFAF7",
-  "theme_color": "#E8593C",
+  "background_color": "#FAFAF9",
+  "theme_color": "#0EA5A5",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-pixelvo.svg",
+      "src": "/fotiqo-icon.svg",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any maskable"

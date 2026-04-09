@@ -24,7 +24,7 @@ type ShopProduct = {
 };
 
 type CartItem = { productKey: string; qty: number; size?: string; option?: string };
-const STORAGE_KEY = "pixelvo.cart.v2";
+const STORAGE_KEY = "fotiqo.cart.v2";
 
 function useCart() {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -165,7 +165,7 @@ export default function ProductDetailPage() {
       {/* Nav */}
       <nav className="bg-white border-b border-cream-300 px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-card">
         <Link href="/portfolio" className="font-display text-2xl text-navy-900 tracking-tight">
-          Pixelvo
+          Fotiqo
         </Link>
         <Link href="/shop" className="text-navy-600 hover:text-brand-700 text-sm font-semibold flex items-center gap-1 transition">
           <ShoppingBag className="h-4 w-4" /> Shop
@@ -417,13 +417,13 @@ export default function ProductDetailPage() {
       {/* Footer */}
       <footer className="bg-navy-900 text-navy-300 py-10 mt-16">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-white font-display text-xl">Pixelvo</div>
+          <div className="text-white font-display text-xl">Fotiqo</div>
           <div className="flex gap-6 text-sm">
             <Link href="/portfolio" className="hover:text-white transition">Portfolio</Link>
             <Link href="/shop" className="hover:text-white transition">Shop</Link>
             <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
           </div>
-          <div className="text-xs text-navy-400">© {new Date().getFullYear()} Pixelvo</div>
+          <div className="text-xs text-navy-400">© {new Date().getFullYear()} Fotiqo</div>
         </div>
       </footer>
     </div>

@@ -5,7 +5,7 @@ import ConfirmationView from "./ConfirmationView";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Booking Confirmed \u00b7 PixelHoliday",
+  title: "Booking Confirmed \u00b7 Fotiqo",
 };
 
 export default async function ConfirmationPage({

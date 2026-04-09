@@ -4,11 +4,11 @@ import { cleanUrl, photoRef } from "@/lib/cloudinary";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "Pixelvo — Portfolio",
+  title: "Fotiqo — Portfolio",
   description:
-    "Pixelvo captures unforgettable moments at the world's best resorts, water parks, and attractions. Browse our work and book your session today.",
+    "Fotiqo captures unforgettable moments at the world's best resorts, water parks, and attractions. Browse our work and book your session today.",
   openGraph: {
-    title: "Pixelvo — Portfolio",
+    title: "Fotiqo — Portfolio",
     description: "Memories worth keeping. Photography at the resorts you love.",
   },
 };
@@ -118,7 +118,7 @@ export default async function PortfolioPage() {
       {/* ── Top nav ────────────────────────────────────── */}
       <nav className="absolute top-0 inset-x-0 z-20 px-6 py-5 flex items-center justify-between">
         <Link href="/" className="text-white font-display text-2xl tracking-tight">
-          Pixelvo
+          Fotiqo
         </Link>
         <div className="flex items-center gap-3 text-sm">
           <Link
@@ -321,7 +321,7 @@ export default async function PortfolioPage() {
       {/* ── Footer ─────────────────────────────────────── */}
       <footer className="bg-navy-900 text-navy-300 py-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-white font-display text-xl">Pixelvo</div>
+          <div className="text-white font-display text-xl">Fotiqo</div>
           <div className="flex gap-6 text-sm">
             <Link href="/shop" className="hover:text-white transition">
               Shop
@@ -337,7 +337,7 @@ export default async function PortfolioPage() {
             </Link>
           </div>
           <div className="text-xs text-navy-400">
-            © {new Date().getFullYear()} Pixelvo
+            © {new Date().getFullYear()} Fotiqo
           </div>
         </div>
       </footer>

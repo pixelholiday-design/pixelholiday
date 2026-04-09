@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   });
   if (!pkg) return { title: "Package Not Found" };
   return {
-    title: `${pkg.name} \u00b7 PixelHoliday`,
+    title: `${pkg.name} \u00b7 Fotiqo`,
     description: pkg.shortDescription || `Book your ${pkg.name} photography session`,
   };
 }
@@ -54,7 +54,7 @@ export default async function PackageDetailPage({
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-icon.png" alt="PixelHoliday" className="h-8 w-8 rounded-lg" />
+          <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-8 w-8 rounded-lg" />
           <a href="/book" className="text-sm text-brand-400 hover:underline">&larr; All packages</a>
         </div>
       </div>

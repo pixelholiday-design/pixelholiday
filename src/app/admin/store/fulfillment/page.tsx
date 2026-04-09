@@ -50,7 +50,7 @@ type ShopOrder = {
   labName: string | null;
   trackingNumber: string | null;
   trackingUrl: string | null;
-  pixelvoCommission: number;
+  fotiqoCommission: number;
   createdAt: string;
   updatedAt: string;
   customer: { name: string | null; email: string | null };
@@ -324,7 +324,7 @@ export default function FulfillmentPage() {
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-navy-900">€{order.total.toFixed(2)}</div>
-                    <div className="text-xs text-navy-400">Commission: €{order.pixelvoCommission.toFixed(2)}</div>
+                    <div className="text-xs text-navy-400">Commission: €{order.fotiqoCommission.toFixed(2)}</div>
                   </div>
                 </div>
 

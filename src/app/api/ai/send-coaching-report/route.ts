@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       orderBy: { createdAt: "desc" },
     }).catch(() => null);
 
-    let body = `Hi ${user.name}! Here is your Pixelvo weekly coaching report.\n\n`;
+    let body = `Hi ${user.name}! Here is your Fotiqo weekly coaching report.\n\n`;
 
     if (profile) {
       const avg = Math.round(
@@ -40,7 +40,7 @@ export async function POST(req: Request) {
       if (report.recommendations) body += `\nRecommendations: ${report.recommendations}\n`;
     }
 
-    body += `\n\nKeep up the great work! — Pixelvo AI Coach`;
+    body += `\n\nKeep up the great work! — Fotiqo AI Coach`;
 
     const result = await sendWhatsAppMessage(phone, body);
     return NextResponse.json({ ok: true, result });

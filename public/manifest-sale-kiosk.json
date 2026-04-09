@@ -1,13 +1,13 @@
 {
-  "name": "Pixelvo Sale Point",
-  "short_name": "PH Sale",
+  "name": "Fotiqo Sale Point",
+  "short_name": "Fotiqo Sale",
   "description": "Photographer-operated POS for confirming orders, payments, and prints.",
   "start_url": "/kiosk/sale-point",
   "display": "fullscreen",
   "orientation": "landscape",
-  "background_color": "#0F1B2D",
-  "theme_color": "#E8593C",
+  "background_color": "#0C2E3D",
+  "theme_color": "#F97316",
   "icons": [
-    { "src": "/icon-pixelvo.svg", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/fotiqo-icon.svg", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
   ]
 }

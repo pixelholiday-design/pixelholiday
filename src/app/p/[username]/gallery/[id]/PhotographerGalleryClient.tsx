@@ -11,7 +11,7 @@ export default function PhotographerGalleryClient({ profile, gallery }: { profil
   const [lightbox, setLightbox] = useState<number | null>(null);
   const [showFavsOnly, setShowFavsOnly] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set(gallery.photos.filter(p => p.isFavorited).map(p => p.id)));
-  const color = profile.primaryColor || "#29ABE2";
+  const color = profile.primaryColor || "#0EA5A5";
   const isDark = profile.websiteTheme === "dark" || profile.websiteTheme === "bold";
   const photos = showFavsOnly ? gallery.photos.filter(p => favorites.has(p.id)) : gallery.photos;
 

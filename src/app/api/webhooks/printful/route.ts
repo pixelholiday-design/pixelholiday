@@ -79,14 +79,14 @@ export async function POST(req: NextRequest) {
               ? `<p>Tracking number: <strong>${trackingNumber}</strong>${trackingUrl ? ` · <a href="${trackingUrl}">Track your package</a>` : ""}</p>`
               : "";
             await resend.emails.send({
-              from: process.env.FROM_EMAIL || "hello@pixelvo.local",
+              from: process.env.FROM_EMAIL || "hello@fotiqo.local",
               to: fullOrder.customer.email,
-              subject: "Your Pixelvo order has shipped!",
+              subject: "Your Fotiqo order has shipped!",
               html: `
                 <p>Hi ${fullOrder.customer.name || "there"},</p>
                 <p>Great news — your print order is on its way!</p>
                 ${trackingLine}
-                <p>Thank you for choosing Pixelvo.</p>
+                <p>Thank you for choosing Fotiqo.</p>
               `,
             });
           }

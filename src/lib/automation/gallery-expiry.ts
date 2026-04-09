@@ -59,7 +59,7 @@ export async function runGalleryExpiryAutomation() {
       g.customer,
       emailExpiryWarning14,
       [url],
-      `📸 Your Pixelvo gallery expires in 14 days! View now: ${url}`,
+      `📸 Your Fotiqo gallery expires in 14 days! View now: ${url}`,
     );
     await prisma.gallery.update({
       where: { id: g.id },
@@ -160,7 +160,7 @@ export async function runGalleryExpiryAutomation() {
       g.customer,
       emailGalleryExpired,
       [],
-      `Your Pixelvo gallery has expired. Contact us if you'd like to restore it.`,
+      `Your Fotiqo gallery has expired. Contact us if you'd like to restore it.`,
     );
     await prisma.gallery.update({
       where: { id: g.id },

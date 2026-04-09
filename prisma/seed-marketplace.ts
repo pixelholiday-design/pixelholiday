@@ -10,9 +10,9 @@ async function main() {
   let org = await prisma.organization.findFirst();
   if (!org) {
     org = await prisma.organization.create({
-      data: { name: "Pixelvo", type: OrgType.HEADQUARTERS },
+      data: { name: "Fotiqo", type: OrgType.HEADQUARTERS },
     });
-    console.log("  Created organization: Pixelvo");
+    console.log("  Created organization: Fotiqo");
   } else {
     console.log(`  Using existing organization: ${org.name}`);
   }
@@ -22,7 +22,7 @@ async function main() {
   // ── 8 Sample Photographers ─────────────────────
   const photographerData = [
     {
-      user: { name: "Sarah Chen", email: "sarah@pixelvo.com" },
+      user: { name: "Sarah Chen", email: "sarah@fotiqo.com" },
       profile: {
         username: "sarah-chen",
         businessName: "Sarah Chen Photography",
@@ -48,7 +48,7 @@ async function main() {
       ],
     },
     {
-      user: { name: "Marcus Dubois", email: "marcus@pixelvo.com" },
+      user: { name: "Marcus Dubois", email: "marcus@fotiqo.com" },
       profile: {
         username: "marcus-dubois",
         businessName: "Dubois Visual",
@@ -74,7 +74,7 @@ async function main() {
       ],
     },
     {
-      user: { name: "Elena Volkov", email: "elena@pixelvo.com" },
+      user: { name: "Elena Volkov", email: "elena@fotiqo.com" },
       profile: {
         username: "elena-volkov",
         businessName: "Elena Volkov Studio",
@@ -101,7 +101,7 @@ async function main() {
       ],
     },
     {
-      user: { name: "James Okonkwo", email: "james@pixelvo.com" },
+      user: { name: "James Okonkwo", email: "james@fotiqo.com" },
       profile: {
         username: "james-okonkwo",
         businessName: "Okonkwo Imagery",
@@ -127,7 +127,7 @@ async function main() {
       ],
     },
     {
-      user: { name: "Sophie Martin", email: "sophie@pixelvo.com" },
+      user: { name: "Sophie Martin", email: "sophie@fotiqo.com" },
       profile: {
         username: "sophie-martin",
         businessName: "Sophie Martin Photo",
@@ -153,7 +153,7 @@ async function main() {
       ],
     },
     {
-      user: { name: "Alex Rivera", email: "alex@pixelvo.com" },
+      user: { name: "Alex Rivera", email: "alex@fotiqo.com" },
       profile: {
         username: "alex-rivera",
         businessName: "Rivera Creative Studio",
@@ -180,7 +180,7 @@ async function main() {
       ],
     },
     {
-      user: { name: "Nina Petrov", email: "nina@pixelvo.com" },
+      user: { name: "Nina Petrov", email: "nina@fotiqo.com" },
       profile: {
         username: "nina-petrov",
         businessName: "Nina Petrov Photography",
@@ -205,7 +205,7 @@ async function main() {
       ],
     },
     {
-      user: { name: "Omar Hassan", email: "omar@pixelvo.com" },
+      user: { name: "Omar Hassan", email: "omar@fotiqo.com" },
       profile: {
         username: "omar-hassan",
         businessName: "Hassan Visual Arts",

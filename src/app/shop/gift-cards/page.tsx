@@ -77,7 +77,7 @@ export default function GiftCardsPage() {
       {/* Top nav */}
       <nav className="bg-white border-b border-cream-300 px-6 py-4 flex items-center justify-between sticky top-0 z-20 shadow-card">
         <Link href="/portfolio" className="font-display text-2xl text-navy-900 tracking-tight">
-          Pixelvo
+          Fotiqo
         </Link>
         <div className="flex items-center gap-2 text-sm">
           <Link href="/shop" className="text-navy-700 hover:text-brand-700 px-3 py-2 transition">
@@ -98,7 +98,7 @@ export default function GiftCardsPage() {
         <div className="relative">
           <Gift className="h-12 w-12 text-gold-300 mx-auto mb-4" />
           <p className="text-brand-100 uppercase tracking-[0.3em] text-xs font-semibold">
-            Pixelvo Gift Cards
+            Fotiqo Gift Cards
           </p>
           <h1 className="text-white font-display text-4xl md:text-6xl mt-3 max-w-3xl mx-auto leading-tight">
             Give the Gift of&nbsp;Memories
@@ -268,7 +268,7 @@ export default function GiftCardsPage() {
       {/* Footer */}
       <footer className="bg-navy-900 text-navy-300 py-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-white font-display text-xl">Pixelvo</div>
+          <div className="text-white font-display text-xl">Fotiqo</div>
           <div className="flex gap-6 text-sm">
             <Link href="/shop" className="hover:text-white transition">Shop</Link>
             <Link href="/portfolio" className="hover:text-white transition">Portfolio</Link>
@@ -276,7 +276,7 @@ export default function GiftCardsPage() {
             <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition">Terms</Link>
           </div>
-          <div className="text-xs text-navy-400">&copy; {new Date().getFullYear()} Pixelvo</div>
+          <div className="text-xs text-navy-400">&copy; {new Date().getFullYear()} Fotiqo</div>
         </div>
       </footer>
     </div>

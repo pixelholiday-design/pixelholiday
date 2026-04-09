@@ -1,8 +1,8 @@
-# PixelHoliday — Manual Test Guide
+# Fotiqo — Manual Test Guide
 
-A walkthrough script for verifying every role and customer flow against a running PixelHoliday instance (local or production).
+A walkthrough script for verifying every role and customer flow against a running Fotiqo instance (local or production).
 
-**Production URL:** https://pixelholiday.vercel.app
+**Production URL:** https://fotiqo.vercel.app
 **Database:** Neon PostgreSQL 17.8 (eu-central-1)
 **Last verified:** 2026-04-08
 
@@ -14,7 +14,7 @@ Open the production URL in a fresh incognito window (ensures clean cookies).
 Decline non-essential cookies on the banner; accept the essentials.
 
 ```
-https://pixelholiday.vercel.app/api/health
+https://fotiqo.vercel.app/api/health
 ```
 Expect: `{"status":"ok","database":"connected"}`
 
@@ -24,14 +24,14 @@ Expect: `{"status":"ok","database":"connected"}`
 
 | Role | Email | PIN |
 |---|---|---|
-| CEO | `admin@pixelholiday.local` | — |
-| Operations Manager | `ops@pixelholiday.local` | — |
-| Supervisor | `super@pixelholiday.local` | 4444 |
-| Photographer (Yassine Ben) | `photo1@pixelholiday.local` | 1111 |
-| Photographer (Karim Hamdi) | `photo2@pixelholiday.local` | 2222 |
-| Sales Staff | `sales@pixelholiday.local` | 3333 |
-| Receptionist | `reception@pixelholiday.local` | — |
-| Academy Trainee | `trainee@pixelholiday.local` | — |
+| CEO | `admin@fotiqo.local` | — |
+| Operations Manager | `ops@fotiqo.local` | — |
+| Supervisor | `super@fotiqo.local` | 4444 |
+| Photographer (Yassine Ben) | `photo1@fotiqo.local` | 1111 |
+| Photographer (Karim Hamdi) | `photo2@fotiqo.local` | 2222 |
+| Sales Staff | `sales@fotiqo.local` | 3333 |
+| Receptionist | `reception@fotiqo.local` | — |
+| Academy Trainee | `trainee@fotiqo.local` | — |
 
 PINs are used at the kiosk Sale Point (`/kiosk/sale-point`), not the web login.
 
@@ -39,7 +39,7 @@ PINs are used at the kiosk Sale Point (`/kiosk/sale-point`), not the web login.
 
 ## 3. Role walkthroughs
 
-### 3.1 CEO — `admin@pixelholiday.local` / `password123`
+### 3.1 CEO — `admin@fotiqo.local` / `password123`
 
 1. Sign in at `/login`
 2. Land on `/admin/dashboard` — verify:
@@ -63,7 +63,7 @@ PINs are used at the kiosk Sale Point (`/kiosk/sale-point`), not the web login.
 13. Navigate to `/admin/ai-insights` — Photographer coaching heatmap with color-coded scores per pose category
 14. Sign out via the avatar menu
 
-### 3.2 Operations Manager — `ops@pixelholiday.local`
+### 3.2 Operations Manager — `ops@fotiqo.local`
 
 1. Sign in
 2. Verify sidebar shows operations + business sections, **NOT franchise**
@@ -71,14 +71,14 @@ PINs are used at the kiosk Sale Point (`/kiosk/sale-point`), not the web login.
 4. `/admin/dashboard` — should see all locations data
 5. `/admin/payroll` — accessible
 
-### 3.3 Supervisor — `super@pixelholiday.local`
+### 3.3 Supervisor — `super@fotiqo.local`
 
 1. Sign in
 2. Sidebar should be reduced (no payroll, no finance, no franchise)
 3. `/admin/staff` — sees staff at their location
 4. Try `/admin/payroll` — should be blocked
 
-### 3.4 Photographer — `photo1@pixelholiday.local`
+### 3.4 Photographer — `photo1@fotiqo.local`
 
 1. Sign in
 2. Lands on `/my-dashboard`
@@ -93,19 +93,19 @@ PINs are used at the kiosk Sale Point (`/kiosk/sale-point`), not the web login.
 6. Open `/kiosk/sale-point` — PIN screen appears
 7. Enter PIN **1111** — POS main screen loads with incoming orders tab
 
-### 3.5 Sales Staff — `sales@pixelholiday.local`
+### 3.5 Sales Staff — `sales@fotiqo.local`
 
 1. Sign in
 2. Open `/kiosk/sale-point`, enter PIN **3333** — should access POS
 3. Try `/admin/staff` — blocked
 
-### 3.6 Receptionist — `reception@pixelholiday.local`
+### 3.6 Receptionist — `reception@fotiqo.local`
 
 1. Sign in
 2. `/admin/bookings` — accessible
 3. Try `/admin/finance` — blocked
 
-### 3.7 Academy Trainee — `trainee@pixelholiday.local`
+### 3.7 Academy Trainee — `trainee@fotiqo.local`
 
 1. Sign in
 2. Should land on `/admin/academy` (or be blocked from everything else)
@@ -120,7 +120,7 @@ PINs are used at the kiosk Sale Point (`/kiosk/sale-point`), not the web login.
 1. CEO signs in, navigates to `/admin/dashboard`
 2. Pull a `magicLinkToken` from any seeded gallery (use Neon dashboard or
    `npx tsx -e "import {prisma} from './src/lib/db'; prisma.gallery.findFirst({where:{status:'PREVIEW_ECOM'}}).then(g=>console.log(g?.magicLinkToken))"`)
-3. Open `https://pixelholiday.vercel.app/gallery/<token>` in incognito
+3. Open `https://fotiqo.vercel.app/gallery/<token>` in incognito
 4. Verify:
    - All photos shown with Cloudinary watermarks
    - FOMO timer counts down
@@ -136,7 +136,7 @@ PINs are used at the kiosk Sale Point (`/kiosk/sale-point`), not the web login.
 
 ### 4.3 Digital Pass purchase (pre-arrival)
 
-1. Open `https://pixelholiday.vercel.app/pass/<locationId>`
+1. Open `https://fotiqo.vercel.app/pass/<locationId>`
 2. Three tiers shown (Basic / Unlimited / VIP) — prices vary by location
 3. Choose Basic, enter customer details
 4. Stripe checkout opens (or 502 with stale key)
@@ -217,4 +217,4 @@ If any test fails, capture:
 - Server logs from `npx vercel logs <deployment-url>`
 - The git SHA of the deployed commit (visible in Vercel dashboard)
 
-File issues against `pixelholiday-design/pixelholiday` on GitHub.
+File issues against `fotiqo-design/fotiqo` on GitHub.

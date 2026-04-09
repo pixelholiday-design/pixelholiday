@@ -12,9 +12,9 @@ import {
 
 export const dynamic = "force-static";
 export const metadata = {
-  title: "Pixelvo — Install apps",
+  title: "Fotiqo — Install apps",
   description:
-    "Install the Pixelvo kiosk, gallery, photographer, camera station, and TV display apps on any device.",
+    "Install the Fotiqo kiosk, gallery, photographer, camera station, and TV display apps on any device.",
 };
 
 type AppEntry = {
@@ -79,7 +79,7 @@ const APPS: AppEntry[] = [
     url: "/mobile-upload",
     theme: "from-coral-600 to-coral-400",
     steps: [
-      "Sign in to the Pixelvo app on your phone.",
+      "Sign in to the Fotiqo app on your phone.",
       "Open /mobile-upload and tap Share → Add to Home Screen.",
       "Grant camera permission the first time you shoot.",
       "Upload runs in the background, auto-resumes on reconnect.",
@@ -100,7 +100,7 @@ const APPS: AppEntry[] = [
     theme: "from-navy-700 to-navy-500",
     steps: [
       "Flash Raspberry Pi OS Lite, enable Wi-Fi + SSH.",
-      "Clone the Pixelvo camera client (see /admin/cameras).",
+      "Clone the Fotiqo camera client (see /admin/cameras).",
       "Register the station by scanning its QR at /admin/cameras.",
       "Captures auto-upload to R2 and tag the active wristband.",
     ],
@@ -137,7 +137,7 @@ export default function InstallPage() {
     <div className="min-h-screen bg-cream-100 text-navy-900">
       <nav className="bg-white border-b border-cream-300 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
         <Link href="/portfolio" className="font-display text-2xl tracking-tight">
-          Pixelvo
+          Fotiqo
         </Link>
         <div className="flex items-center gap-2 text-sm">
           <Link href="/admin/dashboard" className="text-navy-700 hover:text-brand-700 px-3 py-2 transition">
@@ -155,7 +155,7 @@ export default function InstallPage() {
       <header className="bg-gradient-to-br from-brand-700 via-brand-500 to-brand-300 px-6 py-16 text-center">
         <div className="inline-flex items-center gap-2 bg-white/10 border border-white/20 text-brand-50 px-3 py-1 rounded-full text-xs uppercase tracking-wider font-semibold backdrop-blur">
           <Download className="h-3.5 w-3.5" />
-          The Pixelvo app suite
+          The Fotiqo app suite
         </div>
         <h1 className="text-white font-display text-4xl md:text-6xl mt-5 max-w-3xl mx-auto leading-tight">
           Install what you need, where you need it
@@ -171,7 +171,7 @@ export default function InstallPage() {
           {APPS.map((app) => {
             const Icon = app.icon;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(
-              `https://pixelvo.app${app.url}`,
+              `https://fotiqo.app${app.url}`,
             )}`;
             return (
               <article
@@ -259,14 +259,14 @@ export default function InstallPage() {
 
       <footer className="bg-navy-900 text-navy-300 py-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-white font-display text-xl">Pixelvo</div>
+          <div className="text-white font-display text-xl">Fotiqo</div>
           <div className="flex gap-6 text-sm">
             <Link href="/portfolio" className="hover:text-white transition">Portfolio</Link>
             <Link href="/shop" className="hover:text-white transition">Shop</Link>
             <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition">Terms</Link>
           </div>
-          <div className="text-xs text-navy-400">© {new Date().getFullYear()} Pixelvo</div>
+          <div className="text-xs text-navy-400">© {new Date().getFullYear()} Fotiqo</div>
         </div>
       </footer>
     </div>

@@ -20,7 +20,7 @@ function SingleIndicator({ baseUrl }: { baseUrl?: string }) {
         if (r.ok) {
           const j = await r.json();
           setState("connected");
-          setName(j?.name || "Pixelvo");
+          setName(j?.name || "Fotiqo");
         } else {
           setState("offline");
         }

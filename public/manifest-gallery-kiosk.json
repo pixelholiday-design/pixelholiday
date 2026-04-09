@@ -1,13 +1,13 @@
 {
-  "name": "Pixelvo Gallery Kiosk",
-  "short_name": "PH Kiosk",
+  "name": "Fotiqo Gallery Kiosk",
+  "short_name": "Fotiqo Kiosk",
   "description": "Self-service customer photo browser for resorts and attractions.",
   "start_url": "/kiosk/gallery",
   "display": "fullscreen",
   "orientation": "landscape",
-  "background_color": "#0F1B2D",
-  "theme_color": "#E8593C",
+  "background_color": "#0C2E3D",
+  "theme_color": "#F97316",
   "icons": [
-    { "src": "/icon-pixelvo.svg", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/fotiqo-icon.svg", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
   ]
 }

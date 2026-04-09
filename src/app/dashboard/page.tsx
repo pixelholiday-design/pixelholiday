@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Dashboard — Pixelvo" };
+export const metadata = { title: "Dashboard — Fotiqo" };
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -41,7 +41,7 @@ export default async function DashboardPage() {
           <div className="w-16 h-16 bg-coral-50 rounded-full flex items-center justify-center mx-auto mb-4">
             <Camera className="w-8 h-8 text-coral-500" />
           </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to Pixelvo</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Welcome to Fotiqo</h2>
           <p className="text-slate-500 mb-6">
             Set up your photographer profile to start receiving bookings, managing galleries, and growing your business.
           </p>

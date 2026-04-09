@@ -1,4 +1,4 @@
-# BUSINESS LOGIC AUDIT REPORT - PixelHoliday
+# BUSINESS LOGIC AUDIT REPORT - Fotiqo
 **Date:** 2026-04-09
 **Auditor:** Business Logic Expert (Claude)
 
@@ -30,7 +30,7 @@
 **Annual impact at EUR1M revenue:** ~EUR3,000 saved per year in over-paid commissions.
 
 ### CRITICAL: Marketplace had ZERO commission logic
-**Impact:** Photographers were being booked through the marketplace but PixelHoliday received nothing. No platform fee calculated, no Stripe fee tracked, no payout mechanism.
+**Impact:** Photographers were being booked through the marketplace but Fotiqo received nothing. No platform fee calculated, no Stripe fee tracked, no payout mechanism.
 
 **Fix:**
 - `prisma/schema.prisma` — Added `platformFee`, `platformFeeRate`, `photographerPayout`, `stripeFee`, `payoutStatus`, `PayoutStatus` enum to MarketplaceBooking

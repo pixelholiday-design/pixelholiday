@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import InquiriesClient from "./InquiriesClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Inquiries — Pixelvo" };
+export const metadata = { title: "Inquiries — Fotiqo" };
 
 export default async function InquiriesPage() {
   const session = await getServerSession(authOptions);

@@ -180,7 +180,7 @@ function HeroSection({ profile }: { profile: Profile }) {
   return (
     <section className="relative">
       {/* Cover */}
-      <div className="relative h-56 sm:h-72 md:h-80 w-full overflow-hidden bg-gradient-to-br from-[#0C1829] via-[#29ABE2]/30 to-[#0C1829]">
+      <div className="relative h-56 sm:h-72 md:h-80 w-full overflow-hidden bg-gradient-to-br from-[#0C2E3D] via-[#0EA5A5]/30 to-[#0C2E3D]">
         {profile.coverPhotoUrl ? (
           <Image
             src={profile.coverPhotoUrl}
@@ -213,7 +213,7 @@ function HeroSection({ profile }: { profile: Profile }) {
                     priority
                   />
                 ) : (
-                  <div className="flex items-center justify-center w-full h-full bg-[#29ABE2]/10 text-[#29ABE2]">
+                  <div className="flex items-center justify-center w-full h-full bg-[#0EA5A5]/10 text-[#0EA5A5]">
                     <Camera size={40} />
                   </div>
                 )}
@@ -222,7 +222,7 @@ function HeroSection({ profile }: { profile: Profile }) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <h1 className="font-['Playfair_Display'] text-2xl sm:text-3xl font-bold text-[#0C1829]">
+              <h1 className="font-['Playfair_Display'] text-2xl sm:text-3xl font-bold text-[#0C2E3D]">
                 {profile.user.name}
               </h1>
               {profile.businessName && (
@@ -240,7 +240,7 @@ function HeroSection({ profile }: { profile: Profile }) {
                 {profile.totalReviews > 0 && (
                   <span className="inline-flex items-center gap-1.5">
                     <StarRating rating={profile.averageRating} />
-                    <span className="font-medium text-[#0C1829]">
+                    <span className="font-medium text-[#0C2E3D]">
                       {profile.averageRating.toFixed(1)}
                     </span>
                     <span>({profile.totalReviews} reviews)</span>
@@ -248,19 +248,19 @@ function HeroSection({ profile }: { profile: Profile }) {
                 )}
                 {location && (
                   <span className="inline-flex items-center gap-1">
-                    <MapPin size={14} className="text-[#29ABE2]" />
+                    <MapPin size={14} className="text-[#0EA5A5]" />
                     {location}
                   </span>
                 )}
                 {profile.responseTime && (
                   <span className="inline-flex items-center gap-1">
-                    <Clock size={14} className="text-[#29ABE2]" />
+                    <Clock size={14} className="text-[#0EA5A5]" />
                     {profile.responseTime}
                   </span>
                 )}
                 {profile.completedSessions > 0 && (
                   <span className="inline-flex items-center gap-1">
-                    <Award size={14} className="text-[#29ABE2]" />
+                    <Award size={14} className="text-[#0EA5A5]" />
                     {profile.completedSessions} sessions
                   </span>
                 )}
@@ -295,7 +295,7 @@ function HeroSection({ profile }: { profile: Profile }) {
                     href={profile.socialWebsite}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-gray-400 hover:text-[#29ABE2] transition-colors"
+                    className="text-gray-400 hover:text-[#0EA5A5] transition-colors"
                     aria-label="Website"
                   >
                     <Globe size={18} />
@@ -308,7 +308,7 @@ function HeroSection({ profile }: { profile: Profile }) {
             <div className="flex-shrink-0 sm:self-start sm:mt-0">
               <Link
                 href={`/find-photographer/${profile.username}/book`}
-                className="inline-flex items-center justify-center gap-2 bg-[#E8593C] hover:bg-[#d14a2f] text-white font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm w-full sm:w-auto"
+                className="inline-flex items-center justify-center gap-2 bg-[#F97316] hover:bg-[#d14a2f] text-white font-semibold px-6 py-3 rounded-xl transition-colors shadow-sm w-full sm:w-auto"
               >
                 <Calendar size={18} />
                 Book This Photographer
@@ -328,7 +328,7 @@ function BioSection({ profile }: { profile: Profile }) {
 
   return (
     <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C1829] mb-4">
+      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C2E3D] mb-4">
         About
       </h2>
 
@@ -344,7 +344,7 @@ function BioSection({ profile }: { profile: Profile }) {
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-gray-400 mb-1">
               <Award size={13} /> Experience
             </span>
-            <p className="text-sm font-medium text-[#0C1829]">
+            <p className="text-sm font-medium text-[#0C2E3D]">
               {profile.experience}
             </p>
           </div>
@@ -358,7 +358,7 @@ function BioSection({ profile }: { profile: Profile }) {
               {profile.languages.map((l) => (
                 <span
                   key={l}
-                  className="px-2.5 py-0.5 rounded-full bg-[#29ABE2]/10 text-[#29ABE2] text-xs font-medium"
+                  className="px-2.5 py-0.5 rounded-full bg-[#0EA5A5]/10 text-[#0EA5A5] text-xs font-medium"
                 >
                   {l}
                 </span>
@@ -413,7 +413,7 @@ function PortfolioSection({ photos }: { photos: PortfolioPhoto[] }) {
   if (photos.length === 0) {
     return (
       <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-        <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C1829] mb-4">
+        <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C2E3D] mb-4">
           Portfolio
         </h2>
         <div className="py-12 text-center text-gray-400">
@@ -426,7 +426,7 @@ function PortfolioSection({ photos }: { photos: PortfolioPhoto[] }) {
 
   return (
     <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C1829] mb-4">
+      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C2E3D] mb-4">
         Portfolio
       </h2>
 
@@ -439,7 +439,7 @@ function PortfolioSection({ photos }: { photos: PortfolioPhoto[] }) {
               onClick={() => setActiveCategory(cat)}
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 activeCategory === cat
-                  ? "bg-[#0C1829] text-white"
+                  ? "bg-[#0C2E3D] text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -553,17 +553,17 @@ function ServicesSection({
 
   return (
     <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C1829] mb-4">
+      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C2E3D] mb-4">
         Services &amp; Pricing
       </h2>
       <div className="space-y-4">
         {services.map((s) => (
           <div
             key={s.id}
-            className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-[#29ABE2]/30 transition-colors"
+            className="flex flex-col sm:flex-row sm:items-center gap-3 p-4 rounded-xl border border-gray-100 hover:border-[#0EA5A5]/30 transition-colors"
           >
             <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-[#0C1829]">{s.name}</h3>
+              <h3 className="font-semibold text-[#0C2E3D]">{s.name}</h3>
               {s.description && (
                 <p className="text-sm text-gray-500 mt-0.5 line-clamp-2">
                   {s.description}
@@ -577,14 +577,14 @@ function ServicesSection({
             </div>
             <div className="flex items-center gap-3 flex-shrink-0">
               {s.startingAt !== null && (
-                <span className="text-lg font-bold text-[#0C1829]">
+                <span className="text-lg font-bold text-[#0C2E3D]">
                   {s.currency === "EUR" ? "\u20ac" : s.currency}{" "}
                   {s.startingAt.toLocaleString()}
                 </span>
               )}
               <Link
                 href={`/find-photographer/${username}/book?service=${s.id}`}
-                className="px-4 py-2 rounded-lg bg-[#E8593C] hover:bg-[#d14a2f] text-white text-sm font-semibold transition-colors"
+                className="px-4 py-2 rounded-lg bg-[#F97316] hover:bg-[#d14a2f] text-white text-sm font-semibold transition-colors"
               >
                 Book Now
               </Link>
@@ -643,7 +643,7 @@ function AvailabilitySection({
 
   return (
     <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
-      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C1829] mb-4">
+      <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C2E3D] mb-4">
         Availability
       </h2>
 
@@ -657,7 +657,7 @@ function AvailabilitySection({
         >
           <ChevronLeft size={20} />
         </button>
-        <span className="font-semibold text-[#0C1829]">{monthName}</span>
+        <span className="font-semibold text-[#0C2E3D]">{monthName}</span>
         <button
           onClick={() => setMonthOffset((p) => Math.min(p + 1, 2))}
           disabled={monthOffset >= 2}
@@ -721,7 +721,7 @@ function AvailabilitySection({
       <div className="mt-5 text-center">
         <Link
           href={`/find-photographer/${username}/book`}
-          className="inline-flex items-center gap-2 bg-[#E8593C] hover:bg-[#d14a2f] text-white font-semibold px-6 py-3 rounded-xl transition-colors"
+          className="inline-flex items-center gap-2 bg-[#F97316] hover:bg-[#d14a2f] text-white font-semibold px-6 py-3 rounded-xl transition-colors"
         >
           <Calendar size={18} />
           Book a Session
@@ -756,13 +756,13 @@ function ReviewsSection({
   return (
     <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-        <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C1829]">
+        <h2 className="font-['Playfair_Display'] text-xl font-bold text-[#0C2E3D]">
           Reviews
         </h2>
         {totalReviews > 0 && (
           <div className="flex items-center gap-2">
             <StarRating rating={averageRating} size={18} />
-            <span className="text-lg font-bold text-[#0C1829]">
+            <span className="text-lg font-bold text-[#0C2E3D]">
               {averageRating.toFixed(1)}
             </span>
             <span className="text-sm text-gray-400">
@@ -806,7 +806,7 @@ function ReviewsSection({
             <div className="flex items-start justify-between gap-2">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[#0C1829]">
+                  <span className="font-semibold text-[#0C2E3D]">
                     {r.customerName}
                   </span>
                   {r.isVerified && (
@@ -824,7 +824,7 @@ function ReviewsSection({
               </div>
             </div>
             {r.title && (
-              <p className="font-semibold text-[#0C1829] mt-2">{r.title}</p>
+              <p className="font-semibold text-[#0C2E3D] mt-2">{r.title}</p>
             )}
             <p className="text-gray-600 text-sm mt-1 leading-relaxed">
               {r.comment}
@@ -851,8 +851,8 @@ function ReviewsSection({
 
             {/* Photographer response */}
             {r.response && (
-              <div className="mt-3 ml-4 pl-4 border-l-2 border-[#29ABE2]/30">
-                <p className="text-xs font-semibold text-[#29ABE2] mb-0.5">
+              <div className="mt-3 ml-4 pl-4 border-l-2 border-[#0EA5A5]/30">
+                <p className="text-xs font-semibold text-[#0EA5A5] mb-0.5">
                   Response from {photographerName}
                 </p>
                 <p className="text-sm text-gray-600">{r.response}</p>
@@ -866,7 +866,7 @@ function ReviewsSection({
           <>
             {reviews.length > 0 && (
               <div className="border-t border-gray-100 pt-5">
-                <h3 className="font-semibold text-[#0C1829] mb-4 text-sm uppercase tracking-wider">
+                <h3 className="font-semibold text-[#0C2E3D] mb-4 text-sm uppercase tracking-wider">
                   Testimonials
                 </h3>
               </div>
@@ -877,7 +877,7 @@ function ReviewsSection({
                 className="border-t border-gray-100 pt-5 first:border-0 first:pt-0"
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-semibold text-[#0C1829]">
+                  <span className="font-semibold text-[#0C2E3D]">
                     {t.clientName}
                   </span>
                   {t.eventType && (
@@ -934,7 +934,7 @@ export default function ProfileClient({ profile }: { profile: Profile }) {
       <div className="fixed bottom-0 inset-x-0 z-40 sm:hidden bg-white border-t border-gray-200 px-4 py-3 safe-area-pb">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-semibold text-[#0C1829] text-sm truncate">
+            <p className="font-semibold text-[#0C2E3D] text-sm truncate">
               Book {profile.user.name}
             </p>
             {minPrice !== null && (
@@ -943,7 +943,7 @@ export default function ProfileClient({ profile }: { profile: Profile }) {
           </div>
           <Link
             href={`/find-photographer/${profile.username}/book`}
-            className="flex-shrink-0 bg-[#E8593C] hover:bg-[#d14a2f] text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
+            className="flex-shrink-0 bg-[#F97316] hover:bg-[#d14a2f] text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-colors"
           >
             Book Now
           </Link>

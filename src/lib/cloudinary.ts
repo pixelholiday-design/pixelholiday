@@ -6,7 +6,7 @@ const CLOUD =
 const WATERMARK =
   process.env.NEXT_PUBLIC_CLOUDINARY_WATERMARK_PUBLIC_ID ||
   process.env.CLOUDINARY_WATERMARK_PUBLIC_ID ||
-  "pixelholiday_watermark";
+  "fotiqo_watermark";
 
 // If Cloudinary isn't configured (empty env) OR the value is the placeholder "demo",
 // we fall back to passing URLs through unchanged instead of building a Cloudinary URL

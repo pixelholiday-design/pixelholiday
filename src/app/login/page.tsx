@@ -6,7 +6,7 @@ import { Camera, Loader2, Mail, Lock, ArrowRight } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin@pixelvo.local");
+  const [email, setEmail] = useState("admin@fotiqo.local");
   const [password, setPassword] = useState("password123");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
@@ -32,8 +32,8 @@ export default function LoginPage() {
         </svg>
         <div className="relative z-10 flex items-center gap-3 text-white">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-icon.png" alt="Pixelvo" className="h-11 w-11 rounded-xl bg-white p-1 shadow-lift" />
-          <span className="font-display text-2xl tracking-tight">Pixelvo</span>
+          <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-11 w-11 rounded-xl bg-white p-1 shadow-lift" />
+          <span className="font-display text-2xl tracking-tight">Fotiqo</span>
         </div>
         <div className="relative z-10 text-white max-w-md">
           <h2 className="font-display text-4xl xl:text-5xl leading-tight mb-4">
@@ -66,8 +66,8 @@ export default function LoginPage() {
         <div className="w-full max-w-sm animate-slide-up">
           <div className="flex items-center gap-2 lg:hidden mb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="Pixelvo" className="h-8 w-8" />
-            <span className="font-display text-xl text-navy-900">Pixelvo</span>
+            <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-8 w-8" />
+            <span className="font-display text-xl text-navy-900">Fotiqo</span>
           </div>
           <h1 className="heading text-4xl mb-2">Welcome back</h1>
           <p className="text-navy-400 mb-8">Sign in to your studio</p>
@@ -122,7 +122,7 @@ export default function LoginPage() {
           </form>
 
           <p className="mt-8 text-xs text-navy-400 text-center">
-            Protected by Pixelvo · GDPR compliant
+            Protected by Fotiqo · GDPR compliant
           </p>
         </div>
       </main>

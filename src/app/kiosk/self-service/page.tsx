@@ -106,7 +106,7 @@ export default function SelfServiceKiosk() {
       <div className="fixed inset-0 bg-navy-900 text-white flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
           <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold mb-3 inline-flex items-center gap-2">
-            <Sparkles className="h-3 w-3" /> Pixelvo self-service
+            <Sparkles className="h-3 w-3" /> Fotiqo self-service
           </div>
           <h1 className="font-display text-6xl mb-4">Find your photos</h1>
           <p className="text-white/60 text-xl mb-12">Choose how you'd like to identify yourself.</p>

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import GalleryDeliveryClient from "./GalleryDeliveryClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Gallery Delivery — Pixelvo" };
+export const metadata = { title: "Gallery Delivery — Fotiqo" };
 
 export default async function GalleryDeliveryPage() {
   const session = await getServerSession(authOptions);

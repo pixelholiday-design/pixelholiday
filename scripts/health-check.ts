@@ -72,7 +72,7 @@ add("STREAM", "Real-time WhatsApp ping", fileHas("src/app/api/camera/capture/rou
 add("RETOUCH", "Retouch admin page", fileHas("src/app/admin/retouch/page.tsx", "Pro Retouch") ? "PASS" : "FAIL");
 add("RETOUCH", "Before/after slider", fileHas("src/app/admin/retouch/page.tsx", "sliderPos") ? "PASS" : "FAIL");
 add("RETOUCH", "Retouch API", fileHas("src/app/api/admin/retouch/route.ts", "isRetouched") ? "PASS" : "FAIL");
-add("WEB", "Portfolio page", fileHas("src/app/portfolio/page.tsx", "PixelHoliday") ? "PASS" : "FAIL");
+add("WEB", "Portfolio page", fileHas("src/app/portfolio/page.tsx", "Fotiqo") ? "PASS" : "FAIL");
 add("WEB", "Blog admin", fileHas("src/app/admin/blog/page.tsx", "Blog Manager") ? "PASS" : "FAIL");
 add("WEB", "Blog AI generation", fileHas("src/app/api/blog/route.ts", "aiGenerate") ? "PASS" : "FAIL");
 add("WEB", "Online shop page", fileHas("src/app/shop/page.tsx", "PRODUCTS") ? "PASS" : "FAIL");
@@ -87,7 +87,7 @@ add("AI", "Admin override (PATCH)", fileHas("src/app/api/ai/cull/route.ts", "PAT
 
 // ── PHASE 4 ─────────────────────────────────────────────
 // SAAS (Module 19)
-add("SAAS", "Signup page", fileHas("src/app/signup/page.tsx", "Join PixelHoliday") ? "PASS" : "FAIL");
+add("SAAS", "Signup page", fileHas("src/app/signup/page.tsx", "Join Fotiqo") ? "PASS" : "FAIL");
 add("SAAS", "Signup creates org+user", fileHas("src/app/api/saas/signup/route.ts", "organization.create") ? "PASS" : "FAIL");
 add("SAAS", "Subscription tiers config", fileHas("src/lib/subscriptions.ts", "ENTERPRISE") && fileHas("src/lib/subscriptions.ts", "STARTER") ? "PASS" : "FAIL");
 add("SAAS", "Tier limits enforced", fileHas("src/lib/subscriptions.ts", "checkUploadLimit") && fileHas("src/lib/subscriptions.ts", "checkGalleryLimit") ? "PASS" : "FAIL");
@@ -138,7 +138,7 @@ const pad = (s: string, n: number) => (s.length > n ? s.slice(0, n - 1) + "…" 
 const lines: string[] = [];
 const bar = "═".repeat(64);
 lines.push("╔" + bar + "╗");
-lines.push("║   PIXELHOLIDAY — COMBINED PHASE 1+2+3+4 HEALTH REPORT" + " ".repeat(10) + "║");
+lines.push("║   FOTIQO — COMBINED PHASE 1+2+3+4 HEALTH REPORT" + " ".repeat(10) + "║");
 lines.push("╠" + bar + "╣");
 let lastPhase = 0;
 for (const r of rows) {

@@ -1,10 +1,10 @@
-/* PixelHoliday Kiosk Design Tokens & Animations */
+/* Fotiqo Kiosk Design Tokens & Animations */
 
 :root {
   --kiosk-bg: #08111C;
   --kiosk-card: #1A1F2E;
   --kiosk-border: #2A3042;
-  --kiosk-coral: #E8593C;
+  --kiosk-coral: #F97316;
   --kiosk-gold: #D4A853;
   --kiosk-touch-min: 60px;
 }

@@ -89,7 +89,7 @@ export async function POST(req: Request) {
 
       let cloudinaryId: string | null = null;
       try {
-        const up = await uploadToCloudinary(p.publicUrl, `pixelvo/${gallery.id}`);
+        const up = await uploadToCloudinary(p.publicUrl, `fotiqo/${gallery.id}`);
         cloudinaryId = up?.public_id || null;
       } catch (e) {
         console.warn("Cloudinary upload skipped", e);

@@ -7,9 +7,9 @@ const TIER_ORDER: Tier[] = ["STARTER", "PROFESSIONAL", "BUSINESS", "ENTERPRISE"]
 
 // Mock billing history for display when Stripe billing portal is unavailable
 const MOCK_BILLING: { date: string; amount: string; status: string; description: string }[] = [
-  { date: "2026-03-01", amount: "€49.00", status: "Paid", description: "Pixelvo Pro — March 2026" },
-  { date: "2026-02-01", amount: "€49.00", status: "Paid", description: "Pixelvo Pro — February 2026" },
-  { date: "2026-01-01", amount: "€49.00", status: "Paid", description: "Pixelvo Pro — January 2026" },
+  { date: "2026-03-01", amount: "€49.00", status: "Paid", description: "Fotiqo Pro — March 2026" },
+  { date: "2026-02-01", amount: "€49.00", status: "Paid", description: "Fotiqo Pro — February 2026" },
+  { date: "2026-01-01", amount: "€49.00", status: "Paid", description: "Fotiqo Pro — January 2026" },
 ];
 
 export default function SubscriptionPage() {
@@ -76,7 +76,7 @@ export default function SubscriptionPage() {
       <header>
         <div className="label-xs">SaaS</div>
         <h1 className="heading text-4xl mt-1">Subscription</h1>
-        <p className="text-navy-400 mt-1">Manage your Pixelvo plan, billing, and usage.</p>
+        <p className="text-navy-400 mt-1">Manage your Fotiqo plan, billing, and usage.</p>
       </header>
 
       {/* Current plan summary */}

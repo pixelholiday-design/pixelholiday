@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 import WebsiteBuilderClient from "./WebsiteBuilderClient";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Website Builder — Pixelvo" };
+export const metadata = { title: "Website Builder — Fotiqo" };
 
 export default async function WebsiteBuilderPage() {
   const session = await getServerSession(authOptions);

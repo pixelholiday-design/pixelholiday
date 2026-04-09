@@ -119,19 +119,19 @@ export async function POST(req: Request) {
         if (process.env.RESEND_API_KEY && pkgBooking.customerEmail) {
           try {
             const resend = new Resend(process.env.RESEND_API_KEY);
-            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://pixelholiday.vercel.app";
+            const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fotiqo.vercel.app";
             await resend.emails.send({
-              from: process.env.FROM_EMAIL || "hello@pixelvo.local",
+              from: process.env.FROM_EMAIL || "hello@fotiqo.local",
               to: pkgBooking.customerEmail,
               subject: `Booking Confirmed! ${pkgBooking.confirmationCode}`,
               html: `
                 <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-                  <h1 style="color: #0C1829;">Booking Confirmed!</h1>
+                  <h1 style="color: #0C2E3D;">Booking Confirmed!</h1>
                   <p>Your confirmation code: <strong style="font-size: 24px; letter-spacing: 2px;">${pkgBooking.confirmationCode}</strong></p>
                   <p><strong>Date:</strong> ${pkgBooking.sessionDate.toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
                   <p><strong>Time:</strong> ${pkgBooking.sessionStartTime}</p>
                   <p><strong>Amount Paid:</strong> ${pkgBooking.currency} ${pkgBooking.totalPrice.toFixed(2)}</p>
-                  <p><a href="${baseUrl}/book/confirmation/${pkgBooking.id}" style="display: inline-block; padding: 12px 24px; background: #E8593C; color: white; text-decoration: none; border-radius: 8px; margin-top: 16px;">View Booking Details</a></p>
+                  <p><a href="${baseUrl}/book/confirmation/${pkgBooking.id}" style="display: inline-block; padding: 12px 24px; background: #F97316; color: white; text-decoration: none; border-radius: 8px; margin-top: 16px;">View Booking Details</a></p>
                 </div>
               `,
             });
@@ -231,9 +231,9 @@ export async function POST(req: Request) {
           try {
             const resend = new Resend(process.env.RESEND_API_KEY);
             await resend.emails.send({
-              from: process.env.FROM_EMAIL || "hello@pixelvo.local",
+              from: process.env.FROM_EMAIL || "hello@fotiqo.local",
               to: gallery.customer.email,
-              subject: "Your Pixelvo memories are ready!",
+              subject: "Your Fotiqo memories are ready!",
               html: `<p>Your gallery is unlocked. <a href="${process.env.NEXT_PUBLIC_APP_URL}/gallery/${gallery.magicLinkToken}">View now</a></p>`,
             });
           } catch (e) {

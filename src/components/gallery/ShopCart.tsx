@@ -398,7 +398,7 @@ export default function ShopCart({
           outline: none;
         }
         .input-field:focus {
-          ring: 2px solid #29abe2;
+          ring: 2px solid #0EA5A5;
         }
       `}</style>
     </>

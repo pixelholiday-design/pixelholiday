@@ -1,5 +1,5 @@
 /**
- * Unified PixelHoliday / Pixelvo fulfillment engine.
+ * Unified Fotiqo / Fotiqo fulfillment engine.
  *
  * Called after a ShopOrder is marked PAID (Stripe webhook or manual trigger).
  *
@@ -288,7 +288,7 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
         where: { id: shopOrderId },
         data: {
           status: "PROCESSING",
-          pixelvoCommission: commissionBreakdown.pixelvoCommission,
+          fotiqoCommission: commissionBreakdown.fotiqoCommission,
         },
       })
       .catch(() => null),
@@ -316,6 +316,6 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
     labOrderId,
     printfulOrderId,
     localJobIds,
-    commission: commissionBreakdown.pixelvoCommission,
+    commission: commissionBreakdown.fotiqoCommission,
   };
 }

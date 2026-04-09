@@ -86,7 +86,7 @@ export function generateSlideshowHtml(
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>${displayTitle} — Pixelvo</title>
+<title>${displayTitle} — Fotiqo</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:#111;overflow:hidden;font-family:'Segoe UI',system-ui,sans-serif}
@@ -136,7 +136,7 @@ ${photoDivs}
 
 <div class="progress-wrap"><div class="progress-bar" id="prog"></div></div>
 <div class="counter" id="counter">1 / ${count}</div>
-<div class="watermark">Pixelvo</div>
+<div class="watermark">Fotiqo</div>
 
 <div class="play-btn" id="playBtn"><span></span></div>
 

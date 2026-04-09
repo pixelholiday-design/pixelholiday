@@ -92,10 +92,10 @@ function buildSlideshowHtml(photoUrls: string[], track: MusicTrack): string {
 
   // Keyframes — single shared "kenburns-fade" cycle, scoped to each slide via animation-delay.
   // Each slide is visible for SECONDS_PER_PHOTO seconds out of totalDuration.
-  return `<!doctype html><html><head><meta charset="utf-8"><title>Pixelvo Reel</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Fotiqo Reel</title>
 <style>
 :root { color-scheme: dark; }
-html, body { margin:0; padding:0; height:100%; background:#0C1829; font-family:system-ui,sans-serif; overflow:hidden; }
+html, body { margin:0; padding:0; height:100%; background:#0C2E3D; font-family:system-ui,sans-serif; overflow:hidden; }
 .stage { position:fixed; inset:0; }
 .slide {
   position:absolute; inset:0;
@@ -118,12 +118,12 @@ html, body { margin:0; padding:0; height:100%; background:#0C1829; font-family:s
 }
 .brand {
   position:fixed; right:24px; top:20px; z-index:5;
-  color:#29ABE2; font-family:Georgia,serif; font-size:18px; font-weight:600;
+  color:#0EA5A5; font-family:Georgia,serif; font-size:18px; font-weight:600;
   text-shadow:0 2px 8px rgba(0,0,0,.6);
 }
 </style></head><body>
 <div class="stage">${slides}</div>
-<div class="brand">Pixelvo</div>
+<div class="brand">Fotiqo</div>
 <div class="label">Auto-Reel · ${track} · ${n} moments</div>
 </body></html>`;
 }

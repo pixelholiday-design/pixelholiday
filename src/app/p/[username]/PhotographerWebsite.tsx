@@ -59,7 +59,7 @@ export default function PhotographerWebsite({ profile, galleries }: { profile: P
   })();
   const visibleSections = sections.filter(s => s.visible).sort((a, b) => a.order - b.order);
   const allPhotos = galleries.flatMap(g => g.photos);
-  const primaryColor = profile.primaryColor || "#29ABE2";
+  const primaryColor = profile.primaryColor || "#0EA5A5";
 
   return (
     <div className={`min-h-screen ${tc.bg} ${tc.text}`} style={{ "--photographer-primary": primaryColor } as any}>
@@ -113,7 +113,7 @@ export default function PhotographerWebsite({ profile, galleries }: { profile: P
             {profile.socialTiktok && <a href={profile.socialTiktok} target="_blank" className={`${tc.muted} hover:opacity-80 text-sm`}>TikTok</a>}
             {profile.socialWebsite && <a href={profile.socialWebsite} target="_blank" className={`${tc.muted} hover:opacity-80 text-sm`}>Website</a>}
           </div>
-          <p className={`text-xs ${tc.muted}`}>&copy; {new Date().getFullYear()} {profile.businessName || profile.user.name}. Powered by Pixelvo.</p>
+          <p className={`text-xs ${tc.muted}`}>&copy; {new Date().getFullYear()} {profile.businessName || profile.user.name}. Powered by Fotiqo.</p>
         </div>
       </footer>
     </div>

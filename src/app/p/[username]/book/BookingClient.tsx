@@ -15,7 +15,7 @@ type Profile = {
 };
 
 export default function BookingClient({ profile }: { profile: Profile }) {
-  const color = profile.primaryColor || "#29ABE2";
+  const color = profile.primaryColor || "#0EA5A5";
   const isDark = profile.websiteTheme === "dark" || profile.websiteTheme === "bold";
   const [form, setForm] = useState({ name: "", email: "", phone: "", eventType: "", eventDate: "", message: "", budget: "" });
   const [selectedService, setSelectedService] = useState("");

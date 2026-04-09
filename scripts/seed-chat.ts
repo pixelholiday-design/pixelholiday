@@ -93,14 +93,14 @@ async function main() {
   const byRole = (role: string) => users.filter((u) => u.role === role);
 
   // Pick "canonical" actors. Fall back to role lookups if seed emails aren't present.
-  const ceo = byEmail.get("admin@pixelholiday.local") ?? byRole("CEO")[0];
-  const ops = byEmail.get("ops@pixelholiday.local") ?? byRole("OPERATIONS_MANAGER")[0];
-  const supervisor = byEmail.get("super@pixelholiday.local") ?? byRole("SUPERVISOR")[0];
-  const photo1 = byEmail.get("photo1@pixelholiday.local") ?? byRole("PHOTOGRAPHER")[0];
-  const photo2 = byEmail.get("photo2@pixelholiday.local") ?? byRole("PHOTOGRAPHER")[1] ?? photo1;
-  const sales = byEmail.get("sales@pixelholiday.local") ?? byRole("SALES_STAFF")[0];
-  const reception = byEmail.get("reception@pixelholiday.local") ?? byRole("RECEPTIONIST")[0];
-  const trainee = byEmail.get("trainee@pixelholiday.local") ?? byRole("ACADEMY_TRAINEE")[0];
+  const ceo = byEmail.get("admin@fotiqo.local") ?? byRole("CEO")[0];
+  const ops = byEmail.get("ops@fotiqo.local") ?? byRole("OPERATIONS_MANAGER")[0];
+  const supervisor = byEmail.get("super@fotiqo.local") ?? byRole("SUPERVISOR")[0];
+  const photo1 = byEmail.get("photo1@fotiqo.local") ?? byRole("PHOTOGRAPHER")[0];
+  const photo2 = byEmail.get("photo2@fotiqo.local") ?? byRole("PHOTOGRAPHER")[1] ?? photo1;
+  const sales = byEmail.get("sales@fotiqo.local") ?? byRole("SALES_STAFF")[0];
+  const reception = byEmail.get("reception@fotiqo.local") ?? byRole("RECEPTIONIST")[0];
+  const trainee = byEmail.get("trainee@fotiqo.local") ?? byRole("ACADEMY_TRAINEE")[0];
 
   if (!ceo) {
     console.log("⚠️  No CEO found — skipping seed to avoid weird state.");

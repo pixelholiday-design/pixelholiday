@@ -18,7 +18,7 @@ export async function sendWhatsAppMessage(to: string, body: string) {
 }
 
 export async function sendWhatsAppHookLink(to: string, link: string) {
-  return sendWhatsAppMessage(to, `✨ Your Pixelvo memory is ready! Tap to view: ${link}`);
+  return sendWhatsAppMessage(to, `✨ Your Fotiqo memory is ready! Tap to view: ${link}`);
 }
 export async function sendWhatsAppGalleryDelivery(to: string, link: string) {
   return sendWhatsAppMessage(to, `📸 Your photos are unlocked! Download: ${link}`);
@@ -43,7 +43,7 @@ export async function sendWhatsAppReply(to: string, body: string) {
 export async function sendWhatsAppHelpMenu(to: string) {
   return sendWhatsAppMessage(
     to,
-    `Welcome to Pixelvo! Reply with:\n📸 "photos" - View your gallery\n📅 "book" - Book a photo session\n❓ "help" - See this menu again`
+    `Welcome to Fotiqo! Reply with:\n📸 "photos" - View your gallery\n📅 "book" - Book a photo session\n❓ "help" - See this menu again`
   );
 }
 

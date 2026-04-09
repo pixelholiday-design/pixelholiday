@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
     // Summary stats
     const totalRevenue = orders.reduce((s, o) => s + o.total, 0);
     const totalCommission = ordersWithCommission.reduce(
-      (s, o) => s + o.commissionBreakdown.pixelvoCommission,
+      (s, o) => s + o.commissionBreakdown.fotiqoCommission,
       0,
     );
     const byStatus: Record<string, number> = {};

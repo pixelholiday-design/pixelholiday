@@ -2,7 +2,7 @@
  * Comprehensive expanded shop product seeder.
  *
  * Seeds 150+ ShopProduct rows covering every product category in the
- * Pixelvo / PixelHoliday shop. Safe to re-run — uses upsert with
+ * Fotiqo / Fotiqo shop. Safe to re-run — uses upsert with
  * productKey as the unique key.
  *
  * Usage:

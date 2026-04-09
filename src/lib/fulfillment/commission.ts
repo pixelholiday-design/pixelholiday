@@ -1,5 +1,5 @@
 /**
- * Pixelvo commission calculator for ShopOrders.
+ * Fotiqo commission calculator for ShopOrders.
  *
  * Rules (from CLAUDE.md):
  *   Digital items:              2% of sale price (after Stripe fees)
@@ -18,8 +18,8 @@ export type CommissionItem = {
 };
 
 export type CommissionBreakdown = {
-  /** Amount Pixelvo keeps as platform fee */
-  pixelvoCommission: number;
+  /** Amount Fotiqo keeps as platform fee */
+  fotiqoCommission: number;
   /** Amount that goes to the photographer / franchise */
   photographerRevenue: number;
   /** Total customer-paid revenue */
@@ -34,7 +34,7 @@ export type CommissionBreakdown = {
 };
 
 export function calculateCommission(items: CommissionItem[]): CommissionBreakdown {
-  let pixelvoCommission = 0;
+  let fotiqoCommission = 0;
   let totalRevenue = 0;
   const itemBreakdowns: CommissionBreakdown["itemBreakdowns"] = [];
 
@@ -61,13 +61,13 @@ export function calculateCommission(items: CommissionItem[]): CommissionBreakdow
       reason = `physical_profit_50pct (cost €${costPerUnit.toFixed(2)}/unit)`;
     }
 
-    pixelvoCommission += commission;
+    fotiqoCommission += commission;
     itemBreakdowns.push({ fulfillmentType: item.fulfillmentType, lineTotal, commission, reason });
   }
 
   return {
-    pixelvoCommission: Math.round(pixelvoCommission * 100) / 100,
-    photographerRevenue: Math.round((totalRevenue - pixelvoCommission) * 100) / 100,
+    fotiqoCommission: Math.round(fotiqoCommission * 100) / 100,
+    photographerRevenue: Math.round((totalRevenue - fotiqoCommission) * 100) / 100,
     totalRevenue: Math.round(totalRevenue * 100) / 100,
     itemBreakdowns,
   };

@@ -181,7 +181,7 @@ async function main() {
   }
   if (!org) {
     org = await prisma.organization.create({
-      data: { name: "PixelHoliday HQ", type: "HEADQUARTERS" },
+      data: { name: "Fotiqo HQ", type: "HEADQUARTERS" },
     });
     console.log("Created HQ org:", org.id);
   } else {

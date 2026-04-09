@@ -4,7 +4,7 @@
 import { Resend } from "resend";
 
 const KEY = process.env.RESEND_API_KEY;
-const FROM = process.env.FROM_EMAIL || "noreply@pixelvo.com";
+const FROM = process.env.FROM_EMAIL || "noreply@fotiqo.com";
 const resend = KEY ? new Resend(KEY) : null;
 
 async function send(to: string, subject: string, html: string) {
@@ -16,7 +16,7 @@ async function send(to: string, subject: string, html: string) {
 }
 
 export async function emailPaymentReceipt(to: string, amount: number, link: string) {
-  return send(to, "Your Pixelvo receipt", `<p>Thank you! Total: €${amount}</p><p><a href="${link}">View gallery</a></p>`);
+  return send(to, "Your Fotiqo receipt", `<p>Thank you! Total: €${amount}</p><p><a href="${link}">View gallery</a></p>`);
 }
 export async function emailGalleryLink(to: string, link: string) {
   return send(to, "Your photos are ready", `<p>Tap to view: <a href="${link}">${link}</a></p>`);

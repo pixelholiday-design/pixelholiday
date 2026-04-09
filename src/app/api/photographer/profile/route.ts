@@ -59,7 +59,7 @@ export async function POST(req: Request) {
       socialTiktok: data.socialTiktok,
       isPublicProfile: data.isPublicProfile ?? true,
       websiteTheme: data.websiteTheme || "minimal",
-      primaryColor: data.primaryColor || "#29ABE2",
+      primaryColor: data.primaryColor || "#0EA5A5",
       fontChoice: data.fontChoice || "inter",
       logoUrl: data.logoUrl,
       sections: data.sections ? JSON.stringify(data.sections) : undefined,

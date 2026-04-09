@@ -47,7 +47,7 @@ export async function GET(req: Request) {
   return new Response(csv, {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="pixelvo-emails-${new Date().toISOString().split("T")[0]}.csv"`,
+      "Content-Disposition": `attachment; filename="fotiqo-emails-${new Date().toISOString().split("T")[0]}.csv"`,
     },
   });
 }

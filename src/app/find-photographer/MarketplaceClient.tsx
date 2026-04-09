@@ -201,10 +201,10 @@ export default function MarketplaceClient({
   return (
     <div className="min-h-screen bg-[#FAFAF7]">
       {/* ── Hero ─────────────────────────────────── */}
-      <section className="relative bg-[#0C1829] overflow-hidden">
+      <section className="relative bg-[#0C2E3D] overflow-hidden">
         {/* Decorative gradient circles */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#29ABE2]/10 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#E8593C]/10 blur-3xl" />
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-[#0EA5A5]/10 blur-3xl" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[#F97316]/10 blur-3xl" />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 text-center">
           <h1
@@ -212,7 +212,7 @@ export default function MarketplaceClient({
             style={{ fontFamily: "'Playfair Display', serif" }}
           >
             Find Your Perfect{" "}
-            <span className="text-[#29ABE2]">Photographer</span>
+            <span className="text-[#0EA5A5]">Photographer</span>
           </h1>
           <p className="mt-4 text-lg sm:text-xl text-gray-300 max-w-2xl mx-auto">
             Browse portfolios, read reviews, and book sessions with talented
@@ -223,7 +223,7 @@ export default function MarketplaceClient({
           <div className="mt-10 max-w-4xl mx-auto">
             <div className="bg-white rounded-2xl shadow-xl p-2 flex flex-col sm:flex-row gap-2">
               {/* Location */}
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#29ABE2]/40">
+              <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#0EA5A5]/40">
                 <MapPin size={20} className="text-gray-400 shrink-0" />
                 <input
                   type="text"
@@ -236,7 +236,7 @@ export default function MarketplaceClient({
               </div>
 
               {/* Date */}
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#29ABE2]/40">
+              <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#0EA5A5]/40">
                 <Calendar size={20} className="text-gray-400 shrink-0" />
                 <input
                   type="date"
@@ -247,7 +247,7 @@ export default function MarketplaceClient({
               </div>
 
               {/* Session Type */}
-              <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#29ABE2]/40">
+              <div className="flex-1 flex items-center gap-2 px-4 py-3 rounded-xl bg-gray-50 focus-within:ring-2 focus-within:ring-[#0EA5A5]/40">
                 <Camera size={20} className="text-gray-400 shrink-0" />
                 <select
                   value={specialtyInput}
@@ -267,7 +267,7 @@ export default function MarketplaceClient({
               {/* Search Button */}
               <button
                 onClick={handleSearch}
-                className="flex items-center justify-center gap-2 bg-[#E8593C] hover:bg-[#d14830] text-white font-semibold px-8 py-3 rounded-xl transition-colors shrink-0"
+                className="flex items-center justify-center gap-2 bg-[#F97316] hover:bg-[#d14830] text-white font-semibold px-8 py-3 rounded-xl transition-colors shrink-0"
               >
                 <Search size={18} />
                 <span>Search</span>
@@ -305,11 +305,11 @@ export default function MarketplaceClient({
               <SlidersHorizontal size={16} />
               Filters
               {hasActiveFilters && (
-                <span className="w-2 h-2 rounded-full bg-[#E8593C]" />
+                <span className="w-2 h-2 rounded-full bg-[#F97316]" />
               )}
             </button>
             <p className="text-gray-600 text-sm">
-              <span className="font-semibold text-[#0C1829]">{total}</span>{" "}
+              <span className="font-semibold text-[#0C2E3D]">{total}</span>{" "}
               photographer{total !== 1 ? "s" : ""} found
             </p>
           </div>
@@ -323,7 +323,7 @@ export default function MarketplaceClient({
                 setSortValue(e.target.value);
                 navigate({ sort: e.target.value, page: undefined });
               }}
-              className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#29ABE2]/40 cursor-pointer"
+              className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-[#0EA5A5]/40 cursor-pointer"
             >
               <option value="rating">Top Rated</option>
               <option value="price-asc">Price: Low to High</option>
@@ -350,7 +350,7 @@ export default function MarketplaceClient({
               {/* Mobile close */}
               {showFilters && (
                 <div className="flex items-center justify-between mb-6 lg:hidden">
-                  <h3 className="text-lg font-semibold text-[#0C1829]">Filters</h3>
+                  <h3 className="text-lg font-semibold text-[#0C2E3D]">Filters</h3>
                   <button onClick={() => setShowFilters(false)}>
                     <X size={20} className="text-gray-500" />
                   </button>
@@ -358,14 +358,14 @@ export default function MarketplaceClient({
               )}
 
               <div className="space-y-6 bg-white lg:rounded-xl lg:border lg:border-gray-200 lg:p-5">
-                <div className="hidden lg:flex items-center gap-2 text-[#0C1829] font-semibold">
+                <div className="hidden lg:flex items-center gap-2 text-[#0C2E3D] font-semibold">
                   <Filter size={18} />
                   Filters
                 </div>
 
                 {/* Specialty */}
                 <div>
-                  <h4 className="text-sm font-semibold text-[#0C1829] mb-3">
+                  <h4 className="text-sm font-semibold text-[#0C2E3D] mb-3">
                     Specialty
                   </h4>
                   <div className="space-y-2">
@@ -378,9 +378,9 @@ export default function MarketplaceClient({
                           type="checkbox"
                           checked={selectedSpecialties.includes(s)}
                           onChange={() => toggleSpecialty(s)}
-                          className="w-4 h-4 rounded border-gray-300 text-[#29ABE2] focus:ring-[#29ABE2]/40"
+                          className="w-4 h-4 rounded border-gray-300 text-[#0EA5A5] focus:ring-[#0EA5A5]/40"
                         />
-                        <span className="group-hover:text-[#0C1829] transition-colors">
+                        <span className="group-hover:text-[#0C2E3D] transition-colors">
                           {capitalize(s)}
                         </span>
                       </label>
@@ -390,7 +390,7 @@ export default function MarketplaceClient({
 
                 {/* Price Range */}
                 <div>
-                  <h4 className="text-sm font-semibold text-[#0C1829] mb-3">
+                  <h4 className="text-sm font-semibold text-[#0C2E3D] mb-3">
                     Price Range (EUR/hour)
                   </h4>
                   <div className="flex items-center gap-2">
@@ -400,7 +400,7 @@ export default function MarketplaceClient({
                       placeholder="Min"
                       value={minPrice}
                       onChange={(e) => setMinPrice(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#29ABE2]/40"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#0EA5A5]/40"
                     />
                     <span className="text-gray-400">&ndash;</span>
                     <input
@@ -409,14 +409,14 @@ export default function MarketplaceClient({
                       placeholder="Max"
                       value={maxPrice}
                       onChange={(e) => setMaxPrice(e.target.value)}
-                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#29ABE2]/40"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-[#0EA5A5]/40"
                     />
                   </div>
                 </div>
 
                 {/* Rating */}
                 <div>
-                  <h4 className="text-sm font-semibold text-[#0C1829] mb-3">
+                  <h4 className="text-sm font-semibold text-[#0C2E3D] mb-3">
                     Minimum Rating
                   </h4>
                   <div className="flex gap-2">
@@ -440,7 +440,7 @@ export default function MarketplaceClient({
                 {/* Languages */}
                 {availableLanguages.length > 0 && (
                   <div>
-                    <h4 className="text-sm font-semibold text-[#0C1829] mb-3">
+                    <h4 className="text-sm font-semibold text-[#0C2E3D] mb-3">
                       Language
                     </h4>
                     <div className="space-y-2 max-h-40 overflow-y-auto">
@@ -453,9 +453,9 @@ export default function MarketplaceClient({
                             type="checkbox"
                             checked={selectedLanguages.includes(l)}
                             onChange={() => toggleLanguage(l)}
-                            className="w-4 h-4 rounded border-gray-300 text-[#29ABE2] focus:ring-[#29ABE2]/40"
+                            className="w-4 h-4 rounded border-gray-300 text-[#0EA5A5] focus:ring-[#0EA5A5]/40"
                           />
-                          <span className="group-hover:text-[#0C1829] transition-colors">
+                          <span className="group-hover:text-[#0C2E3D] transition-colors">
                             {l}
                           </span>
                         </label>
@@ -471,14 +471,14 @@ export default function MarketplaceClient({
                       applyFilters();
                       setShowFilters(false);
                     }}
-                    className="w-full bg-[#29ABE2] hover:bg-[#1e96c9] text-white font-semibold py-2.5 rounded-lg text-sm transition-colors"
+                    className="w-full bg-[#0EA5A5] hover:bg-[#1e96c9] text-white font-semibold py-2.5 rounded-lg text-sm transition-colors"
                   >
                     Apply Filters
                   </button>
                   {hasActiveFilters && (
                     <button
                       onClick={clearFilters}
-                      className="w-full text-sm text-gray-500 hover:text-[#E8593C] transition-colors"
+                      className="w-full text-sm text-gray-500 hover:text-[#F97316] transition-colors"
                     >
                       Clear All
                     </button>
@@ -497,7 +497,7 @@ export default function MarketplaceClient({
                   <Camera size={40} className="text-gray-300" />
                 </div>
                 <h3
-                  className="text-2xl font-bold text-[#0C1829] mb-2"
+                  className="text-2xl font-bold text-[#0C2E3D] mb-2"
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
                   No photographers found
@@ -508,7 +508,7 @@ export default function MarketplaceClient({
                 </p>
                 <button
                   onClick={clearFilters}
-                  className="px-6 py-2.5 bg-[#29ABE2] hover:bg-[#1e96c9] text-white rounded-lg text-sm font-semibold transition-colors"
+                  className="px-6 py-2.5 bg-[#0EA5A5] hover:bg-[#1e96c9] text-white rounded-lg text-sm font-semibold transition-colors"
                 >
                   Clear All Filters
                 </button>
@@ -581,7 +581,7 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[#29ABE2]/20 via-[#0C1829]/30 to-[#E8593C]/20 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-[#0EA5A5]/20 via-[#0C2E3D]/30 to-[#F97316]/20 flex items-center justify-center">
             <Camera size={36} className="text-white/40" />
           </div>
         )}
@@ -599,7 +599,7 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
           className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors shadow-sm"
           aria-label="Save photographer"
         >
-          <Heart size={16} className="text-gray-500 hover:text-[#E8593C] transition-colors" />
+          <Heart size={16} className="text-gray-500 hover:text-[#F97316] transition-colors" />
         </button>
       </div>
 
@@ -613,7 +613,7 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-[#29ABE2] to-[#0C1829] flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-full h-full bg-gradient-to-br from-[#0EA5A5] to-[#0C2E3D] flex items-center justify-center text-white font-bold text-lg">
               {displayName.charAt(0).toUpperCase()}
             </div>
           )}
@@ -623,7 +623,7 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
       {/* Card body */}
       <div className="px-5 pt-3 pb-5">
         {/* Name + tagline */}
-        <h3 className="text-lg font-bold text-[#0C1829] leading-snug">
+        <h3 className="text-lg font-bold text-[#0C2E3D] leading-snug">
           {displayName}
         </h3>
         {p.tagline && (
@@ -636,7 +636,7 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
         <div className="flex items-center flex-wrap gap-x-4 gap-y-1 mt-3 text-sm">
           <span className="flex items-center gap-1">
             <Stars rating={p.averageRating} size={14} />
-            <span className="font-semibold text-[#0C1829]">
+            <span className="font-semibold text-[#0C2E3D]">
               {p.averageRating.toFixed(1)}
             </span>
             <span className="text-gray-400">({p.totalReviews})</span>
@@ -653,7 +653,7 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
         {lowestPrice != null && (
           <p className="mt-3 text-sm">
             <span className="text-gray-500">From </span>
-            <span className="text-[#0C1829] font-bold text-base">
+            <span className="text-[#0C2E3D] font-bold text-base">
               &euro;{lowestPrice}
             </span>
             <span className="text-gray-500">/hour</span>
@@ -666,7 +666,7 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
             {p.specialties.slice(0, 4).map((s) => (
               <span
                 key={s}
-                className="inline-block bg-[#29ABE2]/10 text-[#1e7fa8] text-xs font-medium px-2.5 py-1 rounded-full"
+                className="inline-block bg-[#0EA5A5]/10 text-[#1e7fa8] text-xs font-medium px-2.5 py-1 rounded-full"
               >
                 {capitalize(s)}
               </span>
@@ -691,13 +691,13 @@ function PhotographerCard({ photographer: p }: { photographer: Photographer }) {
         <div className="flex gap-2 mt-4">
           <Link
             href={`/p/${p.username}`}
-            className="flex-1 text-center px-4 py-2.5 border border-gray-200 text-[#0C1829] font-semibold text-sm rounded-xl hover:bg-gray-50 transition-colors"
+            className="flex-1 text-center px-4 py-2.5 border border-gray-200 text-[#0C2E3D] font-semibold text-sm rounded-xl hover:bg-gray-50 transition-colors"
           >
             View Profile
           </Link>
           <Link
             href={`/p/${p.username}/book`}
-            className="flex-1 text-center px-4 py-2.5 bg-[#E8593C] hover:bg-[#d14830] text-white font-semibold text-sm rounded-xl transition-colors"
+            className="flex-1 text-center px-4 py-2.5 bg-[#F97316] hover:bg-[#d14830] text-white font-semibold text-sm rounded-xl transition-colors"
           >
             Book Now
           </Link>

@@ -23,7 +23,7 @@ export async function GET() {
       {
         status: "ok",
         role: "LOCAL_SERVER",
-        name: localServer?.name || "Pixelvo Sale Point",
+        name: localServer?.name || "Fotiqo Sale Point",
         locationId: localServer?.locationId || null,
         uptimeMs: Date.now() - startedAt,
         timestamp: new Date().toISOString(),

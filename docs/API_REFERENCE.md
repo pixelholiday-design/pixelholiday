@@ -1,4 +1,4 @@
-# PixelHoliday — API Reference
+# Fotiqo — API Reference
 
 ## Auth
 - `GET/POST /api/auth/[...nextauth]` — NextAuth handlers

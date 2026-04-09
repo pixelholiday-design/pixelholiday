@@ -1,6 +1,6 @@
-# PixelHoliday — Deployment Guide
+# Fotiqo — Deployment Guide
 
-This walks you through getting PixelHoliday from local dev onto Vercel + Neon
+This walks you through getting Fotiqo from local dev onto Vercel + Neon
 + Cloudflare R2 + Cloudinary + Stripe + Resend.
 
 Each section ends with a **smoke test** so you can stop and verify before
@@ -21,7 +21,7 @@ moving on. Don't enable Stripe live mode until *every* prior step is green.
 1. https://console.neon.tech → **Create Project**
 2. Region: pick one close to your Vercel region (default `iad1` → US East)
 3. Postgres version: **16**
-4. Project name: `pixelholiday`
+4. Project name: `fotiqo`
 5. After creation, click **Connection Details** and copy the **pooled** connection string. It looks like:
    ```
    postgresql://USER:PASSWORD@ep-xxx-pooler.region.aws.neon.tech/neondb?sslmode=require
@@ -44,7 +44,7 @@ R2 holds the original photo files. Cloudinary handles watermarking on top of
 them.
 
 1. https://dash.cloudflare.com → **R2 Object Storage** → **Create bucket**
-   - Name: `pixelholiday-photos`
+   - Name: `fotiqo-photos`
    - Location: Automatic
 2. **Settings → Public Access**: enable a public dev URL or attach a custom
    domain like `photos.your-domain.com`. Save this as `R2_PUBLIC_URL`.
@@ -59,7 +59,7 @@ You now have:
 R2_ACCOUNT_ID=<32-hex>
 R2_ACCESS_KEY_ID=<from token>
 R2_SECRET_ACCESS_KEY=<from token>
-R2_BUCKET_NAME=pixelholiday-photos
+R2_BUCKET_NAME=fotiqo-photos
 R2_PUBLIC_URL=https://photos.your-domain.com
 ```
 
@@ -74,20 +74,20 @@ Cloudinary handles dynamic watermarking and the `download_zip_url` archive.
 
 1. https://cloudinary.com → sign up (free tier is plenty for testing)
 2. Dashboard → copy **Cloud Name**, **API Key**, **API Secret**
-3. **Media Library** → upload a PNG with the PixelHoliday logo + `WATERMARK`
-   text. Note its public ID (e.g. `pixelholiday_watermark`).
+3. **Media Library** → upload a PNG with the Fotiqo logo + `WATERMARK`
+   text. Note its public ID (e.g. `fotiqo_watermark`).
 4. Save:
    ```
    CLOUDINARY_CLOUD_NAME=<cloud name>
    CLOUDINARY_API_KEY=<api key>
    CLOUDINARY_API_SECRET=<api secret>
-   CLOUDINARY_WATERMARK_PUBLIC_ID=pixelholiday_watermark
+   CLOUDINARY_WATERMARK_PUBLIC_ID=fotiqo_watermark
    NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=<cloud name>
-   NEXT_PUBLIC_CLOUDINARY_WATERMARK_PUBLIC_ID=pixelholiday_watermark
+   NEXT_PUBLIC_CLOUDINARY_WATERMARK_PUBLIC_ID=fotiqo_watermark
    ```
 
 **Smoke test:** open any seeded gallery — the watermarked images should
-load (URLs contain `l_pixelholiday_watermark,w_0.5,g_center,o_40`).
+load (URLs contain `l_fotiqo_watermark,w_0.5,g_center,o_40`).
 
 ---
 
@@ -179,7 +179,7 @@ DATABASE_URL="<neon prod url>" npx tsx prisma/seed.ts
 ```
 
 Then visit `https://<your-vercel-url>/login` and sign in as
-`admin@pixelholiday.local` / `password123`. **Change this password
+`admin@fotiqo.local` / `password123`. **Change this password
 immediately** in `/admin/staff` once you confirm everything works.
 
 ---
@@ -212,7 +212,7 @@ to the new domain and redeploy.
 
 ## 10. Production hardening before launch
 
-1. **Change all seeded passwords** — `admin@pixelholiday.local` / `password123`
+1. **Change all seeded passwords** — `admin@fotiqo.local` / `password123`
    is a known credential. Change in `/admin/staff` or via SQL.
 2. **Change all kiosk PINs** — `1111`, `2222`, `3333`, `4444` are seed
    values. Update via the staff page or SQL.

@@ -118,7 +118,7 @@ export default function TvDisplayPage() {
           <div className="h-12 w-12 rounded-xl bg-coral-500/20 ring-1 ring-coral-500/40 flex items-center justify-center">
             <Camera className="h-6 w-6 text-coral-300" />
           </div>
-          <div className="font-display text-3xl">Pixelvo</div>
+          <div className="font-display text-3xl">Fotiqo</div>
         </div>
 
         <div className="text-center max-w-3xl mx-auto">

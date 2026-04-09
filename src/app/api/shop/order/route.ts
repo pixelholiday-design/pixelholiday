@@ -108,8 +108,8 @@ export async function POST(req: NextRequest) {
     const shippingCost = hasPhysical ? (shipping?.method === "EXPRESS" ? 15 : 5) : 0;
     const total = subtotal - discount + shippingCost;
 
-    // Pixelvo commission: 2% on digital, 50% of margin on physical
-    const pixelvoCommission = lines.reduce(
+    // Fotiqo commission: 2% on digital, 50% of margin on physical
+    const fotiqoCommission = lines.reduce(
       (sum, l) => sum + calcCommission(l.product.fulfillmentType, l.product.retailPrice, l.product.costPrice, l.qty),
       0,
     );
@@ -140,7 +140,7 @@ export async function POST(req: NextRequest) {
         discount,
         shippingCost,
         total,
-        pixelvoCommission: Math.round(pixelvoCommission * 100) / 100,
+        fotiqoCommission: Math.round(fotiqoCommission * 100) / 100,
         couponCode: couponCode || null,
         shippingName: shipping?.name || null,
         shippingAddress: shipping?.address || null,

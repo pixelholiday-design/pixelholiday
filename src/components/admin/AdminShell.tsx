@@ -192,8 +192,8 @@ export default function AdminShell({
       >
         <div className="flex items-center gap-3 px-6 h-16 border-b border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icon-pixelvo.svg" alt="Pixelvo" className="h-8 w-8 rounded-lg" />
-          <span className="font-display text-xl tracking-tight">Pixelvo</span>
+          <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-8 w-8 rounded-lg" />
+          <span className="font-display text-xl tracking-tight">Fotiqo</span>
         </div>
         <nav className="px-3 py-5 overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin">
           {visibleSections.map((section) => (

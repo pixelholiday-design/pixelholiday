@@ -19,7 +19,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     orgId: org.id,
     name: org.name,
-    brandColor: org.brandColor || "#29ABE2",
+    brandColor: org.brandColor || "#0EA5A5",
     logoUrl: org.logoUrl || null,
     tagline: org.tagline || null,
     customDomain: org.customDomain || null,

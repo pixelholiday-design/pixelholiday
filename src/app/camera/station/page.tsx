@@ -93,7 +93,7 @@ export default function CameraStationPage() {
   const doCapture = useCallback(async (imageBase64?: string) => {
     // Build SVG placeholder for the local thumbnail (shown immediately)
     const svgPreview = `data:image/svg+xml,${encodeURIComponent(
-      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#1a2a44" width="200" height="200"/><text x="100" y="100" fill="#E8593C" font-size="14" text-anchor="middle" dominant-baseline="middle">${new Date().toLocaleTimeString()}</text></svg>`
+      `<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><rect fill="#1a2a44" width="200" height="200"/><text x="100" y="100" fill="#F97316" font-size="14" text-anchor="middle" dominant-baseline="middle">${new Date().toLocaleTimeString()}</text></svg>`
     )}`;
 
     const captureId = `cap-${Date.now()}`;
@@ -158,7 +158,7 @@ export default function CameraStationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0C1829] text-white font-sans selection:bg-coral-500/30">
+    <div className="min-h-screen bg-[#0C2E3D] text-white font-sans selection:bg-coral-500/30">
       {/* Header */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-white/10">
         <div className="flex items-center gap-3">

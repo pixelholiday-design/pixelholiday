@@ -1,12 +1,12 @@
 // Full end-to-end production test suite.
 // Tests every role, every customer flow, every admin op, infra.
-// Runs against pixelholiday.vercel.app + verifies DB state via Neon.
+// Runs against fotiqo.vercel.app + verifies DB state via Neon.
 // No interactive browser — HTTPS + Prisma only.
 import https from 'https';
 import { URLSearchParams } from 'url';
 import { PrismaClient } from '@prisma/client';
 
-const HOST = 'pixelholiday.vercel.app';
+const HOST = 'fotiqo.vercel.app';
 const results = {}; // section → [{id, name, status, evidence}]
 
 // Use the Neon connection for DB verification
@@ -18,7 +18,7 @@ function req(method, path, headers = {}, body = null) {
   return new Promise((resolve, reject) => {
     const r = https.request({
       hostname: HOST, port: 443, path, method,
-      headers: { 'User-Agent': 'pixelholiday-e2e', ...headers },
+      headers: { 'User-Agent': 'fotiqo-e2e', ...headers },
     }, (res) => {
       let data = '';
       res.on('data', (c) => data += c);
@@ -136,7 +136,7 @@ async function loadFixtures() {
 
 async function testCEO() {
   const S = 'A1-CEO';
-  const cookie = await login('admin@pixelholiday.local', 'password123');
+  const cookie = await login('admin@fotiqo.local', 'password123');
   if (!cookie) { rec(S, 'A1.1', 'CEO login', 'FAIL', 'no session'); return null; }
   rec(S, 'A1.1', 'CEO login → /admin/dashboard', 'PASS', 'session set');
 
@@ -381,7 +381,7 @@ async function testCustomerFlows() {
   rec(S_KIOSK, 'B3.1', 'PIN 1111 verify', verifyPin.status === 200 && verifyPin.body?.ok ? 'PASS' : 'FAIL', `status=${verifyPin.status}`);
 
   // Need photographer session cookie for /api/kiosk/sale (requireStaff)
-  const photogCookie = await login('photo1@pixelholiday.local', 'password123');
+  const photogCookie = await login('photo1@fotiqo.local', 'password123');
   const cashG = fixtures.unsoldForCash;
   if (cashG && cashG.photos?.length >= 1 && photogCookie) {
     rec(S_KIOSK, 'B3.2', 'Kiosk unsold gallery', 'PASS', `gallery=${cashG.id.slice(0, 8)} photos=${cashG.photos.length}`);
@@ -679,7 +679,7 @@ async function testInfra() {
 
   console.log('\n--- A2 Ops Manager ---');
   await testRole('A2-Ops',
-    'ops@pixelholiday.local', 'password123',
+    'ops@fotiqo.local', 'password123',
     [
       ['dashboard', '/admin/dashboard'],
       ['staff', '/admin/staff'],
@@ -697,7 +697,7 @@ async function testInfra() {
 
   console.log('\n--- A3 Supervisor ---');
   await testRole('A3-Supervisor',
-    'super@pixelholiday.local', 'password123',
+    'super@fotiqo.local', 'password123',
     [
       ['dashboard', '/admin/dashboard'],
       ['upload', '/admin/upload'],
@@ -714,7 +714,7 @@ async function testInfra() {
 
   console.log('\n--- A4 Photographer ---');
   await testRole('A4-Photographer',
-    'photo1@pixelholiday.local', 'password123',
+    'photo1@fotiqo.local', 'password123',
     [
       ['my-dashboard', '/my-dashboard'],
       ['upload', '/admin/upload'],
@@ -728,7 +728,7 @@ async function testInfra() {
 
   console.log('\n--- A5 Sales Staff ---');
   await testRole('A5-Sales',
-    'sales@pixelholiday.local', 'password123',
+    'sales@fotiqo.local', 'password123',
     [
       ['bookings', '/admin/bookings'],
     ],
@@ -741,7 +741,7 @@ async function testInfra() {
 
   console.log('\n--- A6 Receptionist ---');
   await testRole('A6-Receptionist',
-    'reception@pixelholiday.local', 'password123',
+    'reception@fotiqo.local', 'password123',
     [
       ['bookings', '/admin/bookings'],
     ],
@@ -755,7 +755,7 @@ async function testInfra() {
 
   console.log('\n--- A7 Academy Trainee ---');
   await testRole('A7-Trainee',
-    'trainee@pixelholiday.local', 'password123',
+    'trainee@fotiqo.local', 'password123',
     [
       ['academy', '/admin/academy'],
     ],

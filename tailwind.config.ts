@@ -9,51 +9,66 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── PixelHoliday brand (real logo colors) ──
+        // ── Fotiqo brand colors ──
+        fotiqo: {
+          50:  "#F0FDFA",
+          100: "#CCFBF1",
+          200: "#99F6E4",
+          300: "#5EEAD4",  // Mint — highlights
+          400: "#2DD4BF",
+          500: "#0EA5A5",  // PRIMARY — teal
+          600: "#0D9488",  // Button hover
+          700: "#0F766E",  // Active/pressed
+          800: "#115E59",
+          900: "#134E4A",
+        },
+        // Keep brand alias pointing to fotiqo for backward compat during transition
         brand: {
-          50:  "#E8F6FC",
-          100: "#C5E9F7",
-          200: "#8FD4EF",
-          300: "#4FC4F0",  // Light Blue (highlights)
-          400: "#29ABE2",  // PRIMARY — turquoise cyan (THE PixelHoliday blue)
-          500: "#29ABE2",
-          600: "#1F93C5",
-          700: "#1A7BB5",  // Dark Blue (deeper elements, sidebar bg)
-          800: "#156291",
-          900: "#0F4868",
+          50:  "#F0FDFA",
+          100: "#CCFBF1",
+          200: "#99F6E4",
+          300: "#5EEAD4",
+          400: "#0EA5A5",
+          500: "#0EA5A5",
+          600: "#0D9488",
+          700: "#0C2E3D",
+          800: "#115E59",
+          900: "#134E4A",
         },
-        // Legacy coral (kept — accent + secondary CTA)
+        // Coral → now warm orange CTA
         coral: {
-          50:  "#FEF3F0",
-          100: "#FCE4DC",
-          200: "#F8C4B2",
-          300: "#F39E82",
-          400: "#EE7A58",
-          500: "#E8593C",
-          600: "#CF4428",
-          700: "#A8351F",
-          800: "#7E2818",
-          900: "#551A10",
+          50:  "#FFF7ED",
+          100: "#FFEDD5",
+          200: "#FED7AA",
+          300: "#FDBA74",
+          400: "#FB923C",
+          500: "#F97316",  // CTA orange
+          600: "#EA580C",  // CTA hover
+          700: "#C2410C",
+          800: "#9A3412",
+          900: "#7C2D12",
         },
-        // Navy — dark backgrounds for kiosks + text
+        "cta-orange": "#F97316",
+        "cta-orange-hover": "#EA580C",
+        // Navy — deep dark backgrounds
         navy: {
-          50:  "#F0F3F8",
-          100: "#D9E0EC",
-          200: "#A9B7CC",
-          300: "#7A8EAC",
-          400: "#52678B",
-          500: "#334766",
-          600: "#1F3352",
-          700: "#162642",
-          800: "#0F1B2D",
-          900: "#0C1829",  // Dark Background
+          50:  "#F0F4F8",
+          100: "#D9E2EC",
+          200: "#BCCCDC",
+          300: "#9FB3C8",
+          400: "#829AB1",
+          500: "#627D98",
+          600: "#486581",
+          700: "#334E68",
+          800: "#243B53",
+          900: "#0C2E3D",  // Deep Navy — primary dark
         },
         // Cream — warm page backgrounds
         cream: {
           50:  "#FFFFFE",
-          100: "#FAFAF7",  // Cream Background
-          200: "#F3F2EC",
-          300: "#E9E7DD",
+          100: "#FAFAF9",  // Warm White background
+          200: "#F5F5F4",
+          300: "#E7E5E4",
         },
         // Gold — premium/VIP elements
         gold: {
@@ -61,19 +76,21 @@ const config: Config = {
           500: "#D4A853",
           600: "#B38B3C",
         },
+        mint: "#5EEAD4",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-body)", "system-ui", "sans-serif"],
         display: ["var(--font-display)", "Georgia", "serif"],
+        body: ["var(--font-body)", "system-ui", "sans-serif"],
       },
       borderRadius: {
         xl: "12px",
         "2xl": "18px",
       },
       boxShadow: {
-        soft: "0 4px 24px -8px rgba(15, 27, 45, 0.12)",
-        card: "0 1px 3px rgba(15, 27, 45, 0.06), 0 4px 16px -4px rgba(15, 27, 45, 0.08)",
-        lift: "0 12px 36px -12px rgba(15, 27, 45, 0.25)",
+        soft: "0 4px 24px -8px rgba(12, 46, 61, 0.12)",
+        card: "0 1px 3px rgba(12, 46, 61, 0.06), 0 4px 16px -4px rgba(12, 46, 61, 0.08)",
+        lift: "0 12px 36px -12px rgba(12, 46, 61, 0.25)",
       },
       animation: {
         "fade-in": "fadeIn 0.4s ease-out",

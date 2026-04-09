@@ -4,7 +4,7 @@ import PackageListing from "./PackageListing";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Book a Photo Session \u00b7 PixelHoliday",
+  title: "Book a Photo Session \u00b7 Fotiqo",
   description: "Browse photography packages and book your session instantly. Family, couple, solo, group, kids, and event packages available.",
 };
 

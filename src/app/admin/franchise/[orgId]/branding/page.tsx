@@ -7,7 +7,7 @@ export default function FranchiseBrandingPage() {
   const orgId = params.orgId as string;
 
   const [branding, setBranding] = useState({
-    brandColor: "#29ABE2",
+    brandColor: "#0EA5A5",
     logoUrl: "",
     tagline: "",
     customDomain: "",
@@ -21,7 +21,7 @@ export default function FranchiseBrandingPage() {
       .then((r) => r.json())
       .then((d) => {
         setBranding({
-          brandColor: d.brandColor || "#29ABE2",
+          brandColor: d.brandColor || "#0EA5A5",
           logoUrl: d.logoUrl || "",
           tagline: d.tagline || "",
           customDomain: d.customDomain || "",

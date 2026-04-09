@@ -21,11 +21,11 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Seeding PixelHoliday...");
+  console.log("🌱 Seeding Fotiqo...");
 
   // ── ORG + LOCATIONS ───────────────────────────
   const org = await prisma.organization.create({
-    data: { name: "PixelHoliday Tunisia", type: OrgType.HEADQUARTERS },
+    data: { name: "Fotiqo Tunisia", type: OrgType.HEADQUARTERS },
   });
   const hotel = await prisma.location.create({
     data: { name: "Hilton Monastir", type: LocationType.HOTEL, orgId: org.id, address: "Monastir, Tunisia", rentCost: 2500 },
@@ -41,14 +41,14 @@ async function main() {
       data: { name, email, password: passwordHash, role, orgId: org.id, locationId, salary, rating: 4 + Math.random() },
     });
 
-  const ceo = await mkUser("Admin CEO", "admin@pixelholiday.local", StaffRole.CEO, undefined, 5000);
-  const ops = await mkUser("Omar Operations", "ops@pixelholiday.local", StaffRole.OPERATIONS_MANAGER, hotel.id, 3500);
-  const supervisor = await mkUser("Sofia Supervisor", "super@pixelholiday.local", StaffRole.SUPERVISOR, hotel.id, 2200);
-  const photo1 = await mkUser("Yassine Ben", "photo1@pixelholiday.local", StaffRole.PHOTOGRAPHER, hotel.id, 1500);
-  const photo2 = await mkUser("Karim Hamdi", "photo2@pixelholiday.local", StaffRole.PHOTOGRAPHER, park.id, 1500);
-  const sales = await mkUser("Sami Sales", "sales@pixelholiday.local", StaffRole.SALES_STAFF, hotel.id, 1300);
-  const reception = await mkUser("Rana Reception", "reception@pixelholiday.local", StaffRole.RECEPTIONIST, hotel.id, 1100);
-  const trainee = await mkUser("Taha Trainee", "trainee@pixelholiday.local", StaffRole.ACADEMY_TRAINEE, hotel.id, 600);
+  const ceo = await mkUser("Admin CEO", "admin@fotiqo.local", StaffRole.CEO, undefined, 5000);
+  const ops = await mkUser("Omar Operations", "ops@fotiqo.local", StaffRole.OPERATIONS_MANAGER, hotel.id, 3500);
+  const supervisor = await mkUser("Sofia Supervisor", "super@fotiqo.local", StaffRole.SUPERVISOR, hotel.id, 2200);
+  const photo1 = await mkUser("Yassine Ben", "photo1@fotiqo.local", StaffRole.PHOTOGRAPHER, hotel.id, 1500);
+  const photo2 = await mkUser("Karim Hamdi", "photo2@fotiqo.local", StaffRole.PHOTOGRAPHER, park.id, 1500);
+  const sales = await mkUser("Sami Sales", "sales@fotiqo.local", StaffRole.SALES_STAFF, hotel.id, 1300);
+  const reception = await mkUser("Rana Reception", "reception@fotiqo.local", StaffRole.RECEPTIONIST, hotel.id, 1100);
+  const trainee = await mkUser("Taha Trainee", "trainee@fotiqo.local", StaffRole.ACADEMY_TRAINEE, hotel.id, 600);
 
   // Assign 4-digit PINs for sale-kiosk access
   await prisma.user.update({ where: { id: photo1.id }, data: { pin: "1111" } });
@@ -537,7 +537,7 @@ async function main() {
   // ── ACADEMY MODULE ────────────────────────────
   await prisma.academyModule.create({
     data: {
-      title: "PixelHoliday Onboarding",
+      title: "Fotiqo Onboarding",
       description: "Welcome to the studio. Learn the kiosk flow, camera handoff, and customer experience standards.",
       type: AcademyModuleType.ONBOARDING,
       sortOrder: 1,

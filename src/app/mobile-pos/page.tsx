@@ -176,7 +176,7 @@ export default function MobilePOSPage() {
       <header className="sticky top-0 z-10 bg-slate-900/80 backdrop-blur border-b border-slate-700 px-4 py-3">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <h1 className="text-lg font-bold tracking-tight">
-            <span className="text-amber-400">Pixelvo</span> Mobile POS
+            <span className="text-amber-400">Fotiqo</span> Mobile POS
           </h1>
           {step !== "form" && (
             <button onClick={reset} className="text-sm text-slate-400 hover:text-white transition">

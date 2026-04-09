@@ -157,7 +157,7 @@ export default function QuestionnairePage() {
         <div className="max-w-2xl mx-auto px-4 py-8 text-center">
           <div className="flex items-center justify-center gap-2 mb-3">
             <Camera className="h-6 w-6 text-coral-400" />
-            <span className="text-coral-400 font-semibold text-sm tracking-wide uppercase">Pixelvo</span>
+            <span className="text-coral-400 font-semibold text-sm tracking-wide uppercase">Fotiqo</span>
           </div>
           <h1 className="text-3xl font-bold mb-2">Pre-Session Questionnaire</h1>
           <p className="text-navy-300 text-sm max-w-md mx-auto">
@@ -398,7 +398,7 @@ export default function QuestionnairePage() {
         </button>
 
         <p className="text-center text-xs text-navy-300 pb-8">
-          Pixelvo Photography &middot; Your memories, our passion
+          Fotiqo Photography &middot; Your memories, our passion
         </p>
       </form>
     </div>

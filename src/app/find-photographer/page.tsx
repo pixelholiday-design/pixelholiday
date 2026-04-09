@@ -18,7 +18,7 @@ type SearchParams = {
 };
 
 export const metadata: Metadata = {
-  title: "Find a Photographer | Pixelvo",
+  title: "Find a Photographer | Fotiqo",
   description:
     "Browse and book professional photographers near you. Portrait, wedding, event, and more.",
 };

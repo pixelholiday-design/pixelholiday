@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Create Stripe Checkout Session
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://pixelholiday.vercel.app";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://fotiqo.vercel.app";
     const lineItems = [
       {
         price_data: {

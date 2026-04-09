@@ -72,7 +72,7 @@ export default function SalePointPage() {
     if (r.ok) {
       setReceipt({
         date: new Date().toLocaleString(),
-        location: active.gallery?.photographer?.locationId || "Pixelvo",
+        location: active.gallery?.photographer?.locationId || "Fotiqo",
         photographer: active.gallery?.photographer?.name || staff.name,
         customer: active.gallery?.customer?.name || "Guest",
         items: [{ label: `${active.photoIds.length} photos`, qty: 1, price: active.totalCents / 100 }],

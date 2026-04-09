@@ -1,4 +1,4 @@
-// PixelHoliday master Prisma schema — see CLAUDE.md Section 1
+// Fotiqo master Prisma schema — see CLAUDE.md Section 1
 generator client {
   provider = "prisma-client-js"
 }
@@ -1707,7 +1707,7 @@ model ShopOrder {
   labName         String?
   trackingNumber  String?
   trackingUrl     String?
-  pixelvoCommission Float @default(0) // 2% sales + 50% shop profit
+  fotiqoCommission Float @default(0) // 2% sales + 50% shop profit
   notes           String?  // Internal admin notes
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -1772,7 +1772,7 @@ model PhotographerProfile {
   isPublicProfile Boolean  @default(true)
   // Website builder settings
   websiteTheme    String   @default("minimal") // minimal, bold, classic, modern, dark, light
-  primaryColor    String   @default("#29ABE2")
+  primaryColor    String   @default("#0EA5A5")
   fontChoice      String   @default("inter") // inter, playfair, montserrat, lora, raleway
   logoUrl         String?
   sections        String?  @db.Text // JSON array of section config [{type,order,visible}]

@@ -63,7 +63,7 @@ export async function POST(req: Request) {
           mode: "subscription",
           line_items: [{ price_data: {
             currency: "usd",
-            product_data: { name: `Pixelvo ${tierConfig.name}` },
+            product_data: { name: `Fotiqo ${tierConfig.name}` },
             unit_amount: tierConfig.priceMonthly,
             recurring: { interval: "month" },
           }, quantity: 1 }],

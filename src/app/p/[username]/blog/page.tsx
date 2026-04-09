@@ -28,7 +28,7 @@ export default async function PhotographerBlogPage({ params }: Props) {
   });
 
   const isDark = profile.websiteTheme === "dark" || profile.websiteTheme === "bold";
-  const color = profile.primaryColor || "#29ABE2";
+  const color = profile.primaryColor || "#0EA5A5";
 
   return (
     <div className={`min-h-screen ${isDark ? "bg-zinc-950 text-zinc-100" : "bg-white text-gray-900"}`}>

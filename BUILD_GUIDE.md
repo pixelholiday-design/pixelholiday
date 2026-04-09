@@ -1,6 +1,6 @@
-# PIXELHOLIDAY — AUTONOMOUS BUILD GUIDE
+# FOTIQO — AUTONOMOUS BUILD GUIDE
 # ════════════════════════════════════════
-# This file + PIXELHOLIDAY_CLAUDE.md together = your complete system
+# This file + FOTIQO_CLAUDE.md together = your complete system
 # Merge them into a single CLAUDE.md in your project root
 # Or keep them separate — Claude Code reads all .md files in root
 
@@ -130,7 +130,7 @@ After completing each phase, Claude Code MUST create and run `scripts/health-che
 ### B.5 Display format (Claude Code must output this):
 ```
 ╔══════════════════════════════════════════════════╗
-║        PIXELHOLIDAY — PHASE X HEALTH REPORT      ║
+║        FOTIQO — PHASE X HEALTH REPORT      ║
 ╠══════════════════════════════════════════════════╣
 ║ Category    │ Check              │ Status         ║
 ║─────────────┼────────────────────┼────────────────║
@@ -159,7 +159,7 @@ npm install -g @anthropic-ai/claude-code
 mkdir pixeleco && cd pixeleco
 git init
 
-# 3. Place CLAUDE.md (the PIXELHOLIDAY_CLAUDE.md file renamed)
+# 3. Place CLAUDE.md (the FOTIQO_CLAUDE.md file renamed)
 # Copy your downloaded file to ./CLAUDE.md
 
 # 4. Create zero-approval settings
@@ -177,7 +177,7 @@ EOF
 export ANTHROPIC_API_KEY=your_key_here
 
 # 6. Verify
-claude "Read CLAUDE.md and confirm you understand the PixelHoliday project. List all 23 modules."
+claude "Read CLAUDE.md and confirm you understand the Fotiqo project. List all 23 modules."
 ```
 
 ---
@@ -235,7 +235,7 @@ STEP 1.5 — CUSTOMER GALLERY (Module 2):
 
 STEP 1.6 — WATERMARKING (Module 3):
 - src/lib/cloudinary.ts: Cloudinary config + watermark URL builder
-- Transformation: overlay=pixelholiday_watermark,w_0.5,g_center,o_40/q_60,f_webp
+- Transformation: overlay=fotiqo_watermark,w_0.5,g_center,o_40/q_60,f_webp
 - src/components/gallery/WatermarkedImage.tsx: wraps next/image with custom loader
 - NEVER expose unwatermarked URLs for unpaid galleries
 
@@ -266,7 +266,7 @@ STEP 1.9 — KIOSK (Module 6 basic):
 STEP 1.10 — ZIP DOWNLOAD:
 - src/app/api/gallery/[token]/download/route.ts
 - Query all cloudinaryIds for PAID gallery
-- Use Cloudinary v2.utils.download_zip_url (target_public_id: PixelHoliday_Memories)
+- Use Cloudinary v2.utils.download_zip_url (target_public_id: Fotiqo_Memories)
 - Return URL to client
 - src/components/gallery/DownloadAllButton.tsx
 
@@ -553,7 +553,7 @@ STEP 5.4 — FINAL DELIVERABLES:
 - Generate final report: modules built, API routes functional, DB models active, performance benchmarks, known limitations
 - Create docs/DEPLOYMENT.md: env setup, Vercel deploy, DB migration, kiosk local setup, third-party config
 - Log to logs/final-health.md
-- Commit: 'Phase 5 Complete: PixelHoliday Full Ecosystem'
+- Commit: 'Phase 5 Complete: Fotiqo Full Ecosystem'
 
 Show the FINAL comprehensive health report with all phases.
 "
@@ -602,12 +602,12 @@ Update CLAUDE.md progress tracker. Commit.
 
 ## G. WHAT WAS NOT INCLUDED AND WHY
 
-**Nothing was removed.** Every feature from the original ecosystem document (203 features audited) maps to a module in CLAUDE.md. The audit is in Section 9 of PIXELHOLIDAY_CLAUDE.md.
+**Nothing was removed.** Every feature from the original ecosystem document (203 features audited) maps to a module in CLAUDE.md. The audit is in Section 9 of FOTIQO_CLAUDE.md.
 
 If you believe something is missing, search both files for the keyword. If it's truly absent, add it to the relevant module in CLAUDE.md before running the next build phase.
 
 ---
 
 *END OF AUTONOMOUS BUILD GUIDE*
-*Use this file alongside PIXELHOLIDAY_CLAUDE.md*
+*Use this file alongside FOTIQO_CLAUDE.md*
 *Together they contain: 23 modules, 203 features, 64+ health checks, 5 build phases*

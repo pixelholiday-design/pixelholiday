@@ -75,7 +75,7 @@ export async function GET(req: Request) {
       });
       for (const so of shopOrders) {
         shopRevenue.total += so.total;
-        shopRevenue.commission += so.pixelvoCommission ?? 0;
+        shopRevenue.commission += so.fotiqoCommission ?? 0;
         shopRevenue.count++;
         for (const item of so.items) {
           if (item.product) {

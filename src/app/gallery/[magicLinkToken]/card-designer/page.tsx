@@ -231,7 +231,7 @@ export default function CardDesignerPage() {
         <div className={`text-center ${fontFamily} ${fontSize}`} style={{ color: template.textColor }}>
           <p className="leading-relaxed">{backText || "Back of card"}</p>
           <div className="mt-4 pt-4 border-t opacity-40 text-[10px] uppercase tracking-widest" style={{ borderColor: template.borderColor }}>
-            Pixelvo
+            Fotiqo
           </div>
         </div>
       </div>

@@ -23,7 +23,7 @@ export default function PassPage({ params }: { params: { locationId: string } })
     <div className="min-h-screen bg-cream-100">
       <div className="bg-gradient-to-br from-brand-700 via-brand-500 to-brand-400 py-16 px-6 text-white text-center">
         <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-white/70 mb-3">
-          <Sparkles className="h-3.5 w-3.5" /> Pixelvo
+          <Sparkles className="h-3.5 w-3.5" /> Fotiqo
         </div>
         <h1 className="font-display text-4xl sm:text-5xl mb-3">Digital Pass</h1>
         <p className="text-white/80 text-lg max-w-md mx-auto">Pre-purchase your memories — better price, instant delivery</p>

@@ -17,10 +17,10 @@ import path from "node:path";
  */
 
 const DATA_ROOT =
-  process.env.PIXELVO_DATA_ROOT ||
+  process.env.FOTIQO_DATA_ROOT ||
   (process.platform === "win32"
     ? path.join(process.cwd(), "data")
-    : "/var/lib/pixelvo/data");
+    : "/var/lib/fotiqo/data");
 
 export function photoPath(galleryId: string, photoId: string) {
   return path.join(DATA_ROOT, "photos", galleryId, `${photoId}.jpg`);

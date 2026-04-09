@@ -1,4 +1,4 @@
-/* PixelHoliday kiosk service worker
+/* Fotiqo kiosk service worker
  * Strategy:
  *  - App shell (HTML, CSS, JS) → cache-first, fallback network
  *  - /api/local/* → network-first, fallback cache

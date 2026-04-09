@@ -86,7 +86,7 @@ export default async function OrderTrackingPage({
       <header className="bg-white border-b border-cream-200">
         <div className="max-w-2xl mx-auto px-4 py-5 flex items-center gap-3">
           <Camera className="h-7 w-7 text-brand-700" />
-          <span className="font-display text-xl text-navy-900 tracking-tight">Pixelvo</span>
+          <span className="font-display text-xl text-navy-900 tracking-tight">Fotiqo</span>
         </div>
       </header>
 
@@ -273,7 +273,7 @@ export default async function OrderTrackingPage({
           <p className="text-sm text-navy-400">
             Need help?{" "}
             <a
-              href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@pixelvo.com"}?subject=Order%20${order.id.slice(-8)}`}
+              href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@fotiqo.com"}?subject=Order%20${order.id.slice(-8)}`}
               className="text-brand-700 hover:underline font-medium"
             >
               Contact support

@@ -105,8 +105,8 @@ export default function PackageListing({
         <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
           <div className="flex items-center gap-3 mb-6">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-icon.png" alt="PixelHoliday" className="h-10 w-10 rounded-lg" />
-            <span className="font-display text-xl">PixelHoliday</span>
+            <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-10 w-10 rounded-lg" />
+            <span className="font-display text-xl">Fotiqo</span>
           </div>
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl mb-4">
             Capture Your Perfect Moment

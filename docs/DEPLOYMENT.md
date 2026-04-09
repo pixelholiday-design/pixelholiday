@@ -1,4 +1,4 @@
-# PixelHoliday — Deployment Guide
+# Fotiqo — Deployment Guide
 
 ## Prerequisites
 - Node.js 20+
@@ -21,7 +21,7 @@ Copy `.env.example` to `.env` and fill in:
 
 ## 2. Database Setup
 ```bash
-createdb pixelholiday
+createdb fotiqo
 npx prisma migrate dev
 npm run db:seed
 ```
@@ -54,5 +54,5 @@ npm run dev
 
 ## Test Login Credentials
 After running `npm run db:seed`:
-- CEO: `ceo@pixelholiday.com` / `password123`
-- Photographer: `photographer@pixelholiday.com` / `password123`
+- CEO: `ceo@fotiqo.com` / `password123`
+- Photographer: `photographer@fotiqo.com` / `password123`

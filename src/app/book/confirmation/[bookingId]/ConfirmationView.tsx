@@ -88,11 +88,11 @@ function generateICS(booking: Booking): string {
   return [
     "BEGIN:VCALENDAR",
     "VERSION:2.0",
-    "PRODID:-//PixelHoliday//Booking//EN",
+    "PRODID:-//Fotiqo//Booking//EN",
     "BEGIN:VEVENT",
     `DTSTART:${formatDT(date)}`,
     `DTEND:${formatDT(endDate)}`,
-    `SUMMARY:${booking.package.name} - PixelHoliday`,
+    `SUMMARY:${booking.package.name} - Fotiqo`,
     `DESCRIPTION:Confirmation: ${booking.confirmationCode}\\nPhotographer: ${booking.assignedPhotographer?.name || "TBD"}\\n${booking.package.whatToBring.map((w) => "- " + w).join("\\n")}`,
     `LOCATION:${location}`,
     "STATUS:CONFIRMED",
@@ -140,13 +140,13 @@ export default function ConfirmationView({ booking }: { booking: Booking }) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `pixelholiday-${booking.confirmationCode}.ics`;
+    a.download = `fotiqo-${booking.confirmationCode}.ics`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
   function shareWhatsApp() {
-    const text = `I just booked a ${booking.package.name} photo session with PixelHoliday! ${formatDate(booking.sessionDate)} at ${formatTime(booking.sessionStartTime)}. Can't wait!`;
+    const text = `I just booked a ${booking.package.name} photo session with Fotiqo! ${formatDate(booking.sessionDate)} at ${formatTime(booking.sessionStartTime)}. Can't wait!`;
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
