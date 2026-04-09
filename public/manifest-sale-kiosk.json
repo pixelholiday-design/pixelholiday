@@ -1,5 +1,5 @@
 {
-  "name": "PixelHoliday Sale Point",
+  "name": "Pixelvo Sale Point",
   "short_name": "PH Sale",
   "description": "Photographer-operated POS for confirming orders, payments, and prints.",
   "start_url": "/kiosk/sale-point",
@@ -8,6 +8,6 @@
   "background_color": "#0F1B2D",
   "theme_color": "#E8593C",
   "icons": [
-    { "src": "/logo-icon.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/icon-pixelvo.svg", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
   ]
 }

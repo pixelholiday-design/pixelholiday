@@ -1,7 +1,7 @@
 {
-  "name": "PixelHoliday Photographer",
+  "name": "Pixelvo Photographer",
   "short_name": "PH Photo",
-  "description": "Mobile upload tool for PixelHoliday resort photographers.",
+  "description": "Mobile upload tool for Pixelvo resort photographers.",
   "start_url": "/mobile-upload",
   "display": "standalone",
   "background_color": "#FAFAF7",
@@ -9,7 +9,7 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/logo-icon.png",
+      "src": "/icon-pixelvo.svg",
       "sizes": "any",
       "type": "image/png",
       "purpose": "any maskable"

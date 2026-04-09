@@ -4,7 +4,7 @@ import BookForm from "./BookForm";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "Book a session · PixelHoliday",
+  title: "Book a session · Pixelvo",
   description: "Reserve a professional photo session at your holiday destination.",
 };
 
@@ -22,9 +22,9 @@ export default async function BookPage() {
       <div className="max-w-xl mx-auto">
         <div className="flex items-center gap-3 mb-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-icon.png" alt="PixelHoliday" className="h-10 w-10" />
+          <img src="/logo-icon.png" alt="Pixelvo" className="h-10 w-10" />
           <div>
-            <div className="font-display text-2xl text-navy-900">PixelHoliday</div>
+            <div className="font-display text-2xl text-navy-900">Pixelvo</div>
             <div className="text-xs text-navy-400 uppercase tracking-wider">Book a session</div>
           </div>
         </div>
@@ -39,7 +39,7 @@ export default async function BookPage() {
         </div>
 
         <p className="text-center text-xs text-navy-400 mt-6">
-          Powered by PixelHoliday · GDPR compliant
+          Powered by Pixelvo · GDPR compliant
         </p>
       </div>
     </div>

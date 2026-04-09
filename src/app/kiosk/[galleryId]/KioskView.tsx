@@ -71,7 +71,7 @@ export default function KioskView({ gallery }: { gallery: Gallery }) {
         <div className="flex items-center justify-between gap-4">
           <div>
             <div className="text-gold-400 text-xs uppercase tracking-widest mb-1 flex items-center gap-2">
-              <Sparkles className="h-3 w-3" /> PixelHoliday Studio
+              <Sparkles className="h-3 w-3" /> Pixelvo Studio
             </div>
             <h1 className="font-display text-4xl">Welcome, {gallery.customer.name || "Guest"}</h1>
           </div>

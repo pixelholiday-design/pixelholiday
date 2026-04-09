@@ -64,7 +64,7 @@ export default function MobileUploadPage() {
           <Camera className="h-5 w-5 text-coral-600" />
         </div>
         <div className="flex-1">
-          <div className="font-display text-xl text-navy-900 leading-tight">PixelHoliday</div>
+          <div className="font-display text-xl text-navy-900 leading-tight">Pixelvo</div>
           <div className="text-[11px] uppercase tracking-widest text-navy-400">Photographer mobile</div>
         </div>
         {/* Location selector */}

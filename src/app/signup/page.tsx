@@ -49,7 +49,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-gradient-to-br from-cream-100 to-brand-50 py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">Start with PixelHoliday</h1>
+          <h1 className="text-4xl font-bold text-slate-900 mb-2">Start with Pixelvo</h1>
           <p className="text-lg text-slate-600">Resort photography delivery that scales with you</p>
         </div>
 
@@ -106,7 +106,7 @@ export default function SignupPage() {
                       onClick={(e) => {
                         e.stopPropagation();
                         if (isEnterprise) {
-                          window.location.href = "mailto:sales@pixelholiday.com?subject=Enterprise%20Plan";
+                          window.location.href = "mailto:sales@pixelvo.com?subject=Enterprise%20Plan";
                         } else {
                           setForm({ ...form, tier: k });
                           setStep("details");

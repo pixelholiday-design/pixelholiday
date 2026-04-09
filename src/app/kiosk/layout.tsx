@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import '@/styles/kiosk.css';
 
 export const metadata = {
-  title: 'PixelHoliday Kiosk',
+  title: 'Pixelvo Kiosk',
 };
 
 export default function KioskLayout({ children }: { children: ReactNode }) {

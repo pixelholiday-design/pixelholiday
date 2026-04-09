@@ -4,7 +4,7 @@
 import { Resend } from "resend";
 
 const KEY = process.env.RESEND_API_KEY;
-const FROM = process.env.FROM_EMAIL || "noreply@pixelholiday.com";
+const FROM = process.env.FROM_EMAIL || "noreply@pixelvo.com";
 const resend = KEY ? new Resend(KEY) : null;
 
 interface WelcomeEmailArgs {
@@ -16,10 +16,10 @@ interface WelcomeEmailArgs {
 }
 
 export async function sendWelcomeEmail({ to, name, businessName, tempPassword, loginUrl }: WelcomeEmailArgs) {
-  const subject = `Welcome to PixelHoliday — ${businessName} is live!`;
+  const subject = `Welcome to Pixelvo — ${businessName} is live!`;
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h1 style="color: #29ABE2;">Welcome to PixelHoliday!</h1>
+      <h1 style="color: #29ABE2;">Welcome to Pixelvo!</h1>
       <p>Hi ${name},</p>
       <p>Your franchise <strong>${businessName}</strong> has been created and is ready to go.</p>
       <p>Here are your login credentials:</p>

@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "sw
 const display = Playfair_Display({ subsets: ["latin"], variable: "--font-display", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "PixelHoliday — Capture your escape",
+  title: "Pixelvo — Capture your escape",
   description: "Premium resort photography delivery & e-commerce.",
   manifest: "/manifest.json",
 };

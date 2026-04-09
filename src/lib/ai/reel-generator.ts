@@ -92,7 +92,7 @@ function buildSlideshowHtml(photoUrls: string[], track: MusicTrack): string {
 
   // Keyframes — single shared "kenburns-fade" cycle, scoped to each slide via animation-delay.
   // Each slide is visible for SECONDS_PER_PHOTO seconds out of totalDuration.
-  return `<!doctype html><html><head><meta charset="utf-8"><title>PixelHoliday Reel</title>
+  return `<!doctype html><html><head><meta charset="utf-8"><title>Pixelvo Reel</title>
 <style>
 :root { color-scheme: dark; }
 html, body { margin:0; padding:0; height:100%; background:#0C1829; font-family:system-ui,sans-serif; overflow:hidden; }
@@ -123,7 +123,7 @@ html, body { margin:0; padding:0; height:100%; background:#0C1829; font-family:s
 }
 </style></head><body>
 <div class="stage">${slides}</div>
-<div class="brand">PixelHoliday</div>
+<div class="brand">Pixelvo</div>
 <div class="label">Auto-Reel · ${track} · ${n} moments</div>
 </body></html>`;
 }

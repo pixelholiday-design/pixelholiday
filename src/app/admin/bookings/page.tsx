@@ -522,7 +522,7 @@ function EmbedPanel({
   const bookUrl = selectedLocation
     ? `${appUrl}/book?location=${selectedLocation}`
     : `${appUrl}/book`;
-  const iframeCode = `<iframe\n  src="${bookUrl}"\n  width="100%"\n  height="600"\n  frameborder="0"\n  style="border-radius: 12px; border: 1px solid #E9E7DD;"\n  title="PixelHoliday Booking"\n></iframe>`;
+  const iframeCode = `<iframe\n  src="${bookUrl}"\n  width="100%"\n  height="600"\n  frameborder="0"\n  style="border-radius: 12px; border: 1px solid #E9E7DD;"\n  title="Pixelvo Booking"\n></iframe>`;
 
   async function copy(type: "iframe" | "link") {
     await navigator.clipboard.writeText(type === "iframe" ? iframeCode : bookUrl);

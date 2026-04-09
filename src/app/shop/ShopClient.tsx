@@ -5,7 +5,7 @@ import { ShoppingBag, Plus, Minus, X, Check } from "lucide-react";
 import type { ShopProduct, ShopCategory } from "@/lib/shopProducts";
 import { CATEGORY_LABEL, CATEGORY_BLURB } from "@/lib/shopProducts";
 
-const STORAGE_KEY = "pixelholiday.cart.v1";
+const STORAGE_KEY = "pixelvo.cart.v1";
 
 type CartItem = { productKey: string; qty: number };
 

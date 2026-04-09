@@ -18,10 +18,10 @@ async function getPost(id: string) {
 
 export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
   const post = await getPost(params.id);
-  if (!post) return { title: "Post not found | PixelHoliday" };
+  if (!post) return { title: "Post not found | Pixelvo" };
   const description = post.content.replace(/\n/g, " ").slice(0, 160);
   return {
-    title: `${post.title} | PixelHoliday Blog`,
+    title: `${post.title} | Pixelvo Blog`,
     description,
     keywords: post.seoKeywords,
     openGraph: {
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
       description,
       type: "article",
       publishedTime: post.publishedAt?.toISOString(),
-      authors: [post.author?.name || "PixelHoliday"],
+      authors: [post.author?.name || "Pixelvo"],
     },
   };
 }
@@ -67,7 +67,7 @@ export default async function BlogPostPage({ params }: { params: { id: string } 
         <h1 className="font-display text-4xl sm:text-5xl text-navy-900 mb-4 leading-tight">{post.title}</h1>
 
         <div className="flex items-center gap-3 mb-8 text-sm text-navy-400 border-b border-cream-300 pb-6">
-          <span>By {post.author?.name || "PixelHoliday Team"}</span>
+          <span>By {post.author?.name || "Pixelvo Team"}</span>
           <span>·</span>
           <time dateTime={post.publishedAt?.toISOString() || post.createdAt.toISOString()}>{date}</time>
           {post.isAIGenerated && (

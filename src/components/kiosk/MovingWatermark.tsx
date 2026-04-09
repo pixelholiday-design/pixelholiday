@@ -17,7 +17,7 @@ export interface MovingWatermarkProps {
  * NEVER use on the public web gallery — only inside /kiosk/* pages.
  */
 export default function MovingWatermark({
-  text = "PIXELHOLIDAY • PROOF • DO NOT COPY",
+  text = "PIXELVO • PROOF • DO NOT COPY",
   speed = 12,
   opacity = 0.35,
   size = 48,

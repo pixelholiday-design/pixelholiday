@@ -15,7 +15,7 @@ export default function ReelOverlay({ reel }: { reel: ReelInfo }) {
 
   async function handleShare() {
     const shareUrl = window.location.href;
-    const shareData = { title: "My PixelHoliday Reel", text: "Check out my holiday reel!", url: shareUrl };
+    const shareData = { title: "My Pixelvo Reel", text: "Check out my holiday reel!", url: shareUrl };
     try {
       if (navigator.share) {
         await navigator.share(shareData);

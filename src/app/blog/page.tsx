@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Blog | PixelHoliday",
-  description: "Stories, tips, and holiday memories from the PixelHoliday photography team.",
+  title: "Blog | Pixelvo",
+  description: "Stories, tips, and holiday memories from the Pixelvo photography team.",
 };
 
 export const dynamic = "force-dynamic";
@@ -28,7 +28,7 @@ export default async function BlogListPage() {
     <main className="min-h-screen bg-cream-50">
       <section className="max-w-4xl mx-auto px-6 py-16">
         <header className="mb-12 text-center">
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 mb-2">PixelHoliday Journal</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 mb-2">Pixelvo Journal</p>
           <h1 className="font-display text-5xl text-navy-900 mb-3">Stories &amp; Memories</h1>
           <p className="text-navy-500 text-lg max-w-xl mx-auto">
             Behind-the-scenes stories, photography tips, and holiday highlights from our team.
@@ -75,7 +75,7 @@ export default async function BlogListPage() {
                       <p className="text-navy-500 text-sm leading-relaxed mb-4">{excerpt}</p>
                     )}
                     <div className="flex items-center justify-between text-xs text-navy-400">
-                      <span>{post.author?.name || "PixelHoliday Team"}</span>
+                      <span>{post.author?.name || "Pixelvo Team"}</span>
                       <span>{date}</span>
                     </div>
                   </div>

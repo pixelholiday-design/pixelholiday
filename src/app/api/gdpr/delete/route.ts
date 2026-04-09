@@ -7,7 +7,7 @@ import { logger } from "@/lib/logger";
  * GDPR Article 17 — Right to erasure.
  *
  * Customers email-verify themselves into this endpoint and we destroy
- * everything that ties their identity back to PixelHoliday:
+ * everything that ties their identity back to Pixelvo:
  *   - Customer record (name, email, whatsapp, room number, faceVector)
  *   - All Galleries linked to that customer
  *   - All Photos in those galleries (DB rows; R2/Cloudinary cleanup is logged

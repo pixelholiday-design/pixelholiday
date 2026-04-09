@@ -4,9 +4,9 @@ import ShopClient from "./ShopClient";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
-  title: "PixelHoliday — Shop",
+  title: "Pixelvo — Shop",
   description:
-    "Buy your photos, prints, wall art, and digital passes from PixelHoliday. Delivered straight to your phone or door.",
+    "Buy your photos, prints, wall art, and digital passes from Pixelvo. Delivered straight to your phone or door.",
 };
 
 const CATEGORY_ORDER: ShopCategory[] = ["DIGITAL", "PASSES", "PRINTS", "WALL_ART", "ADD_ONS"];
@@ -19,7 +19,7 @@ export default async function ShopPage() {
       {/* Top nav */}
       <nav className="bg-white border-b border-cream-300 px-6 py-4 flex items-center justify-between sticky top-0 z-20">
         <Link href="/portfolio" className="font-display text-2xl text-navy-900 tracking-tight">
-          PixelHoliday
+          Pixelvo
         </Link>
         <div className="flex items-center gap-2 text-sm">
           <Link href="/portfolio" className="text-navy-700 hover:text-brand-700 px-3 py-2 transition">
@@ -64,14 +64,14 @@ export default async function ShopPage() {
       {/* Footer */}
       <footer className="bg-navy-900 text-navy-300 py-10 mt-10">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="text-white font-display text-xl">PixelHoliday</div>
+          <div className="text-white font-display text-xl">Pixelvo</div>
           <div className="flex gap-6 text-sm">
             <Link href="/portfolio" className="hover:text-white transition">Portfolio</Link>
             <Link href="/book" className="hover:text-white transition">Book</Link>
             <Link href="/privacy" className="hover:text-white transition">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition">Terms</Link>
           </div>
-          <div className="text-xs text-navy-400">© {new Date().getFullYear()} PixelHoliday</div>
+          <div className="text-xs text-navy-400">© {new Date().getFullYear()} Pixelvo</div>
         </div>
       </footer>
     </div>

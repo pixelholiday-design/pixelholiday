@@ -132,7 +132,7 @@ export default function Lightbox({
                   <a
                     key={sz.label}
                     href={cleanUrl(photoRef(p), sz.w)}
-                    download={`pixelholiday-${p.id.slice(0, 8)}-${sz.w}.jpg`}
+                    download={`pixelvo-${p.id.slice(0, 8)}-${sz.w}.jpg`}
                     onClick={() => logDownload(`individual_${sz.w}`)}
                     className="block px-3 py-2 rounded-lg hover:bg-cream-100 text-sm"
                   >
@@ -159,7 +159,7 @@ export default function Lightbox({
 
         <button
           onClick={() => {
-            if (navigator.share) navigator.share({ title: "PixelHoliday", url: `${window.location.origin}/gallery/${token}` });
+            if (navigator.share) navigator.share({ title: "Pixelvo", url: `${window.location.origin}/gallery/${token}` });
             else navigator.clipboard.writeText(`${window.location.origin}/gallery/${token}`);
           }}
           className="h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center"

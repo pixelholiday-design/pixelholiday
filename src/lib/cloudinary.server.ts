@@ -13,7 +13,7 @@ export function archiveUrl(publicIds: string[]): string {
   try {
     return cloudinary.utils.download_zip_url({
       public_ids: publicIds,
-      target_public_id: "PixelHoliday_Memories",
+      target_public_id: "Pixelvo_Memories",
       resource_type: "image",
     });
   } catch {

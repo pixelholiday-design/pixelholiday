@@ -29,7 +29,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   // Download mode: return the reel HTML as a downloadable file
   if (download && reel.previewHtml) {
     const galleryId = reel.gallery?.id || reel.galleryId;
-    const filename = `pixelholiday-reel-${galleryId.slice(0, 8)}.html`;
+    const filename = `pixelvo-reel-${galleryId.slice(0, 8)}.html`;
     return new Response(reel.previewHtml, {
       headers: {
         "Content-Type": "text/html; charset=utf-8",

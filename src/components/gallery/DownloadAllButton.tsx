@@ -18,7 +18,7 @@ export default function DownloadAllButton({ token }: { token: string }) {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
         a.href = url;
-        a.download = "pixelholiday-photos.zip";
+        a.download = "pixelvo-photos.zip";
         a.click();
         URL.revokeObjectURL(url);
         return;

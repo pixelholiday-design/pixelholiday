@@ -42,7 +42,7 @@ export const LEVELS: { level: number; xp: number; title: string; perk: string }[
   { level: 7, xp: 5000, title: "Elite", perk: "+5% commission bonus" },
   { level: 8, xp: 8000, title: "Legend", perk: "+10% commission bonus" },
   { level: 9, xp: 12000, title: "Champion", perk: "Hall of fame" },
-  { level: 10, xp: 20000, title: "PixelHoliday Icon", perk: "Auto-supervisor" },
+  { level: 10, xp: 20000, title: "Pixelvo Icon", perk: "Auto-supervisor" },
 ];
 
 export function levelForXp(xp: number) {

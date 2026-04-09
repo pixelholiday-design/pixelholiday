@@ -78,7 +78,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
           <div className="absolute inset-0 bg-resort-pattern opacity-40" />
           <header className="relative z-10 max-w-4xl mx-auto px-6 pt-12 text-center">
             <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold-400 mb-3">
-              <Camera className="h-3.5 w-3.5" /> PixelHoliday
+              <Camera className="h-3.5 w-3.5" /> Pixelvo
             </div>
             <h1 className="font-display text-4xl sm:text-5xl leading-tight">A sneak peek of your memory</h1>
             <p className="text-white/70 mt-3 inline-flex items-center gap-2">
@@ -121,7 +121,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
         <div className="absolute inset-0 bg-gradient-to-b from-navy-900/40 via-navy-900/10 to-navy-900/95" />
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-16 text-center text-white px-6">
           <div className="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-gold-400 mb-2">
-            <Camera className="h-3 w-3" /> PixelHoliday
+            <Camera className="h-3 w-3" /> Pixelvo
           </div>
           <h1 className="font-display text-5xl sm:text-6xl leading-none mb-3 text-balance">{gallery.location.name}</h1>
           <p className="text-white/80">
@@ -153,7 +153,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
               {favOnly ? "All" : "Filter favs"}
             </button>
             {reel && <ReelOverlay reel={reel} />}
-            <ShareMenu url={galleryUrl} title={`PixelHoliday — ${gallery.location.name}`} />
+            <ShareMenu url={galleryUrl} title={`Pixelvo — ${gallery.location.name}`} />
             {isClean && <DownloadAllButton token={gallery.magicLinkToken} />}
           </div>
         </div>
@@ -196,11 +196,11 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
       {/* Footer with legal links */}
       <footer className="border-t border-cream-300/70 bg-white/60 mt-8 mb-24">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-wrap items-center justify-between gap-2 text-xs text-navy-400">
-          <div>© {new Date().getFullYear()} PixelHoliday</div>
+          <div>© {new Date().getFullYear()} Pixelvo</div>
           <div className="flex gap-4">
             <a href="/privacy" className="hover:text-coral-600">Privacy</a>
             <a href="/terms" className="hover:text-coral-600">Terms</a>
-            <a href="mailto:support@pixelholiday.com" className="hover:text-coral-600">Contact</a>
+            <a href="mailto:support@pixelvo.com" className="hover:text-coral-600">Contact</a>
           </div>
         </div>
       </footer>

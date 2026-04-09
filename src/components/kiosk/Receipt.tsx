@@ -24,7 +24,7 @@ export default function Receipt({ data }: { data: ReceiptData }) {
         <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-coral-500/15 text-coral-600 mb-2">
           <Camera className="h-5 w-5" />
         </div>
-        <div className="font-display text-2xl">PixelHoliday</div>
+        <div className="font-display text-2xl">Pixelvo</div>
         <div className="text-xs text-navy-400">{data.location}</div>
       </div>
 
@@ -79,7 +79,7 @@ export default function Receipt({ data }: { data: ReceiptData }) {
       </div>
 
       <div className="text-center text-[10px] text-navy-400 mt-6">
-        Thank you for choosing PixelHoliday ✨
+        Thank you for choosing Pixelvo ✨
       </div>
 
       <button onClick={print} className="btn-primary w-full mt-6 print:hidden">

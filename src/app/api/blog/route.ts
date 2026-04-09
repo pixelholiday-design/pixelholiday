@@ -3,13 +3,13 @@ import { prisma } from "@/lib/db";
 
 // AI blog generation — placeholder generator producing SEO-tuned copy.
 function aiGenerate(topic: string, photoIds: string[]) {
-  const intro = `Discover the magic of ${topic} through the lens of PixelHoliday photographers.`;
+  const intro = `Discover the magic of ${topic} through the lens of Pixelvo photographers.`;
   const body = [
     `Our resort photography team captured incredible moments showcasing ${topic}.`,
     `Featuring ${photoIds.length} hand-picked images, this story celebrates joy, light and unforgettable memories.`,
     `Whether you're planning a holiday or reminiscing about one, these photos will inspire you.`,
   ].join("\n\n");
-  const seoKeywords = [topic, "resort photography", "holiday memories", "pixelholiday", "travel"];
+  const seoKeywords = [topic, "resort photography", "holiday memories", "pixelvo", "travel"];
   return { content: `${intro}\n\n${body}`, seoKeywords };
 }
 

@@ -410,7 +410,7 @@ export default function KioskSetupPage() {
                   className="input !text-navy-900"
                   value={settings.network.wifiSsid}
                   onChange={(e) => setNet("wifiSsid", e.target.value)}
-                  placeholder="PixelHoliday-5G"
+                  placeholder="Pixelvo-5G"
                 />
               </label>
               <label className="block">

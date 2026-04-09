@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
         if (customer?.galleries?.[0]) {
           const gallery = customer.galleries[0];
-          const link = `${process.env.NEXT_PUBLIC_APP_URL || "https://pixelholiday.com"}/gallery/${gallery.magicLinkToken}`;
+          const link = `${process.env.NEXT_PUBLIC_APP_URL || "https://pixelvo.com"}/gallery/${gallery.magicLinkToken}`;
           await sendWhatsAppReply(
             from,
             `📸 Here's your latest gallery: ${link}`
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         } else {
           await sendWhatsAppReply(
             from,
-            `We couldn't find a gallery linked to this number. Please visit our kiosk or book a session at ${process.env.NEXT_PUBLIC_APP_URL || "https://pixelholiday.com"}/book`
+            `We couldn't find a gallery linked to this number. Please visit our kiosk or book a session at ${process.env.NEXT_PUBLIC_APP_URL || "https://pixelvo.com"}/book`
           );
         }
       } else {

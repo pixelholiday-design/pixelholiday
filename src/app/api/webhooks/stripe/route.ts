@@ -101,9 +101,9 @@ export async function POST(req: Request) {
           try {
             const resend = new Resend(process.env.RESEND_API_KEY);
             await resend.emails.send({
-              from: process.env.FROM_EMAIL || "hello@pixelholiday.local",
+              from: process.env.FROM_EMAIL || "hello@pixelvo.local",
               to: gallery.customer.email,
-              subject: "✨ Your PixelHoliday memories are ready!",
+              subject: "✨ Your Pixelvo memories are ready!",
               html: `<p>Your gallery is unlocked. <a href="${process.env.NEXT_PUBLIC_APP_URL}/gallery/${gallery.magicLinkToken}">View now</a></p>`,
             });
           } catch (e) {

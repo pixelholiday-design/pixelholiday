@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 48" fill="none">
+  <defs>
+    <linearGradient id="glow" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF6B5A"/>
+      <stop offset="50%" stop-color="#FF8F6B"/>
+      <stop offset="100%" stop-color="#FFB347"/>
+    </linearGradient>
+    <linearGradient id="lens" x1="12" y1="12" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BEC9"/>
+      <stop offset="100%" stop-color="#2A7B9B"/>
+    </linearGradient>
+  </defs>
+  <!-- Camera body with rounded modern shape -->
+  <rect x="2" y="8" width="40" height="32" rx="8" fill="url(#glow)"/>
+  <!-- Camera lens bump -->
+  <rect x="12" y="4" width="14" height="6" rx="3" fill="#FF8F6B"/>
+  <!-- Lens circle -->
+  <circle cx="22" cy="24" r="10" fill="url(#lens)"/>
+  <!-- Lens inner highlight -->
+  <circle cx="22" cy="24" r="6" fill="#1A3A4A" opacity="0.3"/>
+  <!-- Lens shine -->
+  <circle cx="19" cy="21" r="2.5" fill="white" opacity="0.6"/>
+  <!-- Flash dot -->
+  <circle cx="36" cy="14" r="2" fill="white" opacity="0.8"/>
+  <!-- Brand text -->
+  <text x="52" y="33" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="26" font-weight="800" letter-spacing="-0.5" fill="#0C1829">
+    pixel<tspan fill="url(#glow)">vo</tspan>
+  </text>
+</svg>

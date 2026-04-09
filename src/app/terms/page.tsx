@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Camera } from "lucide-react";
 
-export const metadata = { title: "Terms of Service — PixelHoliday" };
+export const metadata = { title: "Terms of Service — Pixelvo" };
 
 export default function TermsPage() {
   return (
@@ -10,7 +10,7 @@ export default function TermsPage() {
         <div className="max-w-3xl mx-auto px-6 py-6 flex items-center gap-3">
           <Link href="/" className="flex items-center gap-2 text-navy-900">
             <Camera className="h-5 w-5 text-coral-500" />
-            <span className="font-display text-xl">PixelHoliday</span>
+            <span className="font-display text-xl">Pixelvo</span>
           </Link>
         </div>
       </header>
@@ -31,14 +31,14 @@ export default function TermsPage() {
         <p className="text-navy-700">
           All payments are processed by Stripe. Prices are shown in EUR (€) unless otherwise noted
           and include VAT where applicable. Charges appear on your statement as
-          <code className="mx-1">PIXELHOLIDAY</code>.
+          <code className="mx-1">PIXELVO</code>.
         </p>
 
         <h3 className="font-semibold mt-4">Refund policy</h3>
         <p className="text-navy-700">
           Digital downloads are non-refundable once the gallery is unlocked. Printed products may be
           refunded within 14 days if they arrive damaged or significantly different from the
-          preview. Email <a className="text-coral-600" href="mailto:support@pixelholiday.com">support@pixelholiday.com</a>.
+          preview. Email <a className="text-coral-600" href="mailto:support@pixelvo.com">support@pixelvo.com</a>.
         </p>
 
         <h3 className="font-semibold mt-4">Intellectual property</h3>
@@ -52,14 +52,14 @@ export default function TermsPage() {
         <ul className="list-disc pl-6 space-y-1 text-navy-700">
           <li>Subscriptions billed monthly via Stripe; cancel anytime in account settings.</li>
           <li>You retain full ownership of all photos uploaded to the platform.</li>
-          <li>PixelHoliday charges a 2% commission on each sale processed through the platform.</li>
+          <li>Pixelvo charges a 2% commission on each sale processed through the platform.</li>
           <li>Cancellation: data is retained for 30 days after cancellation, then permanently deleted.</li>
           <li>Service availability target: 99.5% uptime, measured monthly.</li>
         </ul>
 
         <h2 className="heading text-2xl mt-10">Limitation of liability</h2>
         <p className="text-navy-700">
-          PixelHoliday is provided "as is". To the maximum extent permitted by law, we are not
+          Pixelvo is provided "as is". To the maximum extent permitted by law, we are not
           liable for indirect or consequential damages, loss of profits, or data loss beyond the
           amount paid in the previous 12 months.
         </p>

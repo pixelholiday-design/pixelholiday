@@ -1,5 +1,5 @@
 {
-  "name": "PixelHoliday Gallery Kiosk",
+  "name": "Pixelvo Gallery Kiosk",
   "short_name": "PH Kiosk",
   "description": "Self-service customer photo browser for resorts and attractions.",
   "start_url": "/kiosk/gallery",
@@ -8,6 +8,6 @@
   "background_color": "#0F1B2D",
   "theme_color": "#E8593C",
   "icons": [
-    { "src": "/logo-icon.png", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/icon-pixelvo.svg", "sizes": "any", "type": "image/png", "purpose": "any maskable" }
   ]
 }
