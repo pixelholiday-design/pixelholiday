@@ -19,6 +19,7 @@ export type KioskSettings = {
   name: string;
   type: "SALE_POINT" | "GALLERY_DISPLAY" | "TV_DISPLAY" | "SD_UPLOAD";
   locationId: string;
+  locationType?: "HOTEL" | "WATER_PARK" | "ATTRACTION" | "SELF_SERVICE";
   networkMode: KioskMode;
   serverIp: string;
   network?: NetworkConfig;

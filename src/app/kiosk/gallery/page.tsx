@@ -27,6 +27,7 @@ export default function GalleryKiosk() {
   const [orderMsg, setOrderMsg] = useState<string | null>(null);
   const [wristbandInput, setWristbandInput] = useState("");
   const [showQrScanner, setShowQrScanner] = useState(false);
+  const locationType = settings?.locationType || "WATER_PARK"; // HOTEL | WATER_PARK | ATTRACTION | SELF_SERVICE
 
   // Photo cache state
   const [cachedUrls, setCachedUrls] = useState<Record<string, string>>({});
@@ -169,69 +170,83 @@ export default function GalleryKiosk() {
         <h1 className="font-display text-6xl mb-4">Find your photos</h1>
         <p className="text-white/60 text-xl mb-12">Choose how you'd like to identify yourself.</p>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 max-w-5xl w-full">
-          {/* QR Scanner — uses BarcodeDetector or manual code entry */}
-          <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
-            <div className="h-20 w-20 rounded-2xl bg-coral-500/15 text-coral-400 flex items-center justify-center mb-5">
-              <ScanLine className="h-10 w-10" />
-            </div>
-            <div className="font-display text-2xl mb-1 text-white">Scan QR code</div>
-            <div className="text-white/50 mb-4">Wristband or booking code</div>
-            {showQrScanner ? (
-              <>
-                <QRScanner
-                  onResult={(code) => {
-                    setShowQrScanner(false);
-                    identify("WRISTBAND", code);
-                  }}
-                />
+          {/* QR/Wristband scan — shown for WATER_PARK / ATTRACTION / SELF_SERVICE */}
+          {locationType !== "HOTEL" && (
+            <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
+              <div className="h-20 w-20 rounded-2xl bg-coral-500/15 text-coral-400 flex items-center justify-center mb-5">
+                <ScanLine className="h-10 w-10" />
+              </div>
+              <div className="font-display text-2xl mb-1 text-white">Scan QR code</div>
+              <div className="text-white/50 mb-4">Wristband or booking code</div>
+              {showQrScanner ? (
+                <>
+                  <QRScanner
+                    onResult={(code) => {
+                      setShowQrScanner(false);
+                      identify("WRISTBAND", code);
+                    }}
+                  />
+                  <button
+                    onClick={() => setShowQrScanner(false)}
+                    className="mt-3 text-white/40 text-xs hover:text-white/70"
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
                 <button
-                  onClick={() => setShowQrScanner(false)}
-                  className="mt-3 text-white/40 text-xs hover:text-white/70"
+                  onClick={() => setShowQrScanner(true)}
+                  className="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-coral-500 to-coral-700 text-white font-semibold"
                 >
-                  Cancel
+                  Open Scanner
                 </button>
-              </>
-            ) : (
-              <button
-                onClick={() => setShowQrScanner(true)}
-                className="w-full min-h-[48px] rounded-xl bg-gradient-to-r from-coral-500 to-coral-700 text-white font-semibold"
-              >
-                Open Scanner
-              </button>
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
+          {/* Selfie — shown for ALL location types */}
           <IdCard
             icon={<User className="h-10 w-10" />}
             title="Take a selfie"
             sub="AI face match"
             onClick={() => identify("SELFIE")}
           />
-          <IdCard
-            icon={<KeyRound className="h-10 w-10" />}
-            title="Room number"
-            sub="Hotel guests"
-            onClick={() => {
-              const v = prompt("Room number");
-              if (v) identify("ROOM", v);
-            }}
-          />
-          {/* NFC tap */}
-          <IdCard
-            icon={<Wifi className="h-10 w-10" />}
-            title="Tap NFC tag"
-            sub="Touch your NFC wristband or card to the reader"
-            onClick={() => {
-              const v = prompt("NFC tag ID (auto-read in production)");
-              if (v) identify("NFC", v);
-            }}
-          />
+
+          {/* Room number — shown ONLY for HOTEL */}
+          {locationType === "HOTEL" && (
+            <IdCard
+              icon={<KeyRound className="h-10 w-10" />}
+              title="Room number"
+              sub="Hotel guests"
+              onClick={() => {
+                const v = prompt("Room number");
+                if (v) identify("ROOM", v);
+              }}
+            />
+          )}
+
+          {/* NFC tap — shown for WATER_PARK / ATTRACTION */}
+          {(locationType === "WATER_PARK" || locationType === "ATTRACTION") && (
+            <IdCard
+              icon={<Wifi className="h-10 w-10" />}
+              title="Tap NFC tag"
+              sub="Touch your NFC wristband or card to the reader"
+              onClick={() => {
+                const v = prompt("NFC tag ID (auto-read in production)");
+                if (v) identify("NFC", v);
+              }}
+            />
+          )}
           <div className="rounded-2xl bg-white/5 ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
             <div className="h-20 w-20 rounded-2xl bg-brand-500/15 text-brand-300 flex items-center justify-center mb-5">
               <Tag className="h-10 w-10" />
             </div>
-            <div className="font-display text-2xl mb-1 text-white">Enter wristband code</div>
-            <div className="text-white/50 mb-4">Type the code on your band</div>
+            <div className="font-display text-2xl mb-1 text-white">
+              {locationType === "HOTEL" ? "Enter booking code" : "Enter wristband code"}
+            </div>
+            <div className="text-white/50 mb-4">
+              {locationType === "HOTEL" ? "Type your booking reference" : "Type the code on your band"}
+            </div>
             <form
               onSubmit={(e) => {
                 e.preventDefault();

@@ -23,18 +23,28 @@ function isHttpsUrl(s: string): boolean {
  */
 export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: string | null }): string {
   const raw = p.s3Key_highRes || "";
-  // Best case: s3Key_highRes already holds a full URL.
-  if (isHttpsUrl(raw)) return raw;
-  // Bare R2 object key (e.g. "uploads/1775..." from older uploads): expand to public R2 URL.
+  // If s3Key_highRes holds a full URL:
+  if (isHttpsUrl(raw)) {
+    // Fix broken example.r2.dev URLs — redirect to photo proxy
+    if (raw.includes("example.r2.dev/")) {
+      const key = raw.split("example.r2.dev/")[1];
+      if (key) return `/api/photo/${encodeURIComponent(key)}`;
+    }
+    return raw;
+  }
+  // Bare R2 object key (e.g. "uploads/1775..." from older uploads): use photo proxy
   if (raw && raw.includes("/")) {
     const base = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "";
-    if (base) return `${base.replace(/\/$/, "")}/${raw.replace(/^\//, "")}`;
+    if (base && base !== "https://example.r2.dev") return `${base.replace(/\/$/, "")}/${raw.replace(/^\//, "")}`;
+    // Fall back to photo proxy
+    return `/api/photo/${encodeURIComponent(raw)}`;
   }
-  // Cloudinary publicId — only trust if it does NOT look like an R2 path. Old broken records
-  // stored the R2 key in cloudinaryId, which Cloudinary resolves to a 404.
+  // Cloudinary publicId — only trust if it does NOT look like an R2 path.
   const cid = p.cloudinaryId || "";
   if (cid && !cid.startsWith("uploads/")) return cid;
-  return raw || "";
+  // Last resort: bare key through proxy
+  if (raw) return `/api/photo/${encodeURIComponent(raw)}`;
+  return "";
 }
 
 /**

@@ -18,6 +18,7 @@ type Settings = {
   name: string;
   type: "SALE_POINT" | "GALLERY_DISPLAY" | "TV_DISPLAY" | "SD_UPLOAD";
   locationId: string;
+  locationType: "HOTEL" | "WATER_PARK" | "ATTRACTION" | "SELF_SERVICE";
   networkMode: "ONLINE" | "LOCAL";
   serverIp: string;
   network: NetworkConfig;
@@ -42,6 +43,7 @@ export default function KioskSetupPage() {
     name: "",
     type: "GALLERY_DISPLAY",
     locationId: "",
+    locationType: "WATER_PARK",
     networkMode: "ONLINE",
     serverIp: "",
     network: {
@@ -279,6 +281,20 @@ export default function KioskSetupPage() {
                   {l.name}
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label>
+            <div className="label-xs text-white/60 mb-1.5">Location type</div>
+            <select
+              className="input !text-navy-900"
+              value={settings.locationType}
+              onChange={(e) => setSettings({ ...settings, locationType: e.target.value as any })}
+            >
+              <option value="HOTEL">Hotel</option>
+              <option value="WATER_PARK">Water Park</option>
+              <option value="ATTRACTION">Attraction</option>
+              <option value="SELF_SERVICE">Self-Service</option>
             </select>
           </label>
 
