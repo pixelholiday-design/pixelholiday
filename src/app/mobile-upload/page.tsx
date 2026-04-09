@@ -146,7 +146,11 @@ function UploadTab({ locationId, photographerId }: { locationId: string; photogr
   }
 
   async function uploadAll() {
-    if (!items.length || !locationId || !photographerId) return;
+    if (!items.length) return;
+    if (!locationId || !photographerId) {
+      alert("Please select a location and photographer in the header first.");
+      return;
+    }
     setBusy(true);
 
     // Upload each file via presigned URL
@@ -360,7 +364,11 @@ function CameraTab({ locationId, photographerId }: { locationId: string; photogr
   }
 
   async function uploadSnapshots() {
-    if (!snapshots.length || !locationId || !photographerId) return;
+    if (!snapshots.length) return;
+    if (!locationId || !photographerId) {
+      alert("Please select a location and photographer in the header first.");
+      return;
+    }
     setBusy(true);
     const uploaded: { s3Key: string; isHookImage: boolean }[] = [];
     for (let i = 0; i < snapshots.length; i++) {
