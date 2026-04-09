@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, Camera, Hotel, BarChart3, Search } from "lucide-react";
 
 const NAV_LINKS = [
   {
@@ -17,22 +17,21 @@ const NAV_LINKS = [
     label: "Solutions",
     children: [
       { href: "/for/resort-photography", label: "Resort & Hotel Photography" },
-      { href: "/for/water-parks", label: "Water Parks" },
-      { href: "/for/attractions", label: "Attractions & Theme Parks" },
+      { href: "/for/water-parks", label: "Water Parks & Attractions" },
       { href: "/for/wedding-photographers", label: "Wedding Photographers" },
       { href: "/for/freelance-photographers", label: "Freelance Photographers" },
       { href: "/for/studios", label: "Studios & Businesses" },
       { href: "/for/booking-packages", label: "Booking System" },
-      { href: "/for/photographer-marketplace", label: "Photographer Marketplace" },
     ],
   },
+  { href: "/find-photographer", label: "Marketplace" },
   { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
 ];
 
 export default function MarketingNav() {
   const [open, setOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState<string | null>(null);
+  const [loginOpen, setLoginOpen] = useState(false);
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-cream-300/60">
@@ -87,10 +86,34 @@ export default function MarketingNav() {
 
         {/* Desktop CTAs */}
         <div className="hidden lg:flex items-center gap-3">
-          <Link href="/login" className="text-sm font-medium text-navy-700 hover:text-brand-500 transition">
-            Sign In
-          </Link>
-          <Link href="/signup" className="btn-primary text-sm !py-2 !px-4">
+          {/* Login dropdown */}
+          <div
+            className="relative"
+            onMouseEnter={() => setLoginOpen(true)}
+            onMouseLeave={() => setLoginOpen(false)}
+          >
+            <button className="text-sm font-medium text-navy-700 hover:text-brand-500 transition px-3 py-2 flex items-center gap-1">
+              Sign In <ChevronDown className="w-3 h-3" />
+            </button>
+            {loginOpen && (
+              <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-xl shadow-lift border border-cream-300/60 py-2 animate-fade-in">
+                <Link href="/login/photographer" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
+                  <Camera className="h-4 w-4 text-brand-500" /> Photographer
+                </Link>
+                <Link href="/login/staff" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
+                  <Hotel className="h-4 w-4 text-navy-500" /> Resort Staff
+                </Link>
+                <Link href="/login/admin" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
+                  <BarChart3 className="h-4 w-4 text-coral-500" /> Operations Admin
+                </Link>
+                <hr className="my-1 border-cream-200" />
+                <Link href="/my-photos" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
+                  <Search className="h-4 w-4 text-gold-500" /> Find my photos
+                </Link>
+              </div>
+            )}
+          </div>
+          <Link href="/signup/photographer" className="btn-primary text-sm !py-2 !px-4">
             Get Started Free
           </Link>
         </div>
@@ -133,9 +156,26 @@ export default function MarketingNav() {
                 </Link>
               ),
             )}
-            <div className="pt-4 flex flex-col gap-2">
-              <Link href="/login" className="btn-secondary text-center">Sign In</Link>
-              <Link href="/signup" className="btn-primary text-center">Get Started Free</Link>
+
+            {/* Login options */}
+            <div className="space-y-1 pt-3 border-t border-cream-200">
+              <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-navy-400">Sign In</p>
+              <Link href="/login/photographer" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
+                <Camera className="h-4 w-4 text-brand-500" /> Photographer
+              </Link>
+              <Link href="/login/staff" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
+                <Hotel className="h-4 w-4 text-navy-500" /> Resort Staff
+              </Link>
+              <Link href="/login/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
+                <BarChart3 className="h-4 w-4 text-coral-500" /> Operations Admin
+              </Link>
+              <Link href="/my-photos" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
+                <Search className="h-4 w-4 text-gold-500" /> Find my photos
+              </Link>
+            </div>
+
+            <div className="pt-3 flex flex-col gap-2">
+              <Link href="/signup/photographer" className="btn-primary text-center" onClick={() => setOpen(false)}>Get Started Free</Link>
             </div>
           </div>
         </div>

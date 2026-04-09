@@ -89,8 +89,10 @@ enum StaffRole {
 }
 
 enum OrgType {
-  HEADQUARTERS
-  FRANCHISE
+  HEADQUARTERS        // Fotiqo resort operations HQ
+  FRANCHISE           // Franchised resort operation
+  INDEPENDENT         // Solo freelance photographer (SaaS)
+  STUDIO              // Photography studio/team (SaaS)
 }
 
 enum SubscriptionTier {
