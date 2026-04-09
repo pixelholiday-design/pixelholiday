@@ -8,6 +8,8 @@ import { uploadToCloudinary } from "@/lib/cloudinary.server";
 import { autoEditGallery } from "@/lib/ai-edit";
 import { applyAutoHook } from "@/lib/ai/hook-advisor";
 import { awardXP } from "@/lib/gamification/xp";
+import { liveStream } from "@/lib/live-stream";
+import { photoRef } from "@/lib/cloudinary";
 
 const photoSchema = z.object({
   key: z.string(),
@@ -165,6 +167,33 @@ export async function POST(req: Request) {
       );
     } catch (e) {
       console.error("Wristband detection failed (non-fatal):", e);
+    }
+
+    // Push real-time notification to connected SSE viewers (live photo stream)
+    try {
+      const livePhotos = await prisma.photo.findMany({
+        where: { galleryId: gallery.id },
+        orderBy: { sortOrder: "asc" },
+        select: { id: true, s3Key_highRes: true, cloudinaryId: true, isHookImage: true, createdAt: true },
+      });
+      if (livePhotos.length > 0) {
+        liveStream.broadcast(gallery.magicLinkToken, data.locationId, {
+          type: "new_photos",
+          galleryId: gallery.id,
+          locationId: data.locationId,
+          photos: livePhotos.map((p) => ({
+            id: p.id,
+            thumbnailUrl: photoRef(p),
+            fullUrl: photoRef(p),
+            isHookImage: p.isHookImage,
+            createdAt: p.createdAt.toISOString(),
+          })),
+          totalCount: livePhotos.length,
+          photographerName: photographer.name,
+        });
+      }
+    } catch (e) {
+      console.warn("[LiveStream] Notification failed (non-fatal):", e);
     }
 
     // Auto-Reel (Module 9): if 5+ photos uploaded, generate a reel in the background.

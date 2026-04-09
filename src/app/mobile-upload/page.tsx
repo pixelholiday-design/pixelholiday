@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import {
   Camera, Star, Upload, Loader2, Check, ScanLine, Keyboard,
   Calendar, BarChart3, Clock, Zap, Flame, TrendingUp, User,
-  ChevronRight, Plus, X, Video, CircleDot,
+  ChevronRight, Plus, X, Video, CircleDot, Radio, Eye,
 } from "lucide-react";
 
 /* ── Types ────────────────────────────────────────── */
@@ -129,6 +129,11 @@ function UploadTab({ locationId, photographerId }: { locationId: string; photogr
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
 
+  // Live session state
+  const [isLive, setIsLive] = useState(false);
+  const [liveToken, setLiveToken] = useState<string | null>(null);
+  const [liveViewers, setLiveViewers] = useState(0);
+
   function handleFiles(files: FileList | null) {
     if (!files) return;
     const next: Item[] = Array.from(files).map((f, i) => ({
@@ -199,6 +204,27 @@ function UploadTab({ locationId, photographerId }: { locationId: string; photogr
 
     setBusy(false);
     if (r.ok) {
+      // Track the gallery token for live streaming
+      if (r.magicLinkToken) setLiveToken(r.magicLinkToken);
+
+      // If Live mode is ON, notify connected viewers of new photos
+      if (isLive && r.magicLinkToken) {
+        try {
+          // Get photo IDs from the gallery
+          const galleryData = await fetch(`/api/gallery/${r.magicLinkToken}`)
+            .then((res) => res.json()).catch(() => null);
+          const photoIds = galleryData?.photos?.map((p: any) => p.id) || [];
+          if (photoIds.length > 0) {
+            const notifyRes = await fetch(`/api/gallery/${r.magicLinkToken}/notify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ photoIds }),
+            }).then((res) => res.json()).catch(() => ({}));
+            if (notifyRes.viewers !== undefined) setLiveViewers(notifyRes.viewers);
+          }
+        } catch {}
+      }
+
       // Trigger AI culling
       let kept = uploaded.length, rejected = 0;
       try {
@@ -239,6 +265,48 @@ function UploadTab({ locationId, photographerId }: { locationId: string; photogr
   return (
     <div className="space-y-5 animate-fade-in pt-2">
       <h1 className="heading text-2xl">Upload photos</h1>
+
+      {/* Go Live toggle */}
+      <div
+        className={`flex items-center justify-between rounded-2xl px-4 py-3 transition-all ${
+          isLive
+            ? "bg-gradient-to-r from-green-500/10 to-brand-400/10 ring-1 ring-green-500/30"
+            : "bg-cream-200"
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <Radio className={`h-4 w-4 ${isLive ? "text-green-500" : "text-navy-400"}`} />
+          <div>
+            <div className="text-sm font-semibold text-navy-900">
+              {isLive ? "Live Session Active" : "Go Live"}
+            </div>
+            <div className="text-[11px] text-navy-400">
+              {isLive
+                ? `${liveViewers} viewer${liveViewers !== 1 ? "s" : ""} watching${liveToken ? "" : ""}`
+                : "Photos appear on customer's screen instantly"}
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsLive((v) => !v)}
+          className={`relative w-12 h-7 rounded-full transition-colors duration-200 ${
+            isLive ? "bg-green-500" : "bg-navy-300"
+          }`}
+        >
+          <span
+            className={`absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-transform duration-200 ${
+              isLive ? "translate-x-5" : ""
+            }`}
+          />
+        </button>
+      </div>
+      {isLive && liveToken && (
+        <div className="flex items-center gap-2 text-xs text-navy-500">
+          <Eye className="h-3 w-3" />
+          <span>Streaming to gallery</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+        </div>
+      )}
 
       {/* Camera + Gallery buttons */}
       <div className="grid grid-cols-2 gap-3">

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { liveStream } from "@/lib/live-stream";
+import { photoRef } from "@/lib/cloudinary";
 
 const photoSchema = z.object({
   s3Key: z.string().optional(),
@@ -84,6 +86,34 @@ export async function POST(req: Request) {
     where: { id: gallery.id },
     data: { totalCount: existingCount + data.photos.length },
   });
+
+  // Push real-time notification to any connected SSE viewers
+  try {
+    const newPhotos = await prisma.photo.findMany({
+      where: { galleryId: gallery.id },
+      orderBy: { sortOrder: "desc" },
+      take: data.photos.length,
+      select: { id: true, s3Key_highRes: true, cloudinaryId: true, isHookImage: true, createdAt: true },
+    });
+    if (newPhotos.length > 0) {
+      const totalCount = await prisma.photo.count({ where: { galleryId: gallery.id } });
+      liveStream.broadcast(gallery.magicLinkToken, data.locationId, {
+        type: "new_photos",
+        galleryId: gallery.id,
+        locationId: data.locationId,
+        photos: newPhotos.map((p) => ({
+          id: p.id,
+          thumbnailUrl: photoRef(p),
+          fullUrl: photoRef(p),
+          isHookImage: p.isHookImage,
+          createdAt: p.createdAt.toISOString(),
+        })),
+        totalCount,
+      });
+    }
+  } catch (e) {
+    console.warn("[LiveStream] Notification failed (non-fatal):", e);
+  }
 
   return NextResponse.json({
     ok: true,

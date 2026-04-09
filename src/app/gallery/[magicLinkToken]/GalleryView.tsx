@@ -15,6 +15,7 @@ import MagicShotModal from "./MagicShotModal";
 import ShopCart, { type CartItem } from "@/components/gallery/ShopCart";
 import ProductPickerModal from "./ProductPickerModal";
 import BookBuilder from "./BookBuilder";
+import LiveGalleryStream from "@/components/gallery/LiveGalleryStream";
 
 type Photo = {
   id: string;
@@ -74,6 +75,26 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
   const [pickerProduct, setPickerProduct] = useState<CatalogProduct | null>(null);
   const [bookBuilderOpen, setBookBuilderOpen] = useState(false);
   const [bookBuilderProduct, setBookBuilderProduct] = useState<CatalogProduct | null>(null);
+
+  // Live stream: add new photos as they arrive from the photographer
+  const handleNewLivePhotos = useCallback((livePhotos: { id: string; thumbnailUrl: string; fullUrl: string; isHookImage: boolean; createdAt: string }[]) => {
+    setExtraPhotos((prev) => {
+      const existingIds = new Set(prev.map((p) => p.id));
+      const fresh = livePhotos
+        .filter((lp) => !existingIds.has(lp.id) && !gallery.photos.some((gp) => gp.id === lp.id))
+        .map((lp) => ({
+          id: lp.id,
+          s3Key_highRes: lp.thumbnailUrl,
+          cloudinaryId: null,
+          isHookImage: lp.isHookImage,
+          isFavorited: false,
+          isPurchased: false,
+          isMagicShot: false,
+          parentPhotoId: null,
+        }));
+      return [...fresh, ...prev];
+    });
+  }, [gallery.photos]);
 
   // Fetch shop catalog when Shop tab first opens
   useEffect(() => {
@@ -207,6 +228,10 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div className="font-display text-lg text-navy-900">{gallery.location.name}</div>
           <div className="flex items-center gap-2">
+            <LiveGalleryStream
+              galleryToken={gallery.magicLinkToken}
+              onNewPhotos={handleNewLivePhotos}
+            />
             {activeTab === "photos" && (
               <>
                 <button
