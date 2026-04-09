@@ -5,6 +5,7 @@ import { cleanUrl, photoRef } from "@/lib/cloudinary";
 import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
 import QRScanner from "@/components/mobile/QRScanner";
+import SelfieCamera from "@/components/kiosk/SelfieCamera";
 import {
   cacheGalleryPhotos,
   getCachedPhotoUrl,
@@ -29,6 +30,7 @@ export default function GalleryKiosk() {
   const [showQrScanner, setShowQrScanner] = useState(false);
   const [inputModal, setInputModal] = useState<{ type: string; label: string; placeholder: string } | null>(null);
   const [inputValue, setInputValue] = useState("");
+  const [showSelfieCamera, setShowSelfieCamera] = useState(false);
   const locationType = settings?.locationType || "WATER_PARK"; // HOTEL | WATER_PARK | ATTRACTION | SELF_SERVICE
 
   // Photo cache state
@@ -161,6 +163,35 @@ export default function GalleryKiosk() {
     }
   }
 
+  // ── Selfie Camera Modal ──
+  if (showSelfieCamera) {
+    return (
+      <div className="fixed inset-0 z-50 bg-navy-900">
+        <SelfieCamera
+          locationId={locationId || "_any_"}
+          onResults={(results) => {
+            setShowSelfieCamera(false);
+            if (results.length > 0) {
+              // Build a gallery-like structure from face results
+              const photoMap = results.map((r) => ({
+                id: r.photoId,
+                cloudinaryId: null,
+                s3Key_highRes: r.thumbnailUrl,
+              }));
+              setActive({
+                id: results[0].galleryId,
+                magicLinkToken: "",
+                photos: photoMap,
+              });
+              setStep("browse");
+            }
+          }}
+          onClose={() => setShowSelfieCamera(false)}
+        />
+      </div>
+    );
+  }
+
   // ── STEP id ──
   if (step === "id") {
     return (
@@ -211,7 +242,7 @@ export default function GalleryKiosk() {
             icon={<User className="h-10 w-10" />}
             title="Take a selfie"
             sub="AI face match"
-            onClick={() => identify("SELFIE")}
+            onClick={() => setShowSelfieCamera(true)}
           />
 
           {/* Room number — shown ONLY for HOTEL */}
