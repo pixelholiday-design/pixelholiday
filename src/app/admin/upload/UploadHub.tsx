@@ -1,12 +1,29 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { useDropzone } from "react-dropzone";
-import { Star, Upload, Loader2, Check, ImageIcon, Film, Sparkles, Link as LinkIcon, Copy } from "lucide-react";
-import UploadCoach from "@/components/ai/UploadCoach";
+import {
+  Star, Upload, Loader2, Check, ImageIcon, Film, Sparkles,
+  Link as LinkIcon, Copy, X, ChevronDown, ChevronUp,
+} from "lucide-react";
 
 type LocOpt = { id: string; name: string; type: string };
 type PhotogOpt = { id: string; name: string };
-type Item = { file: File; preview: string; isHook: boolean; uploaded?: boolean; key?: string; publicUrl?: string; progress?: number };
+type FileItem = { file: File; preview: string; isHook: boolean };
+
+type QueueJob = {
+  id: string;
+  locationName: string;
+  photographerName: string;
+  customerName: string;
+  totalFiles: number;
+  uploadedFiles: number;
+  status: "uploading" | "processing" | "done" | "error";
+  galleryLink?: string;
+  error?: string;
+  startedAt: number;
+};
+
+const PARALLEL_UPLOADS = 4; // Upload 4 files at once for speed
 
 export default function UploadHub({ locations, photographers }: { locations: LocOpt[]; photographers: PhotogOpt[] }) {
   const [locationId, setLocationId] = useState(locations[0]?.id || "");
@@ -15,10 +32,14 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerWhatsapp, setCustomerWhatsapp] = useState("");
-  const [status, setStatus] = useState<"HOOK_ONLY" | "PREVIEW_ECOM" | "DIGITAL_PASS">("PREVIEW_ECOM");
-  const [items, setItems] = useState<Item[]>([]);
-  const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ link: string; photoIds: string[] } | null>(null);
+  const [status, setStatus] = useState<"HOOK_ONLY" | "PREVIEW_ECOM" | "DIGITAL_PASS">("HOOK_ONLY");
+  const [items, setItems] = useState<FileItem[]>([]);
+  const [queue, setQueue] = useState<QueueJob[]>([]);
+  const [queueOpen, setQueueOpen] = useState(true);
+  const queueRef = useRef<QueueJob[]>([]);
+
+  const locationType = locations.find((l) => l.id === locationId)?.type || "";
+  const isHighVolume = locationType === "WATER_PARK" || locationType === "ATTRACTION";
 
   const onDrop = useCallback((accepted: File[]) => {
     const next = accepted.map((f) => ({ file: f, preview: URL.createObjectURL(f), isHook: false }));
@@ -42,60 +63,128 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
     setItems((prev) => prev.map((it, i) => ({ ...it, isHook: i === idx ? !it.isHook : false })));
   }
 
-  async function handleUpload() {
-    if (!items.length || !locationId || !photographerId) return;
-    setBusy(true);
-    const uploaded: Item[] = [];
-    for (let idx = 0; idx < items.length; idx++) {
-      const it = items[idx];
-      const r = await fetch("/api/upload/presigned", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: it.file.name, contentType: it.file.type || "application/octet-stream" }),
-      }).then((r) => r.json());
+  function updateJob(id: string, patch: Partial<QueueJob>) {
+    setQueue((prev) => {
+      const next = prev.map((j) => (j.id === id ? { ...j, ...patch } : j));
+      queueRef.current = next;
+      return next;
+    });
+  }
 
-      if (!r.mocked) {
-        let directOk = false;
-        try {
-          const res = await fetch(r.uploadUrl, { method: "PUT", body: it.file, headers: { "Content-Type": it.file.type } });
-          directOk = res.ok;
-        } catch (e) {
-          console.warn("Direct R2 PUT failed, falling back to proxy upload", e);
-        }
-        if (!directOk) {
-          // CORS fallback — upload via server-side proxy
-          setItems((prev) => prev.map((x, xi) => xi === idx ? { ...x, progress: 50 } : x));
-          const fd = new FormData();
-          fd.append("file", it.file);
-          fd.append("key", r.key);
-          fd.append("contentType", it.file.type || "application/octet-stream");
-          await fetch("/api/upload/proxy", { method: "POST", body: fd });
-        }
-      }
-      uploaded.push({ ...it, uploaded: true, key: r.key, publicUrl: r.publicUrl, progress: 100 });
-      setItems([...uploaded, ...items.slice(idx + 1)]);
-    }
-
-    const res = await fetch("/api/upload/complete", {
+  async function uploadFileWithRetry(file: File): Promise<{ key: string; publicUrl: string }> {
+    const r = await fetch("/api/upload/presigned", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        locationId,
-        photographerId,
-        customerName,
-        customerEmail,
-        customerWhatsapp,
-        roomNumber,
-        status,
-        photos: uploaded.map((u) => ({ key: u.key!, publicUrl: u.publicUrl!, isHookImage: u.isHook })),
-      }),
+      body: JSON.stringify({ filename: file.name, contentType: file.type || "application/octet-stream" }),
     }).then((r) => r.json());
 
-    setBusy(false);
-    if (res.magicLinkToken) {
-      setDone({ link: `${window.location.origin}/gallery/${res.magicLinkToken}`, photoIds: res.photoIds || [] });
+    if (!r.mocked) {
+      let directOk = false;
+      try {
+        const res = await fetch(r.uploadUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type } });
+        directOk = res.ok;
+      } catch { /* CORS fallback */ }
+      if (!directOk) {
+        const fd = new FormData();
+        fd.append("file", file);
+        fd.append("key", r.key);
+        fd.append("contentType", file.type || "application/octet-stream");
+        await fetch("/api/upload/proxy", { method: "POST", body: fd });
+      }
+    }
+    return { key: r.key, publicUrl: r.publicUrl };
+  }
+
+  async function processJob(job: QueueJob, files: FileItem[], formData: any) {
+    try {
+      // Upload files in parallel batches
+      const uploaded: { key: string; publicUrl: string; isHookImage: boolean }[] = [];
+      for (let i = 0; i < files.length; i += PARALLEL_UPLOADS) {
+        const batch = files.slice(i, i + PARALLEL_UPLOADS);
+        const results = await Promise.all(
+          batch.map(async (it) => {
+            const r = await uploadFileWithRetry(it.file);
+            return { ...r, isHookImage: it.isHook };
+          })
+        );
+        uploaded.push(...results);
+        updateJob(job.id, { uploadedFiles: uploaded.length });
+      }
+
+      updateJob(job.id, { status: "processing" });
+
+      const res = await fetch("/api/upload/complete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          photos: uploaded,
+        }),
+      }).then((r) => r.json());
+
+      if (res.magicLinkToken) {
+        updateJob(job.id, {
+          status: "done",
+          galleryLink: `${window.location.origin}/gallery/${res.magicLinkToken}`,
+        });
+      } else {
+        updateJob(job.id, { status: "done", galleryLink: "" });
+      }
+    } catch (e: any) {
+      updateJob(job.id, { status: "error", error: e.message || "Upload failed" });
     }
   }
+
+  function handleUpload() {
+    if (!items.length || !locationId || !photographerId) return;
+
+    const loc = locations.find((l) => l.id === locationId);
+    const photog = photographers.find((p) => p.id === photographerId);
+
+    const job: QueueJob = {
+      id: `job-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      locationName: loc?.name || "",
+      photographerName: photog?.name || "",
+      customerName: customerName || roomNumber || "Guest",
+      totalFiles: items.length,
+      uploadedFiles: 0,
+      status: "uploading",
+      startedAt: Date.now(),
+    };
+
+    const formData = {
+      locationId,
+      photographerId,
+      customerName,
+      customerEmail,
+      customerWhatsapp,
+      roomNumber,
+      status,
+    };
+
+    const filesToUpload = [...items];
+
+    // Add to queue and start upload in background
+    setQueue((prev) => {
+      const next = [job, ...prev];
+      queueRef.current = next;
+      return next;
+    });
+    setQueueOpen(true);
+
+    // Reset form immediately for next photographer
+    setItems([]);
+    setCustomerName("");
+    setCustomerEmail("");
+    setCustomerWhatsapp("");
+    setRoomNumber("");
+
+    // Start background upload (non-blocking)
+    processJob(job, filesToUpload, formData);
+  }
+
+  const activeJobs = queue.filter((j) => j.status === "uploading" || j.status === "processing");
+  const doneJobs = queue.filter((j) => j.status === "done" || j.status === "error");
 
   const TACTICS = [
     { id: "HOOK_ONLY", label: "Hook only", sub: "O2O tease → drive to kiosk" },
@@ -104,12 +193,101 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
   ] as const;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <header>
         <div className="label-xs">Gallery creation</div>
         <h1 className="heading text-4xl mt-1">Upload Hub</h1>
-        <p className="text-navy-400 mt-1">Create a gallery, tag the hook image, and deliver in one step.</p>
+        <p className="text-navy-400 mt-1">
+          {isHighVolume
+            ? "High-volume mode — uploads run in background. Fill the next gallery while photos upload."
+            : "Create a gallery, tag the hook image, and deliver in one step."}
+        </p>
       </header>
+
+      {/* Upload queue — always visible when jobs exist */}
+      {queue.length > 0 && (
+        <div className="card overflow-hidden">
+          <button
+            onClick={() => setQueueOpen(!queueOpen)}
+            className="w-full flex items-center justify-between px-5 py-3 bg-cream-50 border-b border-cream-200 hover:bg-cream-100 transition"
+          >
+            <div className="flex items-center gap-3">
+              {activeJobs.length > 0 && <Loader2 className="h-4 w-4 animate-spin text-coral-500" />}
+              <span className="font-semibold text-sm text-navy-900">
+                Upload queue
+                {activeJobs.length > 0 && ` — ${activeJobs.length} active`}
+              </span>
+              <span className="text-xs text-navy-400">{queue.length} total</span>
+            </div>
+            {queueOpen ? <ChevronUp className="h-4 w-4 text-navy-400" /> : <ChevronDown className="h-4 w-4 text-navy-400" />}
+          </button>
+          {queueOpen && (
+            <div className="divide-y divide-cream-200 max-h-64 overflow-y-auto">
+              {queue.map((job) => (
+                <div key={job.id} className="flex items-center gap-4 px-5 py-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-navy-900 truncate">
+                        {job.customerName}
+                      </span>
+                      <span className="text-xs text-navy-400">
+                        {job.locationName} · {job.photographerName}
+                      </span>
+                    </div>
+                    {(job.status === "uploading" || job.status === "processing") && (
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <div className="flex-1 h-1.5 bg-cream-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-coral-400 to-coral-600 rounded-full transition-all duration-300"
+                            style={{ width: `${job.status === "processing" ? 100 : Math.round((job.uploadedFiles / job.totalFiles) * 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] text-navy-400 whitespace-nowrap">
+                          {job.status === "processing"
+                            ? "Creating gallery…"
+                            : `${job.uploadedFiles}/${job.totalFiles}`}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="shrink-0">
+                    {job.status === "uploading" && (
+                      <span className="text-xs text-coral-500 font-medium">Uploading</span>
+                    )}
+                    {job.status === "processing" && (
+                      <Loader2 className="h-4 w-4 animate-spin text-brand-500" />
+                    )}
+                    {job.status === "done" && job.galleryLink && (
+                      <a
+                        href={job.galleryLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs text-green-600 font-semibold hover:underline"
+                      >
+                        <Check className="h-3.5 w-3.5" /> View gallery
+                      </a>
+                    )}
+                    {job.status === "done" && !job.galleryLink && (
+                      <span className="text-xs text-green-600 font-medium flex items-center gap-1">
+                        <Check className="h-3.5 w-3.5" /> Done
+                      </span>
+                    )}
+                    {job.status === "error" && (
+                      <span className="text-xs text-red-500 font-medium">Error</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => setQueue((prev) => prev.filter((j) => j.id !== job.id))}
+                    className="btn-ghost !p-1 opacity-40 hover:opacity-100"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         {/* LEFT — Form */}
@@ -177,42 +355,17 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
             </div>
           </div>
 
-          <button disabled={busy || !items.length} onClick={handleUpload} className="btn-primary w-full !py-3">
-            {busy ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Uploading…
-              </>
-            ) : (
-              <>
-                <Upload className="h-4 w-4" /> Create gallery ({items.length})
-              </>
-            )}
+          <button disabled={!items.length} onClick={handleUpload} className="btn-primary w-full !py-3">
+            <Upload className="h-4 w-4" />
+            {isHighVolume
+              ? `Queue upload (${items.length}) →`
+              : `Create gallery (${items.length})`}
           </button>
 
-          {done && (
-            <div className="rounded-xl bg-green-50 border border-green-200 p-4 space-y-2 animate-fade-in">
-              <div className="flex items-center gap-2 text-green-700 font-semibold text-sm">
-                <Sparkles className="h-4 w-4" /> Gallery ready
-              </div>
-              <div className="flex items-center gap-2">
-                <LinkIcon className="h-3 w-3 text-green-700 shrink-0" />
-                <a className="text-xs text-green-800 underline break-all" href={done.link} target="_blank" rel="noreferrer">
-                  {done.link}
-                </a>
-                <button
-                  onClick={() => navigator.clipboard.writeText(done.link)}
-                  className="ml-auto btn-ghost !p-1.5"
-                  title="Copy link"
-                >
-                  <Copy className="h-3.5 w-3.5" />
-                </button>
-              </div>
-              {done.photoIds.length > 0 && (
-                <div className="mt-3">
-                  <UploadCoach photoIds={done.photoIds} />
-                </div>
-              )}
-            </div>
+          {isHighVolume && (
+            <p className="text-xs text-navy-400 text-center">
+              Photos upload in background. Form resets for next photographer.
+            </p>
           )}
         </aside>
 
@@ -247,9 +400,17 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
                 <div className="text-sm text-navy-600">
                   <span className="font-semibold text-navy-900">{items.length}</span> files · Tap the star to mark the hook image
                 </div>
-                <div className="text-xs text-navy-400">Exactly one hook per gallery</div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setItems([])}
+                    className="text-xs text-navy-400 hover:text-red-500 transition"
+                  >
+                    Clear all
+                  </button>
+                  <div className="text-xs text-navy-400">Exactly one hook per gallery</div>
+                </div>
               </div>
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                 {items.map((it, i) => (
                   <div
                     key={i}
@@ -269,11 +430,12 @@ export default function UploadHub({ locations, photographers }: { locations: Loc
                     >
                       <Star className={`h-4 w-4 ${it.isHook ? "fill-gold-500 text-gold-500" : "text-navy-400"}`} />
                     </button>
-                    {it.uploaded && (
-                      <div className="absolute bottom-2 left-2 h-6 w-6 rounded-full bg-green-500 text-white flex items-center justify-center shadow">
-                        <Check className="h-3.5 w-3.5" />
-                      </div>
-                    )}
+                    <button
+                      onClick={() => setItems((prev) => prev.filter((_, j) => j !== i))}
+                      className="absolute top-2 left-2 h-6 w-6 rounded-full bg-red-500/80 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
                   </div>
                 ))}
               </div>
