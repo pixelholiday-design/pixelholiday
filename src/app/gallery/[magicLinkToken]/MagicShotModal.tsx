@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { X, Sparkles, Check, Loader2 } from "lucide-react";
+import { photoRef } from "@/lib/cloudinary";
 
 type Element = {
   id: string;
@@ -67,8 +68,8 @@ export default function MagicShotModal({
   }
 
   // CSS-composed preview: background image + overlay positioned by element.position.
-  // This works regardless of whether Cloudinary is configured.
-  const sourceUrl = photo.s3Key_highRes;
+  // Use photoRef so R2 keys route through the proxy and Cloudinary IDs use CDN.
+  const sourceUrl = photoRef(photo);
   const overlayUrl = picked?.assetUrl || "";
   const position = picked?.position || "CENTER";
   const overlayStyle: React.CSSProperties = {

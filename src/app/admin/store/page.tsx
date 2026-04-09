@@ -111,11 +111,11 @@ export default async function StoreIndexPage() {
           </Link>
         </div>
         {recentOrders.length === 0 ? (
-          <div className="bg-white rounded-2xl ring-1 ring-cream-300 p-8 text-center text-navy-500">
+          <div className="card p-8 text-center text-navy-500">
             No orders yet.
           </div>
         ) : (
-          <div className="bg-white rounded-2xl ring-1 ring-cream-300 shadow-card overflow-hidden">
+          <div className="card overflow-hidden">
             <table className="w-full text-sm">
               <thead className="bg-cream-100 text-navy-500 text-xs uppercase tracking-wider">
                 <tr>

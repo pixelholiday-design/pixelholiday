@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag, Wifi, Database, Printer } from "lucide-react";
+import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag, Wifi, Database, Printer, Image, CreditCard } from "lucide-react";
 import { cleanUrl, photoRef } from "@/lib/cloudinary";
 import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
@@ -490,8 +490,8 @@ function AnchorCheckout({
   onOrderAtCounter: () => void;
   onBack: () => void;
 }) {
-  // Three screens: anchor → compromise → individual
-  const [screen, setScreen] = useState<"anchor" | "compromise" | "individual">("anchor");
+  // Four screens: anchor → compromise → individual | print
+  const [screen, setScreen] = useState<"anchor" | "compromise" | "individual" | "print" | "digital_pass">("anchor");
   const [tick, setTick] = useState(0);
   const ANCHOR_DELAY = 10; // seconds before "See options" appears
 
@@ -568,23 +568,23 @@ function AnchorCheckout({
         <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold">Choose your package</div>
         <h1 className="font-display text-4xl">3 ways to take your memories home</h1>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl w-full">
-          {/* BEST VALUE — Anchor */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl w-full">
+          {/* BEST VALUE — Full Digital Gallery */}
           <button
             onClick={onPayNow}
             disabled={busy}
-            className="relative rounded-2xl bg-gradient-to-br from-gold-500/20 to-coral-500/15 border-2 border-gold-500 p-6 text-left hover:scale-105 transition shadow-lift"
+            className="relative rounded-2xl bg-gradient-to-br from-gold-500/20 to-coral-500/15 border-2 border-gold-500 p-6 text-left hover:scale-105 transition shadow-lift col-span-2 md:col-span-1"
           >
             <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gold-500 text-navy-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
               Best Value
             </div>
             <Sparkles className="h-7 w-7 text-gold-400 mb-3" />
-            <div className="font-display text-2xl mb-1">All Photos Pass</div>
+            <div className="font-display text-2xl mb-1">All Photos — Digital</div>
             <div className="font-display text-4xl text-gold-400 mb-2">€{ANCHOR_PRICE}</div>
             <p className="text-white/70 text-sm">Every photo, full resolution, delivered instantly to your phone.</p>
           </button>
 
-          {/* Selected — Standard */}
+          {/* Selected Digital */}
           <button
             onClick={() => setScreen("individual")}
             className="rounded-2xl bg-white/5 border border-white/10 p-6 text-left hover:bg-white/10 transition"
@@ -595,12 +595,35 @@ function AnchorCheckout({
             <p className="text-white/60 text-sm">{selected.size || "Pick"} photos · pay only for what you choose.</p>
           </button>
 
+          {/* Printed Photo */}
+          <button
+            onClick={() => setScreen("print")}
+            className="rounded-2xl bg-white/5 border border-white/10 p-6 text-left hover:bg-white/10 transition"
+          >
+            <Printer className="h-7 w-7 text-brand-400 mb-3" />
+            <div className="font-display text-2xl mb-1">Printed Photo</div>
+            <div className="font-display text-3xl text-white mb-2">from €15</div>
+            <p className="text-white/60 text-sm">High-quality print · ready at the counter.</p>
+          </button>
+
+          {/* Digital Pass */}
+          <button
+            onClick={() => setScreen("digital_pass")}
+            className="rounded-2xl bg-white/5 border border-white/10 p-6 text-left hover:bg-white/10 transition"
+          >
+            <CreditCard className="h-7 w-7 text-green-400 mb-3" />
+            <div className="font-display text-2xl mb-1">Digital Pass</div>
+            <div className="font-display text-3xl text-white mb-2">150 TND</div>
+            <p className="text-white/60 text-sm">Unlimited photos for your entire stay.</p>
+          </button>
+
           {/* Single — De-emphasized */}
           <button
             onClick={() => setScreen("individual")}
             className="rounded-2xl bg-white/[0.02] border border-white/5 p-6 text-left hover:bg-white/5 transition"
           >
-            <div className="font-display text-lg mb-1 text-white/60">Individual Photos</div>
+            <Image className="h-7 w-7 text-white/30 mb-3" />
+            <div className="font-display text-lg mb-1 text-white/60">Single Photo</div>
             <div className="text-xl text-white/50 mb-2">from €5</div>
             <p className="text-white/40 text-xs">Buy one photo at a time.</p>
           </button>
@@ -614,22 +637,106 @@ function AnchorCheckout({
   }
 
   // SCREEN 3 — INDIVIDUAL (the original 2-button checkout)
-  return (
-    <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 gap-8">
-      <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold">Choose how to pay</div>
-      <h1 className="font-display text-5xl">{selected.size} photos · €{partialPrice}</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full">
-        <button onClick={onPayNow} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
-          <Sparkles className="h-8 w-8 text-coral-400 mb-3" />
-          <div className="font-display text-2xl text-white">Pay now</div>
-          <p className="text-white/60 text-sm mt-2">Scan a QR with your phone. Photos delivered instantly via WhatsApp.</p>
-        </button>
-        <button onClick={onOrderAtCounter} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
-          <ShoppingCart className="h-8 w-8 text-gold-400 mb-3" />
-          <div className="font-display text-2xl text-white">Order at counter</div>
-          <p className="text-white/60 text-sm mt-2">Send your selection to the photographer. Pay by card or cash.</p>
+  if (screen === "individual") {
+    return (
+      <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 gap-8">
+        <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold">Choose how to pay</div>
+        <h1 className="font-display text-5xl">{selected.size} photos · €{partialPrice}</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl w-full">
+          <button onClick={onPayNow} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
+            <Sparkles className="h-8 w-8 text-coral-400 mb-3" />
+            <div className="font-display text-2xl text-white">Pay now</div>
+            <p className="text-white/60 text-sm mt-2">Scan a QR with your phone. Photos delivered instantly via WhatsApp.</p>
+          </button>
+          <button onClick={onOrderAtCounter} disabled={busy} className="card !bg-white/5 !border-white/10 p-8 text-left hover:bg-white/10 transition">
+            <ShoppingCart className="h-8 w-8 text-gold-400 mb-3" />
+            <div className="font-display text-2xl text-white">Order at counter</div>
+            <p className="text-white/60 text-sm mt-2">Send your selection to the photographer. Pay by card or cash.</p>
+          </button>
+        </div>
+        <button onClick={() => setScreen("compromise")} className="btn-ghost text-white/70 text-sm">
+          ← Back
         </button>
       </div>
+    );
+  }
+
+  // SCREEN 4 — PRINT ORDER
+  if (screen === "print") {
+    return (
+      <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 gap-8">
+        <div className="text-brand-400 uppercase tracking-widest text-xs font-semibold">Printed Photos</div>
+        <Printer className="h-16 w-16 text-brand-400" />
+        <h1 className="font-display text-5xl">Order a print</h1>
+        <p className="text-white/60 text-lg text-center max-w-md">
+          Select your photos and go to the counter to choose your print size and finish. We print on-site.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-3xl w-full">
+          <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+            <div className="font-display text-xl mb-1">10×15 cm</div>
+            <div className="font-display text-3xl text-brand-300 mb-1">€15</div>
+            <p className="text-white/50 text-sm">Classic wallet size</p>
+          </div>
+          <div className="rounded-2xl bg-white/5 border-2 border-brand-400 p-6 text-center relative">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-400 text-navy-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Popular</div>
+            <div className="font-display text-xl mb-1">20×30 cm</div>
+            <div className="font-display text-3xl text-brand-300 mb-1">€25</div>
+            <p className="text-white/50 text-sm">Perfect for framing</p>
+          </div>
+          <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+            <div className="font-display text-xl mb-1">Luxury Album</div>
+            <div className="font-display text-3xl text-brand-300 mb-1">€150</div>
+            <p className="text-white/50 text-sm">All photos, hardcover bound</p>
+          </div>
+        </div>
+        <button
+          onClick={onOrderAtCounter}
+          disabled={busy}
+          className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-brand-500 to-brand-700 px-10 py-4 text-xl font-bold text-white shadow-lift hover:scale-105 transition"
+        >
+          <Printer className="h-5 w-5" /> Order at counter
+        </button>
+        <button onClick={() => setScreen("compromise")} className="btn-ghost text-white/70 text-sm">
+          ← Back
+        </button>
+      </div>
+    );
+  }
+
+  // SCREEN 5 — DIGITAL PASS
+  return (
+    <div className="fixed inset-0 bg-navy-900 text-white flex flex-col items-center justify-center p-8 gap-8">
+      <div className="text-green-400 uppercase tracking-widest text-xs font-semibold">Digital Pass</div>
+      <CreditCard className="h-16 w-16 text-green-400" />
+      <h1 className="font-display text-5xl">Unlimited Photo Pass</h1>
+      <p className="text-white/60 text-lg text-center max-w-md">
+        One price covers every photo taken during your entire stay. Photos auto-delivered to your phone.
+      </p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-3xl w-full">
+        <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+          <div className="font-display text-xl mb-1">Basic</div>
+          <div className="font-display text-3xl text-green-300 mb-1">80 TND</div>
+          <p className="text-white/50 text-sm">Up to 20 photos</p>
+        </div>
+        <div className="rounded-2xl bg-white/5 border-2 border-green-400 p-6 text-center relative">
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-green-400 text-navy-900 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">Most Popular</div>
+          <div className="font-display text-xl mb-1">Unlimited</div>
+          <div className="font-display text-3xl text-green-300 mb-1">150 TND</div>
+          <p className="text-white/50 text-sm">All photos, whole stay</p>
+        </div>
+        <div className="rounded-2xl bg-white/5 border border-white/10 p-6 text-center">
+          <div className="font-display text-xl mb-1">VIP</div>
+          <div className="font-display text-3xl text-green-300 mb-1">250 TND</div>
+          <p className="text-white/50 text-sm">Priority + sunset session</p>
+        </div>
+      </div>
+      <button
+        onClick={onOrderAtCounter}
+        disabled={busy}
+        className="inline-flex items-center gap-3 rounded-2xl bg-gradient-to-r from-green-500 to-green-700 px-10 py-4 text-xl font-bold text-white shadow-lift hover:scale-105 transition"
+      >
+        <CreditCard className="h-5 w-5" /> Purchase at counter
+      </button>
       <button onClick={() => setScreen("compromise")} className="btn-ghost text-white/70 text-sm">
         ← Back
       </button>

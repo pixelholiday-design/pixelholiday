@@ -18,35 +18,38 @@ export default function StaffDetail({ params }: { params: { id: string } }) {
   const shifts = user.shifts || [];
 
   return (
-    <div className="p-8 space-y-6">
-      <h1 className="text-3xl font-bold">{user.name}</h1>
-      <div className="text-gray-500">{user.role} · {user.location?.name}</div>
+    <div className="space-y-6">
+      <header>
+        <div className="label-xs">Staff</div>
+        <h1 className="heading text-4xl mt-1">{user.name}</h1>
+        <div className="text-navy-400 mt-1">{user.role} · {user.location?.name}</div>
+      </header>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card title="Level / XP" value={`L${user.level} (${user.xp} XP)`} />
         <Card title="Rating" value={user.rating?.toFixed(1) || "0.0"} />
         <Card title="Salary" value={`€${user.salary || 0} +€${repeaterBonus}`} />
       </div>
 
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="font-semibold mb-2">Badges</h2>
+      <div className="card p-5">
+        <h2 className="heading text-lg mb-3">Badges</h2>
         <div className="flex gap-2 flex-wrap">
           {(user.badges || []).map((b: string) => (
-            <span key={b} className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs">🏆 {b}</span>
+            <span key={b} className="bg-gold-500/10 text-gold-700 px-3 py-1 rounded-full text-xs font-medium">{b}</span>
           ))}
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="font-semibold mb-2">Weekly Shift Calendar</h2>
+      <div className="card p-5">
+        <h2 className="heading text-lg mb-3">Weekly Shift Calendar</h2>
         <div className="grid grid-cols-7 gap-1 text-xs">
           {week.map((d) => {
             const day = shifts.filter((s: any) => format(new Date(s.date), "yyyy-MM-dd") === format(d, "yyyy-MM-dd"));
             return (
-              <div key={d.toISOString()} className="border p-2 min-h-[80px]">
-                <div className="font-semibold">{format(d, "EEE d")}</div>
+              <div key={d.toISOString()} className="border border-cream-300 p-2 min-h-[80px] rounded-lg">
+                <div className="font-semibold text-navy-700">{format(d, "EEE d")}</div>
                 {day.map((s: any) => (
-                  <div key={s.id} className="bg-blue-100 mt-1 p-1 rounded">{format(new Date(s.startTime), "HH:mm")}</div>
+                  <div key={s.id} className="bg-brand-50 text-brand-700 mt-1 p-1 rounded text-[10px]">{format(new Date(s.startTime), "HH:mm")}</div>
                 ))}
               </div>
             );
@@ -54,37 +57,50 @@ export default function StaffDetail({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="font-semibold mb-2">Equipment</h2>
-        <ul className="text-sm">
+      <div className="card p-5">
+        <h2 className="heading text-lg mb-3">Equipment</h2>
+        <ul className="text-sm space-y-1">
           {user.equipmentAssignments?.map((a: any) => (
-            <li key={a.id}>{a.equipment.name} (€{a.equipment.purchaseCost || 0})</li>
+            <li key={a.id} className="text-navy-700">{a.equipment.name} <span className="text-navy-400">(€{a.equipment.purchaseCost || 0})</span></li>
           ))}
         </ul>
       </div>
 
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="font-semibold mb-2">Housing</h2>
+      <div className="card p-5">
+        <h2 className="heading text-lg mb-3">Housing</h2>
         {user.housing ? (
-          <div>{user.housing.address} — €{user.housing.monthlyCost}/mo</div>
+          <div className="text-navy-700">{user.housing.address} <span className="text-navy-400">— €{user.housing.monthlyCost}/mo</span></div>
         ) : (
-          <div className="text-gray-500">No housing assigned</div>
+          <div className="text-navy-400">No housing assigned</div>
         )}
       </div>
 
       <SkillRadar userId={params.id} />
 
-      <div className="bg-white p-4 rounded shadow">
-        <h2 className="font-semibold mb-2">Commissions ({user.commissions?.length || 0})</h2>
+      <div className="card overflow-hidden">
+        <div className="px-5 py-4 border-b border-cream-300/70">
+          <h2 className="heading text-lg">Commissions ({user.commissions?.length || 0})</h2>
+        </div>
         <table className="w-full text-sm">
-          <thead><tr><th className="text-left">Type</th><th>Amount</th><th>Month</th><th>Paid</th></tr></thead>
-          <tbody>
+          <thead>
+            <tr className="text-left text-xs uppercase tracking-wider text-navy-400 bg-cream-100/70">
+              <th className="px-5 py-3">Type</th>
+              <th className="px-5 py-3">Amount</th>
+              <th className="px-5 py-3">Month</th>
+              <th className="px-5 py-3">Paid</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-cream-300/70">
             {user.commissions?.map((c: any) => (
-              <tr key={c.id} className="border-t">
-                <td>{c.type}</td>
-                <td>€{c.amount.toFixed(2)}</td>
-                <td>{c.month}</td>
-                <td>{c.isPaid ? "✅" : "⏳"}</td>
+              <tr key={c.id} className="hover:bg-cream-100/60">
+                <td className="px-5 py-3 text-navy-700">{c.type}</td>
+                <td className="px-5 py-3 font-semibold text-navy-900">€{c.amount.toFixed(2)}</td>
+                <td className="px-5 py-3 text-navy-500">{c.month}</td>
+                <td className="px-5 py-3">
+                  <span className={`inline-flex rounded-full text-xs font-semibold px-2.5 py-1 ${c.isPaid ? "bg-green-50 text-green-700" : "bg-cream-200 text-navy-500"}`}>
+                    {c.isPaid ? "Paid" : "Pending"}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -96,9 +112,9 @@ export default function StaffDetail({ params }: { params: { id: string } }) {
 
 function Card({ title, value }: { title: string; value: string }) {
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <div className="text-xs text-gray-500">{title}</div>
-      <div className="text-xl font-bold">{value}</div>
+    <div className="stat-card">
+      <div className="label-xs">{title}</div>
+      <div className="font-display text-2xl text-navy-900">{value}</div>
     </div>
   );
 }

@@ -181,6 +181,12 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
               <div className="text-white/60 text-xs sm:text-sm">
                 Full-resolution downloads · no expiry · instant delivery
               </div>
+              <a
+                href="/shop"
+                className="mt-1 inline-flex items-center gap-1 text-xs text-gold-400 hover:text-gold-300 underline underline-offset-2 transition"
+              >
+                Want prints? Canvas, photobook &amp; more →
+              </a>
             </div>
             <StripeCheckoutButton token={gallery.magicLinkToken} />
           </div>

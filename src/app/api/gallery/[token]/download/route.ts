@@ -14,23 +14,47 @@ export async function GET(_req: Request, { params }: { params: { token: string }
   if (gallery.status !== "PAID" && gallery.status !== "DIGITAL_PASS") {
     return NextResponse.json({ error: "Gallery not paid" }, { status: 402 });
   }
-  const ids = gallery.photos.map((p) => p.cloudinaryId).filter((v): v is string => !!v);
-  if (ids.length === 0) {
-    return NextResponse.json({ error: "No Cloudinary-backed photos to archive" }, { status: 409 });
-  }
-  if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-    return NextResponse.json(
-      { error: "Cloudinary not configured. Set CLOUDINARY_CLOUD_NAME / API_KEY / API_SECRET to enable bulk download." },
-      { status: 503 }
-    );
-  }
-  try {
-    const url = archiveUrl(ids);
-    if (!url || url === "#") {
-      return NextResponse.json({ error: "Failed to generate archive URL" }, { status: 500 });
+
+  // Primary path: Cloudinary archive (best quality, single ZIP redirect)
+  const cloudinaryIds = gallery.photos
+    .map((p) => p.cloudinaryId)
+    .filter((v): v is string => !!v);
+
+  const cloudinaryConfigured =
+    !!process.env.CLOUDINARY_CLOUD_NAME &&
+    !!process.env.CLOUDINARY_API_KEY &&
+    !!process.env.CLOUDINARY_API_SECRET;
+
+  if (cloudinaryIds.length > 0 && cloudinaryConfigured) {
+    try {
+      const url = archiveUrl(cloudinaryIds);
+      if (url && url !== "#") {
+        return NextResponse.redirect(url, 302);
+      }
+    } catch (e: any) {
+      console.warn("Cloudinary archive failed, falling back to individual URLs:", e?.message);
     }
-    return NextResponse.redirect(url, 302);
-  } catch (e: any) {
-    return NextResponse.json({ error: e?.message || "Archive generation failed" }, { status: 500 });
   }
+
+  // Fallback path: return individual download URLs for R2-backed photos.
+  // The client (DownloadAllButton) checks for { urls } in the response and
+  // triggers individual downloads instead of following a single redirect.
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  const urls = gallery.photos
+    .filter((p) => p.s3Key_highRes)
+    .map((p) => {
+      // If cloudinaryId is available, use the Cloudinary delivery URL directly.
+      if (p.cloudinaryId && cloudinaryConfigured) {
+        return `https://res.cloudinary.com/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload/${p.cloudinaryId}`;
+      }
+      // Otherwise route through the R2 photo proxy.
+      const key = encodeURIComponent(p.s3Key_highRes);
+      return `${appUrl}/api/photo/${key}`;
+    });
+
+  if (urls.length === 0) {
+    return NextResponse.json({ error: "No photos available for download" }, { status: 409 });
+  }
+
+  return NextResponse.json({ urls });
 }
