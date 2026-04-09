@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag, Wifi, Database } from "lucide-react";
+import { ScanLine, User, KeyRound, Check, ArrowRight, RefreshCw, ShoppingCart, X, Sparkles, Tag, Wifi, Database, Printer } from "lucide-react";
 import { cleanUrl, photoRef } from "@/lib/cloudinary";
 import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
@@ -27,6 +27,8 @@ export default function GalleryKiosk() {
   const [orderMsg, setOrderMsg] = useState<string | null>(null);
   const [wristbandInput, setWristbandInput] = useState("");
   const [showQrScanner, setShowQrScanner] = useState(false);
+  const [inputModal, setInputModal] = useState<{ type: string; label: string; placeholder: string } | null>(null);
+  const [inputValue, setInputValue] = useState("");
   const locationType = settings?.locationType || "WATER_PARK"; // HOTEL | WATER_PARK | ATTRACTION | SELF_SERVICE
 
   // Photo cache state
@@ -219,8 +221,8 @@ export default function GalleryKiosk() {
               title="Room number"
               sub="Hotel guests"
               onClick={() => {
-                const v = prompt("Room number");
-                if (v) identify("ROOM", v);
+                setInputValue("");
+                setInputModal({ type: "ROOM", label: "Enter your room number", placeholder: "e.g. 214" });
               }}
             />
           )}
@@ -232,8 +234,8 @@ export default function GalleryKiosk() {
               title="Tap NFC tag"
               sub="Touch your NFC wristband or card to the reader"
               onClick={() => {
-                const v = prompt("NFC tag ID (auto-read in production)");
-                if (v) identify("NFC", v);
+                setInputValue("");
+                setInputModal({ type: "NFC", label: "Tap your NFC tag", placeholder: "Tag ID" });
               }}
             />
           )}
@@ -275,6 +277,47 @@ export default function GalleryKiosk() {
         </div>
         {err && <div className="mt-6 text-coral-400">{err}</div>}
         {busy && <div className="mt-6 text-white/60">Searching…</div>}
+
+        {/* Input modal */}
+        {inputModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+            <div className="bg-navy-800 border border-white/10 rounded-2xl p-8 w-full max-w-sm shadow-lift flex flex-col gap-6">
+              <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold text-center">{inputModal.label}</div>
+              <input
+                autoFocus
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder={inputModal.placeholder}
+                className="w-full min-h-[56px] px-5 py-4 rounded-xl bg-white/10 text-white text-center text-2xl placeholder-white/30 tracking-widest font-mono focus:outline-none focus:ring-2 focus:ring-brand-400"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && inputValue.trim()) {
+                    identify(inputModal.type as "ROOM" | "NFC", inputValue.trim());
+                    setInputModal(null);
+                  }
+                  if (e.key === "Escape") setInputModal(null);
+                }}
+              />
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setInputModal(null)}
+                  className="flex-1 min-h-[48px] rounded-xl bg-white/10 text-white/70 font-semibold hover:bg-white/20 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  disabled={!inputValue.trim()}
+                  onClick={() => {
+                    identify(inputModal.type as "ROOM" | "NFC", inputValue.trim());
+                    setInputModal(null);
+                  }}
+                  className="flex-1 min-h-[48px] rounded-xl bg-gradient-to-r from-coral-500 to-gold-500 text-white font-bold disabled:opacity-40 transition hover:scale-105"
+                >
+                  Find my photos
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -418,7 +461,13 @@ export default function GalleryKiosk() {
           />
         </div>
       )}
-      <button onClick={reset} className="mt-8 inline-flex items-center gap-2 text-white/70 hover:text-white">
+      <button
+        onClick={() => window.print()}
+        className="mt-6 inline-flex items-center gap-2 rounded-xl border border-white/20 text-white/70 px-6 py-3 font-semibold hover:border-white/40 hover:text-white transition"
+      >
+        <Printer className="h-4 w-4" /> Print photos
+      </button>
+      <button onClick={reset} className="mt-4 inline-flex items-center gap-2 text-white/70 hover:text-white">
         <RefreshCw className="h-4 w-4" /> Start over
       </button>
       <p className="mt-2 text-xs text-white/40">Auto-reset in 30s</p>

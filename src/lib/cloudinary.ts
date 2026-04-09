@@ -17,6 +17,10 @@ function isHttpsUrl(s: string): boolean {
   return /^https?:\/\//.test(s);
 }
 
+function isProxyUrl(s: string): boolean {
+  return s.startsWith("/api/photo/");
+}
+
 /**
  * Resolve a Photo (with cloudinaryId + s3Key_highRes) to the best image source.
  * Prefers a stored full URL when present; falls back to cloudinary publicId.
@@ -58,6 +62,8 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
  */
 export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
   if (!publicIdOrUrl) return "";
+  // Proxy URLs can't be watermarked server-side — pass through
+  if (isProxyUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `l_${WATERMARK},w_0.5,g_center,o_40/c_limit,w_${width},q_60,f_webp,a_exif`;
   if (isHttpsUrl(publicIdOrUrl)) {
     // Use Cloudinary fetch to apply watermark to any external/R2 URL.
@@ -81,8 +87,8 @@ export function signedWatermarkUrl(publicIdOrUrl: string, width = 1200): string 
 /** Clean (unwatermarked) URL — only for PAID galleries */
 export function cleanUrl(publicIdOrUrl: string, width = 1600): string {
   if (!publicIdOrUrl) return "";
-  // HTTPS URLs pass through unchanged — see watermarkedUrl note.
-  if (isHttpsUrl(publicIdOrUrl)) return publicIdOrUrl;
+  // HTTPS URLs and proxy URLs pass through unchanged.
+  if (isHttpsUrl(publicIdOrUrl) || isProxyUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `c_limit,w_${width},q_85,f_auto,a_exif`;
   return `https://res.cloudinary.com/${CLOUD || "demo"}/image/upload/${transform}/${publicIdOrUrl}`;
 }
