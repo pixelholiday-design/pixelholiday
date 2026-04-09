@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { calculateStripeFee } from "@/lib/commissions";
+
+const MARKETPLACE_FEE_RATE = 0.10; // 10% platform fee
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +30,14 @@ export async function POST(req: NextRequest) {
     if (!profileId || !photographerId || !sessionType || !sessionDate || !sessionStartTime || !customerName || !customerEmail || !totalPrice) {
       return NextResponse.json(
         { error: "Missing required fields: profileId, photographerId, sessionType, sessionDate, sessionStartTime, customerName, customerEmail, totalPrice" },
+        { status: 400 }
+      );
+    }
+
+    // Anti-fraud: require verified email + phone for bookings over €300
+    if (totalPrice > 300 && !customerPhone) {
+      return NextResponse.json(
+        { error: "Phone number required for bookings over €300" },
         { status: 400 }
       );
     }
@@ -65,6 +76,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Calculate marketplace commission breakdown
+    const stripeFee = calculateStripeFee(totalPrice, "STRIPE_ONLINE");
+    const platformFee = Math.round(totalPrice * MARKETPLACE_FEE_RATE * 100) / 100;
+    const netAmount = Math.round((totalPrice - stripeFee) * 100) / 100;
+    const photographerPayout = Math.round((netAmount - platformFee) * 100) / 100;
+
     const [booking, appointment] = await prisma.$transaction(async (tx) => {
       const newBooking = await tx.marketplaceBooking.create({
         data: {
@@ -85,6 +102,12 @@ export async function POST(req: NextRequest) {
           totalPrice,
           depositAmount: depositAmount || null,
           status: "PENDING",
+          // Financial tracking
+          platformFeeRate: MARKETPLACE_FEE_RATE,
+          platformFee,
+          photographerPayout,
+          stripeFee,
+          payoutStatus: "PENDING",
         },
       });
 
@@ -107,7 +130,19 @@ export async function POST(req: NextRequest) {
       return [newBooking, newAppointment];
     });
 
-    return NextResponse.json({ success: true, booking, appointment });
+    return NextResponse.json({
+      success: true,
+      booking,
+      appointment,
+      // Surface the fee breakdown to the frontend
+      feeBreakdown: {
+        totalPrice,
+        platformFee,
+        stripeFee,
+        photographerPayout,
+        platformFeeRate: `${MARKETPLACE_FEE_RATE * 100}%`,
+      },
+    });
   } catch (error) {
     console.error("Marketplace booking error:", error);
     return NextResponse.json(

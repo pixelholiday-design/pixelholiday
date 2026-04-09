@@ -3,12 +3,28 @@ import { z } from "zod";
 import { stripe } from "@/lib/stripe";
 import { prisma } from "@/lib/db";
 import { requireStaff, handleGuardError } from "@/lib/guards";
+import { reverseCommissions } from "@/lib/commissions";
 
 const schema = z.object({
   orderId: z.string().min(1),
   amount: z.number().positive().optional(), // partial refund; omit = full
   reason: z.string().max(500).optional(),
 });
+
+// Anti-fraud: max 3 refunds per customer per month
+async function checkRefundLimit(customerId: string): Promise<boolean> {
+  const monthStart = new Date();
+  monthStart.setDate(1);
+  monthStart.setHours(0, 0, 0, 0);
+  const refundCount = await prisma.order.count({
+    where: {
+      customerId,
+      refundedAt: { gte: monthStart },
+      refundedAmount: { gt: 0 },
+    },
+  });
+  return refundCount < 3;
+}
 
 export async function POST(req: Request) {
   try {
@@ -27,6 +43,14 @@ export async function POST(req: Request) {
     if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
     if (order.status === "REFUNDED") {
       return NextResponse.json({ error: "Order already refunded" }, { status: 409 });
+    }
+
+    // Anti-fraud: check refund frequency
+    const withinLimit = await checkRefundLimit(order.customerId);
+    if (!withinLimit) {
+      return NextResponse.json({
+        error: "Refund limit exceeded. Maximum 3 refunds per customer per month.",
+      }, { status: 429 });
     }
 
     const remaining = order.amount - (order.refundedAmount || 0);
@@ -71,6 +95,13 @@ export async function POST(req: Request) {
     const newRefundedAmount = (order.refundedAmount || 0) + refundAmount;
     const isFull = Math.abs(newRefundedAmount - order.amount) < 0.005;
 
+    // NOTE: Stripe does NOT refund their processing fee on refunds.
+    // On a €100 sale: Stripe took ~€3.20. We refund €100. We lose €3.20.
+    // This loss is tracked as a cost of doing business.
+    const stripeFeeOnRefund = order.paymentMethod !== "CASH"
+      ? Math.round(refundAmount * 0.029 * 100) / 100 + 0.30
+      : 0;
+
     const updated = await prisma.order.update({
       where: { id: orderId },
       data: {
@@ -83,11 +114,15 @@ export async function POST(req: Request) {
       },
     });
 
-    // Reverse commissions on full refund (mark unpaid + zeroed) so payroll doesn't double-count.
-    if (isFull && order.commissions.length > 0) {
-      await prisma.commission.updateMany({
-        where: { orderId, isPaid: false },
-        data: { amount: 0 },
+    // CRITICAL FIX: Reverse commissions correctly for BOTH full and partial refunds.
+    // Old code only zeroed unpaid commissions on full refund.
+    // New code also creates negative adjustments for already-paid commissions.
+    if (order.commissions.length > 0) {
+      await reverseCommissions({
+        orderId,
+        refundAmount,
+        orderTotal: order.amount,
+        isFullRefund: isFull,
       });
     }
 
@@ -126,6 +161,7 @@ export async function POST(req: Request) {
       refundedAmount: newRefundedAmount,
       isFullRefund: isFull,
       stripeRefundId,
+      stripeFeeAbsorbed: stripeFeeOnRefund, // Surfaced so CEO can see the loss
       order: updated,
     });
   } catch (e) {

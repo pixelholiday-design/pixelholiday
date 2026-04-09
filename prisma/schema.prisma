@@ -397,6 +397,11 @@ model Order {
   fulfillments    FulfillmentOrder[]
   isAutomatedSale Boolean            @default(false)
   discountApplied Float?
+  // Financial tracking — Stripe fee & net amount for accurate margin calculation
+  stripeFee       Float              @default(0)   // Stripe processing fee (2.9% + €0.30)
+  netAmount       Float?             // amount minus stripeFee — actual cash received
+  taxAmount       Float              @default(0)   // VAT/tax collected
+  taxRate         Float              @default(0)   // Tax rate applied (e.g., 0.19 for 19%)
   refundedAmount  Float              @default(0)
   refundedAt      DateTime?
   refundReason    String?
@@ -447,21 +452,36 @@ enum OrderStatus {
 
 // ── COMMISSIONS & PAYROLL ─────────────────────
 model Commission {
-  id      String         @id @default(cuid())
-  userId  String
-  user    User           @relation(fields: [userId], references: [id])
-  orderId String?
-  order   Order?         @relation(fields: [orderId], references: [id])
-  type    CommissionType
-  amount  Float
-  rate    Float
-  isPaid  Boolean        @default(false)
-  paidAt  DateTime?
-  month   String?
+  id          String         @id @default(cuid())
+  userId      String
+  user        User           @relation(fields: [userId], references: [id])
+  orderId     String?
+  order       Order?         @relation(fields: [orderId], references: [id])
+  bookingId   String?        // For marketplace booking commissions
+  type        CommissionType
+  grossAmount Float?         // Original sale amount (before fees)
+  netAmount   Float?         // After Stripe fees
+  amount      Float          // Commission amount the user earns
+  rate        Float
+  status      CommissionStatus @default(PENDING)
+  isPaid      Boolean        @default(false)
+  paidAt      DateTime?
+  month       String?
+  notes       String?        // Adjustments, reversals
+  createdAt   DateTime       @default(now())
 
   @@index([userId])
   @@index([month])
   @@index([isPaid])
+  @@index([status])
+}
+
+enum CommissionStatus {
+  PENDING    // Awaiting approval
+  APPROVED   // Approved for payout
+  PAID       // Paid out
+  REVERSED   // Reversed due to refund
+  ADJUSTED   // Manual adjustment
 }
 
 enum CommissionType {
@@ -1100,6 +1120,7 @@ model Coupon {
   expiresAt  DateTime?
   isActive   Boolean    @default(true)
   locationId String?
+  galleryId  String?    // If set, coupon is restricted to this gallery only
   createdAt  DateTime   @default(now())
 }
 
@@ -1552,10 +1573,31 @@ model GiftCard {
   expiresAt   DateTime?
   isActive    Boolean   @default(true)
   stripeSessionId String?
+  // Revenue recognition — gift cards are DEFERRED REVENUE until redeemed
+  totalRedeemed    Float    @default(0)  // Cumulative amount redeemed (recognized as revenue)
+  breakageRecognized Boolean @default(false) // True if unredeemed balance was recognized as breakage
+  breakageAmount   Float    @default(0)  // Amount recognized as breakage revenue
+  breakageDate     DateTime?            // Date breakage was recognized
+  redemptions      GiftCardRedemption[]
   createdAt   DateTime  @default(now())
 
   @@index([code])
   @@index([isActive])
+  @@index([expiresAt])
+}
+
+// Track individual gift card redemptions for audit trail
+model GiftCardRedemption {
+  id          String    @id @default(cuid())
+  giftCardId  String
+  giftCard    GiftCard  @relation(fields: [giftCardId], references: [id])
+  amount      Float     // Amount redeemed in this transaction
+  orderId     String?   // Linked order, if applicable
+  shopOrderId String?   // Linked shop order, if applicable
+  redeemedBy  String?   // Customer identifier
+  createdAt   DateTime  @default(now())
+
+  @@index([giftCardId])
 }
 
 // ── SESSION QUESTIONNAIRE ────────────────────
@@ -1877,11 +1919,19 @@ model MarketplaceBooking {
   totalPrice        Float
   depositAmount     Float?
   currency          String              @default("EUR")
+  // Platform commission tracking
+  platformFeeRate   Float               @default(0.10) // 10% marketplace fee
+  platformFee       Float?              // Calculated: totalPrice * platformFeeRate
+  photographerPayout Float?             // totalPrice - platformFee - stripeFee
+  stripeFee         Float?              // Stripe processing fee on this booking
   // Payment
   stripeSessionId   String?
   stripePaymentId   String?
   isPaid            Boolean             @default(false)
   paidAt            DateTime?
+  payoutStatus      PayoutStatus        @default(PENDING)
+  payoutAt          DateTime?           // When photographer was paid out
+  escrowReleasedAt  DateTime?           // When escrow hold was released
   // Status
   status            MarketplaceBookingStatus @default(PENDING)
   // Communication
@@ -1908,6 +1958,14 @@ enum MarketplaceBookingStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
+}
+
+enum PayoutStatus {
+  PENDING     // Funds held in escrow
+  HELD        // Session completed, 48-hour hold
+  RELEASED    // Funds released to photographer
+  PAID        // Stripe transfer completed
+  CANCELLED   // Booking cancelled, refunded
 }
 
 model PortfolioPhoto {
