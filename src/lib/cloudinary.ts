@@ -27,6 +27,8 @@ function isProxyUrl(s: string): boolean {
  */
 export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: string | null }): string {
   const raw = p.s3Key_highRes || "";
+  // Already a proxy URL — pass through unchanged (avoid double-encoding)
+  if (isProxyUrl(raw)) return raw;
   // If s3Key_highRes holds a full URL:
   if (isHttpsUrl(raw)) {
     // Fix broken example.r2.dev URLs — redirect to photo proxy
@@ -40,13 +42,11 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
   if (raw && raw.includes("/")) {
     const base = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "";
     if (base && base !== "https://example.r2.dev") return `${base.replace(/\/$/, "")}/${raw.replace(/^\//, "")}`;
-    // Fall back to photo proxy
     return `/api/photo/${encodeURIComponent(raw)}`;
   }
   // Cloudinary publicId — only trust if it does NOT look like an R2 path.
   const cid = p.cloudinaryId || "";
   if (cid && !cid.startsWith("uploads/")) return cid;
-  // Last resort: bare key through proxy
   if (raw) return `/api/photo/${encodeURIComponent(raw)}`;
   return "";
 }
