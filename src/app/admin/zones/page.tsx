@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import { MapPin, AlertTriangle, Clock, Loader2 } from "lucide-react";
 
 type Assignment = {
   id: string;
@@ -30,40 +31,58 @@ export default function ZonesPage() {
   }, []);
 
   return (
-    <div className="p-8 max-w-5xl mx-auto">
-      <h1 className="text-3xl font-bold mb-2">Zone Rotations</h1>
-      <p className="text-sm text-gray-600 mb-6">
-        Outdoor photographers must rotate every 4 hours. Red = over 4h.
-      </p>
+    <div className="space-y-6">
+      <header>
+        <div className="label-xs">Operations</div>
+        <h1 className="heading text-4xl mt-1">Zone Rotations</h1>
+        <p className="text-navy-400 mt-1">Outdoor photographers must rotate every 4 hours. Red = overdue rotation.</p>
+      </header>
+
       {loading ? (
-        <p>Loading...</p>
+        <div className="card p-16 text-center">
+          <Loader2 className="h-6 w-6 animate-spin text-brand-400 mx-auto" />
+        </div>
       ) : assignments.length === 0 ? (
-        <p className="text-gray-500">No active zone assignments.</p>
+        <div className="card p-10 text-center">
+          <MapPin className="h-8 w-8 mx-auto text-navy-300 mb-3" />
+          <div className="text-navy-500">No active zone assignments.</div>
+        </div>
       ) : (
         <div className="space-y-3">
           {assignments.map((a) => (
             <div
               key={a.id}
-              className={
-                "p-4 rounded-lg border " +
-                (a.critical
-                  ? "bg-red-100 border-red-500 animate-pulse"
+              className={`card p-5 flex items-center justify-between gap-4 ${
+                a.critical
+                  ? "ring-2 ring-coral-500 bg-coral-50"
                   : a.warning
-                  ? "bg-yellow-100 border-yellow-500"
-                  : "bg-white border-gray-200")
-              }
+                  ? "ring-2 ring-gold-500 bg-gold-500/5"
+                  : ""
+              }`}
             >
-              <div className="flex justify-between items-center">
+              <div className="flex items-center gap-4">
+                <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${
+                  a.critical ? "bg-coral-500 text-white" : a.warning ? "bg-gold-500 text-white" : "bg-brand-50 text-brand-700"
+                }`}>
+                  <MapPin className="h-5 w-5" />
+                </div>
                 <div>
-                  <div className="font-semibold">{a.photographer.name}</div>
-                  <div className="text-sm text-gray-600">
-                    {a.zoneName} {a.isOutdoor ? "(outdoor)" : "(indoor)"}
+                  <div className="font-semibold text-navy-900">{a.photographer.name}</div>
+                  <div className="text-sm text-navy-400">
+                    {a.zoneName} · {a.isOutdoor ? "Outdoor" : "Indoor"}
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold">{a.durationMinutes}m</div>
-                  {a.critical && <div className="text-red-700 text-sm">ROTATE NOW</div>}
+              </div>
+              <div className="text-right">
+                <div className="font-display text-2xl text-navy-900 flex items-center gap-1.5">
+                  <Clock className="h-4 w-4 text-navy-400" />
+                  {a.durationMinutes}m
                 </div>
+                {a.critical && (
+                  <div className="inline-flex items-center gap-1 text-xs text-coral-700 bg-coral-100 px-2 py-0.5 rounded-full font-medium mt-1">
+                    <AlertTriangle className="h-3 w-3" /> ROTATE NOW
+                  </div>
+                )}
               </div>
             </div>
           ))}

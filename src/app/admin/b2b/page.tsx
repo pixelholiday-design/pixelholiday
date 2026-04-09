@@ -1,15 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Handshake, Plus, TrendingUp, Check, ImageIcon } from "lucide-react";
 
 function ROICalculator({ photos, monthlyRent, discountPercent }: { photos: number; monthlyRent: number; discountPercent: number }) {
   const photoValue = photos * 50;
   const discountValue = monthlyRent * (discountPercent / 100);
   const net = discountValue - photoValue;
   return (
-    <div className="bg-gray-50 p-3 rounded text-xs">
-      <div>Est. photo value (€50/photo): <b>€{photoValue.toFixed(2)}</b></div>
-      <div>Rent discount value: <b>€{discountValue.toFixed(2)}</b></div>
-      <div>Net benefit: <b className={net >= 0 ? "text-green-600" : "text-red-600"}>€{net.toFixed(2)}</b></div>
+    <div className="bg-cream-100 rounded-xl p-4 text-sm space-y-1">
+      <div className="text-navy-500">Est. photo value (€50/photo): <span className="font-semibold text-navy-900">€{photoValue.toFixed(2)}</span></div>
+      <div className="text-navy-500">Rent discount value: <span className="font-semibold text-navy-900">€{discountValue.toFixed(2)}</span></div>
+      <div className="text-navy-500">Net benefit: <span className={`font-bold ${net >= 0 ? "text-green-600" : "text-coral-600"}`}>€{net.toFixed(2)}</span></div>
     </div>
   );
 }
@@ -37,44 +38,72 @@ export default function B2BPortal() {
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-4">B2B Media Barter Portal</h1>
+    <div className="space-y-6">
+      <header>
+        <div className="label-xs">Module 22</div>
+        <h1 className="heading text-4xl mt-1">B2B Media Barter</h1>
+        <p className="text-navy-400 mt-1">Track free promotional photos delivered to partner hotels for rent discounts.</p>
+      </header>
 
-      <form onSubmit={create} className="bg-white p-6 rounded-xl shadow mb-6 grid md:grid-cols-2 gap-3">
-        <input className="border p-2 rounded" placeholder="Location ID" value={form.locationId} onChange={(e) => setForm({ ...form, locationId: e.target.value })} required />
-        <input className="border p-2 rounded" placeholder="Location name" value={form.locationName} onChange={(e) => setForm({ ...form, locationName: e.target.value })} />
-        <input className="border p-2 rounded" placeholder="Month YYYY-MM" value={form.month} onChange={(e) => setForm({ ...form, month: e.target.value })} />
-        <input type="number" className="border p-2 rounded" placeholder="Photo count" value={form.photoCount} onChange={(e) => setForm({ ...form, photoCount: Number(e.target.value) })} />
-        <input className="border p-2 rounded" placeholder="Photo IDs (comma-separated, selection workflow)" value={form.photoIds} onChange={(e) => setForm({ ...form, photoIds: e.target.value })} />
-        <input type="number" className="border p-2 rounded" placeholder="Rent discount %" value={form.rentDiscountPercent} onChange={(e) => setForm({ ...form, rentDiscountPercent: Number(e.target.value) })} />
-        <input type="number" className="border p-2 rounded" placeholder="Monthly rent €" value={form.monthlyRent} onChange={(e) => setForm({ ...form, monthlyRent: Number(e.target.value) })} />
-        <input className="border p-2 rounded" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
-        <label className="flex items-center gap-2"><input type="checkbox" checked={form.delivered} onChange={(e) => setForm({ ...form, delivered: e.target.checked })} /> Mark as delivered</label>
-        <button className="bg-orange-600 text-white px-4 py-2 rounded col-span-2">Record Delivery</button>
-        <div className="col-span-2"><ROICalculator photos={form.photoCount} monthlyRent={form.monthlyRent} discountPercent={form.rentDiscountPercent} /></div>
+      <form onSubmit={create} className="card p-6 space-y-4">
+        <h2 className="heading text-xl flex items-center gap-2"><Plus className="h-4 w-4" /> Record Delivery</h2>
+        <div className="grid md:grid-cols-2 gap-4">
+          <input className="input" placeholder="Location ID" value={form.locationId} onChange={(e) => setForm({ ...form, locationId: e.target.value })} required />
+          <input className="input" placeholder="Location name" value={form.locationName} onChange={(e) => setForm({ ...form, locationName: e.target.value })} />
+          <input className="input" placeholder="Month YYYY-MM" value={form.month} onChange={(e) => setForm({ ...form, month: e.target.value })} />
+          <input type="number" className="input" placeholder="Photo count" value={form.photoCount} onChange={(e) => setForm({ ...form, photoCount: Number(e.target.value) })} />
+          <input className="input" placeholder="Photo IDs (comma-separated)" value={form.photoIds} onChange={(e) => setForm({ ...form, photoIds: e.target.value })} />
+          <input type="number" className="input" placeholder="Rent discount %" value={form.rentDiscountPercent} onChange={(e) => setForm({ ...form, rentDiscountPercent: Number(e.target.value) })} />
+          <input type="number" className="input" placeholder="Monthly rent €" value={form.monthlyRent} onChange={(e) => setForm({ ...form, monthlyRent: Number(e.target.value) })} />
+          <input className="input" placeholder="Notes" value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
+        </div>
+        <label className="flex items-center gap-2 text-sm text-navy-700">
+          <input type="checkbox" checked={form.delivered} onChange={(e) => setForm({ ...form, delivered: e.target.checked })} className="accent-coral-500" />
+          Mark as delivered
+        </label>
+        <ROICalculator photos={form.photoCount} monthlyRent={form.monthlyRent} discountPercent={form.rentDiscountPercent} />
+        <button className="btn-primary">Record Delivery</button>
       </form>
 
-      <div className="bg-white p-6 rounded-xl shadow mb-6">
-        <h2 className="text-xl font-bold mb-2">Monthly Report</h2>
-        <input className="border p-2 rounded mb-3" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} onBlur={loadReport} />
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="heading text-xl flex items-center gap-2"><TrendingUp className="h-4 w-4" /> Monthly Report</h2>
+          <input className="input w-40" value={reportMonth} onChange={(e) => setReportMonth(e.target.value)} onBlur={loadReport} />
+        </div>
         {report && (
-          <div className="text-sm">
-            <div>Photos delivered: <b>{report.summary.totalPhotos}</b></div>
-            <div>Total est. photo value: <b>€{report.summary.totalEstPhotoValue}</b></div>
-            <div>Total discount value: <b>€{report.summary.totalDiscountValue}</b></div>
-            <div>ROI ratio: <b>{report.summary.roi}</b></div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="stat-card"><div className="label-xs">Photos Delivered</div><div className="font-display text-2xl text-navy-900">{report.summary.totalPhotos}</div></div>
+            <div className="stat-card"><div className="label-xs">Photo Value</div><div className="font-display text-2xl text-navy-900">€{report.summary.totalEstPhotoValue}</div></div>
+            <div className="stat-card"><div className="label-xs">Discount Value</div><div className="font-display text-2xl text-navy-900">€{report.summary.totalDiscountValue}</div></div>
+            <div className="stat-card"><div className="label-xs">ROI</div><div className="font-display text-2xl text-navy-900">{report.summary.roi}</div></div>
           </div>
         )}
       </div>
 
-      <h2 className="text-xl font-bold mb-2">All Deliveries</h2>
-      <div className="space-y-2">
-        {deliveries.map((d) => (
-          <div key={d.id} className="bg-white p-3 rounded shadow text-sm">
-            <b>{d.locationName || d.locationId}</b> — {d.month} — {d.photoCount} photos — {d.rentDiscountPercent}% off rent
-            {d.deliveredAt && <span className="ml-2 text-green-600">✓ Delivered</span>}
+      <div className="card p-6">
+        <h2 className="heading text-xl mb-4">All Deliveries</h2>
+        {deliveries.length === 0 ? (
+          <div className="text-center py-10 text-navy-400">
+            <Handshake className="h-8 w-8 mx-auto text-navy-300 mb-3" />
+            <div>No deliveries recorded yet.</div>
           </div>
-        ))}
+        ) : (
+          <div className="divide-y divide-cream-300/60">
+            {deliveries.map((d) => (
+              <div key={d.id} className="py-3 flex items-center justify-between">
+                <div>
+                  <div className="font-medium text-navy-900">{d.locationName || d.locationId}</div>
+                  <div className="text-sm text-navy-400">{d.month} · {d.photoCount} photos · {d.rentDiscountPercent}% off rent</div>
+                </div>
+                {d.deliveredAt && (
+                  <span className="inline-flex items-center gap-1 text-xs text-green-700 bg-green-50 px-2.5 py-1 rounded-full font-medium">
+                    <Check className="h-3 w-3" /> Delivered
+                  </span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

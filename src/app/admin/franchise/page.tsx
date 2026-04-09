@@ -39,7 +39,7 @@ export default async function FranchisePage() {
               <tr>
                 <td colSpan={6} className="p-6 text-center text-slate-500">
                   No franchises yet.{" "}
-                  <Link href="/admin/franchise/new" className="text-blue-600 underline">
+                  <Link href="/admin/franchise/new" className="text-brand-400 underline">
                     Create your first franchise
                   </Link>
                 </td>
@@ -60,12 +60,12 @@ export default async function FranchisePage() {
                   <td className="p-3">{f.staff.length}</td>
                   <td className="p-3">{(f.saasCommissionRate * 100).toFixed(1)}%</td>
                   <td className="p-3">
-                    <Link href={`/admin/franchise/${f.id}/branding`} className="text-blue-600 text-xs">
+                    <Link href={`/admin/franchise/${f.id}/branding`} className="text-brand-400 text-xs">
                       Edit branding
                     </Link>
                   </td>
                   <td className="p-3">
-                    <Link className="text-blue-600" href={`/admin/franchise/${f.id}`}>
+                    <Link className="text-brand-400" href={`/admin/franchise/${f.id}`}>
                       Dashboard
                     </Link>
                   </td>

@@ -17,7 +17,7 @@ type Photo = {
 const PRESETS = [
   { id: "auto", label: "Auto Enhance", icon: Wand2, color: "text-coral-500" },
   { id: "warm", label: "Warm", icon: Sun, color: "text-amber-500" },
-  { id: "cool", label: "Cool", icon: Droplets, color: "text-blue-500" },
+  { id: "cool", label: "Cool", icon: Droplets, color: "text-brand-400" },
   { id: "vibrant", label: "Vibrant", icon: Palette, color: "text-purple-500" },
   { id: "bw", label: "B&W", icon: Contrast, color: "text-navy-500" },
 ];

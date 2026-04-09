@@ -46,7 +46,7 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 py-12 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-cream-100 to-brand-50 py-12 px-4">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Start with PixelHoliday</h1>
@@ -67,12 +67,12 @@ export default function SignupPage() {
                     onClick={() => !isEnterprise && setForm({ ...form, tier: k })}
                     className={`relative rounded-xl border-2 p-5 cursor-pointer transition-all ${
                       active
-                        ? "border-blue-500 bg-blue-50 shadow-lg scale-[1.02]"
+                        ? "border-brand-400 bg-brand-50 shadow-lg scale-[1.02]"
                         : "border-slate-200 bg-white hover:border-slate-300"
                     } ${isEnterprise ? "cursor-default" : ""}`}
                   >
                     {t.popular && (
-                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-xs font-bold px-3 py-1 rounded-full">
+                      <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-400 text-white text-xs font-bold px-3 py-1 rounded-full">
                         MOST POPULAR
                       </span>
                     )}
@@ -95,7 +95,7 @@ export default function SignupPage() {
                     <ul className="mt-4 space-y-2 text-sm text-slate-600">
                       {t.features.map((f, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <span className="text-blue-500 mt-0.5">&#10003;</span>
+                          <span className="text-brand-400 mt-0.5">&#10003;</span>
                           {f}
                         </li>
                       ))}
@@ -114,7 +114,7 @@ export default function SignupPage() {
                       }}
                       className={`w-full mt-5 py-2.5 rounded-lg font-semibold text-sm transition ${
                         active
-                          ? "bg-blue-500 text-white hover:bg-blue-600"
+                          ? "bg-coral-500 text-white hover:bg-coral-600"
                           : "bg-slate-100 text-slate-700 hover:bg-slate-200"
                       }`}
                     >
@@ -152,7 +152,7 @@ export default function SignupPage() {
                 </div>
                 <button
                   onClick={() => setStep("plan")}
-                  className="text-xs text-blue-500 hover:text-blue-700"
+                  className="text-xs text-brand-400 hover:text-brand-700"
                 >
                   Change plan
                 </button>
@@ -160,21 +160,21 @@ export default function SignupPage() {
 
               <form onSubmit={submit} className="space-y-3">
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
                   placeholder="Your name"
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   required
                 />
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
                   placeholder="Business name"
                   value={form.businessName}
                   onChange={(e) => setForm({ ...form, businessName: e.target.value })}
                   required
                 />
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
                   type="email"
                   placeholder="Email"
                   value={form.email}
@@ -182,7 +182,7 @@ export default function SignupPage() {
                   required
                 />
                 <input
-                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                  className="w-full border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-brand-400 focus:border-transparent outline-none"
                   type="password"
                   placeholder="Password"
                   value={form.password}
@@ -190,7 +190,7 @@ export default function SignupPage() {
                   required
                   minLength={8}
                 />
-                <button className="w-full bg-blue-500 text-white py-3 rounded-lg font-bold hover:bg-blue-600 transition">
+                <button className="w-full bg-coral-500 text-white py-3 rounded-lg font-bold hover:bg-coral-600 transition">
                   {SUBSCRIPTION_TIERS[form.tier].cta}
                 </button>
                 {status && <p className="text-center text-sm text-slate-600">{status}</p>}
