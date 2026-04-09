@@ -27,3 +27,36 @@ export async function emailAbandonedCart(to: string, link: string, code: string)
 export async function emailSweepUp(to: string, link: string, percent: number) {
   return send(to, `${percent}% off your remaining photos`, `<p>Unlock the rest: <a href="${link}">${link}</a></p>`);
 }
+
+/* ── Gallery expiry sequence ─────────────────────── */
+export async function emailExpiryWarning14(to: string, galleryLink: string) {
+  return send(
+    to,
+    "Your gallery expires in 14 days",
+    `<p>Your holiday photos will be removed in 14 days.</p><p>View and download them now: <a href="${galleryLink}">${galleryLink}</a></p>`,
+  );
+}
+
+export async function emailExpiryWarning7(to: string, galleryLink: string) {
+  return send(
+    to,
+    "Only 7 days left to grab your photos",
+    `<p>Time is running out! Your photo gallery expires in just 7 days.</p><p>Don't lose your memories: <a href="${galleryLink}">${galleryLink}</a></p>`,
+  );
+}
+
+export async function emailExpiryWarning48(to: string, galleryLink: string, couponCode: string) {
+  return send(
+    to,
+    "48 hours left - here's 20% off",
+    `<p>Your gallery expires in 48 hours! Use code <strong>${couponCode}</strong> for 20% off before it's gone.</p><p><a href="${galleryLink}">${galleryLink}</a></p>`,
+  );
+}
+
+export async function emailGalleryExpired(to: string) {
+  return send(
+    to,
+    "Your gallery has expired",
+    `<p>Your photo gallery has expired and is no longer available. Contact us if you'd like to discuss options.</p>`,
+  );
+}

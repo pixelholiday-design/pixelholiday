@@ -230,6 +230,11 @@ model Gallery {
   accessPassword  String?
   downloadPin     String?
   editQuality     EditQuality      @default(STANDARD)
+  requireEmail    Boolean          @default(false)
+  expiryWarning14 DateTime?
+  expiryWarning7  DateTime?
+  expiryWarning48 DateTime?
+  expiryFinalSent DateTime?
   downloadLogs    DownloadLog[]
   viewLogs        GalleryViewLog[]
   photoSets       PhotoSet[]
@@ -1527,6 +1532,55 @@ model VideoReel {
 
   @@index([galleryId])
   @@index([status])
+}
+
+// ── GIFT CARDS & STORE CREDITS ──────────────
+model GiftCard {
+  id          String    @id @default(cuid())
+  code        String    @unique // "PH-GIFT-XXXX-XXXX"
+  amount      Float     // original amount e.g. 50
+  balance     Float     // remaining balance
+  currency    String    @default("EUR")
+  purchasedBy String?   // customer name or email who bought it
+  redeemedBy  String?   // customer who used it
+  locationId  String?   // can be location-specific or global
+  type        String    @default("GIFT") // GIFT, STORE_CREDIT, HOTEL_PACKAGE, REFUND_CREDIT
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  stripeSessionId String?
+  createdAt   DateTime  @default(now())
+
+  @@index([code])
+  @@index([isActive])
+}
+
+// ── SESSION QUESTIONNAIRE ────────────────────
+model SessionQuestionnaire {
+  id              String    @id @default(cuid())
+  appointmentId   String    @unique
+  groupSize       Int?
+  specialOccasion String?   // "anniversary", "birthday", "honeymoon", "family reunion"
+  preferredStyle  String?   // "casual", "formal", "fun", "romantic", "adventure"
+  comfortLevel    String?   // "very comfortable", "a bit shy", "first time"
+  waterComfort    String?   // "loves water", "prefers dry", "can't swim"
+  specialRequests String?
+  answeredAt      DateTime?
+  createdAt       DateTime  @default(now())
+}
+
+// ── EMAIL MARKETING ─────────────────────────
+model MarketingCampaign {
+  id          String   @id @default(cuid())
+  name        String
+  template    String   // "gallery_ready", "limited_offer", "anniversary"
+  subject     String
+  body        String   @db.Text
+  locationId  String?
+  sentCount   Int      @default(0)
+  openCount   Int      @default(0)
+  clickCount  Int      @default(0)
+  sentAt      DateTime?
+  createdAt   DateTime @default(now())
 }
 
 // ── INTEGRATED SHOP & PRINT FULFILLMENT ──────

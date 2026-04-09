@@ -1,0 +1,139 @@
+import { prisma } from "@/lib/db";
+import {
+  emailExpiryWarning14,
+  emailExpiryWarning7,
+  emailExpiryWarning48,
+  emailGalleryExpired,
+} from "@/lib/email";
+
+function generateCouponCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "EXPIRY-";
+  for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+  return code;
+}
+
+function galleryUrl(token: string): string {
+  const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  return `${base}/gallery/${token}`;
+}
+
+export async function runGalleryExpiryAutomation() {
+  const now = new Date();
+  const counts = { warning14: 0, warning7: 0, warning48: 0, expired: 0 };
+
+  // ── 14-day warning ──
+  const in14Days = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const galleries14 = await prisma.gallery.findMany({
+    where: {
+      status: { notIn: ["PAID", "EXPIRED", "DIGITAL_PASS"] },
+      expiresAt: { lte: in14Days, gt: now },
+      expiryWarning14: null,
+    },
+    include: { customer: true },
+  });
+
+  for (const g of galleries14) {
+    const to = g.customer.email || g.customer.whatsapp;
+    if (to) {
+      await emailExpiryWarning14(to, galleryUrl(g.magicLinkToken));
+    }
+    await prisma.gallery.update({
+      where: { id: g.id },
+      data: { expiryWarning14: now },
+    });
+    counts.warning14++;
+  }
+
+  // ── 7-day warning ──
+  const in7Days = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const galleries7 = await prisma.gallery.findMany({
+    where: {
+      status: { notIn: ["PAID", "EXPIRED", "DIGITAL_PASS"] },
+      expiresAt: { lte: in7Days, gt: now },
+      expiryWarning7: null,
+      expiryWarning14: { not: null }, // already received 14-day warning
+    },
+    include: { customer: true },
+  });
+
+  for (const g of galleries7) {
+    const to = g.customer.email || g.customer.whatsapp;
+    if (to) {
+      await emailExpiryWarning7(to, galleryUrl(g.magicLinkToken));
+    }
+    await prisma.gallery.update({
+      where: { id: g.id },
+      data: { expiryWarning7: now },
+    });
+    counts.warning7++;
+  }
+
+  // ── 48-hour warning + auto-create 20% coupon ──
+  const in48Hours = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+  const galleries48 = await prisma.gallery.findMany({
+    where: {
+      status: { notIn: ["PAID", "EXPIRED", "DIGITAL_PASS"] },
+      expiresAt: { lte: in48Hours, gt: now },
+      expiryWarning48: null,
+      expiryWarning7: { not: null }, // already received 7-day warning
+    },
+    include: { customer: true },
+  });
+
+  for (const g of galleries48) {
+    const code = generateCouponCode();
+    await prisma.coupon.create({
+      data: {
+        code,
+        type: "PERCENTAGE",
+        value: 20,
+        maxUses: 1,
+        expiresAt: g.expiresAt,
+        isActive: true,
+      },
+    });
+
+    const to = g.customer.email || g.customer.whatsapp;
+    if (to) {
+      await emailExpiryWarning48(to, galleryUrl(g.magicLinkToken), code);
+    }
+    await prisma.gallery.update({
+      where: { id: g.id },
+      data: { expiryWarning48: now },
+    });
+    counts.warning48++;
+  }
+
+  // ── Mark expired galleries ──
+  const expiredResult = await prisma.gallery.updateMany({
+    where: {
+      status: { notIn: ["PAID", "EXPIRED", "DIGITAL_PASS"] },
+      expiresAt: { lte: now },
+    },
+    data: { status: "EXPIRED" },
+  });
+  counts.expired = expiredResult.count;
+
+  // Send expiry notification for galleries that just expired and haven't been notified
+  const justExpired = await prisma.gallery.findMany({
+    where: {
+      status: "EXPIRED",
+      expiryFinalSent: null,
+    },
+    include: { customer: true },
+  });
+
+  for (const g of justExpired) {
+    const to = g.customer.email || g.customer.whatsapp;
+    if (to) {
+      await emailGalleryExpired(to);
+    }
+    await prisma.gallery.update({
+      where: { id: g.id },
+      data: { expiryFinalSent: now },
+    });
+  }
+
+  return counts;
+}

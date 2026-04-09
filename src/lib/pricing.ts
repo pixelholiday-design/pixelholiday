@@ -17,6 +17,9 @@ export const DEFAULT_PRICES: { key: string; name: string; price: number }[] = [
   { key: "magic_shot", name: "Magic Shot add-on", price: 5 },
   { key: "video_reel", name: "Video Reel add-on", price: 10 },
   { key: "waterproof_usb", name: "Waterproof USB", price: 59 },
+  { key: "retouch_credit", name: "AI Retouch Credit", price: 3 },
+  { key: "card_pack_10", name: "Photo Cards (10-pack)", price: 25 },
+  { key: "card_pack_20", name: "Photo Cards (20-pack)", price: 40 },
 ];
 
 export async function ensureDefaultPricing() {
