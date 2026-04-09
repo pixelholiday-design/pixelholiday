@@ -265,6 +265,8 @@ model Photo {
   isAutoEdited           Boolean        @default(false)
   editApplied            String[]       @default([])
   analysis               PhotoAnalysis?
+  aiScore                Int?
+  aiStatus               AiCullStatus   @default(PENDING)
   isWristbandPhoto       Boolean        @default(false)
   extractedWristbandCode String?
   createdAt              DateTime       @default(now())
@@ -272,6 +274,7 @@ model Photo {
   @@index([galleryId])
   @@index([isPurchased])
   @@index([aiCulled])
+  @@index([aiStatus])
 }
 
 model Video {
@@ -285,6 +288,13 @@ model Video {
   musicTrackId   String?
   graphicOverlay String?
   createdAt      DateTime  @default(now())
+}
+
+enum AiCullStatus {
+  PENDING
+  KEEP
+  MAYBE
+  REJECT
 }
 
 enum VideoType {
