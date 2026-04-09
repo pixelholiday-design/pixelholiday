@@ -55,7 +55,7 @@ const sections = [
   },
   {
     title: "Admin Dashboard",
-    description: "Login: admin@fotiqo.local / password123",
+    description: "Login: admin@pixelholiday.local / password123",
     icon: BarChart3,
     links: [
       { href: "/login", label: "Login Page" },
@@ -85,7 +85,7 @@ const sections = [
   },
   {
     title: "Photographer Tools",
-    description: "Login: photo1@fotiqo.local / password123",
+    description: "Login: photo1@pixelholiday.local / password123",
     icon: Zap,
     links: [
       { href: "/my-dashboard", label: "My Dashboard" },
@@ -126,7 +126,7 @@ export default function DemoPage() {
           <div className="mt-6 flex items-center justify-center gap-4 text-sm">
             <div className="bg-slate-700/50 rounded-lg px-4 py-2">
               <span className="text-slate-400">CEO Login:</span>{" "}
-              <code className="text-teal-400">admin@fotiqo.local</code>
+              <code className="text-teal-400">admin@pixelholiday.local</code>
             </div>
             <div className="bg-slate-700/50 rounded-lg px-4 py-2">
               <span className="text-slate-400">Password:</span>{" "}
@@ -185,14 +185,14 @@ export default function DemoPage() {
               </thead>
               <tbody className="text-slate-300">
                 {[
-                  { role: "CEO", email: "admin@fotiqo.local", pin: "—" },
-                  { role: "Operations Manager", email: "ops@fotiqo.local", pin: "—" },
-                  { role: "Supervisor", email: "super@fotiqo.local", pin: "4444" },
-                  { role: "Photographer 1", email: "photo1@fotiqo.local", pin: "1111" },
-                  { role: "Photographer 2", email: "photo2@fotiqo.local", pin: "2222" },
-                  { role: "Sales Staff", email: "sales@fotiqo.local", pin: "3333" },
-                  { role: "Receptionist", email: "reception@fotiqo.local", pin: "—" },
-                  { role: "Trainee", email: "trainee@fotiqo.local", pin: "—" },
+                  { role: "CEO", email: "admin@pixelholiday.local", pin: "—" },
+                  { role: "Operations Manager", email: "ops@pixelholiday.local", pin: "—" },
+                  { role: "Supervisor", email: "super@pixelholiday.local", pin: "4444" },
+                  { role: "Photographer 1", email: "photo1@pixelholiday.local", pin: "1111" },
+                  { role: "Photographer 2", email: "photo2@pixelholiday.local", pin: "2222" },
+                  { role: "Sales Staff", email: "sales@pixelholiday.local", pin: "3333" },
+                  { role: "Receptionist", email: "reception@pixelholiday.local", pin: "—" },
+                  { role: "Trainee", email: "trainee@pixelholiday.local", pin: "—" },
                 ].map((row) => (
                   <tr key={row.email} className="border-b border-white/5">
                     <td className="py-2 pr-4 font-medium">{row.role}</td>
