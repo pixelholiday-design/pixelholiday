@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { Heart, Lock, Download, ShoppingCart, LayoutGrid, Columns3, Play, Pause } from "lucide-react";
+import { Heart, Lock, Download, ShoppingCart, LayoutGrid, Columns3, Play, Pause, Sparkles } from "lucide-react";
 import { cleanUrl, watermarkedUrl, photoRef } from "@/lib/cloudinary";
 
 export type Photo = {
@@ -9,6 +9,7 @@ export type Photo = {
   s3Key_highRes: string;
   isFavorited: boolean;
   isPurchased: boolean;
+  isMagicShot?: boolean;
 };
 
 type Layout = "masonry" | "grid" | "slideshow";
@@ -20,6 +21,7 @@ export default function GalleryGrid({
   onOpen,
   onFavorite,
   onAddToCart,
+  onMagic,
 }: {
   photos: Photo[];
   isPaid: boolean;
@@ -27,6 +29,7 @@ export default function GalleryGrid({
   onOpen: (idx: number) => void;
   onFavorite: (id: string) => void;
   onAddToCart?: (id: string) => void;
+  onMagic?: (id: string) => void;
 }) {
   const [layout, setLayout] = useState<Layout>("masonry");
   const [slideIdx, setSlideIdx] = useState(0);
@@ -84,7 +87,7 @@ export default function GalleryGrid({
       {layout === "masonry" && (
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 [column-fill:_balance]">
           {photos.map((p, i) => (
-            <Card key={p.id} p={p} i={i} clean={isClean(p)} src={imgSrc(p, 1200)} onOpen={onOpen} onFavorite={onFavorite} onAddToCart={onAddToCart} masonry />
+            <Card key={p.id} p={p} i={i} clean={isClean(p)} src={imgSrc(p, 1200)} onOpen={onOpen} onFavorite={onFavorite} onAddToCart={onAddToCart} onMagic={onMagic} masonry />
           ))}
         </div>
       )}
@@ -141,7 +144,7 @@ export default function GalleryGrid({
   );
 }
 
-function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, masonry }: any) {
+function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, masonry }: any) {
   return (
     <div
       className={`${masonry ? "mb-3 break-inside-avoid" : ""} relative group rounded-xl overflow-hidden bg-cream-200 ring-1 ring-cream-300/50 hover:ring-coral-300 hover:shadow-lift transition`}
@@ -160,6 +163,20 @@ function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, masonry }: an
         <div className="absolute top-3 left-3 inline-flex items-center gap-1 bg-navy-900/80 text-white rounded-full px-2 py-0.5 text-[10px] font-semibold">
           <Lock className="h-3 w-3" /> LOCKED
         </div>
+      )}
+      {p.isMagicShot && (
+        <div className="absolute top-3 left-3 inline-flex items-center gap-1 bg-gold-500 text-white rounded-full px-2 py-0.5 text-[10px] font-semibold shadow-card">
+          <Sparkles className="h-3 w-3" /> MAGIC
+        </div>
+      )}
+      {onMagic && !p.isMagicShot && (
+        <button
+          onClick={() => onMagic(p.id)}
+          title="Add magic"
+          className="absolute bottom-3 left-3 h-9 w-9 rounded-full bg-gradient-to-br from-gold-500 to-coral-500 text-white shadow-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+        >
+          <Sparkles className="h-4 w-4" />
+        </button>
       )}
       {onAddToCart && (
         <button

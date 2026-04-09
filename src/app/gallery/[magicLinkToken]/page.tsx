@@ -7,7 +7,17 @@ export const dynamic = "force-dynamic";
 export default async function Page({ params }: { params: { magicLinkToken: string } }) {
   const gallery = await prisma.gallery.findUnique({
     where: { magicLinkToken: params.magicLinkToken },
-    include: { photos: { orderBy: { sortOrder: "asc" } }, customer: true, photographer: true, location: true },
+    include: {
+      photos: {
+        orderBy: { sortOrder: "asc" },
+        select: {
+          id: true, s3Key_highRes: true, cloudinaryId: true, isHookImage: true,
+          isFavorited: true, isPurchased: true, isMagicShot: true, parentPhotoId: true,
+          sortOrder: true,
+        },
+      },
+      customer: true, photographer: true, location: true,
+    },
   });
   if (!gallery) return notFound();
   const reel = await prisma.videoReel.findFirst({

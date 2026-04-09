@@ -11,6 +11,7 @@ import GalleryGrid from "@/components/gallery/GalleryGrid";
 import Lightbox from "@/components/gallery/Lightbox";
 import ShareMenu from "@/components/gallery/ShareMenu";
 import ReelOverlay, { type ReelInfo } from "./ReelOverlay";
+import MagicShotModal from "./MagicShotModal";
 
 type Photo = {
   id: string;
@@ -19,6 +20,8 @@ type Photo = {
   isHookImage: boolean;
   isFavorited: boolean;
   isPurchased: boolean;
+  isMagicShot?: boolean;
+  parentPhotoId?: string | null;
 };
 
 type Gallery = {
@@ -38,10 +41,17 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
   const [favDrawerOpen, setFavDrawerOpen] = useState(false);
   const [lbIdx, setLbIdx] = useState<number | null>(null);
   const [, startTransition] = useTransition();
-  const photos = useMemo(
-    () => (favOnly ? gallery.photos.filter((p) => p.isFavorited) : gallery.photos),
-    [favOnly, gallery.photos]
+  const [extraPhotos, setExtraPhotos] = useState<Photo[]>([]);
+  const [magicForId, setMagicForId] = useState<string | null>(null);
+  const allPhotos = useMemo(
+    () => [...gallery.photos, ...extraPhotos],
+    [gallery.photos, extraPhotos],
   );
+  const photos = useMemo(
+    () => (favOnly ? allPhotos.filter((p) => p.isFavorited) : allPhotos),
+    [favOnly, allPhotos]
+  );
+  const magicSourcePhoto = magicForId ? allPhotos.find((p) => p.id === magicForId) : null;
   const favCount = gallery.photos.filter((p) => p.isFavorited).length;
   const hookPhoto = gallery.photos.find((p) => p.isHookImage) || gallery.photos[0];
 
@@ -159,6 +169,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
           isPartial={isPartial}
           onOpen={(i) => setLbIdx(i)}
           onFavorite={handleFav}
+          onMagic={(id) => setMagicForId(id)}
         />
       </main>
 
@@ -230,6 +241,26 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
             </div>
           </aside>
         </div>
+      )}
+
+      {/* Magic shot modal */}
+      {magicSourcePhoto && (
+        <MagicShotModal
+          photo={magicSourcePhoto}
+          onClose={() => setMagicForId(null)}
+          onSaved={(newPhoto: Photo) =>
+            setExtraPhotos((prev) => [
+              ...prev,
+              {
+                ...newPhoto,
+                isFavorited: false,
+                isPurchased: false,
+                isHookImage: false,
+                isMagicShot: true,
+              },
+            ])
+          }
+        />
       )}
     </div>
   );

@@ -256,6 +256,8 @@ model Photo {
   aiCullReason           String?
   hasMagicElement        Boolean        @default(false)
   magicElementId         String?
+  isMagicShot            Boolean        @default(false)
+  parentPhotoId          String?
   setId                  String?
   set                    PhotoSet?      @relation(fields: [setId], references: [id])
   sortOrder              Int            @default(0)
@@ -663,12 +665,17 @@ model B2BDelivery {
 
 // ── MAGIC ELEMENTS (AR/3D) ────────────────────
 model MagicElement {
-  id       String           @id @default(cuid())
-  name     String
-  type     MagicElementType
-  assetUrl String
-  category String?
-  isActive Boolean          @default(true)
+  id          String           @id @default(cuid())
+  name        String
+  slug        String?          @unique
+  type        MagicElementType
+  assetUrl    String
+  category    String?  // FACE_OVERLAY | BACKGROUND | FRAME | EFFECT
+  position    String?  // TOP | CENTER | FACE | BORDER | SCATTER
+  description String?
+  usageCount  Int              @default(0)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
 }
 
 enum MagicElementType {
