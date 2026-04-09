@@ -71,6 +71,9 @@ model User {
   zoneAssignments      ZoneAssignment[]          @relation("UserZoneAssignments")
   appointmentOutcomes  AppointmentOutcome[]      @relation("UserAppointmentOutcomes")
   photographerProfile  PhotographerProfile?      @relation("UserPhotographerProfile")
+  reviews              PhotographerReview[]       @relation("PhotographerReviews")
+  availability         PhotographerAvailability[] @relation("PhotographerAvailabilities")
+  marketplaceBookings  MarketplaceBooking[]       @relation("PhotographerMarketplaceBookings")
   createdAt            DateTime                  @default(now())
 }
 
@@ -1708,6 +1711,11 @@ model PhotographerProfile {
   longitude       Float?
   serviceAreaKm   Int?
   priceRange      String?  // "€50-€100/hour"
+  hourlyRate      Float?
+  totalReviews    Int      @default(0)
+  averageRating   Float    @default(0)
+  completedSessions Int    @default(0)
+  responseTime    String?  // e.g. "Within 1 hour"
   socialInstagram String?
   socialFacebook  String?
   socialWebsite   String?
@@ -1731,6 +1739,10 @@ model PhotographerProfile {
   testimonials    PhotographerTestimonial[]
   // Inquiries
   inquiries       PhotographerInquiry[]
+  reviews         PhotographerReview[]
+  availability    PhotographerAvailability[]
+  bookings        MarketplaceBooking[]
+  portfolioPhotos PortfolioPhoto[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -1793,4 +1805,123 @@ enum InquiryStatus {
   CONTACTED
   BOOKED
   DECLINED
+}
+
+// ── PHOTOGRAPHER MARKETPLACE ──────────────────
+model PhotographerReview {
+  id              String              @id @default(cuid())
+  profileId       String
+  profile         PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  photographerId  String
+  photographer    User                @relation("PhotographerReviews", fields: [photographerId], references: [id])
+  bookingId       String?             @unique
+  booking         MarketplaceBooking? @relation(fields: [bookingId], references: [id])
+  customerName    String
+  customerEmail   String?
+  rating          Int                 // 1-5 stars
+  title           String?
+  comment         String              @db.Text
+  photoUrls       String[]            @default([]) // Photos from the session as proof
+  response        String?             @db.Text     // Photographer's reply
+  respondedAt     DateTime?
+  isVerified      Boolean             @default(false) // Booked through platform
+  isPublic        Boolean             @default(true)
+  createdAt       DateTime            @default(now())
+
+  @@index([profileId])
+  @@index([photographerId])
+  @@index([rating])
+}
+
+model PhotographerAvailability {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("PhotographerAvailabilities", fields: [userId], references: [id])
+  profileId   String?
+  profile     PhotographerProfile? @relation(fields: [profileId], references: [id])
+  date        DateTime @db.Date
+  startTime   String   // "09:00"
+  endTime     String   // "17:00"
+  isAvailable Boolean  @default(true)
+  isRecurring Boolean  @default(false)
+  dayOfWeek   Int?     // 0=Sun, 1=Mon ... 6=Sat (for recurring)
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, date])
+  @@index([userId, isAvailable])
+  @@index([date])
+}
+
+model MarketplaceBooking {
+  id                String              @id @default(cuid())
+  profileId         String
+  profile           PhotographerProfile @relation(fields: [profileId], references: [id])
+  photographerId    String
+  photographer      User                @relation("PhotographerMarketplaceBookings", fields: [photographerId], references: [id])
+  // Customer info
+  customerName      String
+  customerEmail     String
+  customerPhone     String?
+  // Session details
+  serviceId         String?
+  sessionType       String              // "Portrait Session", "Wedding", etc.
+  sessionDate       DateTime
+  sessionStartTime  String              // "10:00"
+  sessionDuration   Int                 // minutes
+  sessionLocation   String?
+  occasion          String?
+  groupSize         Int                 @default(1)
+  specialRequests   String?             @db.Text
+  // Pricing
+  totalPrice        Float
+  depositAmount     Float?
+  currency          String              @default("EUR")
+  // Payment
+  stripeSessionId   String?
+  stripePaymentId   String?
+  isPaid            Boolean             @default(false)
+  paidAt            DateTime?
+  // Status
+  status            MarketplaceBookingStatus @default(PENDING)
+  // Communication
+  photographerNotes String?             @db.Text
+  // Review
+  review            PhotographerReview?
+  reviewRequestSent Boolean             @default(false)
+  reviewRequestedAt DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@index([profileId])
+  @@index([photographerId])
+  @@index([status])
+  @@index([sessionDate])
+}
+
+enum MarketplaceBookingStatus {
+  PENDING
+  CONFIRMED
+  DEPOSIT_PAID
+  FULLY_PAID
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+model PortfolioPhoto {
+  id          String              @id @default(cuid())
+  profileId   String
+  profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url         String
+  thumbnailUrl String?
+  caption     String?
+  category    String?             // "wedding", "portrait", etc.
+  sortOrder   Int                 @default(0)
+  isFeatured  Boolean             @default(false)
+  createdAt   DateTime            @default(now())
+
+  @@index([profileId])
+  @@index([category])
 }

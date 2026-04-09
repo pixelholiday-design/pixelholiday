@@ -8,9 +8,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (!session?.user) redirect("/login");
 
   const links = [
+    { href: "/dashboard", label: "Overview" },
     { href: "/dashboard/website", label: "Website Builder" },
     { href: "/dashboard/galleries", label: "Client Galleries" },
     { href: "/dashboard/inquiries", label: "Inquiries" },
+    { href: "/dashboard/availability", label: "Availability" },
+    { href: "/dashboard/reviews", label: "Reviews" },
     { href: "/admin/dashboard", label: "Admin Panel" },
   ];
 
