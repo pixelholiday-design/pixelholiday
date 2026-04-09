@@ -1,11 +1,12 @@
 import { prisma } from "@/lib/db";
 import {
-  emailExpiryWarning14,
-  emailExpiryWarning7,
-  emailExpiryWarning48,
+  sendGalleryExpiry14,
+  sendGalleryExpiry7,
+  sendGalleryExpiry48,
   emailGalleryExpired,
 } from "@/lib/email";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
+import { cleanUrl, photoRef } from "@/lib/cloudinary";
 
 function generateCouponCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -50,15 +51,20 @@ export async function runGalleryExpiryAutomation() {
       expiresAt: { lte: in14Days, gt: now },
       expiryWarning14: null,
     },
-    include: { customer: true },
+    include: { customer: true, photos: { where: { isHookImage: true }, take: 1 } },
   });
 
   for (const g of galleries14) {
     const url = galleryUrl(g.magicLinkToken);
+    const coverPhoto = g.photos[0] ? cleanUrl(photoRef(g.photos[0]), 600) : undefined;
     await notifyCustomer(
       g.customer,
-      emailExpiryWarning14,
-      [url],
+      (to: string) => sendGalleryExpiry14(to, {
+        customerName: g.customer.name || "Guest",
+        galleryUrl: url,
+        coverPhotoUrl: coverPhoto,
+      }),
+      [],
       `📸 Your Fotiqo gallery expires in 14 days! View now: ${url}`,
     );
     await prisma.gallery.update({
@@ -77,15 +83,20 @@ export async function runGalleryExpiryAutomation() {
       expiryWarning7: null,
       expiryWarning14: { not: null },
     },
-    include: { customer: true },
+    include: { customer: true, photos: { where: { isHookImage: true }, take: 1 } },
   });
 
   for (const g of galleries7) {
     const url = galleryUrl(g.magicLinkToken);
+    const coverPhoto = g.photos[0] ? cleanUrl(photoRef(g.photos[0]), 600) : undefined;
     await notifyCustomer(
       g.customer,
-      emailExpiryWarning7,
-      [url],
+      (to: string) => sendGalleryExpiry7(to, {
+        customerName: g.customer.name || "Guest",
+        galleryUrl: url,
+        coverPhotoUrl: coverPhoto,
+      }),
+      [],
       `⏰ Only 7 days left to get your photos! View: ${url}`,
     );
     await prisma.gallery.update({
@@ -104,7 +115,7 @@ export async function runGalleryExpiryAutomation() {
       expiryWarning48: null,
       expiryWarning7: { not: null },
     },
-    include: { customer: true },
+    include: { customer: true, photos: { where: { isHookImage: true }, take: 1 } },
   });
 
   for (const g of galleries48) {
@@ -123,10 +134,17 @@ export async function runGalleryExpiryAutomation() {
     });
 
     const url = galleryUrl(g.magicLinkToken);
+    const coverPhoto = g.photos[0] ? cleanUrl(photoRef(g.photos[0]), 600) : undefined;
     await notifyCustomer(
       g.customer,
-      emailExpiryWarning48,
-      [url, code],
+      (to: string) => sendGalleryExpiry48(to, {
+        customerName: g.customer.name || "Guest",
+        galleryUrl: url,
+        discountCode: code,
+        discountPercent: 20,
+        coverPhotoUrl: coverPhoto,
+      }),
+      [],
       `🎁 Last 48 hours! Get 20% off with code ${code}: ${url}`,
     );
     await prisma.gallery.update({

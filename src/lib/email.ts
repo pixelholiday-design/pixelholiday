@@ -64,6 +64,7 @@ export async function emailGalleryExpired(to: string) {
 /* ── Rich HTML templates (email-templates/) ───────── */
 import { galleryDeliveryEmail } from "./email-templates/gallery-delivery";
 import { galleryExpiry14Email } from "./email-templates/gallery-expiry-14";
+import { galleryExpiry7Email } from "./email-templates/gallery-expiry-7";
 import { galleryExpiry48Email } from "./email-templates/gallery-expiry-48";
 import { orderConfirmationEmail } from "./email-templates/order-confirmation";
 import { welcomeEmail } from "./email-templates/welcome";
@@ -80,6 +81,11 @@ export async function sendGalleryDelivery(to: string, params: Parameters<typeof 
 
 export async function sendGalleryExpiry14(to: string, params: Parameters<typeof galleryExpiry14Email>[0]) {
   const { subject, html } = galleryExpiry14Email(params);
+  return send(to, subject, html);
+}
+
+export async function sendGalleryExpiry7(to: string, params: Parameters<typeof galleryExpiry7Email>[0]) {
+  const { subject, html } = galleryExpiry7Email(params);
   return send(to, subject, html);
 }
 
