@@ -46,7 +46,7 @@ export default async function PhotographerBlogPage({ params }: Props) {
         <h1 className="text-3xl font-bold text-center mb-10">Blog</h1>
         <div className="space-y-8">
           {posts.map(post => (
-            <Link key={post.id} href={`/blog/${post.id}`} className="block group">
+            <Link key={post.id} href={`/p/${username}/blog/${post.id}`} className="block group">
               <article className={`p-6 rounded-xl border transition ${isDark ? "border-zinc-800 hover:border-zinc-700" : "border-gray-100 hover:border-gray-200"}`}>
                 <h2 className="text-xl font-bold mb-2 group-hover:opacity-80">{post.title}</h2>
                 <p className={`text-sm line-clamp-2 ${isDark ? "text-zinc-400" : "text-gray-500"}`}>

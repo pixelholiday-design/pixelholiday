@@ -61,6 +61,21 @@ export async function POST(req: Request) {
   if (event.type === "checkout.session.completed") {
     const session = event.data.object;
 
+    // Handle gift card purchase fulfillment
+    if (session.metadata?.type === "GIFT_CARD") {
+      try {
+        const { purchaseGiftCard } = await import("@/lib/gift-cards");
+        await purchaseGiftCard({
+          amount: parseFloat(session.metadata.amount),
+          currency: session.metadata.currency || "EUR",
+          purchasedBy: session.metadata.purchasedBy || "anonymous",
+          stripeSessionId: session.id,
+        });
+      } catch (e: any) {
+        console.error("[Stripe] Gift card creation error:", e.message);
+      }
+    }
+
     // Handle shop order fulfillment
     const shopOrderId = session.metadata?.shopOrderId;
     if (shopOrderId) {

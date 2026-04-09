@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { photoRef } from "@/lib/cloudinary";
 
 type Photo = { id: string; s3Key_highRes: string; cloudinaryId: string | null; isFavorited: boolean; isPurchased: boolean };
 type Gallery = { id: string; magicLinkToken: string; status: string; photos: Photo[]; expiresAt: string; totalCount: number };
@@ -49,7 +50,7 @@ export default function PhotographerGalleryClient({ profile, gallery }: { profil
           {photos.map((photo, i) => (
             <div key={photo.id} className="break-inside-avoid relative group">
               <img
-                src={photo.s3Key_highRes}
+                src={photoRef(photo)}
                 alt=""
                 className="w-full h-auto rounded-lg cursor-pointer"
                 loading="lazy"
@@ -63,7 +64,7 @@ export default function PhotographerGalleryClient({ profile, gallery }: { profil
                 {favorites.has(photo.id) ? "♥" : "♡"}
               </button>
               {photo.isPurchased && (
-                <a href={photo.s3Key_highRes} download className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition text-xs">
+                <a href={photoRef(photo)} download className="absolute bottom-2 right-2 w-8 h-8 rounded-full bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition text-xs">
                   ↓
                 </a>
               )}

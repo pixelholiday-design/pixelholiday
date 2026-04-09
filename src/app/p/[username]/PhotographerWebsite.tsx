@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import type { SectionConfig, WebsiteTheme } from "@/lib/website-themes";
+import { DEFAULT_SECTIONS } from "@/lib/website-themes";
+import { photoRef } from "@/lib/cloudinary";
 
 type Profile = {
   id: string;
@@ -50,7 +52,10 @@ export default function PhotographerWebsite({ profile, galleries }: { profile: P
   const theme = (profile.websiteTheme || "minimal") as WebsiteTheme;
   const tc = getThemeClasses(theme);
   const sections: SectionConfig[] = (() => {
-    try { return JSON.parse(profile.sections || "[]"); } catch { return []; }
+    try {
+      const parsed = JSON.parse(profile.sections || "[]");
+      return Array.isArray(parsed) && parsed.length > 0 ? parsed : DEFAULT_SECTIONS;
+    } catch { return DEFAULT_SECTIONS; }
   })();
   const visibleSections = sections.filter(s => s.visible).sort((a, b) => a.order - b.order);
   const allPhotos = galleries.flatMap(g => g.photos);
@@ -84,6 +89,17 @@ export default function PhotographerWebsite({ profile, galleries }: { profile: P
           case "services": return <ServicesSection key="services" services={profile.services} tc={tc} primaryColor={primaryColor} />;
           case "testimonials": return <TestimonialsSection key="testimonials" testimonials={profile.testimonials} tc={tc} primaryColor={primaryColor} />;
           case "contact": return <ContactSection key="contact" profile={profile} tc={tc} primaryColor={primaryColor} />;
+          case "blog": return (
+            <section key="blog" id="blog" className="py-20">
+              <div className="max-w-4xl mx-auto px-4 text-center">
+                <h2 className="text-3xl font-bold mb-4">Blog</h2>
+                <p className={`${tc.muted} mb-6`}>Stories, tips, and behind the scenes.</p>
+                <a href={`/p/${profile.username}/blog`} className="inline-block px-6 py-2 rounded-full text-white text-sm font-medium" style={{ backgroundColor: primaryColor }}>
+                  Read the Blog
+                </a>
+              </div>
+            </section>
+          );
           default: return null;
         }
       })}
@@ -139,7 +155,7 @@ function PortfolioSection({ photos, tc, username, galleries }: { photos: any[]; 
         <div className="columns-2 md:columns-3 gap-4 space-y-4">
           {photos.slice(0, 12).map(p => (
             <div key={p.id} className="break-inside-avoid rounded-lg overflow-hidden">
-              <img src={p.s3Key_highRes} alt="" className="w-full h-auto" loading="lazy" />
+              <img src={photoRef(p)} alt="" className="w-full h-auto" loading="lazy" />
             </div>
           ))}
         </div>

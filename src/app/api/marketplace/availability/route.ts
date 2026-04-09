@@ -49,6 +49,12 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "You can only manage your own availability" }, { status: 403 });
     }
 
+    // Look up the user's profile so we can link availability to it
+    const profile = await prisma.photographerProfile.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
     const record = await prisma.photographerAvailability.upsert({
       where: {
         userId_date: {
@@ -63,6 +69,7 @@ export async function POST(req: NextRequest) {
         isRecurring: isRecurring ?? false,
         dayOfWeek: dayOfWeek ?? null,
         notes: notes ?? null,
+        profileId: profile?.id ?? null,
       },
       create: {
         userId,
@@ -73,6 +80,7 @@ export async function POST(req: NextRequest) {
         isRecurring: isRecurring ?? false,
         dayOfWeek: dayOfWeek ?? null,
         notes: notes ?? null,
+        profileId: profile?.id ?? null,
       },
     });
 
@@ -104,6 +112,11 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "You can only manage your own availability" }, { status: 403 });
     }
 
+    const profile = await prisma.photographerProfile.findUnique({
+      where: { userId },
+      select: { id: true },
+    });
+
     const results = await prisma.$transaction(
       entries.map((entry: { date: string; startTime: string; endTime: string; isAvailable?: boolean }) =>
         prisma.photographerAvailability.upsert({
@@ -117,6 +130,7 @@ export async function PUT(req: NextRequest) {
             startTime: entry.startTime,
             endTime: entry.endTime,
             isAvailable: entry.isAvailable ?? true,
+            profileId: profile?.id ?? null,
           },
           create: {
             userId,
@@ -124,6 +138,7 @@ export async function PUT(req: NextRequest) {
             startTime: entry.startTime,
             endTime: entry.endTime,
             isAvailable: entry.isAvailable ?? true,
+            profileId: profile?.id ?? null,
           },
         })
       )

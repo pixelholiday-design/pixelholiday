@@ -5,6 +5,7 @@ import {
   emailExpiryWarning48,
   emailGalleryExpired,
 } from "@/lib/email";
+import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
 function generateCouponCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -16,6 +17,25 @@ function generateCouponCode(): string {
 function galleryUrl(token: string): string {
   const base = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
   return `${base}/gallery/${token}`;
+}
+
+/** Send to email and/or WhatsApp — never pass a phone number to Resend */
+async function notifyCustomer(
+  customer: { email: string | null; whatsapp: string | null },
+  emailFn: ((...args: any[]) => Promise<any>) | null,
+  emailArgs: any[],
+  whatsAppBody: string,
+) {
+  try {
+    if (customer.email && emailFn) {
+      await emailFn(customer.email, ...emailArgs);
+    }
+    if (customer.whatsapp) {
+      await sendWhatsAppMessage(customer.whatsapp, whatsAppBody);
+    }
+  } catch (e) {
+    console.warn("[gallery-expiry] notification error:", e);
+  }
 }
 
 export async function runGalleryExpiryAutomation() {
@@ -34,10 +54,13 @@ export async function runGalleryExpiryAutomation() {
   });
 
   for (const g of galleries14) {
-    const to = g.customer.email || g.customer.whatsapp;
-    if (to) {
-      await emailExpiryWarning14(to, galleryUrl(g.magicLinkToken));
-    }
+    const url = galleryUrl(g.magicLinkToken);
+    await notifyCustomer(
+      g.customer,
+      emailExpiryWarning14,
+      [url],
+      `📸 Your Pixelvo gallery expires in 14 days! View now: ${url}`,
+    );
     await prisma.gallery.update({
       where: { id: g.id },
       data: { expiryWarning14: now },
@@ -52,16 +75,19 @@ export async function runGalleryExpiryAutomation() {
       status: { notIn: ["PAID", "EXPIRED", "DIGITAL_PASS"] },
       expiresAt: { lte: in7Days, gt: now },
       expiryWarning7: null,
-      expiryWarning14: { not: null }, // already received 14-day warning
+      expiryWarning14: { not: null },
     },
     include: { customer: true },
   });
 
   for (const g of galleries7) {
-    const to = g.customer.email || g.customer.whatsapp;
-    if (to) {
-      await emailExpiryWarning7(to, galleryUrl(g.magicLinkToken));
-    }
+    const url = galleryUrl(g.magicLinkToken);
+    await notifyCustomer(
+      g.customer,
+      emailExpiryWarning7,
+      [url],
+      `⏰ Only 7 days left to get your photos! View: ${url}`,
+    );
     await prisma.gallery.update({
       where: { id: g.id },
       data: { expiryWarning7: now },
@@ -76,7 +102,7 @@ export async function runGalleryExpiryAutomation() {
       status: { notIn: ["PAID", "EXPIRED", "DIGITAL_PASS"] },
       expiresAt: { lte: in48Hours, gt: now },
       expiryWarning48: null,
-      expiryWarning7: { not: null }, // already received 7-day warning
+      expiryWarning7: { not: null },
     },
     include: { customer: true },
   });
@@ -94,10 +120,13 @@ export async function runGalleryExpiryAutomation() {
       },
     });
 
-    const to = g.customer.email || g.customer.whatsapp;
-    if (to) {
-      await emailExpiryWarning48(to, galleryUrl(g.magicLinkToken), code);
-    }
+    const url = galleryUrl(g.magicLinkToken);
+    await notifyCustomer(
+      g.customer,
+      emailExpiryWarning48,
+      [url, code],
+      `🎁 Last 48 hours! Get 20% off with code ${code}: ${url}`,
+    );
     await prisma.gallery.update({
       where: { id: g.id },
       data: { expiryWarning48: now },
@@ -125,10 +154,12 @@ export async function runGalleryExpiryAutomation() {
   });
 
   for (const g of justExpired) {
-    const to = g.customer.email || g.customer.whatsapp;
-    if (to) {
-      await emailGalleryExpired(to);
-    }
+    await notifyCustomer(
+      g.customer,
+      emailGalleryExpired,
+      [],
+      `Your Pixelvo gallery has expired. Contact us if you'd like to restore it.`,
+    );
     await prisma.gallery.update({
       where: { id: g.id },
       data: { expiryFinalSent: now },

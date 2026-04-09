@@ -31,6 +31,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Validate that profileId belongs to photographerId
+    const profile = await prisma.photographerProfile.findUnique({
+      where: { id: profileId },
+      select: { userId: true },
+    });
+    if (!profile || profile.userId !== photographerId) {
+      return NextResponse.json(
+        { error: "Profile does not belong to the specified photographer" },
+        { status: 400 }
+      );
+    }
+
+    // Check photographer availability for the date
+    const bookingDate = new Date(sessionDate);
+    bookingDate.setHours(0, 0, 0, 0);
+    const availability = await prisma.photographerAvailability.findUnique({
+      where: { userId_date: { userId: photographerId, date: bookingDate } },
+    });
+    if (availability && !availability.isAvailable) {
+      return NextResponse.json(
+        { error: "Photographer is not available on this date" },
+        { status: 409 }
+      );
+    }
+
     // Combine date and time into a single DateTime
     const scheduledTime = new Date(`${sessionDate}T${sessionStartTime}:00`);
     if (isNaN(scheduledTime.getTime())) {
