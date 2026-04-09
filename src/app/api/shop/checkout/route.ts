@@ -84,35 +84,33 @@ export async function POST(req: NextRequest) {
   const chargeAmount = subtotal - giftCardDiscount;
 
   try {
+    const stripeLineItems = lines.map(({ product, qty }) => ({
+      price_data: {
+        currency: product.currency.toLowerCase(),
+        product_data: { name: product.name, description: product.description },
+        unit_amount: Math.round(product.price * 100),
+      },
+      quantity: qty,
+    }));
+
+    // Stripe does NOT allow negative unit_amount values in line items.
+    // Apply partial gift card discount as a one-time Stripe coupon instead.
+    let discounts: { coupon: string }[] | undefined;
+    if (giftCardDiscount > 0) {
+      const coupon = await stripe.coupons.create({
+        amount_off: Math.round(giftCardDiscount * 100),
+        currency: lines[0].product.currency.toLowerCase(),
+        duration: "once",
+        name: `Gift Card (${giftCardCode})`,
+        max_redemptions: 1,
+      });
+      discounts = [{ coupon: coupon.id }];
+    }
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      line_items: giftCardDiscount > 0
-        ? [
-            ...lines.map(({ product, qty }) => ({
-              price_data: {
-                currency: product.currency.toLowerCase(),
-                product_data: { name: product.name, description: product.description },
-                unit_amount: Math.round(product.price * 100),
-              },
-              quantity: qty,
-            })),
-            {
-              price_data: {
-                currency: lines[0].product.currency.toLowerCase(),
-                product_data: { name: "Gift Card Discount", description: `Code: ${giftCardCode}` },
-                unit_amount: -Math.round(giftCardDiscount * 100),
-              },
-              quantity: 1,
-            },
-          ]
-        : lines.map(({ product, qty }) => ({
-            price_data: {
-              currency: product.currency.toLowerCase(),
-              product_data: { name: product.name, description: product.description },
-              unit_amount: Math.round(product.price * 100),
-            },
-            quantity: qty,
-          })),
+      line_items: stripeLineItems,
+      ...(discounts ? { discounts } : {}),
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}/shop?ok=1`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/shop`,
       metadata: {

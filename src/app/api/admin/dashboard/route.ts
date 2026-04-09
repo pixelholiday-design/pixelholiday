@@ -74,15 +74,34 @@ export async function GET(req: Request) {
     safeQuery(() => prisma.customer.count({ where: { hasDigitalPass: true } }), 0),
   ]);
 
-  const totalRevenue = orders.reduce((s, o) => s + o.amount, 0);
+  const totalGross = orders.reduce((s, o) => s + o.amount, 0);
+  // NET revenue = gross minus Stripe fees and tax.  Use stored fields when
+  // available (added in the webhook fix), otherwise estimate from gross.
+  const totalStripeFees = orders.reduce((s, o) => s + (o.stripeFee ?? 0), 0);
+  const totalTax = orders.reduce((s, o) => s + (o.taxAmount ?? 0), 0);
+  const totalRevenue = Math.round((totalGross - totalStripeFees - totalTax) * 100) / 100;
+
+  // Gift card sales are DEFERRED REVENUE — they are NOT income until redeemed.
+  // Exclude orders that are gift-card purchases from the revenue total.
+  const giftCardOrders = orders.filter((o: any) => o.isGiftCardPurchase === true);
+  const giftCardDeferred = giftCardOrders.reduce((s, o) => s + o.amount, 0);
+  const recognizedRevenue = Math.round((totalRevenue - giftCardDeferred) * 100) / 100;
+
   const pendingPayouts = commissions.reduce((s, c) => s + c.amount, 0);
 
-  const revenueByLocation = locations.map((loc) => ({
-    id: loc.id,
-    name: loc.name,
-    type: loc.type,
-    revenue: orders.filter((o) => o.gallery.locationId === loc.id).reduce((s, o) => s + o.amount, 0),
-  }));
+  const revenueByLocation = locations.map((loc) => {
+    const locOrders = orders.filter((o) => o.gallery.locationId === loc.id);
+    const locGross = locOrders.reduce((s, o) => s + o.amount, 0);
+    const locFees = locOrders.reduce((s, o) => s + (o.stripeFee ?? 0), 0);
+    const locTax = locOrders.reduce((s, o) => s + (o.taxAmount ?? 0), 0);
+    return {
+      id: loc.id,
+      name: loc.name,
+      type: loc.type,
+      gross: locGross,
+      revenue: Math.round((locGross - locFees - locTax) * 100) / 100,
+    };
+  });
 
   const conversion = {
     uploaded: galleries.length,
@@ -112,7 +131,12 @@ export async function GET(req: Request) {
   const equipmentCost = equipment.reduce((s, e) => s + (e.purchaseCost || 0), 0);
 
   return NextResponse.json({
-    totalRevenue,
+    totalGross,
+    totalRevenue,        // NET after Stripe fees & tax
+    recognizedRevenue,   // NET minus gift card deferred revenue
+    totalStripeFees,
+    totalTax,
+    giftCardDeferred,    // Gift card sales = deferred revenue, not income
     pendingPayouts,
     revenueByLocation,
     conversion,

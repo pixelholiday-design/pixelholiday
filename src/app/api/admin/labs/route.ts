@@ -1,16 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireRole, handleGuardError } from "@/lib/guards";
 
 export const dynamic = "force-dynamic";
 
 // GET /api/admin/labs — list all PrintLabPartner records
 export async function GET() {
   try {
+    await requireRole(["CEO", "OPERATIONS_MANAGER"]);
     const labs = await prisma.printLabPartner.findMany({
       orderBy: { createdAt: "asc" },
     });
-    return NextResponse.json({ labs });
+    // Mask API keys — never expose full keys in responses
+    const safeLabs = labs.map((lab) => ({
+      ...lab,
+      apiKey: lab.apiKey ? `***${lab.apiKey.slice(-4)}` : null,
+    }));
+    return NextResponse.json({ labs: safeLabs });
   } catch (e: any) {
+    const g = handleGuardError(e);
+    if (g) return g;
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
@@ -18,6 +27,7 @@ export async function GET() {
 // POST /api/admin/labs — create new lab
 export async function POST(req: NextRequest) {
   try {
+    await requireRole(["CEO", "OPERATIONS_MANAGER"]);
     const body = await req.json().catch(() => null);
     if (!body?.name || !body?.type) {
       return NextResponse.json({ error: "name and type are required" }, { status: 400 });
@@ -52,6 +62,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true, lab });
   } catch (e: any) {
+    const g = handleGuardError(e);
+    if (g) return g;
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
@@ -59,6 +71,7 @@ export async function POST(req: NextRequest) {
 // PATCH /api/admin/labs — update lab (active, default, markup, etc.)
 export async function PATCH(req: NextRequest) {
   try {
+    await requireRole(["CEO", "OPERATIONS_MANAGER"]);
     const body = await req.json().catch(() => null);
     if (!body?.id) {
       return NextResponse.json({ error: "Missing lab id" }, { status: 400 });
@@ -99,6 +112,8 @@ export async function PATCH(req: NextRequest) {
 
     return NextResponse.json({ ok: true, lab });
   } catch (e: any) {
+    const g = handleGuardError(e);
+    if (g) return g;
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
 }
