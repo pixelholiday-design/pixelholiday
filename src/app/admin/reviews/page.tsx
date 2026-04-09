@@ -6,7 +6,7 @@ export const dynamic = "force-dynamic";
 
 // Configurable links — move to DB/env later
 const GOOGLE_REVIEW_LINK = "https://g.page/r/CVI8WduSMcw2EAE/review";
-const INSTAGRAM_LINK = "https://www.instagram.com/pixelholiday/";
+const INSTAGRAM_LINK = "https://www.instagram.com/fotiqo/";
 
 export default async function ReviewsPage() {
   // Fetch marketplace reviews
