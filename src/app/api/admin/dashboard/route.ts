@@ -44,16 +44,34 @@ export async function GET(req: Request) {
     });
   }
 
+  // Each query wrapped individually — any missing column fails gracefully
+  const safeQuery = async <T>(fn: () => Promise<T>, fallback: T): Promise<T> => {
+    try { return await fn(); } catch { return fallback; }
+  };
+
   const [galleries, locations, users, commissions, equipment, passes] = await Promise.all([
-    prisma.gallery.findMany({ where: galleryWhere, include: { photographer: true, location: true, order: true } }),
-    prisma.location.findMany({ where: division ? { locationType: division } : {} }),
-    prisma.user.findMany({
+    safeQuery(() => prisma.gallery.findMany({
+      where: galleryWhere,
+      select: { id: true, status: true, locationId: true, photographerId: true, totalCount: true, purchasedCount: true, createdAt: true,
+        photographer: { select: { id: true, name: true } }, location: { select: { id: true, name: true, type: true } },
+        order: { select: { id: true, status: true, amount: true } } },
+    }), []),
+    safeQuery(() => prisma.location.findMany({
+      where: division ? { locationType: division } : {},
+      select: { id: true, name: true, type: true },
+    }), []),
+    safeQuery(() => prisma.user.findMany({
       where: { role: "PHOTOGRAPHER" },
-      include: { galleries: { where: userGalleryWhere } },
-    }),
-    prisma.commission.findMany({ where: { isPaid: false } }),
-    prisma.equipment.findMany(),
-    prisma.customer.findMany({ where: { hasDigitalPass: true } }),
+      select: { id: true, name: true, galleries: { where: userGalleryWhere, select: { id: true, totalCount: true, purchasedCount: true } } },
+    }), []),
+    safeQuery(() => prisma.commission.findMany({
+      where: { isPaid: false },
+      select: { id: true, amount: true },
+    }), []),
+    safeQuery(() => prisma.equipment.findMany({
+      select: { id: true, purchaseCost: true },
+    }), []),
+    safeQuery(() => prisma.customer.count({ where: { hasDigitalPass: true } }), 0),
   ]);
 
   const totalRevenue = orders.reduce((s, o) => s + o.amount, 0);
@@ -85,9 +103,10 @@ export async function GET(req: Request) {
     manual: { count: manualSales.length, revenue: manualSales.reduce((s, o) => s + o.amount, 0) },
   };
 
+  const passCount = typeof passes === "number" ? passes : (passes as any[]).length;
   const digitalPasses = {
-    count: passes.length,
-    revenue: passes.length * 150,
+    count: passCount,
+    revenue: passCount * 150,
   };
 
   const equipmentCost = equipment.reduce((s, e) => s + (e.purchaseCost || 0), 0);
