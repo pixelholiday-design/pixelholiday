@@ -62,7 +62,7 @@ export default function AttractionsPage() {
           <h2 className="font-display text-3xl text-navy-900 text-center mb-12">How it works</h2>
           <div className="grid sm:grid-cols-4 gap-8">
             {[
-              { step: "1", title: "Apply", desc: "Fill out a short form. We review in 1\u20133 days." },
+              { step: "1", title: "Apply", desc: "Fill out a short form. We review in 1\–3 days." },
               { step: "2", title: "Demo", desc: "15-minute call to show you the platform." },
               { step: "3", title: "Setup", desc: "We configure your venues, staff, and kiosks." },
               { step: "4", title: "Earn", desc: "Photographers take photos. Guests buy. You get paid." },
@@ -80,13 +80,13 @@ export default function AttractionsPage() {
       {/* COMMISSION */}
       <section className="py-16 bg-cream-50">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="font-display text-3xl text-navy-900 text-center mb-3">You keep 95\u201398% of every photo sale</h2>
+          <h2 className="font-display text-3xl text-navy-900 text-center mb-3">You keep 95-98% of every photo sale</h2>
           <p className="text-navy-500 text-center mb-10">No monthly fees. No setup costs. We only earn when you earn.</p>
           <div className="overflow-x-auto">
             <table className="w-full text-sm bg-white rounded-2xl shadow-card overflow-hidden">
               <thead><tr className="bg-cream-50 border-b border-cream-200"><th className="py-4 px-6 text-left text-navy-500 font-medium">Monthly photo revenue</th><th className="py-4 px-6 text-center text-navy-500 font-medium">You keep</th><th className="py-4 px-6 text-center text-navy-500 font-medium">Platform fee</th></tr></thead>
               <tbody>
-                {[["Up to \u20ac5,000", "95%", "5%"], ["\u20ac5,000 \u2014 \u20ac15,000", "96%", "4%"], ["\u20ac15,000 \u2014 \u20ac50,000", "97%", "3%"], ["Over \u20ac50,000", "98%", "2%"]].map(([rev, keep, fee]) => (
+                {[["Up to €5,000", "95%", "5%"], ["€5,000   — €15,000", "96%", "4%"], ["€15,000   — €50,000", "97%", "3%"], ["Over €50,000", "98%", "2%"]].map(([rev, keep, fee]) => (
                   <tr key={rev} className="border-b border-cream-100"><td className="py-4 px-6 text-navy-700">{rev}</td><td className="py-4 px-6 text-center font-display text-green-600 text-lg">{keep}</td><td className="py-4 px-6 text-center text-navy-400">{fee}</td></tr>
                 ))}
               </tbody>
@@ -116,12 +116,12 @@ export default function AttractionsPage() {
             <div className="text-center py-12 animate-slide-up">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4"><Check className="h-8 w-8 text-green-600" /></div>
               <h2 className="font-display text-3xl text-navy-900 mb-2">Application received!</h2>
-              <p className="text-navy-500">Our team will review your application and contact you within 1\u20133 business days.</p>
+              <p className="text-navy-500">Our team will review your application and contact you within 1\–3 business days.</p>
             </div>
           ) : (
             <>
               <h2 className="font-display text-3xl text-navy-900 text-center mb-2">Apply to join Fotiqo</h2>
-              <p className="text-navy-500 text-center mb-8">Tell us about your business. We'll get back to you within 1\u20133 business days.</p>
+              <p className="text-navy-500 text-center mb-8">Tell us about your business. We'll get back to you within 1\–3 business days.</p>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div><label className="label-xs block mb-1">Company name *</label><input className="input" required value={form.companyName} onChange={(e) => setForm({ ...form, companyName: e.target.value })} /></div>
@@ -132,7 +132,7 @@ export default function AttractionsPage() {
                   <div><label className="label-xs block mb-1">Number of locations *</label><select className="input" required value={form.venueCount} onChange={(e) => setForm({ ...form, venueCount: e.target.value })}><option value="">Select...</option><option>1</option><option>2-5</option><option>6-20</option><option>20+</option></select></div>
                   <div><label className="label-xs block mb-1">Country *</label><input className="input" required value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} /></div>
                   <div><label className="label-xs block mb-1">City</label><input className="input" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} /></div>
-                  <div><label className="label-xs block mb-1">Estimated monthly revenue</label><select className="input" value={form.estimatedRevenue} onChange={(e) => setForm({ ...form, estimatedRevenue: e.target.value })}><option value="">Select...</option><option>Under \u20ac5,000</option><option>\u20ac5,000\u2013\u20ac15,000</option><option>\u20ac15,000\u2013\u20ac50,000</option><option>Over \u20ac50,000</option><option>Not sure yet</option></select></div>
+                  <div><label className="label-xs block mb-1">Estimated monthly revenue</label><select className="input" value={form.estimatedRevenue} onChange={(e) => setForm({ ...form, estimatedRevenue: e.target.value })}><option value="">Select...</option><option>Under €5,000</option><option>€5,000\–€15,000</option><option>€15,000\–€50,000</option><option>Over €50,000</option><option>Not sure yet</option></select></div>
                   <div><label className="label-xs block mb-1">Current setup</label><select className="input" value={form.currentSetup} onChange={(e) => setForm({ ...form, currentSetup: e.target.value })}><option value="">Select...</option><option>Own photography team</option><option>Outsourced</option><option>Starting fresh</option><option>Mixed</option></select></div>
                 </div>
                 <div><label className="label-xs block mb-1">Website URL</label><input className="input" value={form.websiteUrl} onChange={(e) => setForm({ ...form, websiteUrl: e.target.value })} placeholder="https://" /></div>

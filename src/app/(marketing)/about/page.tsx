@@ -3,7 +3,7 @@ import SectionFadeIn from "../_components/SectionFadeIn";
 import { CTAPrimary, CTADark } from "../_components/CTAButton";
 
 export const metadata = {
-  title: "About Fotiqo — Our Story & Mission",
+  title: "About Fotiqo  — Our Story & Mission",
   description:
     "We built the all-in-one photography platform we wished existed. Learn about our mission, our team, and why 500+ photographers trust Fotiqo.",
 };
@@ -75,7 +75,7 @@ const values = [
   {
     icon: Globe,
     title: "Global Reach, Local Touch",
-    body: "From resort photography in Tunisia to wedding shoots in London \u2014 our platform adapts to every market and workflow.",
+    body: "From resort photography in Tunisia to wedding shoots in London   — our platform adapts to every market and workflow.",
   },
 ];
 
@@ -116,7 +116,7 @@ const stats = [
   { value: "500+", label: "Photographers" },
   { value: "12", label: "Countries" },
   { value: "1M+", label: "Photos Delivered" },
-  { value: "\u20AC2M+", label: "In Sales Processed" },
+  { value: "€2M+", label: "In Sales Processed" },
 ];
 
 function StatsSection() {

@@ -1,6 +1,6 @@
 import { Calendar } from "lucide-react";
 import ProductPage from "../ProductPage";
-export const metadata = { title: "Studio Manager \u2014 Fotiqo", description: "Bookings, contracts, invoices, CRM \u2014 run your photography business from one dashboard." };
+export const metadata = { title: "Studio Manager \ — Fotiqo", description: "Bookings, contracts, invoices, CRM \ — run your photography business from one dashboard." };
 export default function Page() {
   return <ProductPage icon={<Calendar className="h-4 w-4" />} badge="Studio Manager" headline="Run your business from one dashboard" subheadline="22 booking packages, contracts with e-signatures, invoices, client CRM, availability calendar, and revenue analytics." color="from-gold-500 to-gold-400" features={[
     { title: "Booking packages", description: "Create 22+ packages with duration, deliverables, pricing, and add-ons. Clients book and pay instantly." },

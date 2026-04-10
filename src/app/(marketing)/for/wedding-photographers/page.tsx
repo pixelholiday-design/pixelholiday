@@ -28,7 +28,7 @@ import SectionFadeIn from "../../_components/SectionFadeIn";
 import { CTAPrimary, CTAGhost } from "../../_components/CTAButton";
 
 export const metadata: Metadata = {
-  title: "Fotiqo for Wedding Photographers — Galleries, Print Sales & Studio Management",
+  title: "Fotiqo for Wedding Photographers  — Galleries, Print Sales & Studio Management",
   description:
     "Deliver breathtaking wedding galleries. Sell prints and albums directly from the gallery. Manage bookings, contracts, and invoices. Build your portfolio website. Free to start.",
   openGraph: {
@@ -149,7 +149,7 @@ export default function WeddingPhotographersPage() {
 
           <SectionFadeIn delay={200}>
             <p className="text-lg md:text-xl text-white/60 max-w-2xl mx-auto mb-10 leading-relaxed">
-              From the first look to the last dance — deliver, sell, and delight
+              From the first look to the last dance  — deliver, sell, and delight
               with Fotiqo. Galleries, print sales, contracts, booking, and
               your portfolio website, all in one place.
             </p>
@@ -157,7 +157,7 @@ export default function WeddingPhotographersPage() {
 
           <SectionFadeIn delay={300}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <CTAPrimary href="/signup">Start Free — No Credit Card</CTAPrimary>
+              <CTAPrimary href="/signup">Start Free  — No Credit Card</CTAPrimary>
               <CTAGhost href="#galleries">Explore Features</CTAGhost>
             </div>
           </SectionFadeIn>
@@ -210,7 +210,7 @@ export default function WeddingPhotographersPage() {
                 In-gallery print & album store
               </h2>
               <p className="text-lg text-navy-400 leading-relaxed mb-6">
-                Couples browse their wedding gallery and buy prints, canvas, albums, and more — directly from the same page. No separate storefront, no friction, no extra step. You set the prices, Fotiqo handles fulfillment through print partners, and you keep the profit.
+                Couples browse their wedding gallery and buy prints, canvas, albums, and more  — directly from the same page. No separate storefront, no friction, no extra step. You set the prices, Fotiqo handles fulfillment through print partners, and you keep the profit.
               </p>
               <p className="text-navy-400 leading-relaxed mb-8">
                 Family members and guests who receive the gallery link can also buy their own prints. Every gallery becomes a passive revenue stream for weeks after the wedding.
@@ -294,7 +294,7 @@ export default function WeddingPhotographersPage() {
                 Design stunning wedding albums with a drag-and-drop page editor. AI suggests layouts based on the images you select. Send a proof link to the couple for approval, and when they sign off, the album is printed and shipped by your chosen fulfillment partner.
               </p>
               <p className="text-navy-400 leading-relaxed">
-                No more back-and-forth over email. No more manual ordering from a separate print lab portal. The entire album workflow — from design to delivery — lives inside Fotiqo.
+                No more back-and-forth over email. No more manual ordering from a separate print lab portal. The entire album workflow  — from design to delivery  — lives inside Fotiqo.
               </p>
             </SectionFadeIn>
           </div>
@@ -310,7 +310,7 @@ export default function WeddingPhotographersPage() {
               Contracts & invoices
             </h2>
             <p className="text-lg text-white/50 max-w-2xl mx-auto text-center mb-16">
-              Send contracts, collect signatures, manage invoices. All in one place — no more juggling HoneyBook, QuickBooks, and DocuSign.
+              Send contracts, collect signatures, manage invoices. All in one place  — no more juggling HoneyBook, QuickBooks, and DocuSign.
             </p>
           </SectionFadeIn>
 
@@ -338,7 +338,7 @@ export default function WeddingPhotographersPage() {
                 Booking system with deposits
               </h2>
               <p className="text-lg text-navy-400 leading-relaxed mb-6">
-                Couples find you, pick a date, and book with a deposit — all from your website. The calendar blocks the date, a confirmation email goes out, and a pre-session questionnaire is sent automatically. You focus on shooting, not admin.
+                Couples find you, pick a date, and book with a deposit  — all from your website. The calendar blocks the date, a confirmation email goes out, and a pre-session questionnaire is sent automatically. You focus on shooting, not admin.
               </p>
               <ul className="space-y-3">
                 {bookingFeatures.map((f) => (
@@ -409,7 +409,7 @@ export default function WeddingPhotographersPage() {
             <div className="grid sm:grid-cols-3 gap-6">
               {[
                 { icon: Feather, title: "AI-assisted blog", description: "Write posts faster with AI that knows your brand voice. Optimized for SEO automatically." },
-                { icon: Search, title: "Built-in SEO", description: "Meta tags, Open Graph, structured data, and sitemap — all handled for you. Rank for \"wedding photographer [city]\"." },
+                { icon: Search, title: "Built-in SEO", description: "Meta tags, Open Graph, structured data, and sitemap  — all handled for you. Rank for \"wedding photographer [city]\"." },
                 { icon: Globe, title: "Custom domain", description: "Connect your own domain (e.g., janedoephoto.com). SSL included. Professional from day one." },
               ].map((f) => (
                 <div key={f.title} className="bg-cream-100 rounded-xl p-6">
@@ -433,13 +433,13 @@ export default function WeddingPhotographersPage() {
                 Studio Manager
               </h2>
               <p className="text-lg text-navy-400 leading-relaxed mb-6">
-                Track revenue, expenses, upcoming shoots, and gallery deliveries in a single dashboard. Fotiqo gives you AI-powered briefings before each shoot — pulling details from the questionnaire, the contract, and the couple's preferences so you arrive prepared.
+                Track revenue, expenses, upcoming shoots, and gallery deliveries in a single dashboard. Fotiqo gives you AI-powered briefings before each shoot  — pulling details from the questionnaire, the contract, and the couple's preferences so you arrive prepared.
               </p>
               <ul className="space-y-3">
                 {[
                   "Revenue and expense tracking with monthly summaries",
                   "Upcoming shoots calendar with countdown timers",
-                  "Gallery delivery tracker — never miss a deadline",
+                  "Gallery delivery tracker  — never miss a deadline",
                   "AI shoot briefings pulled from questionnaires and contracts",
                   "Tax-ready reports for quarterly and annual filing",
                   "Client CRM with notes, preferences, and communication history",
@@ -480,7 +480,7 @@ export default function WeddingPhotographersPage() {
               Why switch from Pixieset?
             </h2>
             <p className="text-lg text-navy-300 max-w-2xl mx-auto text-center mb-12">
-              Fotiqo gives you everything Pixieset does — plus contracts, invoicing, booking, album design, and studio management. And it starts free.
+              Fotiqo gives you everything Pixieset does  — plus contracts, invoicing, booking, album design, and studio management. And it starts free.
             </p>
           </SectionFadeIn>
 
@@ -555,7 +555,7 @@ export default function WeddingPhotographersPage() {
         <div className="relative z-10 mx-auto max-w-4xl px-6 text-center">
           <SectionFadeIn>
             <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-6 text-balance">
-              Start free — deliver your next wedding gallery with Fotiqo
+              Start free  — deliver your next wedding gallery with Fotiqo
             </h2>
             <p className="text-lg text-white/60 max-w-xl mx-auto mb-10 leading-relaxed">
               No credit card. No monthly fees. Upload your first gallery in under five minutes and see why photographers are switching.

@@ -31,7 +31,7 @@ import { CTAPrimary, CTAGhost } from "../../_components/CTAButton";
 export const metadata: Metadata = {
   title: "Booking Packages | Fotiqo",
   description:
-    "Let customers book and pay instantly — like Bokun, but for photography. Create packages, accept deposits, confirm via WhatsApp, and manage availability in real time.",
+    "Let customers book and pay instantly  — like Bokun, but for photography. Create packages, accept deposits, confirm via WhatsApp, and manage availability in real time.",
 };
 
 /* ------------------------------------------------------------------ */
@@ -71,7 +71,7 @@ function Hero() {
 }
 
 /* ------------------------------------------------------------------ */
-/*  HOW IT WORKS — 5 STEPS                                             */
+/*  HOW IT WORKS  — 5 STEPS                                             */
 /* ------------------------------------------------------------------ */
 function HowItWorks() {
   const steps = [

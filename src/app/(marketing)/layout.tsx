@@ -6,7 +6,7 @@ import MarketingNav from "./_components/MarketingNav";
 import MarketingFooter from "./_components/MarketingFooter";
 
 export const metadata: Metadata = {
-  title: "Fotiqo — The Complete Photography Platform",
+  title: "Fotiqo  — The Complete Photography Platform",
   description:
     "Deliver stunning galleries. Sell prints worldwide. Book clients. Build your website. Manage your studio. All in one place.",
 };

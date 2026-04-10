@@ -58,7 +58,7 @@ import { CTAPrimary } from "../_components/CTAButton";
 import type { LucideIcon } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Features — Fotiqo Photography Platform",
+  title: "Features  — Fotiqo Photography Platform",
   description:
     "Explore every tool your photography business needs: client galleries, online store, booking system, website builder, studio manager, marketplace, resort operations, AI and automation.",
 };

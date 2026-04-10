@@ -22,7 +22,7 @@ const PLANS = [
 ];
 
 const COMPARISON = [
-  { f: "Monthly price", s: "\u20ac0", p: "\u20ac8", st: "\u20ac19", px: "$28\u201355", zn: "$12\u201330" },
+  { f: "Monthly price", s: "€0", p: "€8", st: "€19", px: "$28–55", zn: "$12–30" },
   { f: "Galleries", s: "3", p: "Unlimited", st: "Unlimited", px: "Storage-based", zn: "Storage-based" },
   { f: "Custom domain", s: false, p: true, st: true, px: "Paid plans", zn: "Paid plans" },
   { f: "Contracts + e-sign", s: false, p: true, st: true, px: "$12+ extra", zn: false },
@@ -31,17 +31,17 @@ const COMPARISON = [
   { f: "AI video reels", s: false, p: false, st: true, px: false, zn: "Slideshow" },
   { f: "Live streaming", s: false, p: false, st: true, px: false, zn: "Instant" },
   { f: "10 languages + RTL", s: true, p: true, st: true, px: false, zn: false },
-  { f: "Store commission", s: "10% margin", p: "5% margin", st: "0%", px: "0\u201315% of sale", zn: "0%" },
-  { f: "Annual cost", s: "\u20ac0", p: "\u20ac96", st: "\u20ac228", px: "$336\u2013660", zn: "$144\u2013360" },
+  { f: "Store commission", s: "10% margin", p: "5% margin", st: "0%", px: "0–15% of sale", zn: "0%" },
+  { f: "Annual cost", s: "€0", p: "€96", st: "€228", px: "$336–660", zn: "$144–360" },
 ];
 
 const FAQS = [
   { q: "Is there really no monthly fee on the Starter plan?", a: "Yes. The Starter plan is free forever. You only pay a small commission when you sell products through the store. Gallery delivery is completely free." },
-  { q: "What happens when I upgrade?", a: "You keep all your galleries, clients, and data. The upgrade is instant \u2014 new features unlock immediately." },
+  { q: "What happens when I upgrade?", a: "You keep all your galleries, clients, and data. The upgrade is instant   — new features unlock immediately." },
   { q: "Can I switch plans anytime?", a: "Yes. Upgrade, downgrade, or cancel anytime from your dashboard. No contracts, no lock-in." },
-  { q: "How does the store commission work?", a: "We charge a percentage of your margin (profit), not the full sale price. On the Studio plan, the commission is 0% \u2014 you keep everything." },
+  { q: "How does the store commission work?", a: "We charge a percentage of your margin (profit), not the full sale price. On the Studio plan, the commission is 0%   — you keep everything." },
   { q: "Do you charge commission on gallery delivery?", a: "No. Delivering photos to your clients is always free on every plan. Commission only applies to physical product sales through the store." },
-  { q: "How does Fotiqo compare to Pixieset?", a: "Fotiqo Pro at \u20ac8/month includes everything Pixieset charges $28\u201355/month for, plus marketplace exposure, face recognition, AI video reels, real-time streaming, and 10-language support." },
+  { q: "How does Fotiqo compare to Pixieset?", a: "Fotiqo Pro at €8/month includes everything Pixieset charges $28–55/month for, plus marketplace exposure, face recognition, AI video reels, real-time streaming, and 10-language support." },
 ];
 
 export default function PricingPage() {
@@ -136,7 +136,7 @@ export default function PricingPage() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="text-brand-300 text-xs uppercase tracking-widest font-semibold mb-3">For venues</p>
           <h2 className="font-display text-3xl mb-3">Running photography at an attraction?</h2>
-          <p className="text-white/70 mb-6">Hotels, water parks, zoos, theme parks, and more. Zero monthly fees \u2014 just 2-5% commission on photo sales.</p>
+          <p className="text-white/70 mb-6">Hotels, water parks, zoos, theme parks, and more. Zero monthly fees   — just 2-5% commission on photo sales.</p>
           <Link href="/for/attractions-and-resorts" className="inline-flex items-center gap-2 border border-white/30 hover:bg-white/10 text-white font-medium rounded-xl px-6 py-3 text-sm transition">Learn more & apply <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>

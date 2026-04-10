@@ -5,7 +5,7 @@ const FEATURES = [
   {
     icon: Images,
     title: "Client galleries that sell",
-    desc: "Deliver photos in stunning watermarked galleries. Clients browse, favorite, and buy — all in one beautiful experience. Built-in shop with 150+ products.",
+    desc: "Deliver photos in stunning watermarked galleries. Clients browse, favorite, and buy  — all in one beautiful experience. Built-in shop with 150+ products.",
     bullets: ["Watermark protection", "In-gallery print store", "Urgency timer + email sequence"],
     mockupBg: "from-brand-500/20 to-brand-700/20",
     mockupLabel: "Gallery",
@@ -37,7 +37,7 @@ const FEATURES = [
   {
     icon: BarChart3,
     title: "Manage your entire business",
-    desc: "Track revenue, manage staff, handle payroll, monitor equipment, and get AI insights — all from one dashboard.",
+    desc: "Track revenue, manage staff, handle payroll, monitor equipment, and get AI insights  — all from one dashboard.",
     bullets: ["AI daily briefing", "Revenue analytics", "Staff gamification + XP"],
     mockupBg: "from-brand-500/20 to-navy-500/20",
     mockupLabel: "Dashboard",

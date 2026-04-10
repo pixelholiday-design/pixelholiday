@@ -8,7 +8,7 @@ const CARDS = [
     title: "Digital sales",
     subtitle: "Gallery downloads, digital passes",
     highlight: "2% platform fee",
-    example: "You sell a \u20AC100 gallery \u2192 you keep \u20AC98, we get \u20AC2",
+    example: "You sell a \€100 gallery \u2192 you keep \€98, we get \€2",
     color: "border-brand-200 bg-brand-50/50",
   },
   {
@@ -16,7 +16,7 @@ const CARDS = [
     title: "Print & product sales",
     subtitle: "Prints, canvas, albums, gifts",
     highlight: "Small commission on markup",
-    example: "Lab cost: \u20AC15 | You set retail: \u20AC65 | You keep the majority of the \u20AC50 profit",
+    example: "Lab cost: \€15 | You set retail: \€65 | You keep the majority of the \€50 profit",
     color: "border-coral-200 bg-coral-50/50",
   },
   {
@@ -24,7 +24,7 @@ const CARDS = [
     title: "Marketplace bookings",
     subtitle: "Photographer-to-Go sessions",
     highlight: "10% booking fee",
-    example: "Client pays \u20AC200 \u2192 you receive \u20AC180. Bookings from YOUR website \u2192 0% fee",
+    example: "Client pays \€200 \u2192 you receive \€180. Bookings from YOUR website \u2192 0% fee",
     color: "border-gold-500/30 bg-amber-50/50",
   },
   {
@@ -58,7 +58,7 @@ export default function PricingSection() {
             {[
               { step: "1", title: "Sign up for free", desc: "Full access to galleries, website, store, and marketplace. No limits. No trial period." },
               { step: "2", title: "Grow your business", desc: "Deliver galleries, sell prints, book clients, build your brand." },
-              { step: "3", title: "Share the success", desc: "We take a small commission only when you make a sale. That\u2019s it." },
+              { step: "3", title: "Share the success", desc: "We take a small commission only when you make a sale. That\'s it." },
             ].map((s) => (
               <div key={s.step} className="text-center">
                 <div className="w-10 h-10 rounded-full bg-brand-400 text-white font-bold flex items-center justify-center mx-auto mb-3 text-sm">
@@ -98,14 +98,14 @@ export default function PricingSection() {
         {/* Key message */}
         <SectionFadeIn className="text-center mb-8">
           <div className="inline-flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-navy-600 mb-4">
-            {["No hidden fees", "No monthly charges", "Cancel anytime", "Your data — always yours"].map((t) => (
+            {["No hidden fees", "No monthly charges", "Cancel anytime", "Your data  — always yours"].map((t) => (
               <span key={t} className="flex items-center gap-1.5">
                 <Check className="w-4 h-4 text-green-500" /> {t}
               </span>
             ))}
           </div>
           <p className="text-sm text-navy-400 mb-8">
-            Other platforms charge \u20AC30\u2013\u20AC50/month <strong>plus</strong> commission. We charge \u20AC0/month. You only share when you earn.
+            Other platforms charge \€30\–\€50/month <strong>plus</strong> commission. We charge \€0/month. You only share when you earn.
           </p>
           <CTAPrimary>Get Started Free &mdash; No Credit Card Required</CTAPrimary>
         </SectionFadeIn>

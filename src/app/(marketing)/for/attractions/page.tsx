@@ -21,7 +21,7 @@ import SectionFadeIn from "../../_components/SectionFadeIn";
 import { CTAPrimary, CTAGhost } from "../../_components/CTAButton";
 
 export const metadata: Metadata = {
-  title: "Fotiqo for Attractions — Automated Photo Sales for Zoos, Theme Parks & Aquariums",
+  title: "Fotiqo for Attractions  — Automated Photo Sales for Zoos, Theme Parks & Aquariums",
   description:
     "Turn every visitor into a photo buyer. Automated camera stations, QR delivery, and self-service kiosks for zoos, theme parks, aquariums, museums, safari lodges, and ski resorts.",
   openGraph: {
@@ -155,7 +155,7 @@ export default function AttractionsPage() {
           <SectionFadeIn delay={200}>
             <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mb-10 leading-relaxed">
               Automated camera stations, QR-based delivery, and self-service kiosks
-              that turn foot traffic into photo revenue — without adding headcount.
+              that turn foot traffic into photo revenue  — without adding headcount.
             </p>
           </SectionFadeIn>
 
@@ -217,7 +217,7 @@ export default function AttractionsPage() {
                 Camera station setup
               </h2>
               <p className="text-lg text-navy-400 leading-relaxed mb-8">
-                Deploy low-cost camera stations at your highest-traffic spots. A Raspberry Pi controller paired with a DSLR or fixed camera captures every visitor automatically — triggered by motion sensors, timed intervals, or a simple button press. No photographer needed at fixed stations.
+                Deploy low-cost camera stations at your highest-traffic spots. A Raspberry Pi controller paired with a DSLR or fixed camera captures every visitor automatically  — triggered by motion sensors, timed intervals, or a simple button press. No photographer needed at fixed stations.
               </p>
               <p className="text-navy-400 leading-relaxed">
                 Roller coaster exits, aquarium tunnel walkways, animal encounter zones, and scenic overlooks become automated revenue generators. Each station uploads photos to the cloud instantly, tagging them with a timestamp and station ID for easy visitor matching.
@@ -251,7 +251,7 @@ export default function AttractionsPage() {
                   </div>
                   <div>
                     <p className="text-sm text-brand-300 font-medium">Scan to view your photos</p>
-                    <p className="text-white/50 text-sm">Station #12 — Shark Tunnel</p>
+                    <p className="text-white/50 text-sm">Station #12  — Shark Tunnel</p>
                   </div>
                 </div>
                 {/* simulated gallery preview */}
@@ -273,13 +273,13 @@ export default function AttractionsPage() {
                 QR-based photo delivery
               </h2>
               <p className="text-lg text-white/60 leading-relaxed mb-6">
-                Visitors scan a QR code on their wristband, ticket, or a sign at the exit. They enter their email address and instantly receive a link to their private photo gallery — no app download, no account creation, no friction.
+                Visitors scan a QR code on their wristband, ticket, or a sign at the exit. They enter their email address and instantly receive a link to their private photo gallery  — no app download, no account creation, no friction.
               </p>
               <ul className="space-y-4">
                 {[
                   "Works with existing tickets, wristbands, or printed QR signs",
                   "Gallery link delivered by email and SMS within 30 seconds",
-                  "Watermarked previews drive purchases — no freebies leak out",
+                  "Watermarked previews drive purchases  — no freebies leak out",
                   "Visitors can share the gallery link with their group",
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-3 text-white/70">
@@ -306,7 +306,7 @@ export default function AttractionsPage() {
                 Place a touchscreen kiosk near the exit or in the gift shop. Visitors scan their wristband or enter their code, browse all their photos from the day, select favorites, and pay by card or contactless. Prints are produced on the spot. Digital galleries are emailed instantly.
               </p>
               <p className="text-navy-400 leading-relaxed">
-                The kiosk handles everything: photo browsing, favorite selection, product configuration, payment, and receipt — all without staff involvement. Your team focuses on premium roaming photography while the kiosk handles volume.
+                The kiosk handles everything: photo browsing, favorite selection, product configuration, payment, and receipt  — all without staff involvement. Your team focuses on premium roaming photography while the kiosk handles volume.
               </p>
             </SectionFadeIn>
 
@@ -397,7 +397,7 @@ export default function AttractionsPage() {
               </p>
               <ul className="space-y-3">
                 {[
-                  "One gallery per group — no confusion, no overlap",
+                  "One gallery per group  — no confusion, no overlap",
                   "Bulk pricing with automatic discounts for large groups",
                   "Teacher or organizer receives the master gallery link",
                   "Individual parents buy their child's photos from the shared gallery",
@@ -424,13 +424,13 @@ export default function AttractionsPage() {
                 Annual pass integration
               </h2>
               <p className="text-lg text-navy-400 leading-relaxed mb-6">
-                Regular visitors with annual passes accumulate photos across every visit. Their personal gallery grows over the year, becoming a visual diary of every trip. At the end of the year, Fotiqo generates an AI-compiled highlight reel — a &quot;Year in Review&quot; video and photo book that annual pass holders love.
+                Regular visitors with annual passes accumulate photos across every visit. Their personal gallery grows over the year, becoming a visual diary of every trip. At the end of the year, Fotiqo generates an AI-compiled highlight reel  — a &quot;Year in Review&quot; video and photo book that annual pass holders love.
               </p>
               <ul className="space-y-3">
                 {[
                   "Photos from every visit, automatically linked to the same account",
                   "Persistent gallery that grows with each trip",
-                  "\"Year in Review\" AI highlight reel — video + photo book",
+                  "\"Year in Review\" AI highlight reel  — video + photo book",
                   "Exclusive discounts for annual pass holders on prints and products",
                   "Automated birthday and anniversary photo reminders",
                 ].map((item) => (
@@ -478,7 +478,7 @@ export default function AttractionsPage() {
               One platform, every attraction
             </h2>
             <p className="text-lg text-white/50 max-w-2xl mx-auto text-center mb-16">
-              Whether you run a zoo, theme park, aquarium, or ski resort — Fotiqo adapts to your venue and your visitors.
+              Whether you run a zoo, theme park, aquarium, or ski resort  — Fotiqo adapts to your venue and your visitors.
             </p>
           </SectionFadeIn>
 
@@ -517,11 +517,11 @@ export default function AttractionsPage() {
               </div>
               <div className="space-y-3 text-left">
                 {[
-                  "No setup fees — we help you get started",
+                  "No setup fees  — we help you get started",
                   "No monthly subscription",
                   "Hardware provided or use your own",
                   "We handle all software, hosting, and updates",
-                  "Cancel anytime — no lock-in contracts",
+                  "Cancel anytime  — no lock-in contracts",
                 ].map((item) => (
                   <div key={item} className="flex items-start gap-3 text-navy-600">
                     <Check className="w-5 h-5 text-brand-400 mt-0.5 flex-shrink-0" />

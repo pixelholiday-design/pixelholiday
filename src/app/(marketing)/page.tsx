@@ -2,20 +2,20 @@ import Link from "next/link";
 import { Camera, Globe, ShoppingBag, Calendar, Search, Check, ArrowRight, Star, Zap, Shield, Heart, Play } from "lucide-react";
 
 export const metadata = {
-  title: "Fotiqo \u2014 The Complete Photography Platform",
-  description: "Deliver galleries. Sell prints. Book clients. Build your website. Get discovered. All in one place \u2014 free to start.",
+  title: "Fotiqo   — The Complete Photography Platform",
+  description: "Deliver galleries. Sell prints. Book clients. Build your website. Get discovered. All in one place   — free to start.",
 };
 
 const PRODUCTS = [
-  { id: "gallery", label: "Client Gallery", icon: Camera, headline: "Turn every photo delivery into a brand moment", description: "Beautiful masonry galleries with watermark protection, client favorites, FOMO timers, and AI video reels.", features: ["Watermarked previews, full-res after purchase", "Client favorites and photo proofing", "FOMO countdown timer for urgency", "AI video reels from session photos", "Face recognition \u2014 clients find photos with a selfie", "Real-time streaming \u2014 photos appear as they're taken", "10 languages including Arabic RTL"], cta: "Try Client Gallery free", href: "/products/client-gallery", color: "from-brand-500 to-brand-400" },
+  { id: "gallery", label: "Client Gallery", icon: Camera, headline: "Turn every photo delivery into a brand moment", description: "Beautiful masonry galleries with watermark protection, client favorites, FOMO timers, and AI video reels.", features: ["Watermarked previews, full-res after purchase", "Client favorites and photo proofing", "FOMO countdown timer for urgency", "AI video reels from session photos", "Face recognition   — clients find photos with a selfie", "Real-time streaming   — photos appear as they're taken", "10 languages including Arabic RTL"], cta: "Try Client Gallery free", href: "/products/client-gallery", color: "from-brand-500 to-brand-400" },
   { id: "website", label: "Website Builder", icon: Globe, headline: "A stunning portfolio website in minutes", description: "Block editor with 17 block types, custom fonts, custom domain, blog, and SEO tools.", features: ["17 content blocks (hero, gallery, services, testimonials...)", "Custom domain connection (yourname.com)", "Custom font upload (.woff2, .ttf, .otf)", "Built-in blog for SEO", "Contact form with auto-lead capture", "Mobile responsive, SSL included"], cta: "Build your website free", href: "/products/website-builder", color: "from-purple-500 to-purple-400" },
-  { id: "store", label: "Online Store", icon: ShoppingBag, headline: "Sell prints worldwide \u2014 we handle the rest", description: "187 products fulfilled by Prodigi and Printful. You set the prices, we handle printing and shipping.", features: ["187 products: prints, canvas, albums, mugs, gifts", "Auto-fulfillment \u2014 orders ship to your client", "Dual print lab (Prodigi + Printful)", "Photo book builder for clients", "Gift cards and store credits", "Coupons and volume pricing"], cta: "Open your store free", href: "/products/online-store", color: "from-coral-500 to-coral-400" },
-  { id: "studio", label: "Studio Manager", icon: Calendar, headline: "Run your business from one dashboard", description: "Bookings, contracts, invoices, CRM \u2014 everything in one place.", features: ["22 booking packages with instant checkout", "Contracts with e-signatures (5 templates)", "Invoices with payment tracking", "Client CRM (contacts, sessions, revenue)", "Availability calendar", "Revenue analytics and charts"], cta: "Manage your studio free", href: "/products/studio-manager", color: "from-gold-500 to-gold-400" },
+  { id: "store", label: "Online Store", icon: ShoppingBag, headline: "Sell prints worldwide   — we handle the rest", description: "187 products fulfilled by Prodigi and Printful. You set the prices, we handle printing and shipping.", features: ["187 products: prints, canvas, albums, mugs, gifts", "Auto-fulfillment   — orders ship to your client", "Dual print lab (Prodigi + Printful)", "Photo book builder for clients", "Gift cards and store credits", "Coupons and volume pricing"], cta: "Open your store free", href: "/products/online-store", color: "from-coral-500 to-coral-400" },
+  { id: "studio", label: "Studio Manager", icon: Calendar, headline: "Run your business from one dashboard", description: "Bookings, contracts, invoices, CRM   — everything in one place.", features: ["22 booking packages with instant checkout", "Contracts with e-signatures (5 templates)", "Invoices with payment tracking", "Client CRM (contacts, sessions, revenue)", "Availability calendar", "Revenue analytics and charts"], cta: "Manage your studio free", href: "/products/studio-manager", color: "from-gold-500 to-gold-400" },
   { id: "marketplace", label: "Marketplace", icon: Search, headline: "Get discovered by new clients", description: "Your profile on Fotiqo Marketplace. Clients search, find you, and book instantly.", features: ["Professional profile with portfolio and reviews", "Search by location, specialty, and budget", "Instant booking with Stripe payments", "Clients book as guest (no account needed)", "3-10% commission only when you earn", "Verified reviews build your reputation"], cta: "Create your profile free", href: "/products/marketplace", color: "from-green-500 to-green-400" },
 ];
 
 const COMPARISON = [
-  { feature: "Monthly price", fotiqo: "Free", pixieset: "$28\u201350/mo", zno: "$12/mo" },
+  { feature: "Monthly price", fotiqo: "Free", pixieset: "$28–50/mo", zno: "$12/mo" },
   { feature: "Client galleries", fotiqo: true, pixieset: true, zno: true },
   { feature: "Website builder", fotiqo: true, pixieset: true, zno: true },
   { feature: "Online store (150+ products)", fotiqo: true, pixieset: true, zno: true },
@@ -97,8 +97,8 @@ export default function MarketingHome() {
           <h2 className="font-display text-3xl sm:text-4xl text-navy-900 text-center mb-12">Why photographers choose Fotiqo</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { icon: Shield, title: "Zero monthly fees", desc: "Unlike Pixieset ($28\u201350/mo), Fotiqo is free. You only pay a small commission when you make a sale." },
-              { icon: Zap, title: "More than a gallery", desc: "AI video reels, face recognition, real-time streaming, 10 languages \u2014 features no other platform offers." },
+              { icon: Shield, title: "Zero monthly fees", desc: "Unlike Pixieset ($28–50/mo), Fotiqo is free. You only pay a small commission when you make a sale." },
+              { icon: Zap, title: "More than a gallery", desc: "AI video reels, face recognition, real-time streaming, 10 languages   — features no other platform offers." },
               { icon: Heart, title: "One platform, not five", desc: "Galleries + website + store + bookings + marketplace. Stop juggling five different tools." },
             ].map((item) => { const Icon = item.icon; return (
               <div key={item.title} className="bg-white rounded-2xl p-8 shadow-card">
@@ -142,7 +142,7 @@ export default function MarketingHome() {
           <h2 className="font-display text-3xl sm:text-4xl text-navy-900 text-center mb-12">Photographers love Fotiqo</h2>
           <div className="grid md:grid-cols-3 gap-6">
             {[
-              { name: "Sarah Chen", spec: "Wedding Photographer", quote: "Fotiqo replaced four different tools for me. Galleries, website, store, and bookings \u2014 all in one." },
+              { name: "Sarah Chen", spec: "Wedding Photographer", quote: "Fotiqo replaced four different tools for me. Galleries, website, store, and bookings   — all in one." },
               { name: "Marcus Rivera", spec: "Portrait Photographer", quote: "The marketplace brought me 12 new clients in the first month. No monthly fees hanging over my head." },
               { name: "Elena Petrov", spec: "Event Photographer", quote: "The live streaming feature is incredible. My clients see photos appearing in real-time during the event." },
             ].map((t) => (
@@ -184,7 +184,7 @@ export default function MarketingHome() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="text-brand-300 text-xs uppercase tracking-widest font-semibold mb-3">Also for venues</p>
           <h2 className="font-display text-3xl mb-4">Hotels, water parks, zoos, and attractions</h2>
-          <p className="text-white/70 max-w-2xl mx-auto mb-6">Fotiqo powers on-site photography operations at venues worldwide. Zero monthly fees \u2014 just 2-5% commission on photo sales.</p>
+          <p className="text-white/70 max-w-2xl mx-auto mb-6">Fotiqo powers on-site photography operations at venues worldwide. Zero monthly fees   — just 2-5% commission on photo sales.</p>
           <Link href="/for/attractions-and-resorts" className="inline-flex items-center gap-2 border border-white/30 hover:bg-white/10 text-white font-medium rounded-xl px-6 py-3 text-sm transition">Learn more & apply <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>

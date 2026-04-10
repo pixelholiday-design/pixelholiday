@@ -4,9 +4,9 @@ import { CTAPrimary } from "../_components/CTAButton";
 import ContactForm from "./ContactForm";
 
 export const metadata = {
-  title: "Contact Fotiqo — Let\u2019s Talk",
+  title: "Contact Fotiqo  — Let\'s Talk",
   description:
-    "Get in touch with Fotiqo. Whether you\u2019re a freelance photographer, studio, or resort operator, we\u2019d love to hear from you.",
+    "Get in touch with Fotiqo. Whether you\'re a freelance photographer, studio, or resort operator, we\'d love to hear from you.",
 };
 
 /* ── Hero ────────────────────────────────────── */
@@ -53,7 +53,7 @@ const contactInfo = [
   {
     icon: Clock,
     label: "Support Hours",
-    value: "Mon\u2013Fri, 9 am\u20136 pm CET",
+    value: "Mon–Fri, 9 am–6 pm CET",
     href: null,
   },
 ];
@@ -122,7 +122,7 @@ const faqs = [
   },
   {
     q: "How quickly can I get set up?",
-    a: "Most photographers are up and running within 15 minutes. Create an account, upload your first gallery, and send the magic link to your client. That\u2019s it.",
+    a: "Most photographers are up and running within 15 minutes. Create an account, upload your first gallery, and send the magic link to your client. That\'s it.",
   },
   {
     q: "Do you support resorts and multi-location teams?",
@@ -187,7 +187,7 @@ export default function ContactPage() {
       <section className="py-24 bg-white">
         <div className="mx-auto max-w-6xl px-6">
           <div className="grid lg:grid-cols-5 gap-12 lg:gap-16">
-            {/* Form — takes 3 cols */}
+            {/* Form  — takes 3 cols */}
             <div className="lg:col-span-3">
               <SectionFadeIn>
                 <h2 className="font-display text-2xl font-bold text-navy-900 mb-6">
@@ -197,7 +197,7 @@ export default function ContactPage() {
               </SectionFadeIn>
             </div>
 
-            {/* Info — takes 2 cols */}
+            {/* Info  — takes 2 cols */}
             <div className="lg:col-span-2">
               <SectionFadeIn delay={150}>
                 <ContactInfoCards />
