@@ -10,8 +10,7 @@ cloudinary.config({
   secure: true,
 });
 
-const WATERMARK_ID =
-  process.env.CLOUDINARY_WATERMARK_PUBLIC_ID || "fotiqo_watermark";
+const WATERMARK_ID = "fotiqo_watermark";
 
 const HAS_SIGNING =
   !!process.env.CLOUDINARY_CLOUD_NAME &&
