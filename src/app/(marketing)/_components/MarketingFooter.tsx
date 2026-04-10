@@ -3,14 +3,14 @@ import Image from "next/image";
 
 const COLUMNS = [
   {
-    title: "Product",
+    title: "Products",
     links: [
-      { href: "/features", label: "Galleries" },
-      { href: "/features", label: "Store" },
-      { href: "/for/photographer-marketplace", label: "Marketplace" },
-      { href: "/features", label: "Website Builder" },
-      { href: "/features", label: "Studio Manager" },
-      { href: "/features", label: "Mobile App" },
+      { href: "/products/client-gallery", label: "Client Gallery" },
+      { href: "/products/website-builder", label: "Website Builder" },
+      { href: "/products/online-store", label: "Online Store" },
+      { href: "/products/studio-manager", label: "Studio Manager" },
+      { href: "/products/marketplace", label: "Marketplace" },
+      { href: "/products/mobile-gallery", label: "Mobile Gallery" },
     ],
   },
   {

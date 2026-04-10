@@ -3,29 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X, ChevronDown, Camera, Hotel, BarChart3, Search } from "lucide-react";
+import { Menu, X, ChevronDown, Camera, Hotel, BarChart3, Search, Globe, ShoppingBag, Calendar, Smartphone } from "lucide-react";
 
 const NAV_LINKS = [
   {
-    label: "Product",
+    label: "Products",
     children: [
-      { href: "/features", label: "All Features" },
-      { href: "/pricing", label: "Pricing" },
+      { href: "/products/client-gallery", label: "Client Gallery", desc: "Deliver photos beautifully", icon: Camera },
+      { href: "/products/website-builder", label: "Website Builder", desc: "Build your portfolio site", icon: Globe },
+      { href: "/products/online-store", label: "Online Store", desc: "Sell prints and products", icon: ShoppingBag },
+      { href: "/products/studio-manager", label: "Studio Manager", desc: "Bookings, contracts, invoices", icon: Calendar },
+      { href: "/products/marketplace", label: "Marketplace", desc: "Get discovered by clients", icon: Search },
+      { href: "/products/mobile-gallery", label: "Mobile Gallery", desc: "Branded app for clients", icon: Smartphone },
     ],
   },
-  {
-    label: "Solutions",
-    children: [
-      { href: "/for/resort-photography", label: "Resort & Hotel Photography" },
-      { href: "/for/water-parks", label: "Water Parks & Attractions" },
-      { href: "/for/wedding-photographers", label: "Wedding Photographers" },
-      { href: "/for/freelance-photographers", label: "Freelance Photographers" },
-      { href: "/for/studios", label: "Studios & Businesses" },
-      { href: "/for/booking-packages", label: "Booking System" },
-    ],
-  },
+  { href: "/pricing", label: "Pricing" },
   { href: "/find-photographer", label: "Marketplace" },
-  { href: "/about", label: "About" },
+  { href: "/for/resort-photography", label: "For Resorts" },
 ];
 
 export default function MarketingNav() {
@@ -59,16 +53,23 @@ export default function MarketingNav() {
                   <ChevronDown className="w-3.5 h-3.5" />
                 </button>
                 {dropdownOpen === item.label && (
-                  <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-xl shadow-lift border border-cream-300/60 py-2 animate-fade-in">
-                    {item.children.map((child) => (
-                      <Link
-                        key={child.href}
-                        href={child.href}
-                        className="block px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition"
-                      >
-                        {child.label}
-                      </Link>
-                    ))}
+                  <div className="absolute top-full left-0 mt-1 w-72 bg-white rounded-xl shadow-lift border border-cream-300/60 py-2 animate-fade-in">
+                    {item.children.map((child: any) => {
+                      const Icon = child.icon;
+                      return (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className="flex items-start gap-3 px-4 py-3 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition"
+                        >
+                          {Icon && <Icon className="h-4 w-4 mt-0.5 text-brand-400 flex-shrink-0" />}
+                          <div>
+                            <div className="font-medium">{child.label}</div>
+                            {child.desc && <div className="text-xs text-navy-400 mt-0.5">{child.desc}</div>}
+                          </div>
+                        </Link>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -113,7 +114,7 @@ export default function MarketingNav() {
               </div>
             )}
           </div>
-          <Link href="/signup/photographer" className="btn-primary text-sm !py-2 !px-4">
+          <Link href="/signup/photographer" className="text-sm font-semibold bg-[#F97316] hover:bg-orange-600 text-white rounded-xl px-4 py-2 transition">
             Get Started Free
           </Link>
         </div>
