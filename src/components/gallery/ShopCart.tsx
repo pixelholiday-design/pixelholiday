@@ -29,6 +29,7 @@ export type CartItem = {
     cover: string;
     pageCount: number;
     photoCount: number;
+    photoIds?: string[];
   };
 };
 
