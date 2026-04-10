@@ -109,8 +109,19 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
     fetch("/api/shop/catalog")
       .then((r) => r.json())
       .then((data) => {
-        setShopProducts(data.products ?? []);
-        setShopCategories(data.categories ?? []);
+        // Map API shape (retailPrice, sizes as JSON string) to client shape
+        const mapped = (data.products ?? []).map((p: any) => ({
+          ...p,
+          price: p.retailPrice ?? p.price ?? 0,
+          sizes: typeof p.sizes === "string" ? (() => { try { return JSON.parse(p.sizes); } catch { return []; } })() : (p.sizes ?? []),
+          options: typeof p.options === "string" ? (() => { try { return JSON.parse(p.options); } catch { return []; } })() : (p.options ?? []),
+        }));
+        setShopProducts(mapped);
+        setShopCategories(
+          (data.categories ?? []).map((c: any) =>
+            typeof c === "string" ? { key: c, label: c.replace(/_/g, " ") } : c
+          )
+        );
       })
       .catch(() => {})
       .finally(() => setShopLoading(false));
@@ -418,7 +429,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                             <p className="font-semibold text-navy-900 text-sm leading-tight">{product.name}</p>
                             <p className="text-xs text-navy-400 mt-0.5 line-clamp-1">{product.description}</p>
                             <p className="text-sm font-display text-navy-900 mt-1.5">
-                              from €{product.price.toFixed(2)}
+                              from €{(product.price ?? (product as any).retailPrice ?? 0).toFixed(2)}
                             </p>
                           </div>
                         </button>
@@ -562,7 +573,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
           initialProduct={bookBuilderProduct ? {
             key: bookBuilderProduct.productKey,
             name: bookBuilderProduct.name,
-            price: bookBuilderProduct.price,
+            price: bookBuilderProduct.price ?? (bookBuilderProduct as any).retailPrice ?? 0,
           } : null}
         />
       )}

@@ -197,7 +197,7 @@ export default function ProductPickerModal({
 
   const selectedPhoto = photos[selectedPhotoIdx] ?? null;
   const sizeExtra = product.sizes?.find((s) => s.label === selectedSize)?.price ?? 0;
-  const unitPrice = product.price + sizeExtra;
+  const unitPrice = (product.price ?? (product as any).retailPrice ?? 0) + sizeExtra;
   const isBook = product.productKey.startsWith("book_");
 
   function handleAdd() {
