@@ -1,7 +1,8 @@
 "use client";
-import { Camera, Heart, Download, Lock, Star, Globe, ShoppingBag, Calendar, Search, Image, Grid3X3, FileSignature, BarChart3, MessageSquare, Package } from "lucide-react";
+import { Camera, Heart, Lock, Star, ShoppingBag, Search, BarChart3, Calendar, FileSignature, MessageSquare, Package, Image } from "lucide-react";
 
-/** CSS-only mockups that look like real product screenshots */
+const img = (seed: number, w = 400, h = 300) => `https://picsum.photos/seed/fq${seed}/${w}/${h}`;
+
 export function ProductMockup({ productId }: { productId: string }) {
   switch (productId) {
     case "gallery": return <GalleryMockup />;
@@ -13,35 +14,39 @@ export function ProductMockup({ productId }: { productId: string }) {
   }
 }
 
+function Img({ seed, w, h, className }: { seed: number; w?: number; h?: number; className?: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={img(seed, w, h)} alt="" className={className || "w-full h-full object-cover"} loading="lazy" />;
+}
+
 function GalleryMockup() {
   return (
     <div className="aspect-[4/3] rounded-2xl bg-white shadow-lift border border-cream-200 overflow-hidden">
-      {/* Gallery header */}
-      <div className="h-8 bg-navy-900 flex items-center justify-between px-3">
-        <span className="text-[9px] text-white/70 font-medium">fotiqo.com/gallery/abc123</span>
-        <div className="flex gap-1">{[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-white/20" />)}</div>
+      <div className="h-7 bg-navy-900 flex items-center justify-between px-3">
+        <span className="text-[8px] text-white/70">fotiqo.com/gallery/beach-wedding</span>
+        <div className="flex gap-1">{[1,2,3].map(i=><div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20"/>)}</div>
       </div>
-      {/* Hero cover */}
-      <div className="h-20 bg-gradient-to-r from-brand-600 to-brand-400 flex items-end px-4 pb-2">
-        <div>
-          <div className="text-white font-display text-sm">Beach Wedding</div>
-          <div className="text-white/60 text-[8px]">by Sarah Chen · 48 photos</div>
+      <div className="h-[72px] relative overflow-hidden">
+        <Img seed={42} w={800} h={300} />
+        <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent"/>
+        <div className="absolute bottom-1.5 left-3 text-white">
+          <div className="font-display text-[11px]">Beach Wedding</div>
+          <div className="text-white/60 text-[7px]">by Sarah Chen &middot; 48 photos</div>
         </div>
       </div>
-      {/* Photo grid */}
-      <div className="p-2 grid grid-cols-3 gap-1.5">
-        {Array.from({length: 9}).map((_, i) => (
-          <div key={i} className="aspect-square rounded-md relative overflow-hidden" style={{background: `hsl(${180 + i * 15}, 40%, ${65 + i * 3}%)`}}>
-            {i === 0 && <div className="absolute top-0.5 left-0.5 bg-navy-900/70 text-white rounded-full px-1 py-0.5 text-[6px] flex items-center gap-0.5"><Lock className="h-2 w-2" />LOCKED</div>}
-            {i === 2 && <Heart className="absolute top-0.5 right-0.5 h-3 w-3 fill-coral-500 text-coral-500" />}
-            {i === 4 && <div className="absolute inset-0 flex items-center justify-center text-white/20 text-[8px] font-bold rotate-[-20deg]">FOTIQO</div>}
+      <div className="p-1.5 grid grid-cols-3 gap-1">
+        {[10,11,12,13,14,15,16,17,18].map((s,i)=>(
+          <div key={s} className="aspect-square rounded relative overflow-hidden">
+            <Img seed={s} w={200} h={200}/>
+            {i<6&&<div className="absolute inset-0 flex items-center justify-center"><span className="text-white/25 text-[6px] font-bold rotate-[-20deg]">FOTIQO</span></div>}
+            {i===0&&<div className="absolute top-0.5 left-0.5 bg-navy-900/80 text-white rounded-full px-1 text-[4px] flex items-center gap-0.5"><Lock className="h-1.5 w-1.5"/>LOCKED</div>}
+            {(i===2||i===5)&&<Heart className="absolute top-0.5 right-0.5 h-2 w-2 fill-coral-500 text-coral-500"/>}
           </div>
         ))}
       </div>
-      {/* Bottom bar */}
-      <div className="px-3 py-1.5 bg-navy-900 flex items-center justify-between">
-        <div className="text-white text-[8px] font-semibold">Unlock your memories</div>
-        <div className="bg-coral-500 text-white text-[7px] px-2 py-0.5 rounded-full font-semibold">Unlock — €49</div>
+      <div className="px-3 py-1 bg-navy-900 flex items-center justify-between">
+        <span className="text-white text-[7px] font-semibold">Unlock your memories</span>
+        <span className="bg-[#F97316] text-white text-[6px] px-2 py-0.5 rounded-full font-semibold">Unlock</span>
       </div>
     </div>
   );
@@ -50,27 +55,27 @@ function GalleryMockup() {
 function WebsiteMockup() {
   return (
     <div className="aspect-[4/3] rounded-2xl bg-white shadow-lift border border-cream-200 overflow-hidden">
-      <div className="h-8 bg-white border-b border-cream-200 flex items-center px-3 gap-2">
-        <div className="flex gap-1">{["bg-coral-400","bg-gold-400","bg-green-400"].map(c => <div key={c} className={`w-2 h-2 rounded-full ${c}`} />)}</div>
-        <div className="flex-1 bg-cream-100 rounded h-4 flex items-center px-2"><span className="text-[7px] text-navy-400">sarahchen.fotiqo.com</span></div>
+      <div className="h-7 bg-white border-b border-cream-200 flex items-center px-3 gap-2">
+        <div className="flex gap-1">{["bg-coral-400","bg-gold-400","bg-green-400"].map(c=><div key={c} className={`w-1.5 h-1.5 rounded-full ${c}`}/>)}</div>
+        <div className="flex-1 bg-cream-100 rounded h-3.5 flex items-center px-2"><span className="text-[6px] text-navy-400">sarahchen.fotiqo.com</span></div>
       </div>
-      {/* Nav */}
-      <div className="h-6 bg-white border-b border-cream-100 flex items-center justify-center gap-3 px-3">
-        <span className="text-[7px] font-semibold text-navy-900">Sarah Chen</span>
-        {["Portfolio", "About", "Services", "Contact"].map(p => <span key={p} className="text-[6px] text-navy-400">{p}</span>)}
+      <div className="h-5 bg-white border-b border-cream-100 flex items-center justify-center gap-3">
+        <span className="text-[6px] font-semibold text-navy-900">Sarah Chen Photography</span>
+        {["Portfolio","About","Services","Contact"].map(p=><span key={p} className="text-[5px] text-navy-400">{p}</span>)}
       </div>
-      {/* Hero */}
-      <div className="h-24 bg-gradient-to-br from-purple-100 to-brand-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="font-display text-sm text-navy-900">Capturing love stories</div>
-          <div className="text-[8px] text-navy-500 mt-0.5">Wedding & portrait photography</div>
-          <div className="mt-1.5 bg-navy-900 text-white text-[7px] px-3 py-1 rounded-full inline-block">Book a session</div>
+      <div className="h-[88px] relative overflow-hidden">
+        <Img seed={88} w={800} h={400}/>
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+          <div className="text-center text-white">
+            <div className="font-display text-[11px]">Capturing love stories</div>
+            <div className="text-[7px] text-white/70 mt-0.5">Wedding & portrait photography</div>
+            <div className="mt-1 bg-white text-navy-900 text-[6px] px-2.5 py-0.5 rounded-full inline-block font-semibold">Book a session</div>
+          </div>
         </div>
       </div>
-      {/* Portfolio grid */}
-      <div className="p-2 grid grid-cols-4 gap-1">
-        {Array.from({length: 8}).map((_, i) => (
-          <div key={i} className="aspect-square rounded" style={{background: `hsl(${200 + i * 20}, 30%, ${70 + i * 2}%)`}} />
+      <div className="p-1.5 grid grid-cols-4 gap-1">
+        {[20,21,22,23,24,25,26,27].map(s=>(
+          <div key={s} className="aspect-square rounded overflow-hidden"><Img seed={s} w={150} h={150}/></div>
         ))}
       </div>
     </div>
@@ -78,35 +83,23 @@ function WebsiteMockup() {
 }
 
 function StoreMockup() {
-  const products = [
-    { name: "Canvas 30×40", price: "€58", color: "bg-coral-100" },
-    { name: "Photo Book", price: "€65", color: "bg-brand-100" },
-    { name: "Print 8×10", price: "€18", color: "bg-purple-100" },
-    { name: "Mug", price: "€15", color: "bg-gold-100" },
-  ];
+  const items=[{name:"Canvas 30x40",price:"EUR 58",s:30},{name:"Photo Book",price:"EUR 65",s:31},{name:"Print 8x10",price:"EUR 18",s:32},{name:"Mug",price:"EUR 15",s:33}];
   return (
     <div className="aspect-[4/3] rounded-2xl bg-white shadow-lift border border-cream-200 overflow-hidden">
-      <div className="h-8 bg-white border-b border-cream-200 flex items-center justify-between px-3">
-        <span className="text-[9px] font-semibold text-navy-900">Shop</span>
-        <div className="flex items-center gap-1"><ShoppingBag className="h-3 w-3 text-navy-400" /><span className="text-[7px] bg-coral-500 text-white rounded-full px-1">2</span></div>
+      <div className="h-7 bg-white border-b border-cream-200 flex items-center justify-between px-3">
+        <span className="text-[8px] font-semibold text-navy-900">Shop</span>
+        <div className="flex items-center gap-1"><ShoppingBag className="h-2.5 w-2.5 text-navy-400"/><span className="text-[6px] bg-coral-500 text-white rounded-full w-3 h-3 flex items-center justify-center">2</span></div>
       </div>
-      {/* Categories */}
-      <div className="flex gap-1 px-2 py-1.5 overflow-hidden">
-        {["All", "Prints", "Wall Art", "Books", "Gifts"].map((c, i) => (
-          <span key={c} className={`text-[7px] px-2 py-0.5 rounded-full whitespace-nowrap ${i === 0 ? "bg-navy-900 text-white" : "bg-cream-100 text-navy-500"}`}>{c}</span>
+      <div className="flex gap-1 px-2 py-1">
+        {["All","Prints","Wall Art","Books","Gifts"].map((c,i)=>(
+          <span key={c} className={`text-[6px] px-1.5 py-0.5 rounded-full ${i===0?"bg-navy-900 text-white":"bg-cream-100 text-navy-500"}`}>{c}</span>
         ))}
       </div>
-      {/* Products */}
-      <div className="p-2 grid grid-cols-2 gap-2">
-        {products.map(p => (
+      <div className="p-1.5 grid grid-cols-2 gap-1.5">
+        {items.map(p=>(
           <div key={p.name} className="rounded-lg border border-cream-200 overflow-hidden">
-            <div className={`h-14 ${p.color} flex items-center justify-center`}>
-              <Image className="h-5 w-5 text-navy-300" />
-            </div>
-            <div className="p-1.5">
-              <div className="text-[7px] font-semibold text-navy-900 truncate">{p.name}</div>
-              <div className="text-[8px] font-display text-navy-700">{p.price}</div>
-            </div>
+            <div className="h-14 overflow-hidden"><Img seed={p.s} w={300} h={200}/></div>
+            <div className="p-1"><div className="text-[6px] font-semibold text-navy-900 truncate">{p.name}</div><div className="text-[7px] font-display text-navy-700">{p.price}</div></div>
           </div>
         ))}
       </div>
@@ -117,29 +110,30 @@ function StoreMockup() {
 function StudioMockup() {
   return (
     <div className="aspect-[4/3] rounded-2xl bg-cream-50 shadow-lift border border-cream-200 overflow-hidden flex">
-      {/* Sidebar */}
-      <div className="w-14 bg-white border-r border-cream-200 py-2 px-1 space-y-2">
-        <div className="w-6 h-6 rounded-lg bg-brand-100 mx-auto flex items-center justify-center"><Camera className="h-3 w-3 text-brand-500" /></div>
-        {[BarChart3, Image, Calendar, FileSignature, MessageSquare, Star, Package].map((Icon, i) => (
-          <div key={i} className={`w-6 h-6 rounded-lg mx-auto flex items-center justify-center ${i === 0 ? "bg-brand-50" : ""}`}><Icon className="h-3 w-3 text-navy-400" /></div>
+      <div className="w-12 bg-white border-r border-cream-200 py-2 px-1 space-y-1.5">
+        <div className="w-5 h-5 rounded bg-brand-100 mx-auto flex items-center justify-center"><Camera className="h-2.5 w-2.5 text-brand-500"/></div>
+        {[BarChart3,Image,Calendar,FileSignature,MessageSquare,Star,Package].map((Icon,i)=>(
+          <div key={i} className={`w-5 h-5 rounded mx-auto flex items-center justify-center ${i===0?"bg-brand-50":""}`}><Icon className="h-2.5 w-2.5 text-navy-400"/></div>
         ))}
       </div>
-      {/* Main */}
       <div className="flex-1 p-2">
-        <div className="text-[9px] font-semibold text-navy-900 mb-2">Dashboard</div>
-        {/* Stat cards */}
-        <div className="grid grid-cols-3 gap-1 mb-2">
-          {[{label: "Revenue", value: "€2,450"}, {label: "Bookings", value: "12"}, {label: "Galleries", value: "8"}].map(s => (
-            <div key={s.label} className="bg-white rounded-lg p-1.5 border border-cream-200">
-              <div className="text-[7px] text-navy-400">{s.label}</div>
-              <div className="text-[10px] font-display text-navy-900">{s.value}</div>
+        <div className="text-[8px] font-semibold text-navy-900 mb-1.5">Dashboard</div>
+        <div className="grid grid-cols-3 gap-1 mb-1.5">
+          {[{l:"Revenue",v:"EUR 2,450",c:"text-green-600"},{l:"Bookings",v:"12",c:"text-brand-500"},{l:"Galleries",v:"8",c:"text-purple-500"}].map(s=>(
+            <div key={s.l} className="bg-white rounded p-1 border border-cream-200">
+              <div className="text-[5px] text-navy-400">{s.l}</div>
+              <div className={`text-[9px] font-display ${s.c}`}>{s.v}</div>
             </div>
           ))}
         </div>
-        {/* Chart area */}
-        <div className="bg-white rounded-lg border border-cream-200 p-2 h-16 flex items-end gap-0.5">
-          {[30, 45, 35, 60, 50, 75, 65, 80, 70, 90, 85, 95].map((h, i) => (
-            <div key={i} className="flex-1 bg-brand-400 rounded-t" style={{height: `${h}%`}} />
+        <div className="bg-white rounded border border-cream-200 p-1.5 h-14 flex items-end gap-0.5">
+          {[30,45,35,60,50,75,65,80,70,90,85,95].map((h,i)=>(
+            <div key={i} className="flex-1 bg-brand-400 rounded-t" style={{height:`${h}%`}}/>
+          ))}
+        </div>
+        <div className="mt-1 grid grid-cols-3 gap-1">
+          {[40,41,42].map(s=>(
+            <div key={s} className="h-7 rounded overflow-hidden"><Img seed={s} w={200} h={100}/></div>
           ))}
         </div>
       </div>
@@ -148,27 +142,23 @@ function StudioMockup() {
 }
 
 function MarketplaceMockup() {
+  const list=[{n:"Sarah Chen",t:"Wedding",r:"5.0",p:"EUR 150/hr",s:50},{n:"Marcus R.",t:"Portrait",r:"4.9",p:"EUR 80/hr",s:51},{n:"Elena P.",t:"Events",r:"4.8",p:"EUR 120/hr",s:52},{n:"James O.",t:"Family",r:"5.0",p:"EUR 95/hr",s:53}];
   return (
     <div className="aspect-[4/3] rounded-2xl bg-cream-50 shadow-lift border border-cream-200 overflow-hidden">
-      <div className="h-10 bg-white border-b border-cream-200 flex items-center px-3 gap-2">
-        <Search className="h-3 w-3 text-navy-400" />
-        <div className="flex-1 bg-cream-100 rounded h-5 flex items-center px-2"><span className="text-[7px] text-navy-400">Search photographers in London...</span></div>
+      <div className="h-8 bg-white border-b border-cream-200 flex items-center px-3 gap-2">
+        <Search className="h-2.5 w-2.5 text-navy-400"/>
+        <div className="flex-1 bg-cream-100 rounded h-4 flex items-center px-2"><span className="text-[6px] text-navy-400">Search photographers in London...</span></div>
       </div>
-      <div className="p-2 grid grid-cols-2 gap-2">
-        {[
-          {name: "Sarah Chen", type: "Wedding", rating: "5.0", price: "€150/hr"},
-          {name: "Marcus R.", type: "Portrait", rating: "4.9", price: "€80/hr"},
-          {name: "Elena P.", type: "Events", rating: "4.8", price: "€120/hr"},
-          {name: "James O.", type: "Family", rating: "5.0", price: "€95/hr"},
-        ].map(p => (
-          <div key={p.name} className="bg-white rounded-xl border border-cream-200 overflow-hidden">
-            <div className="h-12 bg-gradient-to-br from-brand-100 to-purple-100" />
+      <div className="p-1.5 grid grid-cols-2 gap-1.5">
+        {list.map(p=>(
+          <div key={p.n} className="bg-white rounded-xl border border-cream-200 overflow-hidden">
+            <div className="h-12 overflow-hidden"><Img seed={p.s} w={300} h={200}/></div>
             <div className="p-1.5">
-              <div className="text-[8px] font-semibold text-navy-900">{p.name}</div>
-              <div className="text-[6px] text-navy-400">{p.type} · <Star className="h-2 w-2 inline fill-gold-400 text-gold-400" /> {p.rating}</div>
-              <div className="flex items-center justify-between mt-1">
-                <span className="text-[7px] text-navy-500">From {p.price}</span>
-                <span className="text-[6px] bg-navy-900 text-white px-1.5 py-0.5 rounded-full">Book</span>
+              <div className="text-[7px] font-semibold text-navy-900">{p.n}</div>
+              <div className="text-[5px] text-navy-400">{p.t} &middot; <Star className="h-1.5 w-1.5 inline fill-gold-400 text-gold-400"/> {p.r}</div>
+              <div className="flex items-center justify-between mt-0.5">
+                <span className="text-[6px] text-navy-500">From {p.p}</span>
+                <span className="text-[5px] bg-navy-900 text-white px-1 py-0.5 rounded-full">Book</span>
               </div>
             </div>
           </div>
