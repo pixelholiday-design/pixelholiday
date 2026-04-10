@@ -1,6 +1,6 @@
-# CLAUDE.md — PIXELHOLIDAY MASTER ARCHITECTURE
+# CLAUDE.md — FOTIQO MASTER ARCHITECTURE
 # ════════════════════════════════════════════════
-# PURPOSE: This is the SINGLE SOURCE OF TRUTH for the entire PixelHoliday ecosystem.
+# PURPOSE: This is the SINGLE SOURCE OF TRUTH for the entire Fotiqo ecosystem.
 # RULE: The AI agent MUST read this file at the start of EVERY coding session.
 # RULE: No feature may be built that contradicts this document.
 # RULE: If a module is completed, mark it ✅. If in progress, mark it 🔧. If not started, mark it ⬜.
@@ -12,7 +12,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Project Name** | PixelHoliday (brand) / Pixeleco (codebase) |
+| **Project Name** | Fotiqo (brand) / Fotiqo (codebase) |
 | **Core Business** | High-volume resort photography delivery & e-commerce SaaS |
 | **Verticals** | Hotels, Water Parks, Attractions, Self-Service Kiosks |
 | **Revenue Model** | SaaS (2% commission on sales) + 50% of "sleeping money" (automated post-trip sales) |
@@ -31,7 +31,7 @@
 // ── USERS & AUTH ──────────────────────────────
 model Organization {
   id            String   @id @default(cuid())
-  name          String   // "PixelHoliday Tunisia" or franchise name
+  name          String   // "Fotiqo Tunisia" or franchise name
   type          OrgType  // HEADQUARTERS, FRANCHISE
   parentOrgId   String?  // null = HQ, otherwise = franchise parent
   parentOrg     Organization? @relation("FranchiseTree", fields: [parentOrgId], references: [id])
@@ -776,7 +776,7 @@ Multiple methods (configurable per location):
 
 **Features:**
 - [ ] **11.1** Hotel booking API integration:
-  - When tourist books room → automated email: "Upgrade with PixelHoliday Unlimited Digital Wallet for 150 TND"
+  - When tourist books room → automated email: "Upgrade with Fotiqo Unlimited Digital Wallet for 150 TND"
   - Payment collected before arrival
 - [ ] **11.2** Digital Pass types: Basic, Unlimited, VIP
 - [ ] **11.3** VIP Photo Pass wristband/QR: Photographer scans at location, guest treated as royalty
@@ -910,7 +910,7 @@ Multiple methods (configurable per location):
 - [ ] **20.3** Booking boost automation: AI suggests optimal times, photographers, pricing
 - [ ] **20.4** AI-powered ads & marketing:
   - Goal-based: Booking, Staff recruitment, Partnerships
-  - Social media avatar bots: Chat as PixelHoliday marketing army on each platform
+  - Social media avatar bots: Chat as Fotiqo marketing army on each platform
 - [ ] **20.5** AI partnership discovery: Scans for new hotel/park partnership opportunities
 - [ ] **20.6** AI franchise management: Lead scoring, territory analysis
 - [ ] **20.7** Growth system: Automatic, AI-led, data-driven decisions
