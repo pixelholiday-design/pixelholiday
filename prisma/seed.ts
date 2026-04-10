@@ -79,7 +79,7 @@ async function main() {
     GalleryStatus.PARTIAL_PAID, GalleryStatus.DIGITAL_PASS, GalleryStatus.HOOK_ONLY,
     GalleryStatus.PREVIEW_ECOM, GalleryStatus.PREVIEW_ECOM, GalleryStatus.PAID, GalleryStatus.HOOK_ONLY,
   ];
-  const demoUrl = (i: number) => `https://picsum.photos/seed/pixel${i}/1200/800`;
+  const demoUrl = (i: number) => `https://picsum.photos/seed/fotiqo${i}/1200/800`;
   const galleries: { id: string; status: GalleryStatus; photographerId: string; customerId: string }[] = [];
 
   for (let g = 0; g < 10; g++) {
