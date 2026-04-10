@@ -5,13 +5,14 @@ import Link from "next/link";
 import {
   Home, Image, Globe, Package, Calendar, ShoppingBag,
   MessageSquare, Star, Wallet, Settings, Camera, LogOut,
-  Users, FileText, BarChart3,
+  Users, FileText, BarChart3, FileSignature,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/dashboard/galleries", label: "Galleries", icon: Image },
   { href: "/dashboard/clients", label: "Clients", icon: Users },
+  { href: "/dashboard/contracts", label: "Contracts", icon: FileSignature },
   { href: "/dashboard/website", label: "Website", icon: Globe },
   { href: "/dashboard/packages", label: "Packages", icon: Package },
   { href: "/dashboard/availability", label: "Availability", icon: Calendar },

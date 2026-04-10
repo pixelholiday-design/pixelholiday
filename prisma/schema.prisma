@@ -2187,3 +2187,122 @@ enum SuggestionStatus {
   DECLINED
   DUPLICATE
 }
+
+// ── CONTRACTS & E-SIGNATURES ─────────────────
+model Contract {
+  id                    String         @id @default(cuid())
+  organizationId        String
+  title                 String
+  content               String
+  templateId            String?
+  photographerName      String
+  photographerEmail     String
+  clientName            String
+  clientEmail           String
+  status                ContractStatus @default(DRAFT)
+  sentAt                DateTime?
+  viewedAt              DateTime?
+  photographerSignedAt  DateTime?
+  photographerSignature String?
+  clientSignedAt        DateTime?
+  clientSignature       String?
+  clientIp              String?
+  clientUserAgent       String?
+  bookingId             String?
+  galleryId             String?
+  signedPdfUrl          String?
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+
+  @@index([organizationId])
+  @@index([status])
+  @@index([clientEmail])
+}
+
+model ContractTemplate {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  content        String
+  category       String   @default("GENERAL")
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([organizationId])
+}
+
+enum ContractStatus {
+  DRAFT
+  SENT
+  VIEWED
+  PHOTOGRAPHER_SIGNED
+  FULLY_SIGNED
+  EXPIRED
+  CANCELLED
+}
+
+// ── WEBSITE BLOCK EDITOR ─────────────────────
+model WebsiteBlock {
+  id         String           @id @default(cuid())
+  profileId  String
+  pageSlug   String           @default("home")
+  type       WebsiteBlockType
+  sortOrder  Int              @default(0)
+  content    Json             @default("{}")
+  settings   Json?
+  isVisible  Boolean          @default(true)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([profileId, pageSlug])
+}
+
+enum WebsiteBlockType {
+  HERO
+  GALLERY_GRID
+  TEXT
+  ABOUT
+  SERVICES
+  TESTIMONIALS
+  CONTACT_FORM
+  CTA
+  SPACER
+  DIVIDER
+  IMAGE
+  VIDEO
+  FAQ
+  BLOG_FEED
+  BOOKING_WIDGET
+  STATS
+}
+
+// ── API KEYS (for Lightroom, Zapier, etc.) ───
+model ApiKey {
+  id         String    @id @default(cuid())
+  userId     String
+  key        String    @unique
+  name       String    @default("Default")
+  lastUsedAt DateTime?
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  @@index([userId])
+  @@index([key])
+}
+
+// ── CUSTOM FONTS ─────────────────────────────
+model CustomFont {
+  id             String   @id @default(cuid())
+  organizationId String
+  name           String
+  family         String
+  fileUrl        String
+  format         String   @default("woff2")
+  weight         String   @default("400")
+  style          String   @default("normal")
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId])
+}
