@@ -10,6 +10,7 @@ export function ProductMockup({ productId }: { productId: string }) {
     case "store": return <StoreMockup />;
     case "studio": return <StudioMockup />;
     case "marketplace": return <MarketplaceMockup />;
+    case "mobile": return <MobileGalleryMockup />;
     default: return <GalleryMockup />;
   }
 }
@@ -163,6 +164,68 @@ function MarketplaceMockup() {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function MobileGalleryMockup() {
+  return (
+    <div className="aspect-[4/3] flex items-center justify-center bg-gradient-to-b from-cream-100 to-cream-200 rounded-2xl shadow-lift border border-cream-200 p-6">
+      {/* Phone frame */}
+      <div className="w-[180px] h-[320px] bg-navy-900 rounded-[28px] p-2 shadow-xl relative">
+        {/* Notch */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-navy-900 rounded-b-xl z-10" />
+        {/* Screen */}
+        <div className="w-full h-full bg-white rounded-[20px] overflow-hidden relative">
+          {/* Status bar */}
+          <div className="h-6 bg-brand-500 flex items-center justify-between px-3">
+            <span className="text-[6px] text-white/70">9:41</span>
+            <div className="flex gap-0.5"><div className="w-2 h-1.5 bg-white/50 rounded-sm"/><div className="w-2 h-1.5 bg-white/50 rounded-sm"/></div>
+          </div>
+          {/* Gallery header */}
+          <div className="px-2 py-1.5 border-b border-cream-200">
+            <div className="text-[7px] font-display text-navy-900">Beach Wedding</div>
+            <div className="text-[5px] text-navy-400">by Sarah Chen</div>
+          </div>
+          {/* Photo grid */}
+          <div className="grid grid-cols-2 gap-0.5 p-1">
+            {[10,11,12,13,14,15].map(s => (
+              <div key={s} className="aspect-square rounded-sm overflow-hidden">
+                <Img seed={s} w={150} h={150}/>
+              </div>
+            ))}
+          </div>
+          {/* Bottom bar */}
+          <div className="absolute bottom-0 inset-x-0 bg-white border-t border-cream-200 px-2 py-1.5 flex items-center justify-between">
+            <span className="text-[5px] text-navy-400">48 photos</span>
+            <span className="text-[5px] bg-brand-500 text-white px-1.5 py-0.5 rounded-full">Unlock</span>
+          </div>
+        </div>
+      </div>
+      {/* Install prompt */}
+      <div className="ml-4 max-w-[140px]">
+        <div className="bg-white rounded-xl shadow-card p-3 border border-cream-200 mb-3">
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <div className="w-5 h-5 rounded bg-brand-500 flex items-center justify-center">
+              <Camera className="h-2.5 w-2.5 text-white"/>
+            </div>
+            <div>
+              <div className="text-[7px] font-semibold text-navy-900">Add to Home Screen</div>
+              <div className="text-[5px] text-navy-400">fotiqo.com</div>
+            </div>
+          </div>
+          <div className="flex gap-1">
+            <span className="text-[5px] bg-cream-100 text-navy-500 px-1.5 py-0.5 rounded">Cancel</span>
+            <span className="text-[5px] bg-brand-500 text-white px-1.5 py-0.5 rounded">Add</span>
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-1.5 text-[6px] text-navy-600"><span className="w-3 h-3 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[5px]">&#10003;</span>Works offline</div>
+          <div className="flex items-center gap-1.5 text-[6px] text-navy-600"><span className="w-3 h-3 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[5px]">&#10003;</span>Push notifications</div>
+          <div className="flex items-center gap-1.5 text-[6px] text-navy-600"><span className="w-3 h-3 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[5px]">&#10003;</span>Your branding</div>
+          <div className="flex items-center gap-1.5 text-[6px] text-navy-600"><span className="w-3 h-3 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-[5px]">&#10003;</span>Full-screen app</div>
+        </div>
       </div>
     </div>
   );
