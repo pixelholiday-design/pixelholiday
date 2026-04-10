@@ -185,7 +185,15 @@ function mapPrintfulProduct(p: any, sortBase: number): any {
 
 // ── POST: Sync products from both platforms ────────────────────────────────
 
-export async function POST() {
+export async function POST(req: Request) {
+  // Allow CLI/cron sync with a secret token (bypasses NextAuth middleware)
+  const url = new URL(req.url);
+  const token = url.searchParams.get("token");
+  const secret = process.env.NEXTAUTH_SECRET || process.env.CRON_SECRET || "";
+  if (token && secret && token === secret) {
+    // Authorized via token — proceed
+  }
+  // Otherwise, NextAuth middleware handles auth for /api/admin/* routes
   const results = { prodigi: 0, printful: 0, errors: [] as string[] };
 
   // Fetch from both platforms in parallel
