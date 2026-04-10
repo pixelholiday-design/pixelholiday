@@ -180,11 +180,17 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
             <div className="rounded-2xl overflow-hidden shadow-lift ring-1 ring-white/10 relative">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={getPhotoSrc(hookPhoto, false)} alt="" className="w-full block" />
-              {/* CSS watermark overlay (always shown on HOOK_ONLY) */}
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
-                <span className="text-white/30 font-display text-5xl sm:text-7xl font-bold tracking-widest rotate-[-25deg]">
-                  FOTIQO
-                </span>
+              {/* CSS watermark overlay (always shown on HOOK_ONLY) — large repeating */}
+              <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+                <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-20 rotate-[-30deg]">
+                  {[0,1,2,3,4].map((row) => (
+                    <div key={row} className="flex items-center gap-16 whitespace-nowrap">
+                      {[0,1,2,3].map((col) => (
+                        <span key={col} className="text-white/30 font-display text-5xl sm:text-7xl font-bold tracking-[0.2em]">FOTIQO</span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

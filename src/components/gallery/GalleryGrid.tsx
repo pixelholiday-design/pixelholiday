@@ -155,12 +155,20 @@ function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, maso
       <button onClick={() => onOpen(i)} className="block w-full relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt="" className="w-full block transition duration-500 group-hover:scale-[1.02]" />
-        {/* CSS watermark overlay for unpaid photos (fallback when Cloudinary watermark is unavailable) */}
+        {/* CSS watermark overlay for unpaid photos — large repeating pattern */}
         {!clean && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
-            <span className="text-white/25 font-display text-4xl sm:text-5xl font-bold tracking-widest rotate-[-25deg]">
-              FOTIQO
-            </span>
+          <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+            <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-16 rotate-[-30deg]">
+              {[0,1,2,3,4,5].map((row) => (
+                <div key={row} className="flex items-center gap-12 whitespace-nowrap">
+                  {[0,1,2,3].map((col) => (
+                    <span key={col} className="text-white/30 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[0.2em]">
+                      FOTIQO
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </button>
