@@ -1,15 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
-import { Upload, HardDrive, Star, Loader2, Check, LogOut, AlertCircle } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Upload, HardDrive, Star, Loader2, Check, LogOut, AlertCircle, MapPin } from "lucide-react";
 import PinPad from "@/components/kiosk/PinPad";
+import { loadKioskSettings } from "@/lib/kiosk-mode";
 
 type Loc = { id: string; name: string };
 type Item = { id: string; file: File; preview: string; isHook: boolean };
 
 export default function SdUploadKiosk() {
+  const settings = useMemo(() => loadKioskSettings(), []);
   const [staff, setStaff] = useState<{ id: string; name: string; role: string } | null>(null);
-  const [locations, setLocations] = useState<Loc[]>([]);
-  const [locationId, setLocationId] = useState("");
+  const [locationId, setLocationId] = useState(settings?.locationId || "");
+  const [locationName, setLocationName] = useState("");
   const [wristband, setWristband] = useState("");
   const [room, setRoom] = useState("");
   const [items, setItems] = useState<Item[]>([]);
@@ -18,17 +20,25 @@ export default function SdUploadKiosk() {
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<{ link: string } | null>(null);
 
+  // Get location name from kiosk settings or fetch it
   useEffect(() => {
     if (!staff) return;
     fetch("/api/admin/staff")
       .then((r) => r.json())
       .then((d) => {
-        const locs = Array.from(new Map((d.staff || []).filter((s: any) => s.location).map((s: any) => [s.location.id, s.location])).values()) as Loc[];
-        setLocations(locs);
-        if (locs[0]) setLocationId(locs[0].id);
+        const locs = (d.staff || []).filter((s: any) => s.location).map((s: any) => s.location);
+        // If kiosk setup has a locationId, use it; otherwise use first available
+        if (locationId) {
+          const match = locs.find((l: Loc) => l.id === locationId);
+          if (match) setLocationName(match.name);
+        }
+        if (!locationId && locs[0]) {
+          setLocationId(locs[0].id);
+          setLocationName(locs[0].name);
+        }
       })
       .catch(() => {});
-  }, [staff]);
+  }, [staff, locationId]);
 
   function handleFiles(files: FileList | null) {
     if (!files) return;
@@ -177,15 +187,21 @@ export default function SdUploadKiosk() {
       </header>
 
       <div className="p-6 max-w-5xl mx-auto space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <label className="block">
-            <div className="label-xs mb-1.5 text-white/60">Location</div>
-            <select className="input !text-navy-900" value={locationId} onChange={(e) => setLocationId(e.target.value)}>
-              {locations.map((l) => (
-                <option key={l.id} value={l.id}>{l.name}</option>
-              ))}
-            </select>
-          </label>
+        {/* Location from kiosk setup — not editable */}
+        <div className="flex items-center gap-3 bg-white/5 rounded-xl px-5 py-3 border border-white/10">
+          <MapPin className="h-5 w-5 text-coral-400 flex-shrink-0" />
+          <div>
+            <div className="text-xs text-white/40 uppercase tracking-wider">Location</div>
+            <div className="font-display text-lg">{locationName || "Not configured"}</div>
+          </div>
+          {!locationId && (
+            <a href="/kiosk/setup" className="ml-auto text-xs text-coral-400 hover:text-coral-300 underline">
+              Configure in Setup →
+            </a>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <label className="block">
             <div className="label-xs mb-1.5 text-white/60">Wristband (or QR scan)</div>
             <input className="input !text-navy-900" value={wristband} onChange={(e) => { setWristband(e.target.value); setError(null); }} placeholder="WRIST-AQUA-001" />
