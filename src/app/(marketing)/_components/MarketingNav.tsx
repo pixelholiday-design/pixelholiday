@@ -97,15 +97,12 @@ export default function MarketingNav() {
               Sign In <ChevronDown className="w-3 h-3" />
             </button>
             {loginOpen && (
-              <div className="absolute top-full right-0 mt-1 w-56 bg-white rounded-xl shadow-lift border border-cream-300/60 py-2 animate-fade-in">
-                <Link href="/login/photographer" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
-                  <Camera className="h-4 w-4 text-brand-500" /> Photographer
+              <div className="absolute top-full right-0 mt-1 w-52 bg-white rounded-xl shadow-lift border border-cream-300/60 py-2 animate-fade-in">
+                <Link href="/login" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
+                  <Camera className="h-4 w-4 text-brand-500" /> User Login
                 </Link>
                 <Link href="/login/staff" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
-                  <Hotel className="h-4 w-4 text-navy-500" /> Resort Staff
-                </Link>
-                <Link href="/login/admin" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
-                  <BarChart3 className="h-4 w-4 text-coral-500" /> Operations Admin
+                  <Hotel className="h-4 w-4 text-navy-500" /> Staff Portal
                 </Link>
                 <hr className="my-1 border-cream-200" />
                 <Link href="/my-photos" className="flex items-center gap-3 px-4 py-2.5 text-sm text-navy-700 hover:bg-brand-50 hover:text-brand-600 transition">
@@ -161,14 +158,11 @@ export default function MarketingNav() {
             {/* Login options */}
             <div className="space-y-1 pt-3 border-t border-cream-200">
               <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-navy-400">Sign In</p>
-              <Link href="/login/photographer" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
-                <Camera className="h-4 w-4 text-brand-500" /> Photographer
+              <Link href="/login" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
+                <Camera className="h-4 w-4 text-brand-500" /> User Login
               </Link>
               <Link href="/login/staff" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
-                <Hotel className="h-4 w-4 text-navy-500" /> Resort Staff
-              </Link>
-              <Link href="/login/admin" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
-                <BarChart3 className="h-4 w-4 text-coral-500" /> Operations Admin
+                <Hotel className="h-4 w-4 text-navy-500" /> Staff Portal
               </Link>
               <Link href="/my-photos" onClick={() => setOpen(false)} className="flex items-center gap-3 px-3 py-2 text-sm text-navy-700">
                 <Search className="h-4 w-4 text-gold-500" /> Find my photos
