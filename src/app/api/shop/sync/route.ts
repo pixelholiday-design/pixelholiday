@@ -87,6 +87,16 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid sync token" }, { status: 403 });
   }
 
+  // If ?clean=1, remove all manual (non-lab) products first
+  const clean = req.nextUrl.searchParams.get("clean") === "1";
+  let removed = 0;
+  if (clean) {
+    const del = await prisma.shopProduct.deleteMany({
+      where: { OR: [{ labName: null }, { labName: { notIn: ["PRODIGI", "PRINTFUL"] } }] },
+    });
+    removed = del.count;
+  }
+
   const [prodigiList, printfulList] = await Promise.all([
     fetchProdigiCatalog(), fetchPrintfulCatalog(),
   ]);
@@ -120,6 +130,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({
     ok: true, synced: results, totalProducts: total,
     fetched: { prodigi: prodigiList.length, printful: printfulList.length },
+    removed: clean ? removed : undefined,
     errors: results.errors.length ? results.errors : undefined,
   });
 }
