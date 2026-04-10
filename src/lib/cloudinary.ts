@@ -48,10 +48,10 @@ export function photoRef(p: { cloudinaryId?: string | null; s3Key_highRes?: stri
     }
     return raw;
   }
-  // Bare R2 object key (e.g. "uploads/1775..." from older uploads): use photo proxy
+  // Bare R2 object key (e.g. "uploads/1775..." or "sd/..."): use photo proxy
+  // Always use the proxy route — R2 public access is unreliable and
+  // Cloudinary can't fetch from R2 for watermarking.
   if (raw && raw.includes("/")) {
-    const base = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || process.env.R2_PUBLIC_URL || "";
-    if (base && base !== "https://example.r2.dev") return `${base.replace(/\/$/, "")}/${raw.replace(/^\//, "")}`;
     return `/api/photo/${encodeURIComponent(raw)}`;
   }
   // Cloudinary publicId — only trust if it looks like a real upload, not a placeholder.
