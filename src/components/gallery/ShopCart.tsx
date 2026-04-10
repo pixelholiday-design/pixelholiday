@@ -111,6 +111,12 @@ export default function ShopCart({
           size: i.size,
           option: i.option,
           photoId: i.photo?.id,
+          // Book-specific fields
+          ...(i.isBook && i.bookConfig ? {
+            bookPages: i.bookConfig.pageCount,
+            bookCoverType: `${i.bookConfig.type}_${i.bookConfig.cover}`,
+            bookPhotoIds: i.bookConfig.photoIds || [],
+          } : {}),
         })),
         shipping: hasPhysical ? shipping : undefined,
         couponCode: couponResult?.valid ? coupon.trim() : undefined,
