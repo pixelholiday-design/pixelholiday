@@ -174,6 +174,7 @@ export default function BookBuilder({
         cover: cover,
         pageCount,
         photoCount: selectedPhotos.length,
+        photoIds: Array.from(selectedIds),
       },
       photo: selectedPhotos[0] ?? undefined,
     });
