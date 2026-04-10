@@ -111,17 +111,19 @@ export default function GalleryGrid({
                     <Lock className="h-3 w-3" /> LOCKED
                   </div>
                   <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
-                    <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-12 rotate-[-30deg]">
-                      {[0,1,2,3].map((row) => (
-                        <div key={row} className="flex items-center gap-10 whitespace-nowrap">
-                          {[0,1,2].map((col) => (
+                    <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-10 rotate-[-30deg]">
+                      {[0,1,2,3,4].map((row) => (
+                        <div key={row} className="flex items-center gap-8 whitespace-nowrap">
+                          {[0,1,2,3].map((col) => (
                             <span
                               key={col}
-                              className="font-display text-2xl font-bold tracking-[0.2em]"
+                              className="text-xl font-bold tracking-[0.15em]"
                               style={{
-                                color: "rgba(255,255,255,0.45)",
-                                textShadow: "0 0 8px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.8)",
-                                WebkitTextStroke: "1px rgba(0,0,0,0.15)",
+                                fontFamily: "var(--font-display), Georgia, serif",
+                                color: "rgba(255,255,255,0.6)",
+                                textShadow: "2px 2px 4px rgba(0,0,0,0.8), -1px -1px 3px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4)",
+                                WebkitTextStroke: "1px rgba(0,0,0,0.4)",
+                                paintOrder: "stroke fill",
                               }}
                             >
                               FOTIQO
@@ -181,17 +183,19 @@ function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, maso
         {/* CSS watermark overlay for unpaid photos — large repeating pattern */}
         {!clean && (
           <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
-            <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-16 rotate-[-30deg]">
-              {[0,1,2,3,4,5].map((row) => (
-                <div key={row} className="flex items-center gap-12 whitespace-nowrap">
-                  {[0,1,2,3].map((col) => (
+            <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-14 rotate-[-30deg]">
+              {[0,1,2,3,4,5,6].map((row) => (
+                <div key={row} className="flex items-center gap-10 whitespace-nowrap">
+                  {[0,1,2,3,4].map((col) => (
                     <span
                       key={col}
-                      className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[0.2em]"
+                      className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-[0.15em]"
                       style={{
-                        color: "rgba(255,255,255,0.45)",
-                        textShadow: "0 0 8px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.8)",
-                        WebkitTextStroke: "1px rgba(0,0,0,0.15)",
+                        fontFamily: "var(--font-display), Georgia, serif",
+                        color: "rgba(255,255,255,0.6)",
+                        textShadow: "2px 2px 4px rgba(0,0,0,0.8), -1px -1px 3px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4)",
+                        WebkitTextStroke: "1.5px rgba(0,0,0,0.4)",
+                        paintOrder: "stroke fill",
                       }}
                     >
                       FOTIQO

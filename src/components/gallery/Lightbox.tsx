@@ -103,17 +103,19 @@ export default function Lightbox({
           {/* Watermark overlay for unpaid photos */}
           {!clean && (
             <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
-              <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-24 rotate-[-30deg]">
-                {[0,1,2,3,4,5,6].map((row) => (
-                  <div key={row} className="flex items-center gap-16 whitespace-nowrap">
-                    {[0,1,2,3,4].map((col) => (
+              <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-20 rotate-[-30deg]">
+                {[0,1,2,3,4,5,6,7].map((row) => (
+                  <div key={row} className="flex items-center gap-14 whitespace-nowrap">
+                    {[0,1,2,3,4,5].map((col) => (
                       <span
                         key={col}
-                        className="font-display text-4xl sm:text-6xl font-bold tracking-[0.2em]"
+                        className="text-4xl sm:text-6xl font-bold tracking-[0.15em]"
                         style={{
-                          color: "rgba(255,255,255,0.45)",
-                          textShadow: "0 0 10px rgba(0,0,0,0.6), 0 0 3px rgba(0,0,0,0.9)",
-                          WebkitTextStroke: "1px rgba(0,0,0,0.2)",
+                          fontFamily: "var(--font-display), Georgia, serif",
+                          color: "rgba(255,255,255,0.6)",
+                          textShadow: "2px 2px 4px rgba(0,0,0,0.8), -1px -1px 3px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4)",
+                          WebkitTextStroke: "1.5px rgba(0,0,0,0.4)",
+                          paintOrder: "stroke fill",
                         }}
                       >
                         FOTIQO
