@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState, useTransition, useCallback } from "react";
-import { Heart, Camera, MapPin, X, ShoppingBag, LayoutGrid } from "lucide-react";
+import { Heart, Camera, MapPin, X, ShoppingBag, LayoutGrid, BookOpen } from "lucide-react";
 import { getPhotoSrc } from "@/lib/cloudinary";
 import { toggleFavorite } from "./actions";
 import BookingTimePicker from "./BookingTimePicker";
@@ -82,6 +82,11 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
   const [bookBuilderOpen, setBookBuilderOpen] = useState(false);
   const [bookBuilderProduct, setBookBuilderProduct] = useState<CatalogProduct | null>(null);
 
+  // AI Auto-book state
+  const [autoBookData, setAutoBookData] = useState<any>(null);
+  const [autoBookDismissed, setAutoBookDismissed] = useState(false);
+  const [autoBookLoading, setAutoBookLoading] = useState(false);
+
   // Live stream: add new photos as they arrive from the photographer
   const handleNewLivePhotos = useCallback((livePhotos: { id: string; thumbnailUrl: string; fullUrl: string; isHookImage: boolean; createdAt: string }[]) => {
     setExtraPhotos((prev) => {
@@ -101,6 +106,15 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
       return [...fresh, ...prev];
     });
   }, [gallery.photos]);
+
+  // Check if gallery qualifies for AI auto-book (10+ photos)
+  useEffect(() => {
+    if (gallery.photos.length < 10 || autoBookDismissed || autoBookData) return;
+    fetch(`/api/gallery/${gallery.magicLinkToken}/auto-book`)
+      .then((r) => r.json())
+      .then((d) => { if (d.ok && d.eligible) setAutoBookData(d); })
+      .catch(() => {});
+  }, [gallery.photos.length, gallery.magicLinkToken, autoBookDismissed, autoBookData]);
 
   // Fetch shop catalog when Shop tab first opens
   useEffect(() => {
@@ -313,6 +327,45 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
           <FomoTimer expiresAt={gallery.expiresAt} />
         </div>
       </header>
+
+      {/* ── AI AUTO-BOOK BANNER ── */}
+      {autoBookData && !autoBookDismissed && activeTab === "photos" && (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
+          <div className="relative bg-gradient-to-r from-brand-700 via-brand-600 to-coral-500 rounded-2xl p-5 sm:p-6 text-white overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-4">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/70 mb-1">
+                  <BookOpen className="h-3 w-3" /> AI Photo Book
+                </div>
+                <h3 className="font-display text-xl sm:text-2xl leading-tight">
+                  Your holiday memories — ready as a photo book
+                </h3>
+                <p className="text-white/80 text-sm mt-1">
+                  AI selected your {autoBookData.autoBook?.photoCount || gallery.photos.length} best photos and arranged them into a beautiful {autoBookData.autoBook?.config?.pageCount || 20}-page book.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setBookBuilderOpen(true);
+                    setAutoBookDismissed(true);
+                  }}
+                  className="px-5 py-3 rounded-xl bg-white text-brand-700 font-semibold text-sm hover:bg-white/90 transition shadow-card"
+                >
+                  Preview book — €{autoBookData.autoBook?.price || 69}
+                </button>
+                <button
+                  onClick={() => setAutoBookDismissed(true)}
+                  className="px-3 py-3 rounded-xl bg-white/15 hover:bg-white/25 text-sm transition"
+                >
+                  Maybe later
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── PHOTOS TAB ── */}
       {(activeTab === "photos" || activeTab === "favorites") && (
