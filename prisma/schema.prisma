@@ -12,6 +12,7 @@ datasource db {
 model Organization {
   id                 String           @id @default(cuid())
   name               String
+  slug               String?          @unique // "tunisphoto" — for /v/[slug] portal URL
   type               OrgType
   parentOrgId        String?
   parentOrg          Organization?    @relation("FranchiseTree", fields: [parentOrgId], references: [id])
@@ -21,11 +22,27 @@ model Organization {
   subscriptionTier   SubscriptionTier @default(STARTER)
   saasCommissionRate Float            @default(0.02)
   sleepingMoneyShare Float            @default(0.50)
-  // Franchise branding (white-label)
+  // White-label branding
   brandColor         String?
+  brandName          String?          // "TunisPhoto" — shown on their portal
+  brandLogo          String?          // logo URL for light backgrounds
+  brandLogoDark      String?          // logo URL for dark backgrounds
+  brandPrimaryColor  String?          // e.g. "#FF5733"
+  brandSecondaryColor String?
+  brandFavicon       String?
+  showPoweredByFotiqo Boolean         @default(true)
   logoUrl            String?
   tagline            String?
   customDomain       String?
+  // Company details (for VENUE_COMPANY)
+  website            String?
+  phone              String?
+  country            String?
+  city               String?
+  taxId              String?
+  contractStartDate  DateTime?
+  contractEndDate    DateTime?
+  commissionRate     Float?           // negotiated override rate
   // Subscription plan
   plan                 String           @default("STARTER") // STARTER, PRO, STUDIO
   planInterval         String?          // MONTHLY, ANNUAL
@@ -93,10 +110,12 @@ enum StaffRole {
 }
 
 enum OrgType {
-  HEADQUARTERS        // Fotiqo resort operations HQ
-  FRANCHISE           // Franchised resort operation
+  HEADQUARTERS        // Fotiqo admin (Joe)
+  FRANCHISE           // Legacy franchised operation
   INDEPENDENT         // Solo freelance photographer (SaaS)
   STUDIO              // Photography studio/team (SaaS)
+  VENUE_COMPANY       // Photography company at venues (contract partner)
+  MARKETPLACE_ONLY    // Marketplace-only photographer
 }
 
 enum SubscriptionTier {
@@ -2437,4 +2456,67 @@ enum VenueApplicationStatus {
   ONBOARDING
   ACTIVE
   DECLINED
+}
+
+// ── MULTI-TENANT: DESTINATIONS ───────────────
+model Destination {
+  id              String   @id @default(cuid())
+  organizationId  String
+  name            String
+  slug            String
+  venueType       String   @default("HOTEL")
+  address         String?
+  city            String?
+  country         String?
+  phone           String?
+  contactPerson   String?
+  defaultLocale   String   @default("en")
+  currency        String   @default("EUR")
+  timezone        String   @default("Europe/Tunis")
+  logo            String?
+  primaryColor    String?
+  isActive        Boolean  @default(true)
+  locationId      String?  @unique
+  staff           DestinationStaff[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([organizationId, slug])
+  @@index([organizationId])
+}
+
+model DestinationStaff {
+  id            String      @id @default(cuid())
+  userId        String
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id])
+  role          String      @default("PHOTOGRAPHER")
+  pin           String?
+  isActive      Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+
+  @@unique([userId, destinationId])
+  @@index([destinationId])
+  @@index([pin])
+}
+
+// ── MARKETPLACE-ONLY PROFILES ────────────────
+model MarketplaceProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  displayName   String
+  specialty     String
+  city          String
+  country       String
+  bio           String?
+  portfolioUrl  String?
+  hourlyRate    Float?
+  currency      String   @default("EUR")
+  availableDays String?
+  totalBookings Int      @default(0)
+  averageRating Float?
+  isActive      Boolean  @default(true)
+  isVerified    Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

@@ -116,8 +116,15 @@ export function calculateStoreCommission(
 
 /** Venue commission on photo sales (tiered by monthly revenue) */
 export function getVenueCommissionRate(monthlyRevenue: number): number {
-  if (monthlyRevenue >= 50000) return 0.02;
-  if (monthlyRevenue >= 15000) return 0.03;
-  if (monthlyRevenue >= 5000) return 0.04;
-  return 0.05;
+  if (monthlyRevenue >= 50000) return 0.02;  // 2% for large operations
+  if (monthlyRevenue >= 30000) return 0.03;  // 3%
+  if (monthlyRevenue >= 15000) return 0.05;  // 5%
+  if (monthlyRevenue >= 5000) return 0.07;   // 7%
+  return 0.10;                               // 10% for small operations
+}
+
+/** Get venue commission with possible negotiated override */
+export function getEffectiveVenueRate(monthlyRevenue: number, negotiatedRate?: number | null): number {
+  if (negotiatedRate != null && negotiatedRate > 0) return negotiatedRate;
+  return getVenueCommissionRate(monthlyRevenue);
 }
