@@ -62,18 +62,12 @@ function sanitizePhotos(
     let _signedWm: string | undefined;
     let _signedClean: string | undefined;
 
-    if (canSign && source && !source.startsWith("/api/photo/")) {
-      // Watermarked preview — always generated (used for unpaid display)
-      _signedWm = /^https?:\/\//.test(source)
-        ? signPhotoSource(source, { width: 1200, watermark: true })
-        : signedPreview(source);
-
-      // Clean (unwatermarked) — only for paid galleries / purchased photos
-      if (isClean) {
-        _signedClean = /^https?:\/\//.test(source)
-          ? signPhotoSource(source, { width: 1600, watermark: false })
-          : signedClean(source);
-      }
+    // Only sign Cloudinary-native uploads (not external URLs like picsum or R2)
+    // External URLs go through watermarkedUrl()/cleanUrl() on the client side
+    const isCloudinaryNative = canSign && source && !source.startsWith("/api/photo/") && !/^https?:\/\//.test(source);
+    if (isCloudinaryNative) {
+      _signedWm = signedPreview(source);
+      if (isClean) _signedClean = signedClean(source);
     }
 
     // For unpaid photos: replace raw keys with safe proxy reference
