@@ -5,17 +5,21 @@ import Link from "next/link";
 import {
   Home, Image, Globe, Package, Calendar, ShoppingBag,
   MessageSquare, Star, Wallet, Settings, Camera, LogOut,
+  Users, FileText, BarChart3,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Home", icon: Home },
   { href: "/dashboard/galleries", label: "Galleries", icon: Image },
+  { href: "/dashboard/clients", label: "Clients", icon: Users },
   { href: "/dashboard/website", label: "Website", icon: Globe },
   { href: "/dashboard/packages", label: "Packages", icon: Package },
   { href: "/dashboard/availability", label: "Availability", icon: Calendar },
   { href: "/dashboard/store", label: "Store", icon: ShoppingBag },
   { href: "/dashboard/inquiries", label: "Inquiries", icon: MessageSquare },
+  { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
   { href: "/dashboard/reviews", label: "Reviews", icon: Star },
+  { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/payouts", label: "Payouts", icon: Wallet },
   { href: "/dashboard/settings", label: "Settings", icon: Settings },
 ];
