@@ -319,9 +319,9 @@ const CATEGORIES: FeatureCategory[] = [
   {
     id: "resort",
     icon: Monitor,
-    label: "Resort Operations",
-    title: "Purpose-built for on-site photography",
-    desc: "Kiosk POS, cash management, wristband identification, offline mode, hotel integration, and automated post-trip recovery sales. Everything a resort photography operation needs.",
+    label: "Attractions & Resorts",
+    title: "Purpose-built for on-site venue photography",
+    desc: "Kiosk POS, cash management, wristband identification, face recognition, offline mode, hotel integration, and automated post-trip recovery sales. Everything a venue photography operation needs.",
     cards: [
       {
         icon: Monitor,
