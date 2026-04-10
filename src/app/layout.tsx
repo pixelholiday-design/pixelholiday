@@ -4,6 +4,7 @@ import "./globals.css";
 import Providers from "@/components/Providers";
 import CookieConsent from "@/components/CookieConsent";
 import SuggestionButton from "@/components/SuggestionButton";
+import ChatWidget from "@/components/support/ChatWidget";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const dmSans = DM_Sans({
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Providers>{children}</Providers>
         <CookieConsent />
         <SuggestionButton />
+        <ChatWidget />
       </body>
     </html>
   );

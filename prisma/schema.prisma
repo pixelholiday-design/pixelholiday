@@ -2306,3 +2306,95 @@ model CustomFont {
 
   @@index([organizationId])
 }
+
+// ── SUPPORT CHAT ─────────────────────────────
+model SupportChat {
+  id              String            @id @default(cuid())
+  userId          String?
+  visitorEmail    String?
+  visitorName     String?
+  sessionId       String
+  status          SupportChatStatus @default(ACTIVE)
+  channel         String            @default("WIDGET")
+  page            String?
+  product         String?
+  userRole        String?
+  csatScore       Int?
+  csatFeedback    String?
+  csatRatedAt     DateTime?
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  aiHandled       Boolean           @default(false)
+  escalatedToHuman Boolean          @default(false)
+  messages        SupportMessage[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([sessionId])
+  @@index([status])
+}
+
+model SupportMessage {
+  id          String        @id @default(cuid())
+  chatId      String
+  chat        SupportChat   @relation(fields: [chatId], references: [id])
+  sender      MessageSender
+  content     String
+  contentType String        @default("TEXT")
+  metadata    Json?
+  adminId     String?
+  adminName   String?
+  isRead      Boolean       @default(false)
+  createdAt   DateTime      @default(now())
+
+  @@index([chatId])
+}
+
+model HelpArticle {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  content     String
+  summary     String
+  category    String
+  tags        String[] @default([])
+  viewCount   Int      @default(0)
+  helpfulYes  Int      @default(0)
+  helpfulNo   Int      @default(0)
+  isPublished Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@index([slug])
+}
+
+model CSATSurvey {
+  id           String   @id @default(cuid())
+  userId       String?
+  visitorEmail String?
+  chatId       String?
+  page         String?
+  trigger      String
+  score        Int
+  feedback     String?
+  npsScore     Int?
+  createdAt    DateTime @default(now())
+
+  @@index([trigger])
+}
+
+enum SupportChatStatus {
+  ACTIVE
+  WAITING_FOR_ADMIN
+  ADMIN_REPLIED
+  RESOLVED
+  CLOSED
+}
+
+enum MessageSender {
+  USER
+  AI_BOT
+  ADMIN
+}
