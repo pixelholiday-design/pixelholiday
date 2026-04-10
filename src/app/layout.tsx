@@ -3,6 +3,7 @@ import { Inter, Playfair_Display, DM_Sans } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import CookieConsent from "@/components/CookieConsent";
+import SuggestionButton from "@/components/SuggestionButton";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const dmSans = DM_Sans({
@@ -32,6 +33,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="antialiased bg-cream-100 text-navy-900 font-sans">
         <Providers>{children}</Providers>
         <CookieConsent />
+        <SuggestionButton />
       </body>
     </html>
   );

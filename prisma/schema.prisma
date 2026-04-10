@@ -2129,3 +2129,61 @@ model PackageBooking {
   @@index([packageId])
   @@index([confirmationCode])
 }
+
+// ── SUGGESTION SYSTEM ────────────────────────
+model Suggestion {
+  id                 String             @id @default(cuid())
+  userId             String?
+  customerEmail      String?
+  customerName       String?
+  userRole           String?
+  content            String
+  category           SuggestionCategory @default(FEATURE)
+  page               String?
+  product            String?
+  aiEvaluation       String?
+  aiSummary          String?
+  impactScore        Int?
+  feasibility        Int?
+  priorityScore      Int?
+  isDuplicate        Boolean            @default(false)
+  duplicateOf        String?
+  status             SuggestionStatus   @default(NEW)
+  autoImplemented    Boolean            @default(false)
+  implementedAt      DateTime?
+  implementationNote String?
+  responseToUser     String?
+  respondedAt        DateTime?
+  upvotes            Int                @default(0)
+  locationId         String?
+  organizationId     String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  @@index([status])
+  @@index([category])
+  @@index([priorityScore])
+}
+
+enum SuggestionCategory {
+  FEATURE
+  UI_UX
+  PRICING
+  BUG
+  CONTENT
+  PERFORMANCE
+  SECURITY
+  INTEGRATION
+  OTHER
+}
+
+enum SuggestionStatus {
+  NEW
+  AI_REVIEWED
+  AUTO_APPLIED
+  APPROVED
+  IN_PROGRESS
+  COMPLETED
+  DECLINED
+  DUPLICATE
+}
