@@ -81,10 +81,15 @@ export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
   if (isProxyUrl(publicIdOrUrl)) return publicIdOrUrl;
   const transform = `l_${WATERMARK},w_0.5,g_center,o_40/c_limit,w_${width},q_60,f_webp,a_exif`;
   if (isHttpsUrl(publicIdOrUrl)) {
-    // Use Cloudinary fetch to apply watermark to any external/R2 URL.
-    // If Cloudinary is not configured, pass through unchanged (dev/seed mode only).
+    // R2-hosted photos (photos.fotiqo.com) — serve directly without Cloudinary
+    // fetch because R2 may block Cloudinary's servers. The CSS watermark overlay
+    // in GalleryGrid handles visual protection for these.
+    if (publicIdOrUrl.includes("photos.fotiqo.com") || publicIdOrUrl.includes("r2.dev")) {
+      return publicIdOrUrl;
+    }
+    // Use Cloudinary fetch to apply watermark to picsum/external URLs.
     if (!HAS_CLOUDINARY) return publicIdOrUrl;
-    return `https://res.cloudinary.com/${CLOUD}/image/fetch/${transform}/${encodeURIComponent(publicIdOrUrl)}`;
+    return `https://res.cloudinary.com/${CLOUD}/image/fetch/${transform}/${publicIdOrUrl}`;
   }
   return `https://res.cloudinary.com/${CLOUD || "demo"}/image/upload/${transform}/${publicIdOrUrl}`;
 }
