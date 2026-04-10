@@ -16,12 +16,12 @@ const COLUMNS = [
   {
     title: "Solutions",
     links: [
-      { href: "/for/resort-photography", label: "Resort Photography" },
+      { href: "/for/attractions-and-resorts", label: "Attractions & Resorts" },
       { href: "/for/wedding-photographers", label: "Wedding Photography" },
       { href: "/for/freelance-photographers", label: "Freelance" },
       { href: "/for/studios", label: "Studios" },
-      { href: "/for/attractions", label: "Attractions" },
       { href: "/for/water-parks", label: "Water Parks" },
+      { href: "/apply", label: "Apply for venues" },
     ],
   },
   {

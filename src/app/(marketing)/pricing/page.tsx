@@ -1,451 +1,172 @@
-import type { Metadata } from "next";
-import {
-  Zap,
-  ShoppingBag,
-  MapPin,
-  Building2,
-  Check,
-  ChevronDown,
-  ArrowRight,
-  Calculator,
-  HelpCircle,
-} from "lucide-react";
-import SectionFadeIn from "../_components/SectionFadeIn";
-import { CTAPrimary } from "../_components/CTAButton";
-import PricingCalculator from "./_components/PricingCalculator";
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { Check, ArrowRight, Minus, ChevronDown, ChevronUp } from "lucide-react";
 
-export const metadata: Metadata = {
-  title: "Pricing — Fotiqo Photography Platform",
-  description:
-    "Free to start. No monthly fees. You only pay a small commission when you earn. See exactly how much you keep with our interactive calculator.",
-};
-
-/* ─── Detailed commission cards ─── */
-const COMMISSION_CARDS = [
+const PLANS = [
   {
-    icon: Zap,
-    title: "Digital sales",
-    subtitle: "Gallery downloads, digital passes, packages",
-    highlight: "2%",
-    highlightLabel: "platform fee",
-    color: "border-brand-200 bg-brand-50/50",
-    details: [
-      "Applies to every digital sale: full galleries, single photos, digital passes",
-      "No minimum. No cap. Scales with you from day one",
-      "Example: You sell a gallery for \u20AC100 \u2192 you keep \u20AC98, we get \u20AC2",
-      "Example: You sell 50 galleries at \u20AC80 \u2192 you earn \u20AC3,920/month, fee is only \u20AC80",
-    ],
+    name: "Starter", badge: "Free forever", monthly: 0, annual: 0, desc: "Perfect for getting started", highlighted: false,
+    features: ["3 active galleries (unlimited photos each)", "Portfolio website (fotiqo.com/p/you)", "3 booking packages", "Marketplace listing", "Basic client CRM", "1GB storage", "Fotiqo branding on galleries", "Store with 10% margin commission"],
+    cta: "Get started free", ctaStyle: "outline",
   },
   {
-    icon: ShoppingBag,
-    title: "Print & product sales",
-    subtitle: "Prints, canvas, albums, gifts, photo books",
-    highlight: "Commission",
-    highlightLabel: "on your markup",
-    color: "border-coral-200 bg-coral-50/50",
-    details: [
-      "You set the retail price. Lab cost is fixed. Your profit is the difference",
-      "Small platform commission on the markup only -- not the lab cost",
-      "Example: Lab cost \u20AC12 | You set retail \u20AC55 | Your markup \u20AC43 | You keep the majority",
-      "The higher your markup, the more you earn. Full pricing control",
-    ],
+    name: "Pro", badge: "Best value", monthly: 10, annual: 8, desc: "Everything you need to grow", highlighted: true,
+    features: ["Everything in Starter, plus:", "Unlimited galleries", "Custom domain (yourname.com)", "Remove Fotiqo branding", "Unlimited booking packages", "Contracts + e-signatures (5 templates)", "Invoices + full CRM", "Analytics + revenue reports", "Custom fonts upload", "API keys (Lightroom integration)", "CSV bulk gallery creation", "50GB storage", "Priority email support", "Store with 5% margin commission"],
+    cta: "Start with Pro", ctaStyle: "solid",
   },
   {
-    icon: MapPin,
-    title: "Marketplace bookings",
-    subtitle: "Photographer-to-Go sessions from Fotiqo marketplace",
-    highlight: "10%",
-    highlightLabel: "booking fee",
-    color: "border-gold-500/30 bg-amber-50/50",
-    details: [
-      "Only applies to bookings sourced through the Fotiqo marketplace",
-      "Bookings from YOUR own website pay 0% fee",
-      "Example: Client books a \u20AC200 session via marketplace \u2192 you receive \u20AC180",
-      "Example: Same client books via your website \u2192 you receive \u20AC200",
-    ],
-  },
-  {
-    icon: Building2,
-    title: "Resort & hotel operations",
-    subtitle: "Multi-location on-site photography at scale",
-    highlight: "Custom",
-    highlightLabel: "revenue share",
-    color: "border-navy-200 bg-navy-50/50",
-    details: [
-      "Tailored pricing for resort, hotel, and attraction operations",
-      "Includes kiosk POS, offline mode, wristband ID, sleeping money recovery",
-      "Volume discounts for multi-location deployments",
-      "Contact us for a custom quote based on your operation size",
-    ],
-    cta: true,
+    name: "Studio", badge: "For teams", monthly: 24, annual: 19, desc: "Advanced features for professionals", highlighted: false,
+    features: ["Everything in Pro, plus:", "AI video reels (unlimited)", "Face recognition selfie search", "Real-time live streaming", "White-label (your brand only)", "Up to 5 team members", "Advanced analytics + reports", "200GB storage", "Phone + chat support", "Store with 0% commission"],
+    cta: "Start with Studio", ctaStyle: "outline",
   },
 ];
 
-/* ─── Comparison table ─── */
-const COMPETITORS = [
-  {
-    name: "Fotiqo",
-    monthly: "\u20AC0/mo",
-    galleries: "Unlimited",
-    store: "150+ products",
-    booking: "Built-in",
-    website: "6 themes + custom domain",
-    marketplace: "Included",
-    highlight: true,
-  },
-  {
-    name: "Pixieset",
-    monthly: "\u20AC15\u2013\u20AC50/mo",
-    galleries: "Limited by plan",
-    store: "Prints only",
-    booking: "No",
-    website: "Basic",
-    marketplace: "No",
-    highlight: false,
-  },
-  {
-    name: "ShootProof",
-    monthly: "\u20AC25\u2013\u20AC100/mo",
-    galleries: "Limited by plan",
-    store: "Prints only",
-    booking: "No",
-    website: "Basic",
-    marketplace: "No",
-    highlight: false,
-  },
-  {
-    name: "Zno",
-    monthly: "\u20AC0\u2013\u20AC60/mo",
-    galleries: "Limited by plan",
-    store: "Albums + prints",
-    booking: "No",
-    website: "No",
-    marketplace: "No",
-    highlight: false,
-  },
+const COMPARISON = [
+  { f: "Monthly price", s: "\u20ac0", p: "\u20ac8", st: "\u20ac19", px: "$28\u201355", zn: "$12\u201330" },
+  { f: "Galleries", s: "3", p: "Unlimited", st: "Unlimited", px: "Storage-based", zn: "Storage-based" },
+  { f: "Custom domain", s: false, p: true, st: true, px: "Paid plans", zn: "Paid plans" },
+  { f: "Contracts + e-sign", s: false, p: true, st: true, px: "$12+ extra", zn: false },
+  { f: "Marketplace", s: true, p: true, st: true, px: false, zn: false },
+  { f: "Face recognition", s: false, p: false, st: true, px: false, zn: "Selfie only" },
+  { f: "AI video reels", s: false, p: false, st: true, px: false, zn: "Slideshow" },
+  { f: "Live streaming", s: false, p: false, st: true, px: false, zn: "Instant" },
+  { f: "10 languages + RTL", s: true, p: true, st: true, px: false, zn: false },
+  { f: "Store commission", s: "10% margin", p: "5% margin", st: "0%", px: "0\u201315% of sale", zn: "0%" },
+  { f: "Annual cost", s: "\u20ac0", p: "\u20ac96", st: "\u20ac228", px: "$336\u2013660", zn: "$144\u2013360" },
 ];
 
-const COMPARISON_ROWS = [
-  { label: "Monthly fee", key: "monthly" as const },
-  { label: "Client galleries", key: "galleries" as const },
-  { label: "Online store", key: "store" as const },
-  { label: "Booking system", key: "booking" as const },
-  { label: "Website builder", key: "website" as const },
-  { label: "Photographer marketplace", key: "marketplace" as const },
-];
-
-/* ─── FAQ data ─── */
 const FAQS = [
-  {
-    q: "Is Fotiqo really free to use?",
-    a: "Yes. There are no monthly fees, no subscriptions, and no credit card required to sign up. You get full access to every feature from day one. We only earn when you earn -- through a small commission on your sales.",
-  },
-  {
-    q: "How does the 2% digital sales fee work?",
-    a: "When a client purchases a digital gallery, photo, or pass through your Fotiqo-powered gallery, 2% of the transaction total goes to Fotiqo. For a \u20AC100 gallery sale, that is just \u20AC2. The fee is automatically deducted before payout.",
-  },
-  {
-    q: "What if I only use the gallery and website features but do not sell anything?",
-    a: "Then you pay nothing. There is no charge for using galleries, building your website, managing your calendar, or showcasing your portfolio. Fees only apply when you make a sale.",
-  },
-  {
-    q: "Do I pay the 10% marketplace fee on my existing clients?",
-    a: "No. The 10% fee only applies to new bookings sourced through the Fotiqo marketplace. If a client books through your own website, social media, or word of mouth, the marketplace fee is 0%.",
-  },
-  {
-    q: "How do print sale commissions work?",
-    a: "When a client orders a print or product, the lab charges a fixed production cost. You set the retail price. The difference is your markup. Fotiqo takes a small commission on that markup -- not on the lab cost. You control your profit margin entirely.",
-  },
-  {
-    q: "Can I switch to Fotiqo from another platform?",
-    a: "Absolutely. We offer free migration assistance for photographers coming from Pixieset, ShootProof, Zno, and other platforms. Your galleries, client data, and settings can be imported seamlessly.",
-  },
+  { q: "Is there really no monthly fee on the Starter plan?", a: "Yes. The Starter plan is free forever. You only pay a small commission when you sell products through the store. Gallery delivery is completely free." },
+  { q: "What happens when I upgrade?", a: "You keep all your galleries, clients, and data. The upgrade is instant \u2014 new features unlock immediately." },
+  { q: "Can I switch plans anytime?", a: "Yes. Upgrade, downgrade, or cancel anytime from your dashboard. No contracts, no lock-in." },
+  { q: "How does the store commission work?", a: "We charge a percentage of your margin (profit), not the full sale price. On the Studio plan, the commission is 0% \u2014 you keep everything." },
+  { q: "Do you charge commission on gallery delivery?", a: "No. Delivering photos to your clients is always free on every plan. Commission only applies to physical product sales through the store." },
+  { q: "How does Fotiqo compare to Pixieset?", a: "Fotiqo Pro at \u20ac8/month includes everything Pixieset charges $28\u201355/month for, plus marketplace exposure, face recognition, AI video reels, real-time streaming, and 10-language support." },
 ];
 
 export default function PricingPage() {
+  const [annual, setAnnual] = useState(true);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+
   return (
-    <>
-      {/* ─── Hero ─── */}
-      <section className="relative overflow-hidden bg-navy-900 py-28 lg:py-36">
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-900 via-navy-800 to-brand-900/40" />
-        <div className="relative mx-auto max-w-4xl px-6 text-center">
-          <SectionFadeIn>
-            <p className="text-sm font-semibold text-brand-400 uppercase tracking-wider mb-4">
-              Pricing
-            </p>
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              Free to start. You only pay when you earn.
-            </h1>
-            <p className="text-lg md:text-xl text-navy-300 max-w-2xl mx-auto mb-8">
-              No monthly fees. No subscriptions. No credit card required.
-              We take a small commission only when you make a sale. That&apos;s it.
-            </p>
-            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-navy-400">
-              {["No hidden fees", "No monthly charges", "Cancel anytime", "Your data -- always yours"].map((t) => (
-                <span key={t} className="flex items-center gap-1.5">
-                  <Check className="w-4 h-4 text-green-400" /> {t}
-                </span>
-              ))}
+    <div className="pt-24">
+      {/* HERO */}
+      <section className="text-center px-6 pb-12">
+        <h1 className="font-display text-4xl sm:text-5xl text-navy-900 mb-3">Simple pricing. Incredible value.</h1>
+        <p className="text-navy-500 text-lg mb-8">Start free. Upgrade when you're ready. Save 70% compared to Pixieset.</p>
+        <div className="inline-flex items-center gap-2 bg-cream-200 rounded-full p-1">
+          <button onClick={() => setAnnual(false)} className={`px-5 py-2 rounded-full text-sm font-semibold transition ${!annual ? "bg-white shadow-sm text-navy-900" : "text-navy-500"}`}>Monthly</button>
+          <button onClick={() => setAnnual(true)} className={`px-5 py-2 rounded-full text-sm font-semibold transition ${annual ? "bg-white shadow-sm text-navy-900" : "text-navy-500"}`}>Annual <span className="text-brand-500 text-xs ml-1">save 20%</span></button>
+        </div>
+      </section>
+
+      {/* PLAN CARDS */}
+      <section className="max-w-5xl mx-auto px-6 pb-20">
+        <div className="grid md:grid-cols-3 gap-6">
+          {PLANS.map((plan) => (
+            <div key={plan.name} className={`rounded-2xl p-6 flex flex-col ${plan.highlighted ? "bg-white border-2 border-brand-400 shadow-lift relative" : "bg-white border border-cream-300 shadow-card"}`}>
+              {plan.highlighted && <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full">{plan.badge}</div>}
+              {!plan.highlighted && <div className="text-xs font-semibold text-navy-400 mb-1">{plan.badge}</div>}
+              <h3 className="font-display text-2xl text-navy-900 mt-1">{plan.name}</h3>
+              <div className="mt-2 mb-1">
+                <span className="font-display text-4xl text-navy-900">&euro;{annual ? plan.annual : plan.monthly}</span>
+                <span className="text-navy-400 text-sm">/month</span>
+              </div>
+              <p className="text-sm text-navy-500 mb-5">{plan.desc}</p>
+              <ul className="space-y-2 flex-1 mb-6">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm text-navy-700">
+                    {f.startsWith("Everything") ? <span className="text-xs text-brand-500 font-semibold">{f}</span> : <><Check className="h-4 w-4 text-brand-500 mt-0.5 flex-shrink-0" /> {f}</>}
+                  </li>
+                ))}
+              </ul>
+              <Link href="/signup/photographer" className={`text-center rounded-xl py-3 font-semibold text-sm transition ${plan.ctaStyle === "solid" ? "bg-[#F97316] hover:bg-orange-600 text-white" : "border-2 border-navy-900 text-navy-900 hover:bg-navy-50"}`}>
+                {plan.cta}
+              </Link>
+              {plan.monthly === 0 ? <p className="text-xs text-navy-400 text-center mt-2">No credit card required</p> : <p className="text-xs text-navy-400 text-center mt-2">14-day free trial</p>}
             </div>
-          </SectionFadeIn>
+          ))}
         </div>
       </section>
 
-      {/* ─── 3-Step How It Works ─── */}
-      <section className="py-20 bg-white">
-        <div className="mx-auto max-w-4xl px-6">
-          <SectionFadeIn className="text-center mb-14">
-            <p className="text-sm font-semibold text-brand-500 uppercase tracking-wider mb-3">
-              How it works
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-navy-900">
-              Three steps to earning more
-            </h2>
-          </SectionFadeIn>
-
-          <SectionFadeIn delay={100}>
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                {
-                  step: "1",
-                  title: "Sign up for free",
-                  desc: "Full access to galleries, website, store, booking system, and marketplace. No limits. No trial period. No credit card.",
-                },
-                {
-                  step: "2",
-                  title: "Grow your business",
-                  desc: "Deliver galleries, sell prints, book clients, build your brand. Use one feature or all of them -- it is your choice.",
-                },
-                {
-                  step: "3",
-                  title: "Share the success",
-                  desc: "We take a small commission only when you make a sale. You keep the vast majority. We succeed only when you succeed.",
-                },
-              ].map((s) => (
-                <div key={s.step} className="text-center">
-                  <div className="w-12 h-12 rounded-full bg-brand-400 text-white font-bold flex items-center justify-center mx-auto mb-4 text-lg">
-                    {s.step}
-                  </div>
-                  <h3 className="font-semibold text-navy-900 text-lg mb-2">{s.title}</h3>
-                  <p className="text-sm text-navy-500 leading-relaxed">{s.desc}</p>
-                </div>
-              ))}
-            </div>
-          </SectionFadeIn>
-        </div>
-      </section>
-
-      {/* ─── Detailed Commission Cards ─── */}
-      <section className="py-20 bg-cream-100">
-        <div className="mx-auto max-w-6xl px-6">
-          <SectionFadeIn className="text-center mb-14">
-            <p className="text-sm font-semibold text-brand-500 uppercase tracking-wider mb-3">
-              Commission breakdown
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-navy-900 mb-4">
-              Transparent pricing. No surprises.
-            </h2>
-            <p className="text-lg text-navy-500 max-w-2xl mx-auto">
-              Here is exactly what you pay for each type of sale. No hidden fees, no tiers, no lock-in.
-            </p>
-          </SectionFadeIn>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            {COMMISSION_CARDS.map((c, i) => (
-              <SectionFadeIn key={c.title} delay={i * 80}>
-                <div className={`rounded-2xl border-2 ${c.color} p-7 h-full`}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <c.icon className="w-5 h-5 text-navy-600" />
-                    <div>
-                      <h3 className="font-semibold text-navy-900">{c.title}</h3>
-                      <p className="text-xs text-navy-400">{c.subtitle}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-baseline gap-2 mb-4">
-                    <span className="text-3xl font-display font-bold text-navy-900">{c.highlight}</span>
-                    <span className="text-sm text-navy-500">{c.highlightLabel}</span>
-                  </div>
-
-                  <ul className="space-y-2.5">
-                    {c.details.map((d, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-navy-600 leading-relaxed">
-                        <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-brand-400 shrink-0" />
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
-
-                  {c.cta && (
-                    <a
-                      href="/contact"
-                      className="inline-flex items-center gap-2 mt-5 text-sm font-medium text-brand-500 hover:text-brand-700 transition"
-                    >
-                      Talk to us <ArrowRight className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              </SectionFadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ─── Interactive Calculator ─── */}
-      <section className="py-20 bg-white">
-        <div className="mx-auto max-w-4xl px-6">
-          <SectionFadeIn className="text-center mb-14">
-            <div className="w-12 h-12 rounded-xl bg-brand-50 flex items-center justify-center mx-auto mb-4">
-              <Calculator className="w-6 h-6 text-brand-500" />
-            </div>
-            <p className="text-sm font-semibold text-brand-500 uppercase tracking-wider mb-3">
-              Earnings calculator
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-navy-900 mb-4">
-              See what you keep
-            </h2>
-            <p className="text-lg text-navy-500 max-w-2xl mx-auto">
-              Drag the sliders to match your expected monthly sales and see exactly how much you earn -- and how little we charge.
-            </p>
-          </SectionFadeIn>
-
-          <SectionFadeIn delay={100}>
-            <PricingCalculator />
-          </SectionFadeIn>
-        </div>
-      </section>
-
-      {/* ─── Comparison Table ─── */}
-      <section className="py-20 bg-cream-100">
-        <div className="mx-auto max-w-5xl px-6">
-          <SectionFadeIn className="text-center mb-14">
-            <p className="text-sm font-semibold text-brand-500 uppercase tracking-wider mb-3">
-              Compare
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-navy-900 mb-4">
-              How we stack up
-            </h2>
-            <p className="text-lg text-navy-500 max-w-2xl mx-auto">
-              Other platforms charge monthly fees <strong>plus</strong> commission.
-              We charge nothing upfront. You only share when you earn.
-            </p>
-          </SectionFadeIn>
-
-          <SectionFadeIn delay={100}>
-            <div className="overflow-x-auto -mx-6 px-6">
-              <table className="w-full border-collapse">
-                <thead>
-                  <tr>
-                    <th className="text-left text-sm font-medium text-navy-400 pb-4 pr-4 whitespace-nowrap">
-                      Feature
-                    </th>
-                    {COMPETITORS.map((c) => (
-                      <th
-                        key={c.name}
-                        className={`text-center text-sm font-semibold pb-4 px-4 whitespace-nowrap ${
-                          c.highlight ? "text-brand-500" : "text-navy-600"
-                        }`}
-                      >
-                        {c.name}
-                        {c.highlight && (
-                          <span className="block text-[10px] font-medium text-brand-400 mt-0.5">
-                            Recommended
-                          </span>
-                        )}
-                      </th>
+      {/* COMPARISON TABLE */}
+      <section className="py-16 bg-cream-50">
+        <div className="max-w-5xl mx-auto px-6">
+          <h2 className="font-display text-3xl text-navy-900 text-center mb-8">How Fotiqo compares</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead><tr className="border-b-2 border-brand-200"><th className="text-left py-3 pr-4 text-navy-500 font-medium">Feature</th><th className="py-3 px-3 text-center text-navy-400">Starter</th><th className="py-3 px-3 text-center"><span className="font-semibold text-brand-500">Pro</span></th><th className="py-3 px-3 text-center text-navy-400">Studio</th><th className="py-3 px-3 text-center text-navy-300">Pixieset</th><th className="py-3 px-3 text-center text-navy-300">Zno</th></tr></thead>
+              <tbody>
+                {COMPARISON.map((r) => (
+                  <tr key={r.f} className="border-b border-cream-200">
+                    <td className="py-3 pr-4 text-navy-700">{r.f}</td>
+                    {[r.s, r.p, r.st, r.px, r.zn].map((v, i) => (
+                      <td key={i} className="py-3 px-3 text-center">
+                        {typeof v === "boolean" ? (v ? <Check className={`h-4 w-4 mx-auto ${i < 3 ? "text-brand-500" : "text-navy-400"}`} /> : <Minus className="h-4 w-4 mx-auto text-navy-300" />) : <span className={`text-xs ${i < 3 ? "text-navy-700 font-medium" : "text-navy-400"}`}>{v}</span>}
+                      </td>
                     ))}
                   </tr>
-                </thead>
-                <tbody>
-                  {COMPARISON_ROWS.map((row, ri) => (
-                    <tr
-                      key={row.key}
-                      className={ri % 2 === 0 ? "bg-white" : "bg-cream-50"}
-                    >
-                      <td className="py-3.5 pr-4 text-sm font-medium text-navy-700 whitespace-nowrap">
-                        {row.label}
-                      </td>
-                      {COMPETITORS.map((c) => (
-                        <td
-                          key={c.name}
-                          className={`py-3.5 px-4 text-sm text-center whitespace-nowrap ${
-                            c.highlight
-                              ? "font-semibold text-navy-900"
-                              : "text-navy-500"
-                          }`}
-                        >
-                          {c[row.key]}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </SectionFadeIn>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
-      {/* ─── FAQ ─── */}
-      <section className="py-20 bg-white">
-        <div className="mx-auto max-w-3xl px-6">
-          <SectionFadeIn className="text-center mb-14">
-            <p className="text-sm font-semibold text-brand-500 uppercase tracking-wider mb-3">
-              FAQ
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-navy-900">
-              Common questions
-            </h2>
-          </SectionFadeIn>
+      {/* STORE COMMISSION EXAMPLE */}
+      <section className="py-16 bg-white">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="font-display text-2xl text-navy-900 text-center mb-3">How store commission works</h2>
+          <p className="text-navy-500 text-center mb-8">Unlike Pixieset which charges 15% of the full sale price, Fotiqo only charges a percentage of YOUR MARGIN.</p>
+          <div className="bg-cream-50 rounded-2xl p-6 space-y-4">
+            <p className="text-sm text-navy-700">Your client orders a canvas print for <strong>&euro;39</strong></p>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-navy-500">Lab cost</span><span className="text-navy-700">&euro;12</span></div>
+              <div className="flex justify-between border-b border-cream-300 pb-2"><span className="text-navy-500">Your margin</span><span className="font-semibold text-navy-900">&euro;27</span></div>
+              <div className="flex justify-between text-navy-400"><span>Pixieset Free (15% of &euro;39)</span><span>-&euro;5.85 &rarr; you keep &euro;21.15</span></div>
+              <div className="flex justify-between text-brand-600"><span>Fotiqo Pro (5% of &euro;27 margin)</span><span>-&euro;1.35 &rarr; you keep <strong>&euro;25.65</strong></span></div>
+              <div className="flex justify-between text-green-600 font-semibold"><span>Fotiqo Studio (0%)</span><span>-&euro;0 &rarr; you keep <strong>&euro;27.00</strong></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-          <div className="space-y-4">
+      {/* VENUES SECTION */}
+      <section className="py-12 bg-navy-900 text-white">
+        <div className="max-w-4xl mx-auto px-6 text-center">
+          <p className="text-brand-300 text-xs uppercase tracking-widest font-semibold mb-3">For venues</p>
+          <h2 className="font-display text-3xl mb-3">Running photography at an attraction?</h2>
+          <p className="text-white/70 mb-6">Hotels, water parks, zoos, theme parks, and more. Zero monthly fees \u2014 just 2-5% commission on photo sales.</p>
+          <Link href="/for/attractions-and-resorts" className="inline-flex items-center gap-2 border border-white/30 hover:bg-white/10 text-white font-medium rounded-xl px-6 py-3 text-sm transition">Learn more & apply <ArrowRight className="h-4 w-4" /></Link>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-16 bg-white">
+        <div className="max-w-3xl mx-auto px-6">
+          <h2 className="font-display text-3xl text-navy-900 text-center mb-8">Frequently asked questions</h2>
+          <div className="space-y-3">
             {FAQS.map((faq, i) => (
-              <SectionFadeIn key={i} delay={i * 60}>
-                <details className="group rounded-2xl border border-navy-100 bg-white overflow-hidden">
-                  <summary className="flex items-center justify-between cursor-pointer px-6 py-5 text-left">
-                    <span className="font-semibold text-navy-900 pr-4">{faq.q}</span>
-                    <ChevronDown className="w-5 h-5 text-navy-400 shrink-0 transition group-open:rotate-180" />
-                  </summary>
-                  <div className="px-6 pb-5 text-sm text-navy-600 leading-relaxed">
-                    {faq.a}
-                  </div>
-                </details>
-              </SectionFadeIn>
+              <div key={i} className="border border-cream-300 rounded-xl overflow-hidden">
+                <button onClick={() => setOpenFaq(openFaq === i ? null : i)} className="w-full flex items-center justify-between px-5 py-4 text-left">
+                  <span className="font-semibold text-navy-900 text-sm">{faq.q}</span>
+                  {openFaq === i ? <ChevronUp className="h-4 w-4 text-navy-400" /> : <ChevronDown className="h-4 w-4 text-navy-400" />}
+                </button>
+                {openFaq === i && <div className="px-5 pb-4 text-sm text-navy-600 leading-relaxed">{faq.a}</div>}
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── Final CTA ─── */}
-      <section className="py-24 bg-navy-900">
-        <div className="mx-auto max-w-3xl px-6 text-center">
-          <SectionFadeIn>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-white mb-4">
-              Start earning today
-            </h2>
-            <p className="text-lg text-navy-300 mb-4">
-              Join thousands of photographers who switched to commission-based pricing
-              and never looked back.
-            </p>
-            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 text-sm text-navy-400 mb-10">
-              {["Free forever plan", "No credit card", "Full feature access"].map((t) => (
-                <span key={t} className="flex items-center gap-1.5">
-                  <Check className="w-4 h-4 text-green-400" /> {t}
-                </span>
-              ))}
-            </div>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <CTAPrimary>Get Started Free</CTAPrimary>
-              <a
-                href="/features"
-                className="inline-flex items-center gap-2 text-white/80 font-medium hover:text-white transition"
-              >
-                Explore all features <ArrowRight className="w-4 h-4" />
-              </a>
-            </div>
-          </SectionFadeIn>
+      {/* FINAL CTA */}
+      <section className="py-16 bg-gradient-to-br from-brand-600 to-brand-400 text-white text-center">
+        <div className="max-w-2xl mx-auto px-6">
+          <h2 className="font-display text-3xl mb-4">Start building your photography business today</h2>
+          <p className="text-white/80 mb-8">Free to start. No credit card needed. Upgrade anytime.</p>
+          <Link href="/signup/photographer" className="inline-flex items-center gap-2 bg-[#F97316] hover:bg-orange-600 text-white font-semibold rounded-xl px-8 py-4 text-base shadow-lift transition hover:scale-[1.02]">Get started free <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
-    </>
+    </div>
   );
 }

@@ -184,8 +184,8 @@ export default function MarketingHome() {
         <div className="max-w-4xl mx-auto px-6 text-center">
           <p className="text-brand-300 text-xs uppercase tracking-widest font-semibold mb-3">Also for venues</p>
           <h2 className="font-display text-3xl mb-4">Hotels, water parks, zoos, and attractions</h2>
-          <p className="text-white/70 max-w-2xl mx-auto mb-6">Fotiqo powers on-site photography operations at venues worldwide. Kiosk POS, face recognition, staff management, and more.</p>
-          <Link href="/for/resort-photography" className="inline-flex items-center gap-2 border border-white/30 hover:bg-white/10 text-white font-medium rounded-xl px-6 py-3 text-sm transition">Learn about resort operations <ArrowRight className="h-4 w-4" /></Link>
+          <p className="text-white/70 max-w-2xl mx-auto mb-6">Fotiqo powers on-site photography operations at venues worldwide. Zero monthly fees \u2014 just 2-5% commission on photo sales.</p>
+          <Link href="/for/attractions-and-resorts" className="inline-flex items-center gap-2 border border-white/30 hover:bg-white/10 text-white font-medium rounded-xl px-6 py-3 text-sm transition">Learn more & apply <ArrowRight className="h-4 w-4" /></Link>
         </div>
       </section>
 

@@ -19,7 +19,7 @@ const NAV_LINKS = [
   },
   { href: "/pricing", label: "Pricing" },
   { href: "/find-photographer", label: "Marketplace" },
-  { href: "/for/resort-photography", label: "For Resorts" },
+  { href: "/for/attractions-and-resorts", label: "For Attractions & Resorts" },
 ];
 
 export default function MarketingNav() {

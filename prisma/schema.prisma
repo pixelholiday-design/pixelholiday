@@ -26,10 +26,14 @@ model Organization {
   logoUrl            String?
   tagline            String?
   customDomain       String?
-  // Stripe subscription
+  // Subscription plan
+  plan                 String           @default("STARTER") // STARTER, PRO, STUDIO
+  planInterval         String?          // MONTHLY, ANNUAL
+  planStartedAt        DateTime?
+  planExpiresAt        DateTime?
   stripeCustomerId     String?
   stripeSubscriptionId String?
-  createdAt          DateTime         @default(now())
+  createdAt            DateTime         @default(now())
 }
 
 model User {
@@ -2397,4 +2401,40 @@ enum MessageSender {
   USER
   AI_BOT
   ADMIN
+}
+
+// ── VENUE APPLICATIONS ───────────────────────
+model VenueApplication {
+  id               String                 @id @default(cuid())
+  companyName      String
+  contactName      String
+  email            String
+  phone            String
+  venueType        String
+  venueCount       String
+  country          String
+  city             String?
+  estimatedRevenue String?
+  currentSetup     String?
+  websiteUrl       String?
+  message          String?
+  status           VenueApplicationStatus @default(NEW)
+  reviewedBy       String?
+  reviewedAt       DateTime?
+  reviewNotes      String?
+  createdAt        DateTime               @default(now())
+  updatedAt        DateTime               @updatedAt
+
+  @@index([status])
+  @@index([email])
+}
+
+enum VenueApplicationStatus {
+  NEW
+  REVIEWING
+  APPROVED
+  DEMO_SCHEDULED
+  ONBOARDING
+  ACTIVE
+  DECLINED
 }
