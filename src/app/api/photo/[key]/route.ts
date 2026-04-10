@@ -22,7 +22,11 @@ export async function GET(req: NextRequest, { params }: { params: { key: string 
       Key: key,
     });
     const obj = await r2.send(cmd);
-    if (!obj.Body) return new NextResponse("Not found", { status: 404 });
+    if (!obj.Body) {
+      // File not found in R2 — redirect to placeholder
+      const seed = key.replace(/[^a-z0-9]/gi, "").slice(0, 12);
+      return NextResponse.redirect(`https://picsum.photos/seed/${seed}/1200/800`, 302);
+    }
 
     const bytes = await obj.Body.transformToByteArray();
     return new NextResponse(Buffer.from(bytes), {
@@ -32,6 +36,8 @@ export async function GET(req: NextRequest, { params }: { params: { key: string 
       },
     });
   } catch {
-    return new NextResponse("Not found", { status: 404 });
+    // R2 error (file missing, permissions, etc.) — redirect to placeholder
+    const seed = key.replace(/[^a-z0-9]/gi, "").slice(0, 12);
+    return NextResponse.redirect(`https://picsum.photos/seed/${seed}/1200/800`, 302);
   }
 }
