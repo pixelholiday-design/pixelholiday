@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft, Loader2, Check, X, Star, ToggleLeft, ToggleRight } from "lucide-react";
+import { ArrowLeft, Loader2, Check, X, Star, ToggleLeft, ToggleRight, RefreshCw } from "lucide-react";
 
 type ShopProduct = {
   id: string;
@@ -35,6 +35,26 @@ export default function ProductsPage() {
   const [editValues, setEditValues] = useState<Partial<ShopProduct>>({});
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState(false);
+
+  async function syncProducts() {
+    setSyncing(true);
+    setSaveMsg(null);
+    try {
+      const r = await fetch("/api/admin/store/sync-products", { method: "POST" });
+      const d = await r.json();
+      if (d.ok) {
+        setSaveMsg(`Synced! Prodigi: ${d.synced.prodigi} products, Printful: ${d.synced.printful} products. Total catalog: ${d.totalProducts}`);
+        load();
+      } else {
+        setSaveMsg(d.error || "Sync failed");
+      }
+    } catch (e: any) {
+      setSaveMsg(e.message || "Sync error");
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   const load = useCallback(() => {
     setLoading(true);
@@ -126,9 +146,19 @@ export default function ProductsPage() {
           <h1 className="heading text-4xl mt-1">Products</h1>
           <p className="text-navy-400 mt-1">Manage your product catalog — prices, availability, featured status.</p>
         </div>
-        <Link href="/admin/store" className="inline-flex items-center gap-1 text-sm text-navy-500 hover:text-navy-900 transition mt-1">
-          <ArrowLeft className="h-4 w-4" /> Store overview
-        </Link>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={syncProducts}
+            disabled={syncing}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold transition disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${syncing ? "animate-spin" : ""}`} />
+            {syncing ? "Syncing..." : "Sync from Prodigi & Printful"}
+          </button>
+          <Link href="/admin/store" className="inline-flex items-center gap-1 text-sm text-navy-500 hover:text-navy-900 transition">
+            <ArrowLeft className="h-4 w-4" /> Store overview
+          </Link>
+        </div>
       </header>
 
       {saveMsg && (
@@ -161,6 +191,7 @@ export default function ProductsPage() {
                   </button>
                 </th>
                 <th className="text-left px-5 py-3">Fulfillment</th>
+                <th className="text-left px-5 py-3">Lab</th>
                 <th className="text-right px-5 py-3">
                   <button onClick={() => toggleSort("costPrice")} className="hover:text-navy-900 font-semibold">
                     Cost <SortIcon k="costPrice" />
@@ -204,6 +235,19 @@ export default function ProductsPage() {
                       }`}>
                         {p.fulfillmentType}
                       </span>
+                    </td>
+                    <td className="px-5 py-3 text-xs">
+                      {p.labName ? (
+                        <span className={`px-2 py-0.5 rounded-full font-semibold ${
+                          p.labName === "PRODIGI" ? "bg-purple-50 text-purple-700" :
+                          p.labName === "PRINTFUL" ? "bg-pink-50 text-pink-700" :
+                          "bg-cream-200 text-navy-500"
+                        }`}>
+                          {p.labName}
+                        </span>
+                      ) : (
+                        <span className="text-navy-300">—</span>
+                      )}
                     </td>
                     <td className="px-5 py-3 text-right text-navy-600">
                       {isEditing ? (
