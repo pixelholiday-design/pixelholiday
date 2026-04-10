@@ -92,13 +92,29 @@ export default function Lightbox({
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          key={p.id}
-          src={src}
-          alt=""
-          className="max-h-[80vh] max-w-full object-contain animate-fade-in"
-        />
+        <div className="relative">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            key={p.id}
+            src={src}
+            alt=""
+            className="max-h-[80vh] max-w-full object-contain animate-fade-in"
+          />
+          {/* Watermark overlay for unpaid photos */}
+          {!clean && (
+            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+              <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-24 rotate-[-30deg]">
+                {[0,1,2,3,4,5,6].map((row) => (
+                  <div key={row} className="flex items-center gap-16 whitespace-nowrap">
+                    {[0,1,2,3,4].map((col) => (
+                      <span key={col} className="text-white/25 font-display text-4xl sm:text-6xl font-bold tracking-[0.2em]">FOTIQO</span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
         <button
           onClick={next}
           className="absolute right-2 sm:right-6 h-12 w-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition"
