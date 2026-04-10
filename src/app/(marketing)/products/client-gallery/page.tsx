@@ -2,7 +2,7 @@ import { Camera } from "lucide-react";
 import ProductPage from "../ProductPage";
 export const metadata = { title: "Client Gallery \ — Fotiqo", description: "Beautiful photo galleries with watermark protection, client favorites, and AI video reels." };
 export default function Page() {
-  return <ProductPage icon={<Camera className="h-4 w-4" />} badge="Client Gallery" headline="Beautiful galleries your clients will love" subheadline="Deliver photos with style. Watermarked previews, client favorites, FOMO timers, face recognition, and AI video reels \ — all included." color="from-brand-500 to-brand-400" features={[
+  return <ProductPage icon={<Camera className="h-4 w-4" />} badge="Client Gallery" headline="Beautiful galleries your clients will love" subheadline="Deliver photos with style. Watermarked previews, client favorites, FOMO timers, face recognition, and AI video reels \ — all included." productId="gallery" color="from-brand-500 to-brand-400" features={[
     { title: "Server-side watermarking", description: "Photos are watermarked at the CDN level using signed Cloudinary URLs. No CSS tricks \ — impossible to remove." },
     { title: "Client favorites", description: "Clients can heart their favorite photos. Use favorites for proofing workflows." },
     { title: "FOMO countdown timer", description: "Set an expiry date. Galleries show a countdown timer to create urgency and drive purchases." },

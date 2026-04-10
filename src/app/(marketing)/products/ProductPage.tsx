@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Check, ArrowRight } from "lucide-react";
+import { ProductMockup } from "@/components/marketing/ProductMockup";
 
 type ProductPageProps = {
   icon: React.ReactNode;
@@ -7,12 +8,13 @@ type ProductPageProps = {
   headline: string;
   subheadline: string;
   color: string;
+  productId?: string;
   features: { title: string; description: string }[];
   highlights: string[];
   ctaText?: string;
 };
 
-export default function ProductPage({ icon, badge, headline, subheadline, color, features, highlights, ctaText = "Get started free" }: ProductPageProps) {
+export default function ProductPage({ icon, badge, headline, subheadline, color, productId, features, highlights, ctaText = "Get started free" }: ProductPageProps) {
   return (
     <div>
       {/* Hero */}
@@ -31,12 +33,14 @@ export default function ProductPage({ icon, badge, headline, subheadline, color,
 
       {/* Mockup */}
       <section className="pb-16">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className={`aspect-[16/9] rounded-2xl bg-gradient-to-br ${color} shadow-lift flex items-center justify-center`}>
-            <div className="bg-white/10 backdrop-blur rounded-xl w-3/4 h-3/4 flex items-center justify-center text-white/40 text-lg font-medium">
-              Product screenshot coming soon
+        <div className="max-w-2xl mx-auto px-6">
+          {productId ? (
+            <ProductMockup productId={productId} />
+          ) : (
+            <div className={`aspect-[16/9] rounded-2xl bg-gradient-to-br ${color} shadow-lift flex items-center justify-center`}>
+              <div className="bg-white/10 backdrop-blur rounded-xl w-3/4 h-3/4" />
             </div>
-          </div>
+          )}
         </div>
       </section>
 

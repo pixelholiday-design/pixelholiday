@@ -2,7 +2,7 @@ import { Search } from "lucide-react";
 import ProductPage from "../ProductPage";
 export const metadata = { title: "Photographer Marketplace \ — Fotiqo", description: "Get discovered by clients searching for photographers. Instant booking, verified reviews." };
 export default function Page() {
-  return <ProductPage icon={<Search className="h-4 w-4" />} badge="Marketplace" headline="Get discovered by clients who need you" subheadline="Your profile on Fotiqo Marketplace. Clients search by location and specialty, view your portfolio and reviews, and book instantly." color="from-green-500 to-green-400" features={[
+  return <ProductPage icon={<Search className="h-4 w-4" />} badge="Marketplace" headline="Get discovered by clients who need you" subheadline="Your profile on Fotiqo Marketplace. Clients search by location and specialty, view your portfolio and reviews, and book instantly." productId="marketplace" color="from-green-500 to-green-400" features={[
     { title: "Professional profile", description: "Showcase your best work, services, pricing, and reviews on a beautiful profile page." },
     { title: "Search & discovery", description: "Clients search by city, specialty, budget, and rating. Appear in results when they need you." },
     { title: "Instant booking", description: "Clients pick a package, choose a date, and pay \ — no back-and-forth emails." },

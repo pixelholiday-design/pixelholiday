@@ -2,7 +2,7 @@ import { ShoppingBag } from "lucide-react";
 import ProductPage from "../ProductPage";
 export const metadata = { title: "Online Store \ — Fotiqo", description: "Sell 187 products worldwide. Prints, canvas, albums, gifts \ — auto-fulfilled by Prodigi and Printful." };
 export default function Page() {
-  return <ProductPage icon={<ShoppingBag className="h-4 w-4" />} badge="Online Store" headline="Sell prints worldwide \ — we handle the rest" subheadline="187 products from prints to photo books to mugs. Auto-fulfilled by Prodigi and Printful. You set the markup, we ship to your clients." color="from-coral-500 to-coral-400" features={[
+  return <ProductPage icon={<ShoppingBag className="h-4 w-4" />} badge="Online Store" headline="Sell prints worldwide \ — we handle the rest" subheadline="187 products from prints to photo books to mugs. Auto-fulfilled by Prodigi and Printful. You set the markup, we ship to your clients." productId="store" color="from-coral-500 to-coral-400" features={[
     { title: "187 products", description: "Prints (21 sizes), canvas (42 options), photo books (16 types), gifts, cards, souvenirs, wall art, and display items." },
     { title: "Dual print labs", description: "Prodigi and Printful handle printing and shipping. Orders auto-route to the best lab." },
     { title: "Photo book builder", description: "Clients design their own softcover, hardcover, or premium layflat photo books from their gallery." },

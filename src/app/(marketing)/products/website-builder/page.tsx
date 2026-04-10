@@ -2,7 +2,7 @@ import { Globe } from "lucide-react";
 import ProductPage from "../ProductPage";
 export const metadata = { title: "Website Builder \ — Fotiqo", description: "Build a stunning portfolio website with 17 block types, custom fonts, and SEO tools." };
 export default function Page() {
-  return <ProductPage icon={<Globe className="h-4 w-4" />} badge="Website Builder" headline="A portfolio website that sells for you" subheadline="Drag-and-drop block editor with 17 block types. Custom fonts, custom domain, blog, contact form, and built-in SEO." color="from-purple-500 to-purple-400" features={[
+  return <ProductPage icon={<Globe className="h-4 w-4" />} badge="Website Builder" headline="A portfolio website that sells for you" subheadline="Drag-and-drop block editor with 17 block types. Custom fonts, custom domain, blog, contact form, and built-in SEO." productId="website" color="from-purple-500 to-purple-400" features={[
     { title: "17 block types", description: "Hero, gallery grid, about, services, testimonials, contact form, FAQ, CTA, stats, booking widget, blog feed, and more." },
     { title: "Custom domain", description: "Connect your own domain (e.g., photos.yourname.com) with step-by-step DNS instructions." },
     { title: "Custom fonts", description: "Upload .woff2, .ttf, or .otf fonts. Use your brand typography on headings and body text." },
