@@ -1,12 +1,15 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Camera, Sparkles, ScanLine, Radio, Users } from "lucide-react";
 import { cleanUrl, photoRef } from "@/lib/cloudinary";
+import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
 
 type Photo = { id: string; cloudinaryId: string | null; s3Key_highRes: string };
 type LivePhoto = { id: string; thumbnailUrl: string; fullUrl: string; isHookImage: boolean; createdAt: string };
 
 export default function TvDisplayPage() {
+  const settings = useMemo(() => loadKioskSettings(), []);
+  const apiBase = useMemo(() => localApiBase(settings), [settings]);
   const [attractPhotos, setAttractPhotos] = useState<Photo[]>([]);
   const [idx, setIdx] = useState(0);
   const [matchedPhotos, setMatchedPhotos] = useState<Photo[] | null>(null);
@@ -22,7 +25,7 @@ export default function TvDisplayPage() {
 
   // Load attract slideshow + detect location
   useEffect(() => {
-    fetch("/api/kiosk/identify", {
+    fetch(apiBase + "/api/kiosk/identify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ locationId: "_any_", method: "SELFIE", selfieData: "attract" }),
@@ -35,7 +38,7 @@ export default function TvDisplayPage() {
       })
       .catch(() => {});
     // Fetch a location for the stream (pick first available)
-    fetch("/api/admin/staff")
+    fetch(apiBase + "/api/admin/staff")
       .then((r) => r.json())
       .then((d) => {
         const loc = d.locations?.[0]?.id;
@@ -92,7 +95,7 @@ export default function TvDisplayPage() {
   }, []);
 
   async function triggerIdentify() {
-    const r = await fetch("/api/kiosk/identify", {
+    const r = await fetch(apiBase + "/api/kiosk/identify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ locationId: "_any_", method: "SELFIE", selfieData: "auto" }),

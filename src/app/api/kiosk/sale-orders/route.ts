@@ -4,7 +4,9 @@ import { prisma } from "@/lib/db";
 import { recordCommission } from "@/lib/commissions";
 import { queuePrintJob } from "@/lib/print";
 import { getPrice } from "@/lib/pricing";
+import { kioskOptions, KIOSK_CORS } from "@/lib/kiosk-cors";
 
+export { kioskOptions as OPTIONS };
 export const dynamic = "force-dynamic";
 
 // GET — list pending orders for the photographer at the sale point

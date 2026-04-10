@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
 import { stripe, PRICES } from "@/lib/stripe";
+import { kioskOptions, KIOSK_CORS } from "@/lib/kiosk-cors";
+
+export { kioskOptions as OPTIONS };
 
 const schema = z.object({
   galleryId: z.string().min(1),

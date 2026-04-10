@@ -1,7 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScanLine, User, KeyRound, Check, Heart, ArrowRight, RefreshCw, Sparkles, ChevronLeft, ChevronRight, Printer, X } from "lucide-react";
 import { cleanUrl, photoRef } from "@/lib/cloudinary";
+import { loadKioskSettings, localApiBase } from "@/lib/kiosk-mode";
+import ConnectionStatus from "@/components/kiosk/ConnectionStatus";
 
 type Photo = { id: string; cloudinaryId: string | null; s3Key_highRes: string };
 type Gallery = { id: string; magicLinkToken: string; photos: Photo[] };
@@ -10,8 +12,10 @@ const FULL = 99;
 const SINGLE = 15;
 
 export default function SelfServiceKiosk() {
+  const settings = useMemo(() => loadKioskSettings(), []);
+  const apiBase = useMemo(() => localApiBase(settings), [settings]);
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [locationId, setLocationId] = useState("");
+  const [locationId, setLocationId] = useState(settings?.locationId || "");
   const [galleries, setGalleries] = useState<Gallery[]>([]);
   const [activeGallery, setActiveGallery] = useState<Gallery | null>(null);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -22,16 +26,17 @@ export default function SelfServiceKiosk() {
   const [inputValue, setInputValue] = useState("");
   const [previewPhoto, setPreviewPhoto] = useState<Photo | null>(null);
 
-  // Pull a default location id once.
+  // Pull a default location id once (fallback if not set in kiosk settings).
   useEffect(() => {
-    fetch("/api/admin/staff")
+    if (locationId) return;
+    fetch(apiBase + "/api/admin/staff")
       .then((r) => r.json())
       .then((d) => {
         const loc = (d.staff || []).find((s: any) => s.location)?.location;
         if (loc) setLocationId(loc.id);
       })
       .catch(() => {});
-  }, []);
+  }, [apiBase, locationId]);
 
   // Auto-reset to step 1 after success
   useEffect(() => {
@@ -56,7 +61,7 @@ export default function SelfServiceKiosk() {
     if (method === "WRISTBAND") body.wristbandCode = value;
     if (method === "ROOM") body.roomNumber = value;
     if (method === "SELFIE") body.selfieData = "mock";
-    const r = await fetch("/api/kiosk/identify", {
+    const r = await fetch(apiBase + "/api/kiosk/identify", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
@@ -82,7 +87,7 @@ export default function SelfServiceKiosk() {
   async function checkout() {
     if (!activeGallery) return;
     setBusy(true);
-    const r = await fetch("/api/kiosk/qr-payment", {
+    const r = await fetch(apiBase + "/api/kiosk/qr-payment", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ galleryId: activeGallery.id, photoIds: Array.from(selected) }),
@@ -104,6 +109,9 @@ export default function SelfServiceKiosk() {
   if (step === 1) {
     return (
       <div className="fixed inset-0 bg-navy-900 text-white flex flex-col">
+        <div className="absolute top-4 right-4 z-10">
+          <ConnectionStatus baseUrl={apiBase} />
+        </div>
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center">
           <div className="text-gold-400 uppercase tracking-widest text-xs font-semibold mb-3 inline-flex items-center gap-2">
             <Sparkles className="h-3 w-3" /> Fotiqo self-service

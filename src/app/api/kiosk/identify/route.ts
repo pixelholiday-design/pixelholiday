@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
+import { kioskOptions, kioskJson } from "@/lib/kiosk-cors";
+
+export { kioskOptions as OPTIONS };
 
 const schema = z.object({
   locationId: z.string().min(1),
@@ -15,7 +18,7 @@ export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ ok: false, error: "Invalid input" }, { status: 400 });
+    return kioskJson({ ok: false, error: "Invalid input" }, { status: 400 });
   }
   const { locationId, method, wristbandCode, roomNumber, nfcTag } = parsed.data;
 
@@ -41,7 +44,7 @@ export async function POST(req: Request) {
   }
 
   if (!customer) {
-    return NextResponse.json({ ok: false, matched: false, message: "No customer match found." });
+    return kioskJson({ ok: false, matched: false, message: "No customer match found." });
   }
 
   const galleries = await prisma.gallery.findMany({
@@ -50,7 +53,7 @@ export async function POST(req: Request) {
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json({
+  return kioskJson({
     ok: true,
     matched: true,
     customer: { id: customer.id, name: customer.name, roomNumber: customer.roomNumber },
