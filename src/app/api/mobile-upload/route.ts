@@ -12,6 +12,7 @@ const photoSchema = z.object({
 
 const schema = z.object({
   wristbandCode: z.string().optional(),
+  roomNumber: z.string().optional(),
   customerId: z.string().optional(),
   locationId: z.string().min(1),
   photographerId: z.string().min(1),
@@ -26,7 +27,7 @@ export async function POST(req: Request) {
   }
   const data = parsed.data;
 
-  // Resolve customer
+  // Resolve customer — try customerId, wristband, then room number
   let customer = null as Awaited<ReturnType<typeof prisma.customer.findFirst>>;
   if (data.customerId) {
     customer = await prisma.customer.findUnique({ where: { id: data.customerId } });
@@ -41,9 +42,22 @@ export async function POST(req: Request) {
         },
       });
     }
+  } else if (data.roomNumber) {
+    customer = await prisma.customer.findFirst({
+      where: { roomNumber: data.roomNumber, locationId: data.locationId },
+    });
+    if (!customer) {
+      customer = await prisma.customer.create({
+        data: {
+          name: `Room ${data.roomNumber}`,
+          roomNumber: data.roomNumber,
+          locationId: data.locationId,
+        },
+      });
+    }
   }
   if (!customer) {
-    return NextResponse.json({ ok: false, error: "wristbandCode or customerId required" }, { status: 400 });
+    return NextResponse.json({ ok: false, error: "Please provide a wristband code or room number" }, { status: 400 });
   }
 
   // Reuse today's gallery if it exists, otherwise create a new HOOK_ONLY one.

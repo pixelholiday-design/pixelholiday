@@ -63,6 +63,10 @@ export default function SdUploadKiosk() {
 
   async function upload() {
     if (!staff || !items.length) return;
+    if (!locationId) {
+      setError("No location configured. Go to /kiosk/setup to set the location first.");
+      return;
+    }
     if (!wristband && !room) {
       setError("Please enter a wristband code OR room number to identify the customer.");
       return;
@@ -130,9 +134,7 @@ export default function SdUploadKiosk() {
       if (wristband.trim()) {
         payload.wristbandCode = wristband.trim();
       } else if (room.trim()) {
-        // API expects wristbandCode or customerId — use room as wristband code
-        // or find/create customer by room number first
-        payload.wristbandCode = `ROOM-${room.trim()}`;
+        payload.roomNumber = room.trim();
       }
 
       const res = await fetch("/api/mobile-upload", {
