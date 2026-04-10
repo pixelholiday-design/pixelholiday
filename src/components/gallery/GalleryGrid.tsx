@@ -106,9 +106,32 @@ export default function GalleryGrid({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imgSrc(p)} alt="" className="w-full h-full object-cover transition group-hover:scale-105 duration-500" />
               {!isClean(p) && (
-                <div className="absolute top-2 left-2 inline-flex items-center gap-1 bg-navy-900/80 text-white rounded-full px-2 py-0.5 text-[10px] font-semibold">
-                  <Lock className="h-3 w-3" /> LOCKED
-                </div>
+                <>
+                  <div className="absolute top-2 left-2 inline-flex items-center gap-1 bg-navy-900/80 text-white rounded-full px-2 py-0.5 text-[10px] font-semibold">
+                    <Lock className="h-3 w-3" /> LOCKED
+                  </div>
+                  <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+                    <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-12 rotate-[-30deg]">
+                      {[0,1,2,3].map((row) => (
+                        <div key={row} className="flex items-center gap-10 whitespace-nowrap">
+                          {[0,1,2].map((col) => (
+                            <span
+                              key={col}
+                              className="font-display text-2xl font-bold tracking-[0.2em]"
+                              style={{
+                                color: "rgba(255,255,255,0.45)",
+                                textShadow: "0 0 8px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.8)",
+                                WebkitTextStroke: "1px rgba(0,0,0,0.15)",
+                              }}
+                            >
+                              FOTIQO
+                            </span>
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
               )}
             </button>
           ))}
@@ -162,7 +185,15 @@ function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, maso
               {[0,1,2,3,4,5].map((row) => (
                 <div key={row} className="flex items-center gap-12 whitespace-nowrap">
                   {[0,1,2,3].map((col) => (
-                    <span key={col} className="text-white/30 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[0.2em]">
+                    <span
+                      key={col}
+                      className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-[0.2em]"
+                      style={{
+                        color: "rgba(255,255,255,0.45)",
+                        textShadow: "0 0 8px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.8)",
+                        WebkitTextStroke: "1px rgba(0,0,0,0.15)",
+                      }}
+                    >
                       FOTIQO
                     </span>
                   ))}

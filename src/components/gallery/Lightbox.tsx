@@ -107,7 +107,17 @@ export default function Lightbox({
                 {[0,1,2,3,4,5,6].map((row) => (
                   <div key={row} className="flex items-center gap-16 whitespace-nowrap">
                     {[0,1,2,3,4].map((col) => (
-                      <span key={col} className="text-white/25 font-display text-4xl sm:text-6xl font-bold tracking-[0.2em]">FOTIQO</span>
+                      <span
+                        key={col}
+                        className="font-display text-4xl sm:text-6xl font-bold tracking-[0.2em]"
+                        style={{
+                          color: "rgba(255,255,255,0.45)",
+                          textShadow: "0 0 10px rgba(0,0,0,0.6), 0 0 3px rgba(0,0,0,0.9)",
+                          WebkitTextStroke: "1px rgba(0,0,0,0.2)",
+                        }}
+                      >
+                        FOTIQO
+                      </span>
                     ))}
                   </div>
                 ))}
