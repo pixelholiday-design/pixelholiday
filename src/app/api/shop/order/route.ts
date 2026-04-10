@@ -200,11 +200,12 @@ export async function POST(req: NextRequest) {
         data: { stripeSessionId: session.id },
       });
 
-      return NextResponse.json({ sessionUrl: session.url, orderId: shopOrder.id });
+      return NextResponse.json({ url: session.url, sessionUrl: session.url, orderId: shopOrder.id });
     } catch (stripeErr: any) {
       // Mock mode if Stripe not configured
       return NextResponse.json({
         mock: true,
+        url: null,
         sessionUrl: null,
         orderId: shopOrder.id,
         total,

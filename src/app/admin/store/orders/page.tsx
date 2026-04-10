@@ -83,8 +83,8 @@ export default async function StoreOrdersPage() {
             <tbody className="divide-y divide-cream-300/70">
               {orders.map((o) => (
                 <tr key={o.id} className="hover:bg-cream-100/60">
-                  <td className="px-6 py-3 font-medium text-navy-900">{o.customer.name}</td>
-                  <td className="px-6 py-3 text-navy-600">{o.gallery.location.name}</td>
+                  <td className="px-6 py-3 font-medium text-navy-900">{o.customer?.name ?? "Guest"}</td>
+                  <td className="px-6 py-3 text-navy-600">{o.gallery?.location?.name ?? "—"}</td>
                   <td className="px-6 py-3 text-navy-600">{o.items.length}</td>
                   <td className="px-6 py-3 text-navy-600 text-xs">{o.paymentMethod}</td>
                   <td className="px-6 py-3 font-semibold text-navy-900">€{o.amount.toFixed(2)}</td>

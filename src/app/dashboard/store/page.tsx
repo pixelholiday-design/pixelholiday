@@ -6,7 +6,8 @@ type Product = {
   id: string;
   productKey: string;
   name: string;
-  price: number;
+  retailPrice: number;
+  price?: number;
   isActive: boolean;
   category: string;
 };
@@ -83,7 +84,7 @@ export default function DashboardStorePage() {
                 <div className="text-xs text-navy-400">{p.category}</div>
               </div>
               <div className="flex items-center gap-4">
-                <span className="font-display text-navy-900">&euro;{p.price.toFixed(2)}</span>
+                <span className="font-display text-navy-900">&euro;{(p.retailPrice ?? p.price ?? 0).toFixed(2)}</span>
                 <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${p.isActive ? "bg-green-100 text-green-700" : "bg-cream-200 text-navy-400"}`}>
                   {p.isActive ? "Active" : "Inactive"}
                 </span>
