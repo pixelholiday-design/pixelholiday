@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Share2, Link as LinkIcon, MessageCircle, Mail, Check } from "lucide-react";
+import { Share2, Link as LinkIcon, MessageCircle, Mail, Check, Smartphone } from "lucide-react";
 
 export default function ShareMenu({ url, title }: { url: string; title: string }) {
   const [open, setOpen] = useState(false);
@@ -12,6 +12,16 @@ export default function ShareMenu({ url, title }: { url: string; title: string }
     setTimeout(() => setCopied(false), 1500);
   }
 
+  async function nativeShare() {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch {}
+    }
+  }
+
+  const hasNativeShare = typeof navigator !== "undefined" && !!navigator.share;
+
   return (
     <div className="relative">
       <button
@@ -22,6 +32,12 @@ export default function ShareMenu({ url, title }: { url: string; title: string }
       </button>
       {open && (
         <div className="absolute right-0 top-full mt-2 w-56 card p-2 z-20 animate-fade-in">
+          {/* Native share (shows Instagram, etc. on mobile) */}
+          {hasNativeShare && (
+            <button onClick={nativeShare} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-cream-100 text-sm text-navy-700 font-semibold">
+              <Smartphone className="h-4 w-4 text-brand-600" /> Share to app...
+            </button>
+          )}
           <button onClick={copy} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-cream-100 text-sm text-navy-700">
             {copied ? <Check className="h-4 w-4 text-green-600" /> : <LinkIcon className="h-4 w-4" />}
             {copied ? "Copied!" : "Copy link"}
@@ -34,6 +50,17 @@ export default function ShareMenu({ url, title }: { url: string; title: string }
           >
             <MessageCircle className="h-4 w-4 text-green-600" /> WhatsApp
           </a>
+          {/* Instagram — open profile/app with link copied */}
+          <button
+            onClick={() => {
+              navigator.clipboard.writeText(url);
+              window.open("https://www.instagram.com/", "_blank");
+            }}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-cream-100 text-sm text-navy-700"
+          >
+            <span className="h-4 w-4 rounded bg-gradient-to-br from-purple-600 via-pink-500 to-orange-400 text-white text-[10px] flex items-center justify-center font-bold">&#9679;</span>
+            Instagram (link copied)
+          </button>
           <a
             href={`mailto:?subject=${encodeURIComponent(title)}&body=${encodeURIComponent(url)}`}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-cream-100 text-sm text-navy-700"
@@ -55,7 +82,7 @@ export default function ShareMenu({ url, title }: { url: string; title: string }
             rel="noreferrer"
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-cream-100 text-sm text-navy-700"
           >
-            <span className="h-4 w-4 rounded bg-navy-900 text-white text-[10px] flex items-center justify-center font-bold">𝕏</span>
+            <span className="h-4 w-4 rounded bg-navy-900 text-white text-[10px] flex items-center justify-center font-bold">&#120143;</span>
             Twitter / X
           </a>
         </div>
