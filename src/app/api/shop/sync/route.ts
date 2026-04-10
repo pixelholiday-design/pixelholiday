@@ -14,7 +14,7 @@ const PRINTFUL_KEY = process.env.PRINTFUL_API_KEY || "";
 const PRINTFUL_BASE = "https://api.printful.com";
 
 // Require a secret token for this public route
-const SYNC_SECRET = process.env.NEXTAUTH_SECRET || process.env.CRON_SECRET || "fotiqo-sync-2026";
+const SYNC_SECRET = process.env.SHOP_SYNC_TOKEN || process.env.CRON_SECRET || "fotiqo-sync-2026";
 
 async function fetchProdigiCatalog(): Promise<any[]> {
   if (!PRODIGI_KEY) return [];
