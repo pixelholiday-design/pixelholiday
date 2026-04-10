@@ -51,12 +51,22 @@ export async function POST(req: Request) {
     data: { chatId: chat.id, sender: "USER", content: data.message },
   });
 
-  // Get AI response
-  const aiResponse = await getAiResponse(data.message, {
-    page: data.page,
-    userRole,
-    userName: data.name || session?.user?.name || undefined,
-  });
+  // Get AI response (with error handling)
+  let aiResponse;
+  try {
+    aiResponse = await getAiResponse(data.message, {
+      page: data.page,
+      userRole,
+      userName: data.name || session?.user?.name || undefined,
+    });
+  } catch (e) {
+    console.error("[Support Chat] AI response error:", e);
+    aiResponse = {
+      content: "Thanks for your message! I'm here to help. Could you tell me more about what you need assistance with?",
+      contentType: "TEXT" as const,
+      shouldEscalate: false,
+    };
+  }
 
   // Save AI response
   await prisma.supportMessage.create({

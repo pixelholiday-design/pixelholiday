@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Camera, Globe, ShoppingBag, Calendar, Search, Check, ArrowRight, Star, Zap, Shield, Heart, Play } from "lucide-react";
+import { ProductMockup } from "@/components/marketing/ProductMockup";
 
 export const metadata = {
   title: "Fotiqo   — The Complete Photography Platform",
@@ -80,9 +81,7 @@ export default function MarketingHome() {
                     <Link href={product.href} className="inline-flex items-center gap-2 text-brand-500 hover:text-brand-700 font-semibold text-sm transition">{product.cta} <ArrowRight className="h-4 w-4" /></Link>
                   </div>
                   <div className="flex-1 max-w-lg">
-                    <div className={`aspect-[4/3] rounded-2xl bg-gradient-to-br ${product.color} p-8 flex items-center justify-center shadow-lift`}>
-                      <div className="bg-white/20 backdrop-blur rounded-xl w-full h-full flex items-center justify-center"><Icon className="h-16 w-16 text-white/60" /></div>
-                    </div>
+                    <ProductMockup productId={product.id} />
                   </div>
                 </div>
               );
