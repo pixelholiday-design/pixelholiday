@@ -188,7 +188,12 @@ export async function generateReelForGallery(
     .filter((p) => chronoIds.includes(p.id))
     .sort((a, b) => chronoIds.indexOf(a.id) - chronoIds.indexOf(b.id));
 
-  const urls = ordered.map((p) => cleanUrl(photoRef(p), 1600));
+  const base = process.env.NEXT_PUBLIC_APP_URL || "https://fotiqo.com";
+  const urls = ordered.map((p) => {
+    const ref = cleanUrl(photoRef(p), 1600);
+    // Ensure absolute URL for iframe rendering
+    return ref.startsWith("http") ? ref : base + ref;
+  });
   const track = (musicTrack as MusicTrack) || pickMusic(gallery.location?.name);
   const html = buildSlideshowHtml(urls, track);
   const duration = ordered.length * SECONDS_PER_PHOTO;
