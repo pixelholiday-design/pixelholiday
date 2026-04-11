@@ -4,7 +4,7 @@
 const CLOUD =
   process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || process.env.CLOUDINARY_CLOUD_NAME || "";
 // IMPORTANT: Hardcoded to "fotiqo_watermark" to prevent stale env var
-// from Vercel builds using the old "pixelholiday_watermark" name.
+// from Vercel builds using the old "fotiqo_watermark" name.
 const WATERMARK = "fotiqo_watermark";
 
 // If Cloudinary isn't configured (empty env) OR the value is the placeholder "demo",
