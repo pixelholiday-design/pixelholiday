@@ -128,8 +128,11 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
         const mapped = (data.products ?? []).map((p: any) => ({
           ...p,
           price: p.retailPrice ?? p.price ?? 0,
-          sizes: typeof p.sizes === "string" ? (() => { try { return JSON.parse(p.sizes); } catch { return []; } })() : (p.sizes ?? []),
-          options: typeof p.options === "string" ? (() => { try { return JSON.parse(p.options); } catch { return []; } })() : (p.options ?? []),
+          sizes: (typeof p.sizes === "string" ? (() => { try { return JSON.parse(p.sizes); } catch { return []; } })() : (p.sizes ?? [])).map((s: any) => ({ ...s, label: s.label || s.name || s.key || "", price: s.price ?? s.cost ?? s.costAddon ?? 0 })),
+          options: (typeof p.options === "string" ? (() => { try { return JSON.parse(p.options); } catch { return []; } })() : (p.options ?? [])).map((o: any) => ({ ...o, label: o.label || o.name || o.key || "" })),
+          papers: typeof p.papers === "string" ? (() => { try { return JSON.parse(p.papers); } catch { return []; } })() : (p.papers ?? []),
+          frames: typeof p.frames === "string" ? (() => { try { return JSON.parse(p.frames); } catch { return []; } })() : (p.frames ?? []),
+          finishes: typeof p.finishes === "string" ? (() => { try { return JSON.parse(p.finishes); } catch { return []; } })() : (p.finishes ?? []),
         }));
         setShopProducts(mapped);
         setShopCategories(

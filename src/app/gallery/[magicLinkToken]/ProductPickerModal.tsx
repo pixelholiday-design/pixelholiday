@@ -360,6 +360,58 @@ export default function ProductPickerModal({
             </div>
           )}
 
+          {/* Paper selector */}
+          {product.papers && product.papers.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-navy-600 uppercase tracking-wide mb-2">Paper</p>
+              <div className="flex flex-wrap gap-2">
+                {product.papers.map((p: any) => (
+                  <button key={p.name} className="px-3 py-2 rounded-xl text-sm font-medium border border-cream-300 bg-white text-navy-700 hover:border-navy-300 transition">
+                    {p.name}
+                    {p.costAddon > 0 && <span className="text-xs opacity-70 ml-1">+€{p.costAddon}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Frame selector */}
+          {product.frames && product.frames.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-navy-600 uppercase tracking-wide mb-2">Frame</p>
+              <div className="flex flex-wrap gap-2">
+                {product.frames.map((f: any) => (
+                  <button key={f.name} className="px-3 py-2 rounded-xl text-sm font-medium border border-cream-300 bg-white text-navy-700 hover:border-navy-300 transition flex items-center gap-1.5">
+                    <span className="w-3 h-3 rounded-full border border-cream-300" style={{
+                      backgroundColor: f.name.toLowerCase().includes("black") ? "#1a1a1a" :
+                        f.name.toLowerCase().includes("white") ? "#ffffff" :
+                        f.name.toLowerCase().includes("walnut") ? "#5c3a1e" :
+                        f.name.toLowerCase().includes("oak") || f.name.toLowerCase().includes("natural") ? "#b08450" :
+                        f.name.toLowerCase().includes("gold") ? "#c4a94d" :
+                        f.name.toLowerCase().includes("silver") ? "#c0c0c0" : "#8b7355"
+                    }} />
+                    {f.name}
+                    {f.costAddon > 0 && <span className="text-xs opacity-70">+€{f.costAddon}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Finish selector */}
+          {product.finishes && product.finishes.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-navy-600 uppercase tracking-wide mb-2">Finish</p>
+              <div className="flex flex-wrap gap-2">
+                {product.finishes.map((f: any) => (
+                  <button key={f.name} className="px-3 py-2 rounded-xl text-sm font-medium border border-cream-300 bg-white text-navy-700 hover:border-navy-300 transition">
+                    {f.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Book note */}
           {isBook && (
             <div className="bg-cream-100 rounded-2xl p-4 text-sm text-navy-600">
