@@ -235,8 +235,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
 
   const isClean = gallery.status === "PAID" || gallery.status === "DIGITAL_PASS";
   const isPartial = gallery.status === "PARTIAL_PAID";
-  const [galleryUrl, setGalleryUrl] = useState("");
-  useEffect(() => { setGalleryUrl(window.location.href); }, []);
+  const galleryUrl = mounted ? window.location.href : "";
 
   return (
     <div className="min-h-screen bg-cream-100">
