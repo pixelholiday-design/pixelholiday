@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
+import { requirePlan } from "@/lib/plan-guard";
 
 const createSchema = z.object({
   title: z.string().min(1),
@@ -17,6 +18,12 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const user = session.user as any;
+
+  try {
+    await requirePlan(user.orgId, "contracts");
+  } catch {
+    return NextResponse.json({ error: "Contracts require a PRO or STUDIO plan" }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => ({}));
   const parsed = createSchema.safeParse(body);

@@ -5,7 +5,7 @@ import {
   Image, Type, Layout, Grid3X3, MessageSquare, Star, Phone, Zap,
   HelpCircle, BarChart3, Minus, Video, BookOpen, Calendar,
   GripVertical, Trash2, ChevronUp, ChevronDown, Eye, EyeOff,
-  Save, Globe, Monitor, Tablet, Smartphone, Plus, ArrowLeft, Loader2, Share2,
+  Save, Globe, Monitor, Tablet, Smartphone, Plus, ArrowLeft, Loader2, Share2, Code,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -36,6 +36,7 @@ const BLOCK_TYPES = [
   { type: "STATS", label: "Stats", icon: BarChart3, group: "Business", defaultContent: { items: [{ number: "500+", label: "Sessions" }, { number: "50+", label: "5-star reviews" }] } },
   { type: "CTA", label: "CTA Banner", icon: Zap, group: "Social", defaultContent: { heading: "Ready to book?", subheading: "Let's create something beautiful together.", buttonText: "Get in touch", buttonLink: "/contact", bgColor: "#0EA5A5" } },
   { type: "INSTAGRAM", label: "Social Feed", icon: Share2, group: "Social", defaultContent: { handle: "@myphotography" } },
+  { type: "CUSTOM_HTML", label: "Custom HTML", icon: Code, group: "Content", defaultContent: { html: "<div>Your custom HTML here</div>" } },
 ];
 
 const GROUPS = ["Layout", "Content", "Portfolio", "Business", "Social"];

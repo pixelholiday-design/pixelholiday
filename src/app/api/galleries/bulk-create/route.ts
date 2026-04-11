@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { z } from "zod";
+import { canCreateGallery } from "@/lib/usage";
 
 const gallerySchema = z.object({
   name: z.string().min(1),
@@ -21,6 +22,13 @@ export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const user = session.user as any;
+
+  const usageCheck = await canCreateGallery(user.orgId);
+  if (!usageCheck.allowed) {
+    return NextResponse.json({
+      error: `Gallery limit reached (${usageCheck.current}/${usageCheck.max}). Upgrade your plan.`,
+    }, { status: 403 });
+  }
 
   const body = await req.json().catch(() => ({}));
   const parsed = bulkSchema.safeParse(body);

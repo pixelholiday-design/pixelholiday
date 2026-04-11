@@ -5,6 +5,7 @@ import { getPhotoSrc } from "@/lib/cloudinary";
 import { toggleFavorite } from "./actions";
 import BookingTimePicker from "./BookingTimePicker";
 import StripeCheckoutButton from "@/components/gallery/StripeCheckoutButton";
+import PayPalButton from "@/components/checkout/PayPalButton";
 import DownloadAllButton from "@/components/gallery/DownloadAllButton";
 import FomoTimer from "@/components/gallery/FomoTimer";
 import GalleryGrid from "@/components/gallery/GalleryGrid";
@@ -18,6 +19,7 @@ import BookBuilder from "./BookBuilder";
 import LiveGalleryStream from "@/components/gallery/LiveGalleryStream";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslations } from "@/lib/i18n-client";
+import { getTheme } from "@/lib/gallery-themes";
 
 type Photo = {
   id: string;
@@ -59,7 +61,8 @@ type CatalogProduct = {
 
 type ActiveTab = "photos" | "favorites" | "shop";
 
-export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?: ReelInfo | null }) {
+export default function GalleryView({ gallery, reel, galleryTheme = "classic" }: { gallery: Gallery; reel?: ReelInfo | null; galleryTheme?: string }) {
+  const theme = getTheme(galleryTheme);
   const tGallery = useTranslations("gallery");
   const tCommon = useTranslations("common");
   const tShop = useTranslations("shop");
@@ -241,7 +244,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
   const galleryUrl = mounted ? window.location.href : "";
 
   return (
-    <div className="min-h-screen bg-cream-100">
+    <div className={`min-h-screen ${theme.bgClass || "bg-cream-100"}`}>
       {/* Cover hero */}
       <section className="relative h-[55vh] min-h-[420px] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -308,6 +311,11 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
             )}
             <ShareMenu url={galleryUrl} title={`Fotiqo — ${gallery.location.name}`} />
             {isClean && activeTab === "photos" && <DownloadAllButton token={gallery.magicLinkToken} />}
+            {isClean && (gallery as any).maxDownloads && (
+              <span className="text-xs bg-cream-200 text-navy-600 px-2 py-1 rounded-full">
+                {Math.max(0, (gallery as any).maxDownloads - ((gallery as any)._downloadCount || 0))} downloads left
+              </span>
+            )}
             <LanguageSwitcher />
           </div>
         </div>
@@ -590,6 +598,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
               </a>
             </div>
             <StripeCheckoutButton token={gallery.magicLinkToken} />
+            <PayPalButton galleryToken={gallery.magicLinkToken} amount={49} />
           </div>
         </div>
       )}

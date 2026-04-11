@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Settings, User, Globe, Palette, Mail, Save, Loader2, Type, Trash2, Upload, Plus } from "lucide-react";
+import { Settings, User, Globe, Palette, Mail, Save, Loader2, Type, Trash2, Upload, Plus, CreditCard, ExternalLink } from "lucide-react";
 
 export default function DashboardSettingsPage() {
   const [profile, setProfile] = useState<any>(null);
@@ -97,12 +97,84 @@ export default function DashboardSettingsPage() {
           </div>
         </div>
 
+        {/* Billing */}
+        <BillingSection />
+
         {/* Custom Fonts */}
         <FontSection />
 
         <button className="btn-primary !py-3 w-full sm:w-auto sm:px-8">
           <Save className="h-4 w-4" /> Save changes
         </button>
+      </div>
+    </div>
+  );
+}
+
+function BillingSection() {
+  const [opening, setOpening] = useState(false);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [loadingInv, setLoadingInv] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/subscription/invoices")
+      .then((r) => r.json())
+      .then((d) => setInvoices(d.invoices || []))
+      .catch(() => {})
+      .finally(() => setLoadingInv(false));
+  }, []);
+
+  async function openBillingPortal() {
+    setOpening(true);
+    try {
+      const res = await fetch("/api/subscription/billing-portal", { method: "POST" });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } catch {
+      setOpening(false);
+    }
+  }
+
+  return (
+    <div className="card p-6">
+      <h2 className="font-display text-lg text-navy-900 mb-4 flex items-center gap-2">
+        <CreditCard className="h-5 w-5 text-navy-400" /> Billing
+      </h2>
+      <div className="space-y-4">
+        <button
+          onClick={openBillingPortal}
+          disabled={opening}
+          className="btn-secondary"
+        >
+          <ExternalLink className="h-4 w-4" />
+          {opening ? "Opening..." : "Manage Billing & Subscription"}
+        </button>
+
+        {loadingInv ? (
+          <div className="text-center py-3 text-navy-400"><Loader2 className="h-4 w-4 animate-spin mx-auto" /></div>
+        ) : invoices.length > 0 ? (
+          <div>
+            <h3 className="text-sm font-medium text-navy-700 mb-2">Recent Invoices</h3>
+            <div className="space-y-1">
+              {invoices.slice(0, 5).map((inv: any) => (
+                <div key={inv.id} className="flex items-center justify-between bg-cream-50 rounded-lg px-3 py-2 text-sm">
+                  <div>
+                    <span className="text-navy-700">{inv.number || inv.id.slice(0, 12)}</span>
+                    {inv.date && <span className="text-navy-400 ml-2">{new Date(inv.date).toLocaleDateString()}</span>}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-navy-600 font-medium">{inv.currency} {inv.amount?.toFixed(2)}</span>
+                    {inv.pdfUrl && (
+                      <a href={inv.pdfUrl} target="_blank" rel="noopener" className="text-brand-500 hover:text-brand-600 text-xs">PDF</a>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-navy-400">No invoices yet.</p>
+        )}
       </div>
     </div>
   );

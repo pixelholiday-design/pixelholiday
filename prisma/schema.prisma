@@ -50,6 +50,12 @@ model Organization {
   planExpiresAt        DateTime?
   stripeCustomerId     String?
   stripeSubscriptionId String?
+  stripeConnectAccountId String?
+  stripeConnectStatus    String?
+  stripeConnectOnboardedAt DateTime?
+  trialStartedAt       DateTime?
+  trialEndsAt          DateTime?
+  trialExpired         Boolean          @default(false)
   priceSheets          PriceSheet[]
   createdAt            DateTime         @default(now())
 }
@@ -265,6 +271,9 @@ model Gallery {
   coverMessage    String?
   accessPassword  String?
   downloadPin     String?
+  maxDownloads    Int?
+  shortCode       String?          @unique
+  galleryTheme    String           @default("classic")
   editQuality     EditQuality      @default(STANDARD)
   requireEmail    Boolean          @default(false)
   expiryWarning14 DateTime?
@@ -481,6 +490,7 @@ enum PaymentMethod {
   STRIPE_ONLINE
   STRIPE_TERMINAL
   CASH
+  PAYPAL
 }
 
 enum OrderStatus {
@@ -1846,6 +1856,8 @@ model PhotographerProfile {
   socialFacebook  String?
   socialWebsite   String?
   socialTiktok    String?
+  instagramAccessToken String?
+  instagramUserId      String?
   isPublicProfile Boolean  @default(true)
   // Website builder settings
   websiteTheme    String   @default("minimal") // minimal, bold, classic, modern, dark, light
@@ -2339,6 +2351,7 @@ enum WebsiteBlockType {
   BLOG_FEED
   BOOKING_WIDGET
   STATS
+  CUSTOM_HTML
 }
 
 // ── API KEYS (for Lightroom, Zapier, etc.) ───
@@ -2560,4 +2573,178 @@ model MarketplaceProfile {
   isVerified    Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// ── CRM CLIENT MANAGEMENT ──────────────────────
+model CrmClient {
+  id             String             @id @default(cuid())
+  orgId          String
+  name           String
+  email          String?
+  phone          String?
+  tags           String[]           @default([])
+  notes          String?            @db.Text
+  source         String?            // "gallery", "manual", "inquiry", "booking"
+  status         String             @default("ACTIVE") // LEAD, ACTIVE, VIP, ARCHIVED
+  customerId     String?            // Link to existing Customer if applicable
+  totalSpent     Float              @default(0)
+  sessionCount   Int                @default(0)
+  lastContactAt  DateTime?
+  communications CrmCommunication[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+
+  @@index([orgId])
+  @@index([email])
+}
+
+model CrmCommunication {
+  id        String    @id @default(cuid())
+  clientId  String
+  client    CrmClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  type      String    // EMAIL, PHONE, NOTE, MEETING
+  subject   String?
+  content   String    @db.Text
+  createdAt DateTime  @default(now())
+
+  @@index([clientId])
+}
+
+// ── INVOICING ─────────────────────────────────
+model Invoice {
+  id                String        @id @default(cuid())
+  invoiceNumber     String        @unique
+  orgId             String
+  clientName        String
+  clientEmail       String
+  clientAddress     String?
+  items             InvoiceItem[]
+  subtotal          Float
+  taxRate           Float         @default(0)
+  taxAmount         Float         @default(0)
+  total             Float
+  currency          String        @default("EUR")
+  status            InvoiceStatus @default(DRAFT)
+  dueDate           DateTime
+  paidAt            DateTime?
+  paidAmount        Float?
+  paymentMethod     String?
+  stripePaymentLink String?
+  notes             String?       @db.Text
+  sentAt            DateTime?
+  viewedAt          DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([orgId])
+  @@index([status])
+}
+
+model InvoiceItem {
+  id          String  @id @default(cuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Float
+  total       Float
+
+  @@index([invoiceId])
+}
+
+enum InvoiceStatus {
+  DRAFT
+  SENT
+  VIEWED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+// ── MINI SESSIONS ─────────────────────────────
+model MiniSession {
+  id           String               @id @default(cuid())
+  orgId        String
+  title        String
+  description  String?              @db.Text
+  date         DateTime
+  startTime    String
+  endTime      String
+  slotDuration Int                  @default(15)
+  maxSlots     Int
+  bookedSlots  Int                  @default(0)
+  price        Float
+  currency     String               @default("EUR")
+  location     String?
+  coverImage   String?
+  isPublished  Boolean              @default(false)
+  slug         String               @unique
+  bookings     MiniSessionBooking[]
+  createdAt    DateTime             @default(now())
+}
+
+model MiniSessionBooking {
+  id          String      @id @default(cuid())
+  sessionId   String
+  session     MiniSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  slotTime    String
+  clientName  String
+  clientEmail String
+  clientPhone String?
+  isPaid      Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+
+  @@index([sessionId])
+}
+
+// ── PROJECT MANAGEMENT ────────────────────────
+model Project {
+  id         String   @id @default(cuid())
+  orgId      String
+  clientId   String?
+  title      String
+  status     String   @default("INQUIRY") // INQUIRY, BOOKED, SHOT, EDITING, DELIVERED, ARCHIVED
+  eventDate  DateTime?
+  eventType  String?
+  notes      String?  @db.Text
+  galleryId  String?
+  contractId String?
+  invoiceId  String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([orgId, status])
+}
+
+// ── PRICING TIERS ─────────────────────────────
+model PricingTier {
+  id           String @id @default(cuid())
+  priceSheetId String
+  minQuantity  Int
+  maxQuantity  Int?
+  pricePerUnit Float
+
+  @@index([priceSheetId])
+}
+
+// ── ALBUM DESIGNER ────────────────────────────
+model Album {
+  id        String        @id @default(cuid())
+  orgId     String
+  name      String
+  spreads   AlbumSpread[]
+  template  String        @default("classic")
+  status    String        @default("DRAFT") // DRAFT, READY, ORDERED
+  labOrderId String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+model AlbumSpread {
+  id       String @id @default(cuid())
+  albumId  String
+  album    Album  @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  layout   String // "single", "two-column", "three-up", "full-bleed"
+  photoIds String // JSON array of photo IDs
+  order    Int
 }

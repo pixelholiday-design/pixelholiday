@@ -14,6 +14,9 @@ export async function POST(req: Request) {
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) return NextResponse.json({ error: "Email already registered" }, { status: 409 });
 
+    const now = new Date();
+    const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
+
     const org = await prisma.organization.create({
       data: {
         name: businessName,
@@ -21,6 +24,9 @@ export async function POST(req: Request) {
         subscriptionTier: t,
         saasCommissionRate: SAAS_COMMISSION_RATE,
         sleepingMoneyShare: 0.5,
+        trialStartedAt: now,
+        trialEndsAt: trialEnd,
+        trialExpired: false,
       },
     });
 
