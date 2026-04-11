@@ -218,8 +218,9 @@ model Customer {
   nfcTag          String?
   hasDigitalPass  Boolean          @default(false)
   digitalPassType DigitalPassType?
-  preferredLocale String?
-  locationId      String?
+  preferredLocale   String?
+  detectedLanguage  String?          // auto-detected: en, fr, de, es, it, ar, tr, ru, nl, pt
+  locationId        String?
   galleries       Gallery[]
   orders          Order[]
   shopOrders      ShopOrder[] @relation("ShopOrders")
@@ -273,6 +274,7 @@ model Gallery {
   downloadPin     String?
   maxDownloads    Int?
   shortCode       String?          @unique
+  galleryCode     String?
   galleryTheme    String           @default("classic")
   editQuality     EditQuality      @default(STANDARD)
   requireEmail    Boolean          @default(false)
@@ -456,6 +458,10 @@ model Order {
   refundReason    String?
   refundedBy      String?
   stripeRefundId  String?
+  reelPreviewUrl  String?
+  reelFullUrl     String?
+  reelStatus      String?            // PREVIEW_READY, PURCHASED, GENERATING_FULL, DELIVERED
+  reelTier        String?            // SHORT, STANDARD, PREMIUM
   createdAt       DateTime           @default(now())
 
   @@index([status])
@@ -2766,4 +2772,19 @@ model PhotoBookDesign {
   orderId         String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model ClientAccount {
+  id               String       @id @default(cuid())
+  organizationId   String
+  name             String
+  email            String
+  passwordHash     String?
+  phone            String?
+  lastLoginAt      DateTime?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  @@unique([organizationId, email])
+  @@index([organizationId])
 }

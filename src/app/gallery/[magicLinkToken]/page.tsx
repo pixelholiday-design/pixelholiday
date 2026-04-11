@@ -180,12 +180,13 @@ export default async function Page({
     select: { id: true, duration: true, thumbnailUrl: true },
   });
 
-  // Detect locale from URL param > cookie > Accept-Language
+  // Detect locale: URL param > cookie > customer auto-detect > Accept-Language
   const headersList = headers();
+  const customerLang = gallery.customer?.detectedLanguage || gallery.customer?.preferredLocale;
   const locale = detectLocale({
     searchParams,
     cookie: cookieStore.get(LOCALE_COOKIE)?.value,
-    acceptLanguage: headersList.get("accept-language") || undefined,
+    acceptLanguage: customerLang || headersList.get("accept-language") || undefined,
   });
   const messages = await loadMessages(locale);
 

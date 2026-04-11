@@ -28,33 +28,67 @@ export async function POST(req: Request) {
   });
   if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
 
-  // For now: accept JSON body with gallery reference
-  const body = await req.json().catch(() => ({}));
-  const galleryId = body.galleryId;
-  const photoUrl = body.photoUrl || body.url;
+  // Determine content type and parse accordingly
+  const contentType = req.headers.get("content-type") || "";
+  let galleryId: string | undefined;
+  let photoUrl: string | undefined;
+  let hasFile = false;
+  let fileName: string | undefined;
 
-  if (!galleryId && !photoUrl) {
+  if (contentType.includes("multipart/form-data")) {
+    // FormData upload (Lightroom HTTP export plugin sends files this way)
+    const formData = await req.formData();
+    galleryId = formData.get("galleryId") as string | undefined;
+    const file = formData.get("file") as File | null;
+    if (file) {
+      hasFile = true;
+      fileName = file.name || "upload.jpg";
+      // In production, the file would be uploaded to R2 via presigned URL.
+      // For now, acknowledge the file and return a placeholder reference.
+      photoUrl = `lightroom-upload://${fileName}`;
+    }
+    // Also accept photoUrl via form field as fallback
+    if (!photoUrl) {
+      photoUrl = formData.get("photoUrl") as string | undefined;
+    }
+  } else {
+    // JSON body
+    const body = await req.json().catch(() => ({}));
+    galleryId = body.galleryId;
+    photoUrl = body.photoUrl || body.url;
+  }
+
+  if (!galleryId) {
     return NextResponse.json({
-      error: "Provide galleryId + photoUrl, or use /api/upload/presigned for direct file upload",
+      error: "galleryId is required",
       usage: {
         endpoint: "POST /api/upload/lightroom",
-        headers: { "Authorization": "Bearer fq_live_xxx", "Content-Type": "application/json" },
-        body: { galleryId: "gallery-id", photoUrl: "https://..." },
+        headers: { "Authorization": "Bearer fq_live_xxx" },
+        json: { galleryId: "gallery-id", photoUrl: "https://..." },
+        multipart: "Send 'file' (image) + 'galleryId' as form fields",
       },
     }, { status: 400 });
   }
 
-  // Create photo record
-  if (galleryId && photoUrl) {
-    const photo = await prisma.photo.create({
-      data: {
-        galleryId,
-        s3Key_highRes: photoUrl,
-        sortOrder: await prisma.photo.count({ where: { galleryId } }),
-      },
-    });
-    return NextResponse.json({ ok: true, photoId: photo.id, galleryId });
+  if (!photoUrl && !hasFile) {
+    return NextResponse.json({
+      error: "Provide a file (multipart) or photoUrl (JSON)",
+    }, { status: 400 });
   }
 
-  return NextResponse.json({ error: "galleryId and photoUrl required" }, { status: 400 });
+  // Create photo record
+  const photo = await prisma.photo.create({
+    data: {
+      galleryId,
+      s3Key_highRes: photoUrl || `lightroom-upload://${Date.now()}`,
+      sortOrder: await prisma.photo.count({ where: { galleryId } }),
+    },
+  });
+
+  return NextResponse.json({
+    ok: true,
+    photoId: photo.id,
+    galleryId,
+    ...(hasFile && { note: "File received. In production, this would be stored in R2." }),
+  });
 }
