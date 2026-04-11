@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Check, ArrowRight, Star, Zap } from "lucide-react";
 import { ProductMockup } from "@/components/marketing/ProductMockup";
 
@@ -93,11 +94,12 @@ export default function ProductPage({
                   </ul>
                 </div>
                 <div className="flex-1">
-                  <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lift">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
+                  <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-lift relative">
+                    <Image
                       src={`https://picsum.photos/seed/fqdf${i * 7 + 60}/800/600`}
-                      alt={df.title}
+                      alt={`${df.title} feature illustration`}
+                      width={800}
+                      height={600}
                       className="w-full h-full object-cover"
                       loading="lazy"
                     />

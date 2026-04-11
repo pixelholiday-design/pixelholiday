@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Check, Clock, Camera, Users, MapPin, Info } from "lucide-react";
 import { useState } from "react";
 
@@ -38,8 +39,7 @@ export default function PackageDetail({ pkg }: { pkg: Package }) {
       {/* Hero image */}
       <div className="relative aspect-[16/9] rounded-2xl overflow-hidden bg-gradient-to-br from-brand-400/20 to-navy-900/20">
         {pkg.coverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={pkg.coverImage} alt={pkg.name} className="w-full h-full object-cover" />
+          <Image src={pkg.coverImage} alt={`${pkg.name} cover photo`} fill className="object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
             <Camera className="h-24 w-24 text-brand-400/30" />

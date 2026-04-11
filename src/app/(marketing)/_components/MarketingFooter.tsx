@@ -48,7 +48,7 @@ const COLUMNS = [
 
 export default function MarketingFooter() {
   return (
-    <footer className="bg-navy-900 text-white">
+    <footer aria-label="Footer navigation" className="bg-navy-900 text-white">
       <div className="mx-auto max-w-7xl px-6 pt-16 pb-8">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand column */}
@@ -65,9 +65,9 @@ export default function MarketingFooter() {
             {/* Social icons */}
             <div className="flex gap-4">
               {["Instagram", "Facebook", "Twitter", "LinkedIn", "YouTube"].map((s) => (
-                <span key={s} className="w-8 h-8 rounded-full bg-navy-700 flex items-center justify-center text-xs text-navy-300 hover:bg-brand-700 hover:text-white transition cursor-pointer" title={s}>
+                <a key={s} href="#" className="w-8 h-8 rounded-full bg-navy-700 flex items-center justify-center text-xs text-navy-300 hover:bg-brand-700 hover:text-white transition cursor-pointer" aria-label={`Follow us on ${s}`}>
                   {s[0]}
-                </span>
+                </a>
               ))}
             </div>
           </div>

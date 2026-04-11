@@ -2,6 +2,8 @@ import { Camera, Heart, Globe, Users, MapPin, Rocket, Calendar } from "lucide-re
 import SectionFadeIn from "../_components/SectionFadeIn";
 import { CTAPrimary, CTADark } from "../_components/CTAButton";
 
+export const revalidate = 3600;
+
 export const metadata = {
   title: "About Fotiqo  — Our Story & Mission",
   description:

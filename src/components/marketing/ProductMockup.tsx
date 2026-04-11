@@ -1,4 +1,4 @@
-"use client";
+import NextImage from "next/image";
 import { Camera, Heart, Lock, Star, ShoppingBag, Search, BarChart3, Calendar, FileSignature, MessageSquare, Package, Image } from "lucide-react";
 
 const img = (seed: number, w = 400, h = 300) => `https://picsum.photos/seed/fq${seed}/${w}/${h}`;
@@ -15,9 +15,8 @@ export function ProductMockup({ productId }: { productId: string }) {
   }
 }
 
-function Img({ seed, w, h, className }: { seed: number; w?: number; h?: number; className?: string }) {
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={img(seed, w, h)} alt="" className={className || "w-full h-full object-cover"} loading="lazy" />;
+function Img({ seed, w = 400, h = 300, alt, className }: { seed: number; w?: number; h?: number; alt: string; className?: string }) {
+  return <NextImage src={img(seed, w, h)} alt={alt} width={w} height={h} className={className || "w-full h-full object-cover"} loading="lazy" />;
 }
 
 function GalleryMockup() {
@@ -28,7 +27,7 @@ function GalleryMockup() {
         <div className="flex gap-1">{[1,2,3].map(i=><div key={i} className="w-1.5 h-1.5 rounded-full bg-white/20"/>)}</div>
       </div>
       <div className="h-[72px] relative overflow-hidden">
-        <Img seed={42} w={800} h={300} />
+        <Img seed={42} w={800} h={300} alt="Beach wedding gallery hero" />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-900/80 to-transparent"/>
         <div className="absolute bottom-1.5 left-3 text-white">
           <div className="font-display text-[11px]">Beach Wedding</div>
@@ -38,7 +37,7 @@ function GalleryMockup() {
       <div className="p-1.5 grid grid-cols-3 gap-1">
         {[10,11,12,13,14,15,16,17,18].map((s,i)=>(
           <div key={s} className="aspect-square rounded relative overflow-hidden">
-            <Img seed={s} w={200} h={200}/>
+            <Img seed={s} w={200} h={200} alt={`Gallery photo ${i + 1}`}/>
             {i<6&&<div className="absolute inset-0 flex items-center justify-center"><span className="text-white/25 text-[6px] font-bold rotate-[-20deg]">FOTIQO</span></div>}
             {i===0&&<div className="absolute top-0.5 left-0.5 bg-navy-900/80 text-white rounded-full px-1 text-[4px] flex items-center gap-0.5"><Lock className="h-1.5 w-1.5"/>LOCKED</div>}
             {(i===2||i===5)&&<Heart className="absolute top-0.5 right-0.5 h-2 w-2 fill-coral-500 text-coral-500"/>}
@@ -65,7 +64,7 @@ function WebsiteMockup() {
         {["Portfolio","About","Services","Contact"].map(p=><span key={p} className="text-[5px] text-navy-400">{p}</span>)}
       </div>
       <div className="h-[88px] relative overflow-hidden">
-        <Img seed={88} w={800} h={400}/>
+        <Img seed={88} w={800} h={400} alt="Photographer portfolio hero"/>
         <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
           <div className="text-center text-white">
             <div className="font-display text-[11px]">Capturing love stories</div>
@@ -76,7 +75,7 @@ function WebsiteMockup() {
       </div>
       <div className="p-1.5 grid grid-cols-4 gap-1">
         {[20,21,22,23,24,25,26,27].map(s=>(
-          <div key={s} className="aspect-square rounded overflow-hidden"><Img seed={s} w={150} h={150}/></div>
+          <div key={s} className="aspect-square rounded overflow-hidden"><Img seed={s} w={150} h={150} alt={`Portfolio sample ${s - 19}`}/></div>
         ))}
       </div>
     </div>
@@ -99,7 +98,7 @@ function StoreMockup() {
       <div className="p-1.5 grid grid-cols-2 gap-1.5">
         {items.map(p=>(
           <div key={p.name} className="rounded-lg border border-cream-200 overflow-hidden">
-            <div className="h-14 overflow-hidden"><Img seed={p.s} w={300} h={200}/></div>
+            <div className="h-14 overflow-hidden"><Img seed={p.s} w={300} h={200} alt={`${p.name} product photo`}/></div>
             <div className="p-1"><div className="text-[6px] font-semibold text-navy-900 truncate">{p.name}</div><div className="text-[7px] font-display text-navy-700">{p.price}</div></div>
           </div>
         ))}
@@ -134,7 +133,7 @@ function StudioMockup() {
         </div>
         <div className="mt-1 grid grid-cols-3 gap-1">
           {[40,41,42].map(s=>(
-            <div key={s} className="h-7 rounded overflow-hidden"><Img seed={s} w={200} h={100}/></div>
+            <div key={s} className="h-7 rounded overflow-hidden"><Img seed={s} w={200} h={100} alt={`Recent gallery thumbnail ${s - 39}`}/></div>
           ))}
         </div>
       </div>
@@ -153,7 +152,7 @@ function MarketplaceMockup() {
       <div className="p-1.5 grid grid-cols-2 gap-1.5">
         {list.map(p=>(
           <div key={p.n} className="bg-white rounded-xl border border-cream-200 overflow-hidden">
-            <div className="h-12 overflow-hidden"><Img seed={p.s} w={300} h={200}/></div>
+            <div className="h-12 overflow-hidden"><Img seed={p.s} w={300} h={200} alt={`${p.n} ${p.t} photography portfolio`}/></div>
             <div className="p-1.5">
               <div className="text-[7px] font-semibold text-navy-900">{p.n}</div>
               <div className="text-[5px] text-navy-400">{p.t} &middot; <Star className="h-1.5 w-1.5 inline fill-gold-400 text-gold-400"/> {p.r}</div>
@@ -192,7 +191,7 @@ function MobileGalleryMockup() {
           <div className="grid grid-cols-2 gap-0.5 p-1">
             {[10,11,12,13,14,15].map(s => (
               <div key={s} className="aspect-square rounded-sm overflow-hidden">
-                <Img seed={s} w={150} h={150}/>
+                <Img seed={s} w={150} h={150} alt={`Mobile gallery photo ${s - 9}`}/>
               </div>
             ))}
           </div>

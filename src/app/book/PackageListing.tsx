@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Clock, Camera, Users, Star, Search, MapPin } from "lucide-react";
 
 interface AddOn {
@@ -104,8 +105,7 @@ export default function PackageListing({
       <div className="bg-gradient-to-br from-navy-900 via-navy-800 to-brand-400/30 text-white">
         <div className="max-w-7xl mx-auto px-4 py-16 md:py-24">
           <div className="flex items-center gap-3 mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-10 w-10 rounded-lg" />
+            <Image src="/fotiqo-icon.svg" alt="Fotiqo logo" width={40} height={40} className="h-10 w-10 rounded-lg" />
             <span className="font-display text-xl">Fotiqo</span>
           </div>
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl mb-4">
@@ -199,11 +199,11 @@ function PackageCard({ pkg }: { pkg: Package }) {
       {/* Cover image */}
       <div className="relative aspect-[4/3] bg-gradient-to-br from-brand-400/20 to-navy-900/20">
         {pkg.coverImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={pkg.coverImage}
-            alt={pkg.name}
-            className="w-full h-full object-cover"
+            alt={`${pkg.name} photography package`}
+            fill
+            className="object-cover"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

@@ -58,7 +58,7 @@ const PLAN_FEATURES: Record<string, Record<string, boolean>> = {
 const PLAN_LIMITS: Record<string, { maxGalleries: number; storageGb: number }> = {
   STARTER: { maxGalleries: 3, storageGb: 1 },
   PRO: { maxGalleries: Infinity, storageGb: 50 },
-  STUDIO: { maxGalleries: Infinity, storageGb: 200 },
+  STUDIO: { maxGalleries: Infinity, storageGb: 500 },
 };
 
 /**

@@ -29,7 +29,7 @@ export default function MarketingNav() {
 
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-white/80 backdrop-blur-xl border-b border-cream-300/60">
-      <nav className="mx-auto max-w-7xl flex items-center justify-between px-6 h-16">
+      <nav aria-label="Main navigation" className="mx-auto max-w-7xl flex items-center justify-between px-6 h-16">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
           <Image src="/fotiqo-icon.svg" alt="Fotiqo" width={32} height={32} className="w-8 h-8" />
@@ -48,7 +48,7 @@ export default function MarketingNav() {
                 onMouseEnter={() => setDropdownOpen(item.label)}
                 onMouseLeave={() => setDropdownOpen(null)}
               >
-                <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-navy-700 hover:text-brand-500 transition">
+                <button className="flex items-center gap-1 px-3 py-2 text-sm font-medium text-navy-700 hover:text-brand-500 transition" aria-haspopup="true" aria-expanded={dropdownOpen === item.label}>
                   {item.label}
                   <ChevronDown className="w-3.5 h-3.5" />
                 </button>
@@ -93,7 +93,7 @@ export default function MarketingNav() {
             onMouseEnter={() => setLoginOpen(true)}
             onMouseLeave={() => setLoginOpen(false)}
           >
-            <button className="text-sm font-medium text-navy-700 hover:text-brand-500 transition px-3 py-2 flex items-center gap-1">
+            <button className="text-sm font-medium text-navy-700 hover:text-brand-500 transition px-3 py-2 flex items-center gap-1" aria-haspopup="true" aria-expanded={loginOpen}>
               Sign In <ChevronDown className="w-3 h-3" />
             </button>
             {loginOpen && (
@@ -117,7 +117,7 @@ export default function MarketingNav() {
         </div>
 
         {/* Mobile hamburger */}
-        <button onClick={() => setOpen(!open)} className="lg:hidden p-2 text-navy-700">
+        <button onClick={() => setOpen(!open)} className="lg:hidden p-2 text-navy-700" aria-label="Toggle menu" aria-expanded={open}>
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </nav>

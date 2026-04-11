@@ -24,9 +24,27 @@ export const metadata: Metadata = {
   title: "Fotiqo — The complete photography platform",
   description: "Capture. Deliver. Sell. Grow. The all-in-one photography platform for resorts, studios, and freelancers.",
   manifest: "/manifest.json",
+  openGraph: {
+    title: "Fotiqo — The complete photography platform",
+    description: "Capture. Deliver. Sell. Grow. The all-in-one photography platform for resorts, studios, and freelancers.",
+    images: ["/fotiqo-icon.svg"],
+    url: "https://fotiqo.com",
+    type: "website",
+    siteName: "Fotiqo",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Fotiqo — The complete photography platform",
+    description: "Capture. Deliver. Sell. Grow. The all-in-one photography platform for resorts, studios, and freelancers.",
+    images: ["/fotiqo-icon.svg"],
+  },
 };
 
-export const viewport = { themeColor: "#0EA5A5" };
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0EA5A5",
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (

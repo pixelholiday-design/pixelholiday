@@ -65,6 +65,8 @@ import SectionFadeIn from "../_components/SectionFadeIn";
 import { CTAPrimary } from "../_components/CTAButton";
 import type { LucideIcon } from "lucide-react";
 
+export const revalidate = 3600;
+
 export const metadata: Metadata = {
   title: "Features  — Fotiqo Photography Platform",
   description:

@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Camera, Globe, ShoppingBag, Calendar, Search, Check, ArrowRight, Star, Zap, Shield, Heart, Play } from "lucide-react";
 import { ProductMockup } from "@/components/marketing/ProductMockup";
 
+export const revalidate = 3600;
+
 export const metadata = {
   title: "Fotiqo   — The Complete Photography Platform",
   description: "Deliver galleries. Sell prints. Book clients. Build your website. Get discovered. All in one place   — free to start.",
@@ -12,7 +14,7 @@ const PRODUCTS = [
   { id: "website", label: "Website Builder", icon: Globe, headline: "A stunning portfolio website in minutes", description: "AI-powered website builder or manual block editor. 17 block types, custom fonts, custom domain, blog, SEO tools, and client gallery pages.", features: ["AI Website Builder   — answer 3 questions, get a full site", "17 content blocks (hero, gallery, services, testimonials...)", "Client gallery page   — clients find their photos by email or code", "Custom domain connection (yourname.com)", "Built-in blog with rich text editor", "SEO tools: sitemap, robots.txt, JSON-LD schema markup"], cta: "Build your website free", href: "/products/website-builder", color: "from-purple-500 to-purple-400" },
   { id: "store", label: "Online Store", icon: ShoppingBag, headline: "Sell prints worldwide   — we handle the rest", description: "187 products fulfilled by Prodigi and Printful. Photo book designer, per-photo purchasing, digital pass tiers, and volume pricing.", features: ["187 products: prints, canvas, albums, mugs, gifts", "Photo book designer   — Canva-style drag, resize, rotate, 13 layouts", "Per-photo & multi-select purchasing with bulk discounts", "Digital pass tiers   — unlock all photos at 3 price points", "Auto-fulfillment   — orders ship to your client", "Volume pricing + coupons + gift cards"], cta: "Open your store free", href: "/products/online-store", color: "from-coral-500 to-coral-400" },
   { id: "studio", label: "Studio Manager", icon: Calendar, headline: "Run your business from one dashboard", description: "AI Command Center, bookings, contracts, invoices, CRM, project board, and Lightroom integration.", features: ["AI Command Center   — daily briefing, marketing assistant, competitor analysis", "Kanban project board (inquiry → delivered → archived)", "Contracts with e-signatures (5 templates)", "Invoices with Stripe payment links + PDF generation", "Client CRM with communications log", "Lightroom integration via API keys   — upload directly from desktop"], cta: "Manage your studio free", href: "/products/studio-manager", color: "from-gold-500 to-gold-400" },
-  { id: "marketplace", label: "Marketplace", icon: Search, headline: "Get discovered by new clients", description: "Your profile on Fotiqo Marketplace. Clients search, find you, and book instantly.", features: ["Professional profile with portfolio and reviews", "Search by location, specialty, and budget", "Instant booking with Stripe payments", "Clients book as guest (no account needed)", "3-10% commission only when you earn", "Verified reviews build your reputation"], cta: "Create your profile free", href: "/products/marketplace", color: "from-green-500 to-green-400" },
+  { id: "marketplace", label: "Marketplace", icon: Search, headline: "Get discovered by new clients", description: "Your profile on Fotiqo Marketplace. Clients search, find you, and book instantly.", features: ["Professional profile with portfolio and reviews", "Search by location, specialty, and budget", "Instant booking with Stripe payments", "Clients book as guest (no account needed)", "3% from your link, 10% from marketplace", "Verified reviews build your reputation"], cta: "Create your profile free", href: "/products/marketplace", color: "from-green-500 to-green-400" },
 ];
 
 const COMPARISON = [
@@ -37,7 +39,21 @@ const COMPARISON = [
 
 export default function MarketingHome() {
   return (
-    <div>
+    <main>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "Fotiqo",
+            url: "https://fotiqo.com",
+            logo: "https://fotiqo.com/fotiqo-icon.svg",
+            description: "The complete photography platform for photographers, studios, and venues.",
+            sameAs: ["https://instagram.com/fotiqo"],
+          }),
+        }}
+      />
       {/* HERO */}
       <section className="relative pt-32 pb-20 sm:pb-28 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-cream-100 via-white to-cream-50" />
@@ -204,6 +220,6 @@ export default function MarketingHome() {
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

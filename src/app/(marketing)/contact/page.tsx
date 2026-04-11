@@ -3,6 +3,8 @@ import SectionFadeIn from "../_components/SectionFadeIn";
 import { CTAPrimary } from "../_components/CTAButton";
 import ContactForm from "./ContactForm";
 
+export const revalidate = 3600;
+
 export const metadata = {
   title: "Contact Fotiqo  — Let\'s Talk",
   description:

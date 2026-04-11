@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import PackageDetail from "./PackageDetail";
@@ -53,8 +54,7 @@ export default async function PackageDetailPage({
       {/* Header */}
       <div className="bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/fotiqo-icon.svg" alt="Fotiqo" className="h-8 w-8 rounded-lg" />
+          <Image src="/fotiqo-icon.svg" alt="Fotiqo logo" width={32} height={32} className="h-8 w-8 rounded-lg" />
           <a href="/book" className="text-sm text-brand-400 hover:underline">&larr; All packages</a>
         </div>
       </div>
