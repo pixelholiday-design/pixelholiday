@@ -85,7 +85,8 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
   // AI Auto-book state
   const [autoBookData, setAutoBookData] = useState<any>(null);
   const [autoBookDismissed, setAutoBookDismissed] = useState(false);
-  const [autoBookLoading, setAutoBookLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
   // Live stream: add new photos as they arrive from the photographer
   const handleNewLivePhotos = useCallback((livePhotos: { id: string; thumbnailUrl: string; fullUrl: string; isHookImage: boolean; createdAt: string }[]) => {
@@ -234,7 +235,8 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
 
   const isClean = gallery.status === "PAID" || gallery.status === "DIGITAL_PASS";
   const isPartial = gallery.status === "PARTIAL_PAID";
-  const galleryUrl = typeof window !== "undefined" ? window.location.href : "";
+  const [galleryUrl, setGalleryUrl] = useState("");
+  useEffect(() => { setGalleryUrl(window.location.href); }, []);
 
   return (
     <div className="min-h-screen bg-cream-100">
@@ -329,7 +331,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
       </header>
 
       {/* ── AI AUTO-BOOK BANNER ── */}
-      {autoBookData && !autoBookDismissed && activeTab === "photos" && (
+      {mounted && autoBookData && !autoBookDismissed && activeTab === "photos" && (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 pt-4">
           <div className="relative bg-gradient-to-r from-brand-700 via-brand-600 to-coral-500 rounded-2xl p-5 sm:p-6 text-white overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
