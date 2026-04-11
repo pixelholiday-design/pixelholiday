@@ -50,6 +50,7 @@ model Organization {
   planExpiresAt        DateTime?
   stripeCustomerId     String?
   stripeSubscriptionId String?
+  priceSheets          PriceSheet[]
   createdAt            DateTime         @default(now())
 }
 
@@ -1678,20 +1679,30 @@ model ShopProduct {
   productKey      String   @unique
   name            String
   description     String   @default("")
-  category        String   // DIGITAL, PRINT, WALL_ART, PHOTO_BOOK, GIFT, CARD, SOUVENIR
+  category        String   // PRINTS, WALL_ART, ALBUMS, CARDS, DIGITAL, PACKAGES, GIFTS, OTHERS
   subcategory     String?  // "canvas", "metal", "framed", "mug", "puzzle" etc.
-  sizes           String?  @db.Text // JSON: [{"key":"4x6","label":"4×6 inch","width":4,"height":6}]
+  sizes           String?  @db.Text // JSON: [{name:"8x10", sku:"...", cost:2.40, width:8, height:10}]
   defaultSize     String?
-  options         String?  @db.Text // JSON: [{"key":"lustre","label":"Lustre Paper"}]
+  options         String?  @db.Text // JSON: [{name:"Lustre", sku:"...", costAddon:0}]
   defaultOption   String?
+  papers          String?  @db.Text // JSON: [{name:"Lustre", costAddon:0}, {name:"Matte", costAddon:0.50}]
+  frames          String?  @db.Text // JSON: [{name:"Black", costAddon:5.00}]
+  finishes        String?  @db.Text // JSON: [{name:"Glossy"}, {name:"Matte"}]
   costPrice       Float    @default(0)
   retailPrice     Float
   fulfillmentType String   @default("AUTO") // AUTO, MANUAL, DIGITAL
-  labProductId    String?  // Prodigi/WHCC SKU
-  labName         String?  // PRODIGI, WHCC, ZNO, LOCAL
+  labProductId    String?  // Prodigi/Printful/WHCC SKU
+  labName         String?  // PRODIGI, PRINTFUL, WHCC, LOCAL
   mockupUrl       String?
+  roomPreviewUrl  String?  // Room scene mockup for wall art
+  hasRoomPreview  Boolean  @default(false)
+  hasPersonalizedPreview Boolean @default(true)
+  minPhotos       Int      @default(1)
+  maxPhotos       Int?
+  isDigital       Boolean  @default(false)
   isActive        Boolean  @default(true)
   isFeatured      Boolean  @default(false)
+  comingSoon      Boolean  @default(false)
   sortOrder       Int      @default(0)
   weight          Float?   // grams
   shippingClass   String?  // STANDARD, OVERSIZED, FRAGILE
@@ -1699,9 +1710,39 @@ model ShopProduct {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
   orderItems      ShopOrderItem[]
+  priceSheetItems PriceSheetItem[]
 
   @@index([category])
   @@index([isActive, isFeatured])
+}
+
+// Price sheets for SaaS photographers — custom markup per product
+model PriceSheet {
+  id                String   @id @default(cuid())
+  organizationId    String
+  organization      Organization @relation(fields: [organizationId], references: [id])
+  name              String   // "Wedding Price Sheet"
+  isDefault         Boolean  @default(false)
+  bulkMarkupPercent Float?   // e.g. 80 = 80% markup on all
+  items             PriceSheetItem[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([organizationId])
+}
+
+model PriceSheetItem {
+  id              String   @id @default(cuid())
+  priceSheetId    String
+  priceSheet      PriceSheet @relation(fields: [priceSheetId], references: [id])
+  shopProductId   String
+  shopProduct     ShopProduct @relation(fields: [shopProductId], references: [id])
+  isEnabled       Boolean  @default(true)
+  markupPercent   Float?
+  customPrice     Float?
+
+  @@unique([priceSheetId, shopProductId])
+  @@index([priceSheetId])
 }
 
 model PrintLabPartner {

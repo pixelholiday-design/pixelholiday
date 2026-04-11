@@ -3,37 +3,25 @@ import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-// Category display labels & blurbs
+// 8 Pixieset-style categories
 const CATEGORY_META: Record<string, { label: string; blurb: string; icon: string }> = {
-  DIGITAL:       { label: "Digital Downloads",    blurb: "High-res files delivered instantly to your phone.",           icon: "Download" },
-  PRINT:         { label: "Photo Prints",          blurb: "Lab-quality photo prints, ready to frame or gift.",           icon: "Image" },
-  WALL_ART:      { label: "Canvas & Wall Art",     blurb: "Premium canvas, metal, and gallery-wrap pieces.",             icon: "Frame" },
-  SPECIALTY_WALL:{ label: "Specialty Wall Art",    blurb: "Acrylic, metal, and unique wall-display formats.",            icon: "Palette" },
-  PHOTO_BOOK:    { label: "Photo Books & Albums",  blurb: "Luxury layflat and hardcover photo books.",                   icon: "Book" },
-  GIFT:          { label: "Photo Gifts",           blurb: "Mugs, puzzles, ornaments and personalised keepsakes.",        icon: "Gift" },
-  CARD:          { label: "Photo Cards",           blurb: "Greeting cards, postcards and thank-you sets.",               icon: "Mail" },
-  SOUVENIR:      { label: "Resort Souvenirs",      blurb: "Resort-branded souvenirs and wearables.",                     icon: "Star" },
-  BUNDLE:        { label: "Bundles & Packages",    blurb: "Save more with curated photo product bundles.",               icon: "Package" },
-  DISPLAY:       { label: "Tabletop & Display",    blurb: "Frames, stands, and desk displays for your memories.",        icon: "Monitor" },
-  // Legacy / alias keys kept for backwards compat
-  PRINTS:        { label: "Photo Prints",          blurb: "Lab-quality photo prints, ready to frame or gift.",           icon: "Image" },
-  PASSES:        { label: "Digital Passes",        blurb: "Pre-purchase a photo pass and skip the kiosk line.",          icon: "Gift" },
-  ADD_ONS:       { label: "Add-ons",               blurb: "Magic Shots, video reels and other extras.",                  icon: "Star" },
+  PRINTS:    { label: "Prints",            blurb: "Lab-quality photo prints on premium paper.",              icon: "Image" },
+  WALL_ART:  { label: "Wall Art",          blurb: "Canvas, metal, acrylic, and framed art for your walls.", icon: "Frame" },
+  ALBUMS:    { label: "Albums & Books",    blurb: "Photo books and layflat albums to treasure forever.",     icon: "Book" },
+  CARDS:     { label: "Cards",            blurb: "Greeting cards, postcards, and personalized stationery.", icon: "Mail" },
+  DIGITAL:   { label: "Digital Downloads", blurb: "High-res files delivered instantly to your device.",      icon: "Download" },
+  PACKAGES:  { label: "Packages",         blurb: "Curated bundles — prints, wall art, and digital.",        icon: "Package" },
+  GIFTS:     { label: "Gifts & Souvenirs",blurb: "Mugs, puzzles, ornaments, and personalized keepsakes.",   icon: "Gift" },
+  OTHERS:    { label: "Extras",           blurb: "Video reels, retouching, and custom products.",            icon: "Star" },
+  // Legacy aliases
+  PRINT:     { label: "Prints",            blurb: "Lab-quality photo prints.",                              icon: "Image" },
+  PHOTO_BOOK:{ label: "Albums & Books",    blurb: "Photo books and albums.",                                icon: "Book" },
+  GIFT:      { label: "Gifts",            blurb: "Photo gifts and keepsakes.",                              icon: "Gift" },
+  CARD:      { label: "Cards",            blurb: "Cards and stationery.",                                   icon: "Mail" },
 };
 
 const CATEGORY_ORDER = [
-  "DIGITAL",
-  "PRINT", "PRINTS",
-  "WALL_ART",
-  "SPECIALTY_WALL",
-  "PHOTO_BOOK",
-  "GIFT",
-  "CARD",
-  "SOUVENIR",
-  "BUNDLE",
-  "DISPLAY",
-  "PASSES",
-  "ADD_ONS",
+  "PRINTS", "WALL_ART", "ALBUMS", "CARDS", "DIGITAL", "PACKAGES", "GIFTS", "OTHERS",
 ];
 
 export async function GET(_req: NextRequest) {
@@ -43,15 +31,13 @@ export async function GET(_req: NextRequest) {
       orderBy: [{ sortOrder: "asc" }, { isFeatured: "desc" }, { name: "asc" }],
     });
 
-    // Group by category, maintaining sortOrder within each group
     const byCategory: Record<string, typeof products> = {};
     for (const p of products) {
-      const cat = p.category ?? "DIGITAL";
+      const cat = p.category ?? "OTHERS";
       if (!byCategory[cat]) byCategory[cat] = [];
       byCategory[cat].push(p);
     }
 
-    // Build ordered category list — use CATEGORY_ORDER, skip duplicates, append unknowns
     const seen = new Set<string>();
     const presentCategories: string[] = [];
     for (const c of CATEGORY_ORDER) {
@@ -60,7 +46,6 @@ export async function GET(_req: NextRequest) {
         seen.add(c);
       }
     }
-    // Append any categories not in the ordered list
     for (const c of Object.keys(byCategory)) {
       if (!seen.has(c)) {
         presentCategories.push(c);

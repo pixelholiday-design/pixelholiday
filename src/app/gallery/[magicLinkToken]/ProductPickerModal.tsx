@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Plus, Minus, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
 import { getPhotoSrc } from "@/lib/cloudinary";
 import type { CartItem, CartPhoto } from "@/components/gallery/ShopCart";
+import RoomPreview from "@/components/shop/RoomPreview";
 
 type CatalogProduct = {
   id: string;
@@ -12,9 +13,16 @@ type CatalogProduct = {
   price: number;
   currency: string;
   description: string;
+  category?: string;
+  subcategory?: string;
   badge?: string;
   mockupType?: string;
-  sizes?: { label: string; price?: number }[];
+  mockupUrl?: string;
+  hasRoomPreview?: boolean;
+  sizes?: { label: string; price?: number; name?: string }[];
+  papers?: { name: string; costAddon?: number }[];
+  frames?: { name: string; costAddon?: number }[];
+  finishes?: { name: string }[];
 };
 
 type Photo = {
@@ -297,9 +305,21 @@ export default function ProductPickerModal({
           </div>
 
           {/* Photo counter */}
-          <p className="text-center text-xs text-navy-400 pb-3">
+          <p className="text-center text-xs text-navy-400 pb-1">
             Photo {selectedPhotoIdx + 1} of {photos.length}
           </p>
+
+          {/* Room preview for wall art products */}
+          {(product.category === "WALL_ART" || (product as any).hasRoomPreview) && selectedPhoto && (
+            <div className="px-3 pb-3">
+              <RoomPreview
+                photoUrl={getPhotoSrc(selectedPhoto, !!(isPaid || selectedPhoto.isPurchased))}
+                productName={product.name}
+                selectedSize={selectedSize}
+                frameType={product.sizes?.find((s) => s.label === selectedSize)?.label}
+              />
+            </div>
+          )}
         </div>
 
         {/* Right: product details */}
