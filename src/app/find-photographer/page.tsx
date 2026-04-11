@@ -67,35 +67,45 @@ export default async function FindPhotographerPage({
   const page = parseInt(sp.page || "1");
   const perPage = 12;
 
-  const [photographers, total] = await Promise.all([
-    prisma.photographerProfile.findMany({
-      where,
-      include: {
-        user: { select: { name: true, id: true } },
-        services: { take: 3, orderBy: { sortOrder: "asc" } },
-      },
-      orderBy,
-      skip: (page - 1) * perPage,
-      take: perPage,
-    }),
-    prisma.photographerProfile.count({ where }),
-  ]);
+  let photographers: any[] = [];
+  let total = 0;
+  let specialties: string[] = [];
+  let languages: string[] = [];
+  let cities: string[] = [];
 
-  // Aggregate filter options from public profiles
-  const allProfiles = await prisma.photographerProfile.findMany({
-    where: { isPublicProfile: true },
-    select: { specialties: true, languages: true, city: true, country: true },
-  });
+  try {
+    [photographers, total] = await Promise.all([
+      prisma.photographerProfile.findMany({
+        where,
+        include: {
+          user: { select: { name: true, id: true } },
+          services: { take: 3, orderBy: { sortOrder: "asc" } },
+        },
+        orderBy,
+        skip: (page - 1) * perPage,
+        take: perPage,
+      }),
+      prisma.photographerProfile.count({ where }),
+    ]);
 
-  const specialties = Array.from(
-    new Set(allProfiles.flatMap((p) => p.specialties))
-  ).sort();
-  const languages = Array.from(
-    new Set(allProfiles.flatMap((p) => p.languages))
-  ).sort();
-  const cities = Array.from(
-    new Set(allProfiles.map((p) => p.city).filter(Boolean) as string[])
-  ).sort();
+    // Aggregate filter options from public profiles
+    const allProfiles = await prisma.photographerProfile.findMany({
+      where: { isPublicProfile: true },
+      select: { specialties: true, languages: true, city: true, country: true },
+    });
+
+    specialties = Array.from(
+      new Set(allProfiles.flatMap((p) => p.specialties))
+    ).sort();
+    languages = Array.from(
+      new Set(allProfiles.flatMap((p) => p.languages))
+    ).sort();
+    cities = Array.from(
+      new Set(allProfiles.map((p) => p.city).filter(Boolean) as string[])
+    ).sort();
+  } catch {
+    // Database unavailable — render empty state
+  }
 
   return (
     <MarketplaceClient
