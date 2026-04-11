@@ -64,22 +64,27 @@ export default function BookBuilder({
   onClose,
   onAddToCart,
   initialProduct,
+  aiSelectedPhotoIds,
 }: {
   photos: Photo[];
   isPaid: boolean;
   onClose: () => void;
   onAddToCart: (item: Omit<CartItem, "id">) => void;
   initialProduct?: { key: string; name: string; price: number } | null;
+  aiSelectedPhotoIds?: string[];
 }) {
-  const [step, setStep] = useState<Step>(1);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const isAiMode = !!aiSelectedPhotoIds?.length;
+  const [step, setStep] = useState<Step>(isAiMode ? 3 : 1);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(
+    isAiMode ? new Set(aiSelectedPhotoIds) : new Set()
+  );
   const [bookTypeKey, setBookTypeKey] = useState<string>(
     initialProduct?.key ?? BOOK_TYPES[1].key
   );
-  const [cover, setCover] = useState<string>("");
-  const [size, setSize] = useState<string>("");
+  const [cover, setCover] = useState<string>(isAiMode ? "Linen" : "");
+  const [size, setSize] = useState<string>(isAiMode ? '10"×10"' : "");
   const [pageCount, setPageCount] = useState(20);
-  const [pageOrder, setPageOrder] = useState<string[]>([]);
+  const [pageOrder, setPageOrder] = useState<string[]>(isAiMode ? aiSelectedPhotoIds! : []);
   const [added, setAdded] = useState(false);
 
   const selectedBook = BOOK_TYPES.find((b) => b.key === bookTypeKey) ?? BOOK_TYPES[1];
@@ -195,6 +200,11 @@ export default function BookBuilder({
         <div className="flex items-center gap-3">
           <BookOpen className="h-5 w-5 text-brand-500" />
           <h2 className="font-display text-xl text-navy-900">Photo Book Builder</h2>
+          {isAiMode && (
+            <span className="text-xs font-bold bg-gradient-to-r from-brand-500 to-coral-500 text-white px-2.5 py-1 rounded-full">
+              AI Built
+            </span>
+          )}
         </div>
         <button
           onClick={onClose}

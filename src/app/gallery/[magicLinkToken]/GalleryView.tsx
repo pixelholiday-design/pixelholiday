@@ -352,9 +352,9 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                     setBookBuilderOpen(true);
                     setAutoBookDismissed(true);
                   }}
-                  className="px-5 py-3 rounded-xl bg-white text-brand-700 font-semibold text-sm hover:bg-white/90 transition shadow-card"
+                  className="px-5 py-3 rounded-xl bg-white text-brand-700 font-semibold text-sm hover:bg-white/90 transition shadow-card whitespace-nowrap"
                 >
-                  Preview book — €{autoBookData.autoBook?.price || 69}
+                  ✨ Preview AI book — €{autoBookData.autoBook?.price || 69}
                 </button>
                 <button
                   onClick={() => setAutoBookDismissed(true)}
@@ -629,6 +629,11 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
             name: bookBuilderProduct.name,
             price: bookBuilderProduct.price ?? (bookBuilderProduct as any).retailPrice ?? 0,
           } : null}
+          aiSelectedPhotoIds={
+            !bookBuilderProduct && autoBookData?.autoBook?.photoIds
+              ? autoBookData.autoBook.photoIds
+              : undefined
+          }
         />
       )}
     </div>
