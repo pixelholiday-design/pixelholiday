@@ -489,14 +489,16 @@ export async function PATCH(req: Request) {
     const track = gallery.status === "PAID" ? "upbeat" : "romantic";
     const previewHtml = buildReelPreviewHtml(reelUrls, track);
 
-    // Create or update VideoReel with previewHtml
-    const existingReel = await prisma.videoReel.findFirst({ where: { galleryId: gallery.id } });
-    if (existingReel) {
-      // Always regenerate previewHtml to fix branding & photo URLs
-      await prisma.videoReel.update({
-        where: { id: existingReel.id },
-        data: { previewHtml },
-      });
+    // Create or update ALL VideoReels for this gallery
+    const existingReels = await prisma.videoReel.findMany({ where: { galleryId: gallery.id } });
+    if (existingReels.length > 0) {
+      // Update ALL reels to fix branding & photo URLs
+      for (const r of existingReels) {
+        await prisma.videoReel.update({
+          where: { id: r.id },
+          data: { previewHtml },
+        });
+      }
     } else {
       await prisma.videoReel.create({
         data: {
