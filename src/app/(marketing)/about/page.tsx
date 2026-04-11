@@ -51,7 +51,9 @@ function StorySection() {
             <p>
               Today, Fotiqo powers resort photographers across three continents,
               freelancers delivering wedding galleries, and studios managing teams of
-              50+. One login. Every tool you need.
+              50+. AI Command Center, photo book designer, per-photo purchasing, auto
+              language detection, Lightroom integration, and 6 gallery themes. One
+              login. Every tool you need.
             </p>
           </div>
         </SectionFadeIn>
@@ -114,9 +116,9 @@ function ValuesSection() {
 /* ── Stats ───────────────────────────────────── */
 const stats = [
   { value: "500+", label: "Photographers" },
-  { value: "12", label: "Countries" },
-  { value: "1M+", label: "Photos Delivered" },
-  { value: "€2M+", label: "In Sales Processed" },
+  { value: "15+", label: "Countries" },
+  { value: "2M+", label: "Photos Delivered" },
+  { value: "€5M+", label: "In Sales Processed" },
 ];
 
 function StatsSection() {
@@ -210,7 +212,7 @@ const milestones = [
   { year: "2024", icon: Rocket, title: "Founded", body: "Fotiqo incorporated with a mission to unify photography workflows." },
   { year: "2025", icon: MapPin, title: "First resort partner", body: "Signed our first hotel in Monastir, Tunisia and proved the model." },
   { year: "2025", icon: Users, title: "Marketplace launch", body: "Opened the photographer marketplace, connecting talent with venues worldwide." },
-  { year: "2026", icon: Calendar, title: "500+ photographers", body: "Crossed 500 active photographers across 12 countries and counting." },
+  { year: "2026", icon: Calendar, title: "500+ photographers", body: "Crossed 500 active photographers across 15+ countries. Launched AI Command Center, photo book designer, and per-photo purchasing." },
 ];
 
 function TimelineSection() {
@@ -282,7 +284,7 @@ function AboutCTA() {
             Ready to simplify your photography business?
           </h2>
           <p className="text-lg text-navy-300 mb-10">
-            Join 500+ photographers who deliver, sell, and grow with Fotiqo.
+            Join 500+ photographers in 15+ countries who deliver, sell, and grow with Fotiqo.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <CTAPrimary>Get Started Free</CTAPrimary>

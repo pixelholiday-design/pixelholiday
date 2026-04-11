@@ -6,17 +6,17 @@ import { Check, ArrowRight, Minus, ChevronDown, ChevronUp } from "lucide-react";
 const PLANS = [
   {
     name: "Starter", badge: "Free forever", monthly: 0, annual: 0, desc: "Perfect for getting started", highlighted: false,
-    features: ["3 active galleries (unlimited photos each)", "Portfolio website (fotiqo.com/p/you)", "3 booking packages", "Marketplace listing", "Basic client CRM", "1GB storage", "Fotiqo branding on galleries", "Store with 10% margin commission"],
+    features: ["3 active galleries (unlimited photos each)", "Portfolio website (fotiqo.com/p/you)", "3 booking packages", "Marketplace listing", "Basic client CRM", "6 gallery themes", "Auto language detection (10 languages)", "Per-photo purchasing + digital pass", "Photo book designer for clients", "Help center (100+ articles)", "1GB storage", "Fotiqo branding on galleries", "Store with 10% margin commission"],
     cta: "Get started free", ctaStyle: "outline",
   },
   {
     name: "Pro", badge: "Best value", monthly: 10, annual: 8, desc: "Everything you need to grow", highlighted: true,
-    features: ["Everything in Starter, plus:", "Unlimited galleries", "Custom domain (yourname.com)", "Remove Fotiqo branding", "Unlimited booking packages", "Contracts + e-signatures (5 templates)", "Invoices + full CRM", "Analytics + revenue reports", "Custom fonts upload", "API keys (Lightroom integration)", "CSV bulk gallery creation", "50GB storage", "Priority email support", "Store with 5% margin commission"],
+    features: ["Everything in Starter, plus:", "Unlimited galleries", "Custom domain (yourname.com)", "Remove Fotiqo branding", "Unlimited booking packages", "Contracts + e-signatures (5 templates)", "Invoices with Stripe payment links + PDF", "Full CRM with communications log", "AI Website Builder (3-step wizard)", "Kanban project board", "Album designer (7 layouts)", "Lightroom API integration", "Analytics + revenue reports", "Custom fonts upload", "Password protection + download limits", "50GB storage", "Priority email support", "Store with 5% margin commission"],
     cta: "Start with Pro", ctaStyle: "solid",
   },
   {
     name: "Studio", badge: "For teams", monthly: 24, annual: 19, desc: "Advanced features for professionals", highlighted: false,
-    features: ["Everything in Pro, plus:", "AI video reels (unlimited)", "Face recognition selfie search", "Real-time live streaming", "White-label (your brand only)", "Up to 5 team members", "Advanced analytics + reports", "200GB storage", "Phone + chat support", "Store with 0% commission"],
+    features: ["Everything in Pro, plus:", "AI Command Center (daily briefing + marketing)", "AI video reel upsell (€9/€15/€25 tiers)", "AI retouching (7 Cloudinary actions)", "Face recognition selfie search", "Real-time live streaming", "PDF sales presentations (7 audiences)", "White-label (your brand only)", "Up to 5 team members", "Advanced analytics + competitor analysis", "200GB storage", "Phone + chat support", "Store with 0% commission"],
     cta: "Start with Studio", ctaStyle: "outline",
   },
 ];
@@ -24,24 +24,33 @@ const PLANS = [
 const COMPARISON = [
   { f: "Monthly price", s: "€0", p: "€8", st: "€19", px: "$28–55", zn: "$12–30" },
   { f: "Galleries", s: "3", p: "Unlimited", st: "Unlimited", px: "Storage-based", zn: "Storage-based" },
+  { f: "Gallery themes", s: "6", p: "6", st: "6", px: "Limited", zn: false },
   { f: "Custom domain", s: false, p: true, st: true, px: "Paid plans", zn: "Paid plans" },
+  { f: "AI Website Builder", s: false, p: true, st: true, px: false, zn: false },
+  { f: "Photo book designer", s: true, p: true, st: true, px: false, zn: false },
+  { f: "Per-photo purchasing", s: true, p: true, st: true, px: false, zn: false },
   { f: "Contracts + e-sign", s: false, p: true, st: true, px: "$12+ extra", zn: false },
-  { f: "Marketplace", s: true, p: true, st: true, px: false, zn: false },
+  { f: "Kanban project board", s: false, p: true, st: true, px: false, zn: false },
+  { f: "Lightroom integration", s: false, p: true, st: true, px: false, zn: true },
+  { f: "AI Command Center", s: false, p: false, st: true, px: false, zn: false },
+  { f: "AI reel upsell", s: false, p: false, st: true, px: false, zn: "Slideshow" },
+  { f: "AI retouching", s: false, p: false, st: true, px: false, zn: false },
   { f: "Face recognition", s: false, p: false, st: true, px: false, zn: "Selfie only" },
-  { f: "AI video reels", s: false, p: false, st: true, px: false, zn: "Slideshow" },
-  { f: "Live streaming", s: false, p: false, st: true, px: false, zn: "Instant" },
-  { f: "10 languages + RTL", s: true, p: true, st: true, px: false, zn: false },
+  { f: "Auto language detect", s: true, p: true, st: true, px: false, zn: false },
+  { f: "Marketplace", s: true, p: true, st: true, px: false, zn: false },
   { f: "Store commission", s: "10% margin", p: "5% margin", st: "0%", px: "0–15% of sale", zn: "0%" },
   { f: "Annual cost", s: "€0", p: "€96", st: "€228", px: "$336–660", zn: "$144–360" },
 ];
 
 const FAQS = [
-  { q: "Is there really no monthly fee on the Starter plan?", a: "Yes. The Starter plan is free forever. You only pay a small commission when you sell products through the store. Gallery delivery is completely free." },
-  { q: "What happens when I upgrade?", a: "You keep all your galleries, clients, and data. The upgrade is instant   — new features unlock immediately." },
+  { q: "Is there really no monthly fee on the Starter plan?", a: "Yes. The Starter plan is free forever. You only pay a small commission when you sell products through the store. Gallery delivery, per-photo purchasing, photo book designer, and 6 gallery themes are all included free." },
+  { q: "What happens when I upgrade?", a: "You keep all your galleries, clients, and data. The upgrade is instant   — new features like AI Website Builder, Lightroom integration, project board, and contracts unlock immediately." },
   { q: "Can I switch plans anytime?", a: "Yes. Upgrade, downgrade, or cancel anytime from your dashboard. No contracts, no lock-in." },
   { q: "How does the store commission work?", a: "We charge a percentage of your margin (profit), not the full sale price. On the Studio plan, the commission is 0%   — you keep everything." },
-  { q: "Do you charge commission on gallery delivery?", a: "No. Delivering photos to your clients is always free on every plan. Commission only applies to physical product sales through the store." },
-  { q: "How does Fotiqo compare to Pixieset?", a: "Fotiqo Pro at €8/month includes everything Pixieset charges $28–55/month for, plus marketplace exposure, face recognition, AI video reels, real-time streaming, and 10-language support." },
+  { q: "What AI features are included?", a: "Starter gets auto language detection. Pro adds AI Website Builder. Studio unlocks the full AI Command Center with daily briefings, marketing assistant, competitor analysis, AI retouching, and AI video reel upsells (€9-€25 per reel)." },
+  { q: "How does Fotiqo compare to Pixieset?", a: "Fotiqo Pro at €8/month includes everything Pixieset charges $28–55/month for, plus AI website builder, photo book designer, per-photo purchasing, Lightroom integration, marketplace exposure, and 10-language support with auto-detection." },
+  { q: "Can clients buy individual photos?", a: "Yes. Every plan includes per-photo purchasing (web-size €3, full-res €5, prints from €8), multi-select with bulk discounts (10%+ off for 5+ photos), and digital pass tiers that unlock the entire gallery." },
+  { q: "Does Fotiqo support multiple languages?", a: "Yes. Galleries auto-detect your client's language from their phone number, email domain, or browser settings. 10 languages supported including Arabic with RTL layout." },
 ];
 
 export default function PricingPage() {
