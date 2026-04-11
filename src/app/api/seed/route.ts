@@ -397,3 +397,98 @@ export async function GET() {
   };
   return NextResponse.json({ seeded: counts.users > 0, counts });
 }
+
+/**
+ * PATCH — Upgrade a PAID gallery to have 15 photos + a VideoReel
+ * so the AI Auto-Book banner and reel player are visible.
+ *
+ * Usage: PATCH /api/seed?secret=fotiqo-seed-2026
+ */
+export async function PATCH(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const secret = searchParams.get("secret");
+  if (secret !== process.env.NEXTAUTH_SECRET && secret !== "fotiqo-seed-2026") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  // Find a PAID gallery to upgrade
+  const gallery = await prisma.gallery.findFirst({
+    where: { status: "PAID" },
+    include: { photos: true },
+    orderBy: { createdAt: "asc" },
+  });
+  if (!gallery) {
+    return NextResponse.json({ error: "No PAID gallery found" }, { status: 404 });
+  }
+
+  // Add more photos if gallery has fewer than 15
+  const existing = gallery.photos.length;
+  const needed = Math.max(0, 15 - existing);
+  const newPhotoIds: string[] = gallery.photos.map((p) => p.id);
+
+  if (needed > 0) {
+    // Nature/travel themed demo photos
+    const demoPhotos = [
+      "seed/beach-sunset/1200/800",
+      "seed/mountain-lake/1200/800",
+      "seed/palm-trees/1200/800",
+      "seed/ocean-waves/1200/800",
+      "seed/waterfall/1200/800",
+      "seed/coral-reef/1200/800",
+      "seed/tropical-fish/1200/800",
+      "seed/resort-pool/1200/800",
+      "seed/hammock-beach/1200/800",
+      "seed/starfish/1200/800",
+      "seed/snorkeling/1200/800",
+      "seed/jet-ski/1200/800",
+      "seed/parasailing/1200/800",
+      "seed/family-beach/1200/800",
+      "seed/sunset-dinner/1200/800",
+    ];
+
+    for (let i = 0; i < needed; i++) {
+      const photo = await prisma.photo.create({
+        data: {
+          galleryId: gallery.id,
+          s3Key_highRes: `https://picsum.photos/${demoPhotos[i] || `seed/holiday${i}/1200/800`}`,
+          cloudinaryId: null,
+          isHookImage: false,
+          isFavorited: i % 3 === 0,
+          isPurchased: true,
+          sortOrder: existing + i,
+        },
+      });
+      newPhotoIds.push(photo.id);
+    }
+
+    await prisma.gallery.update({
+      where: { id: gallery.id },
+      data: { totalCount: existing + needed },
+    });
+  }
+
+  // Create VideoReel if none exists
+  const existingReel = await prisma.videoReel.findFirst({ where: { galleryId: gallery.id } });
+  let reel = existingReel;
+  if (!reel) {
+    reel = await prisma.videoReel.create({
+      data: {
+        galleryId: gallery.id,
+        photoIds: JSON.stringify(newPhotoIds.slice(0, 10)),
+        musicTrack: "upbeat",
+        duration: 15,
+        status: "READY",
+        thumbnailUrl: `https://picsum.photos/seed/reel-thumb/640/360`,
+      },
+    });
+  }
+
+  return NextResponse.json({
+    success: true,
+    galleryId: gallery.id,
+    galleryToken: gallery.magicLinkToken,
+    totalPhotos: existing + needed,
+    reelId: reel.id,
+    galleryUrl: `/gallery/${gallery.magicLinkToken}`,
+  });
+}
