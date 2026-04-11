@@ -492,13 +492,11 @@ export async function PATCH(req: Request) {
     // Create or update VideoReel with previewHtml
     const existingReel = await prisma.videoReel.findFirst({ where: { galleryId: gallery.id } });
     if (existingReel) {
-      // Update existing reel to add previewHtml if missing
-      if (!existingReel.previewHtml) {
-        await prisma.videoReel.update({
-          where: { id: existingReel.id },
-          data: { previewHtml },
-        });
-      }
+      // Always regenerate previewHtml to fix branding & photo URLs
+      await prisma.videoReel.update({
+        where: { id: existingReel.id },
+        data: { previewHtml },
+      });
     } else {
       await prisma.videoReel.create({
         data: {
