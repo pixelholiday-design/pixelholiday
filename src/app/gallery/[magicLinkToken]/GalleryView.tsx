@@ -20,6 +20,9 @@ import LiveGalleryStream from "@/components/gallery/LiveGalleryStream";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import { useTranslations } from "@/lib/i18n-client";
 import { getTheme } from "@/lib/gallery-themes";
+import PhotoPurchasePanel from "@/components/gallery/PhotoPurchasePanel";
+import SelectionMode from "@/components/gallery/SelectionMode";
+import DigitalPassBanner from "@/components/gallery/DigitalPassBanner";
 
 type Photo = {
   id: string;
@@ -84,6 +87,11 @@ export default function GalleryView({ gallery, reel, galleryTheme = "classic" }:
   const [pickerProduct, setPickerProduct] = useState<CatalogProduct | null>(null);
   const [bookBuilderOpen, setBookBuilderOpen] = useState(false);
   const [bookBuilderProduct, setBookBuilderProduct] = useState<CatalogProduct | null>(null);
+
+  // Selection & purchase panel state
+  const [selectionMode, setSelectionMode] = useState(false);
+  const [selectedPhotoIds, setSelectedPhotoIds] = useState<Set<string>>(new Set());
+  const [purchasePanelPhotoId, setPurchasePanelPhotoId] = useState<string | null>(null);
 
   // AI Auto-book state
   const [autoBookData, setAutoBookData] = useState<any>(null);
@@ -192,6 +200,33 @@ export default function GalleryView({ gallery, reel, galleryTheme = "classic" }:
       toggleFavorite(id, gallery.magicLinkToken);
     });
   }
+
+  const handleToggleSelect = useCallback((id: string) => {
+    setSelectedPhotoIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const handleExitSelectionMode = useCallback(() => {
+    setSelectionMode(false);
+    setSelectedPhotoIds(new Set());
+  }, []);
+
+  const handleBuySelected = useCallback((items: Omit<CartItem, "id">[]) => {
+    for (const item of items) {
+      addToCart(item);
+    }
+    setSelectionMode(false);
+    setSelectedPhotoIds(new Set());
+  }, [addToCart]);
+
+  const purchasePanelPhoto = useMemo(
+    () => (purchasePanelPhotoId ? allPhotos.find((p) => p.id === purchasePanelPhotoId) ?? null : null),
+    [purchasePanelPhotoId, allPhotos],
+  );
 
   // ── HOOK_ONLY ──
   if (gallery.status === "HOOK_ONLY") {
@@ -401,6 +436,25 @@ export default function GalleryView({ gallery, reel, galleryTheme = "classic" }:
         </div>
       )}
 
+      {/* ── DIGITAL PASS BANNER ── */}
+      {(gallery.status === "PREVIEW_ECOM" || gallery.status === "PARTIAL_PAID") && activeTab === "photos" && !selectionMode && (
+        <DigitalPassBanner
+          photoCount={gallery.photos.length}
+          galleryToken={gallery.magicLinkToken}
+        />
+      )}
+
+      {/* ── SELECTION MODE BAR ── */}
+      {selectionMode && (activeTab === "photos" || activeTab === "favorites") && (
+        <SelectionMode
+          photos={allPhotos}
+          selectedIds={selectedPhotoIds}
+          onToggleSelect={handleToggleSelect}
+          onBuySelected={handleBuySelected}
+          onCancel={handleExitSelectionMode}
+        />
+      )}
+
       {/* ── PHOTOS TAB ── */}
       {(activeTab === "photos" || activeTab === "favorites") && (
         <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8 pb-32">
@@ -411,6 +465,12 @@ export default function GalleryView({ gallery, reel, galleryTheme = "classic" }:
             onOpen={(i) => setLbIdx(i)}
             onFavorite={handleFav}
             onMagic={(id) => setMagicForId(id)}
+            selectionMode={selectionMode}
+            selectedIds={selectedPhotoIds}
+            onToggleSelect={handleToggleSelect}
+            onPhotoPurchase={(id) => setPurchasePanelPhotoId(id)}
+            showPricing={!isClean}
+            onEnterSelectionMode={() => setSelectionMode(true)}
           />
         </main>
       )}
@@ -678,6 +738,25 @@ export default function GalleryView({ gallery, reel, galleryTheme = "classic" }:
           }
         />
       )}
+
+      {/* Photo Purchase Panel */}
+      <PhotoPurchasePanel
+        photo={purchasePanelPhoto}
+        isOpen={purchasePanelPhotoId !== null}
+        onClose={() => setPurchasePanelPhotoId(null)}
+        onAddToCart={addToCart}
+        onOpenProductPicker={(photoId) => {
+          setPurchasePanelPhotoId(null);
+          // Find a print/wall-art product to open the picker with
+          const printProduct = shopProducts.find((p) => p.category === "PRINT" || p.category === "WALL_ART");
+          if (printProduct) {
+            setPickerProduct(printProduct);
+          } else {
+            // Switch to shop tab if no products loaded
+            setActiveTab("shop");
+          }
+        }}
+      />
 
       {/* Shop Cart — always accessible */}
       <ShopCart

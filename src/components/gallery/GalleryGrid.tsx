@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { Heart, Lock, Download, ShoppingCart, LayoutGrid, Columns3, Play, Pause, Sparkles } from "lucide-react";
+import { Heart, Lock, Download, ShoppingCart, ShoppingBag, LayoutGrid, Columns3, Play, Pause, Sparkles, CheckSquare, Check } from "lucide-react";
 import { getPhotoSrc } from "@/lib/cloudinary";
 
 export type Photo = {
@@ -26,6 +26,12 @@ export default function GalleryGrid({
   onFavorite,
   onAddToCart,
   onMagic,
+  selectionMode = false,
+  selectedIds,
+  onToggleSelect,
+  onPhotoPurchase,
+  showPricing = false,
+  onEnterSelectionMode,
 }: {
   photos: Photo[];
   isPaid: boolean;
@@ -34,6 +40,12 @@ export default function GalleryGrid({
   onFavorite: (id: string) => void;
   onAddToCart?: (id: string) => void;
   onMagic?: (id: string) => void;
+  selectionMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggleSelect?: (id: string) => void;
+  onPhotoPurchase?: (photoId: string) => void;
+  showPricing?: boolean;
+  onEnterSelectionMode?: () => void;
 }) {
   const [layout, setLayout] = useState<Layout>("masonry");
   const [slideIdx, setSlideIdx] = useState(0);
@@ -57,6 +69,14 @@ export default function GalleryGrid({
   return (
     <div>
       <div className="flex items-center justify-end gap-2 mb-4">
+        {onEnterSelectionMode && !selectionMode && (
+          <button
+            onClick={onEnterSelectionMode}
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold bg-white border border-cream-300 text-navy-600 hover:bg-cream-100 transition mr-auto"
+          >
+            <CheckSquare className="h-3.5 w-3.5" /> Select Photos
+          </button>
+        )}
         <span className="text-xs text-navy-400 mr-2">{photos.length} photos</span>
         <button
           onClick={() => setLayout("masonry")}
@@ -90,7 +110,7 @@ export default function GalleryGrid({
       {layout === "masonry" && (
         <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-3 [column-fill:_balance]">
           {photos.map((p, i) => (
-            <Card key={p.id} p={p} i={i} clean={isClean(p)} src={imgSrc(p)} onOpen={onOpen} onFavorite={onFavorite} onAddToCart={onAddToCart} onMagic={onMagic} masonry />
+            <Card key={p.id} p={p} i={i} clean={isClean(p)} src={imgSrc(p)} onOpen={onOpen} onFavorite={onFavorite} onAddToCart={onAddToCart} onMagic={onMagic} masonry selectionMode={selectionMode} isSelected={selectedIds?.has(p.id)} onToggleSelect={onToggleSelect} onPhotoPurchase={onPhotoPurchase} showPricing={showPricing} />
           ))}
         </div>
       )}
@@ -100,8 +120,12 @@ export default function GalleryGrid({
           {photos.map((p, i) => (
             <button
               key={p.id}
-              onClick={() => onOpen(i)}
-              className="relative aspect-square rounded-xl overflow-hidden bg-cream-200 ring-1 ring-cream-300 hover:shadow-lift transition group"
+              onClick={() => selectionMode && onToggleSelect ? onToggleSelect(p.id) : onOpen(i)}
+              className={`relative aspect-square rounded-xl overflow-hidden bg-cream-200 ring-1 hover:shadow-lift transition group ${
+                selectionMode && selectedIds?.has(p.id)
+                  ? "ring-2 ring-brand-500"
+                  : "ring-cream-300"
+              }`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imgSrc(p)} alt="" className="w-full h-full object-cover transition group-hover:scale-105 duration-500" />
@@ -134,6 +158,29 @@ export default function GalleryGrid({
                     </div>
                   </div>
                 </>
+              )}
+              {/* Selection checkmark overlay */}
+              {selectionMode && selectedIds?.has(p.id) && (
+                <div className="absolute inset-0 bg-brand-500/20 flex items-center justify-center">
+                  <div className="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center shadow-card">
+                    <Check className="h-5 w-5 text-white" />
+                  </div>
+                </div>
+              )}
+              {/* Price badge */}
+              {showPricing && !isClean(p) && (
+                <div className="absolute top-2 right-2 bg-navy-900/80 text-white text-[10px] font-bold rounded-full px-2 py-0.5">
+                  {"\u20ac"}5
+                </div>
+              )}
+              {/* Shopping bag icon */}
+              {!selectionMode && onPhotoPurchase && !isClean(p) && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); onPhotoPurchase(p.id); }}
+                  className="absolute bottom-2 right-2 h-7 w-7 rounded-full bg-white/90 backdrop-blur shadow-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                >
+                  <ShoppingBag className="h-3.5 w-3.5 text-navy-700" />
+                </button>
               )}
             </button>
           ))}
@@ -198,12 +245,14 @@ export default function GalleryGrid({
   );
 }
 
-function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, masonry }: any) {
+function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, masonry, selectionMode, isSelected, onToggleSelect, onPhotoPurchase, showPricing }: any) {
   return (
     <div
-      className={`${masonry ? "mb-3 break-inside-avoid" : ""} relative group rounded-xl overflow-hidden bg-cream-200 ring-1 ring-cream-300/50 hover:ring-coral-300 hover:shadow-lift transition`}
+      className={`${masonry ? "mb-3 break-inside-avoid" : ""} relative group rounded-xl overflow-hidden bg-cream-200 ring-1 ${
+        selectionMode && isSelected ? "ring-2 ring-brand-500" : "ring-cream-300/50 hover:ring-coral-300"
+      } hover:shadow-lift transition`}
     >
-      <button onClick={() => onOpen(i)} className="block w-full relative">
+      <button onClick={() => selectionMode && onToggleSelect ? onToggleSelect(p.id) : onOpen(i)} className="block w-full relative">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt="" className="w-full block transition duration-500 group-hover:scale-[1.02]" />
         {/* CSS watermark overlay for unpaid photos — large repeating pattern */}
@@ -258,13 +307,36 @@ function Card({ p, i, clean, src, onOpen, onFavorite, onAddToCart, onMagic, maso
           <Sparkles className="h-4 w-4" />
         </button>
       )}
-      {onAddToCart && (
+      {onAddToCart && !selectionMode && (
         <button
           onClick={() => onAddToCart(p.id)}
           className="absolute bottom-3 right-3 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
         >
           <ShoppingCart className="h-4 w-4 text-navy-700" />
         </button>
+      )}
+      {/* Shopping bag purchase trigger */}
+      {!selectionMode && onPhotoPurchase && !clean && (
+        <button
+          onClick={() => onPhotoPurchase(p.id)}
+          className="absolute bottom-3 right-3 h-9 w-9 rounded-full bg-white/90 backdrop-blur shadow-card flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+        >
+          <ShoppingBag className="h-4 w-4 text-navy-700" />
+        </button>
+      )}
+      {/* Selection mode checkmark overlay */}
+      {selectionMode && isSelected && (
+        <div className="absolute inset-0 bg-brand-500/20 pointer-events-none flex items-center justify-center">
+          <div className="h-10 w-10 rounded-full bg-brand-500 flex items-center justify-center shadow-card">
+            <Check className="h-6 w-6 text-white" />
+          </div>
+        </div>
+      )}
+      {/* Price badge */}
+      {showPricing && !clean && (
+        <div className="absolute top-3 right-3 bg-navy-900/80 text-white text-[10px] font-bold rounded-full px-2 py-0.5 z-[5]">
+          {"\u20ac"}5
+        </div>
       )}
     </div>
   );
