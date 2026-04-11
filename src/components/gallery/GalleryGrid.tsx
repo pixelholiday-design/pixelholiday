@@ -149,6 +149,32 @@ export default function GalleryGrid({
             alt=""
             className="w-full max-h-[75vh] object-contain animate-fade-in"
           />
+          {/* Watermark overlay for slideshow */}
+          {!isClean(photos[slideIdx]) && (
+            <div className="absolute inset-0 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+              <div className="absolute inset-[-50%] flex flex-col items-center justify-center gap-20 rotate-[-30deg]">
+                {[0,1,2,3,4,5,6].map((row) => (
+                  <div key={row} className="flex items-center gap-14 whitespace-nowrap">
+                    {[0,1,2,3,4,5].map((col) => (
+                      <span
+                        key={col}
+                        className="text-4xl sm:text-5xl font-bold tracking-[0.15em]"
+                        style={{
+                          fontFamily: "var(--font-display), Georgia, serif",
+                          color: "rgba(255,255,255,0.6)",
+                          textShadow: "2px 2px 4px rgba(0,0,0,0.8), -1px -1px 3px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4)",
+                          WebkitTextStroke: "1.5px rgba(0,0,0,0.4)",
+                          paintOrder: "stroke fill",
+                        }}
+                      >
+                        FOTIQO
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           <div className="absolute inset-x-0 bottom-0 p-4 flex items-center justify-between bg-gradient-to-t from-navy-900 to-transparent">
             <div className="text-white text-sm">{slideIdx + 1} / {photos.length}</div>
             <button
