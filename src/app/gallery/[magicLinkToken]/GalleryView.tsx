@@ -373,6 +373,15 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                   ✨ Preview AI book — €{autoBookData.autoBook?.price || 69}
                 </button>
                 <button
+                  onClick={() => {
+                    setBookBuilderOpen(true);
+                    setAutoBookDismissed(true);
+                  }}
+                  className="px-4 py-3 rounded-xl bg-white/20 hover:bg-white/30 text-sm font-medium transition whitespace-nowrap"
+                >
+                  📖 Build manually
+                </button>
+                <button
                   onClick={() => setAutoBookDismissed(true)}
                   className="px-3 py-3 rounded-xl bg-white/15 hover:bg-white/25 text-sm transition"
                 >
@@ -455,10 +464,10 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                   })}
               </div>
 
-              {/* AI Photo Book + Video Reel featured cards */}
+              {/* AI/Manual Photo Book + Video Reel featured cards */}
               {shopCat === "ALL" && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                  {/* AI Photo Book */}
+                  {/* AI Photo Book — requires 10+ photos */}
                   {gallery.photos.length >= 10 && (
                     <button
                       onClick={() => { setBookBuilderOpen(true); }}
@@ -470,10 +479,24 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                       <div className="font-display text-xl">Photo Book</div>
                       <p className="text-white/70 text-sm mt-1">AI selected your best {gallery.photos.length} photos into a 20-page book</p>
                       <div className="mt-3 inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold">
-                        ✨ Preview — from €39
+                        ✨ Preview AI book — from €39
                       </div>
                     </button>
                   )}
+                  {/* Manual Photo Book — always available */}
+                  <button
+                    onClick={() => { setBookBuilderOpen(true); }}
+                    className="group text-left bg-gradient-to-r from-navy-700 to-navy-600 rounded-2xl p-5 text-white hover:shadow-lift transition-all hover:-translate-y-1"
+                  >
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/60 mb-1">
+                      <BookOpen className="h-3 w-3" /> Build Your Own
+                    </div>
+                    <div className="font-display text-xl">Custom Photo Book</div>
+                    <p className="text-white/70 text-sm mt-1">Pick your favourite photos and arrange them into a personalised book</p>
+                    <div className="mt-3 inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold">
+                      📖 Build manually — from €39
+                    </div>
+                  </button>
                   {/* Video Reel */}
                   {reel && (
                     <button
