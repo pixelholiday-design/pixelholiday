@@ -8,10 +8,10 @@ export const metadata = {
 };
 
 const PRODUCTS = [
-  { id: "gallery", label: "Client Gallery", icon: Camera, headline: "Turn every photo delivery into a brand moment", description: "Beautiful masonry galleries with watermark protection, client favorites, FOMO timers, and AI video reels.", features: ["Watermarked previews, full-res after purchase", "Client favorites and photo proofing", "FOMO countdown timer for urgency", "AI video reels from session photos", "Face recognition   — clients find photos with a selfie", "Real-time streaming   — photos appear as they're taken", "10 languages including Arabic RTL"], cta: "Try Client Gallery free", href: "/products/client-gallery", color: "from-brand-500 to-brand-400" },
-  { id: "website", label: "Website Builder", icon: Globe, headline: "A stunning portfolio website in minutes", description: "Block editor with 17 block types, custom fonts, custom domain, blog, and SEO tools.", features: ["17 content blocks (hero, gallery, services, testimonials...)", "Custom domain connection (yourname.com)", "Custom font upload (.woff2, .ttf, .otf)", "Built-in blog for SEO", "Contact form with auto-lead capture", "Mobile responsive, SSL included"], cta: "Build your website free", href: "/products/website-builder", color: "from-purple-500 to-purple-400" },
-  { id: "store", label: "Online Store", icon: ShoppingBag, headline: "Sell prints worldwide   — we handle the rest", description: "187 products fulfilled by Prodigi and Printful. You set the prices, we handle printing and shipping.", features: ["187 products: prints, canvas, albums, mugs, gifts", "Auto-fulfillment   — orders ship to your client", "Dual print lab (Prodigi + Printful)", "Photo book builder for clients", "Gift cards and store credits", "Coupons and volume pricing"], cta: "Open your store free", href: "/products/online-store", color: "from-coral-500 to-coral-400" },
-  { id: "studio", label: "Studio Manager", icon: Calendar, headline: "Run your business from one dashboard", description: "Bookings, contracts, invoices, CRM   — everything in one place.", features: ["22 booking packages with instant checkout", "Contracts with e-signatures (5 templates)", "Invoices with payment tracking", "Client CRM (contacts, sessions, revenue)", "Availability calendar", "Revenue analytics and charts"], cta: "Manage your studio free", href: "/products/studio-manager", color: "from-gold-500 to-gold-400" },
+  { id: "gallery", label: "Client Gallery", icon: Camera, headline: "Turn every photo delivery into a brand moment", description: "Beautiful masonry galleries with 6 themes, watermark protection, per-photo purchasing, AI video reel upsells, and auto language detection.", features: ["6 gallery themes (classic, masonry, filmstrip, magazine, minimal, dark)", "Per-photo purchasing   — clients buy single photos or select multiples", "AI cinematic reel upsell (3 tiers: €9 / €15 / €25)", "Auto language detection from phone number, email, or browser", "Password protection + download limits", "Photo book designer   — clients build their own Canva-style books", "PayPal + Stripe checkout   — dual payment options"], cta: "Try Client Gallery free", href: "/products/client-gallery", color: "from-brand-500 to-brand-400" },
+  { id: "website", label: "Website Builder", icon: Globe, headline: "A stunning portfolio website in minutes", description: "AI-powered website builder or manual block editor. 17 block types, custom fonts, custom domain, blog, SEO tools, and client gallery pages.", features: ["AI Website Builder   — answer 3 questions, get a full site", "17 content blocks (hero, gallery, services, testimonials...)", "Client gallery page   — clients find their photos by email or code", "Custom domain connection (yourname.com)", "Built-in blog with rich text editor", "SEO tools: sitemap, robots.txt, JSON-LD schema markup"], cta: "Build your website free", href: "/products/website-builder", color: "from-purple-500 to-purple-400" },
+  { id: "store", label: "Online Store", icon: ShoppingBag, headline: "Sell prints worldwide   — we handle the rest", description: "187 products fulfilled by Prodigi and Printful. Photo book designer, per-photo purchasing, digital pass tiers, and volume pricing.", features: ["187 products: prints, canvas, albums, mugs, gifts", "Photo book designer   — Canva-style drag, resize, rotate, 13 layouts", "Per-photo & multi-select purchasing with bulk discounts", "Digital pass tiers   — unlock all photos at 3 price points", "Auto-fulfillment   — orders ship to your client", "Volume pricing + coupons + gift cards"], cta: "Open your store free", href: "/products/online-store", color: "from-coral-500 to-coral-400" },
+  { id: "studio", label: "Studio Manager", icon: Calendar, headline: "Run your business from one dashboard", description: "AI Command Center, bookings, contracts, invoices, CRM, project board, and Lightroom integration.", features: ["AI Command Center   — daily briefing, marketing assistant, competitor analysis", "Kanban project board (inquiry → delivered → archived)", "Contracts with e-signatures (5 templates)", "Invoices with Stripe payment links + PDF generation", "Client CRM with communications log", "Lightroom integration via API keys   — upload directly from desktop"], cta: "Manage your studio free", href: "/products/studio-manager", color: "from-gold-500 to-gold-400" },
   { id: "marketplace", label: "Marketplace", icon: Search, headline: "Get discovered by new clients", description: "Your profile on Fotiqo Marketplace. Clients search, find you, and book instantly.", features: ["Professional profile with portfolio and reviews", "Search by location, specialty, and budget", "Instant booking with Stripe payments", "Clients book as guest (no account needed)", "3-10% commission only when you earn", "Verified reviews build your reputation"], cta: "Create your profile free", href: "/products/marketplace", color: "from-green-500 to-green-400" },
 ];
 
@@ -19,15 +19,20 @@ const COMPARISON = [
   { feature: "Monthly price", fotiqo: "Free", pixieset: "$28–50/mo", zno: "$12/mo" },
   { feature: "Client galleries", fotiqo: true, pixieset: true, zno: true },
   { feature: "Website builder", fotiqo: true, pixieset: true, zno: true },
-  { feature: "Online store (150+ products)", fotiqo: true, pixieset: true, zno: true },
+  { feature: "AI website builder", fotiqo: true, pixieset: false, zno: false },
+  { feature: "Online store (187 products)", fotiqo: true, pixieset: true, zno: true },
+  { feature: "Photo book designer", fotiqo: true, pixieset: false, zno: false },
+  { feature: "Per-photo purchasing", fotiqo: true, pixieset: false, zno: false },
   { feature: "Booking system", fotiqo: true, pixieset: true, zno: false },
   { feature: "Contracts + e-signatures", fotiqo: true, pixieset: true, zno: false },
+  { feature: "AI Command Center", fotiqo: true, pixieset: false, zno: false },
+  { feature: "Lightroom integration", fotiqo: true, pixieset: false, zno: true },
+  { feature: "AI video reel upsell", fotiqo: true, pixieset: false, zno: true },
+  { feature: "Auto language detection", fotiqo: true, pixieset: false, zno: false },
+  { feature: "6 gallery themes", fotiqo: true, pixieset: true, zno: false },
   { feature: "Photographer marketplace", fotiqo: true, pixieset: false, zno: false },
-  { feature: "Face recognition", fotiqo: true, pixieset: false, zno: true },
-  { feature: "AI video reels", fotiqo: true, pixieset: false, zno: true },
-  { feature: "Live photo streaming", fotiqo: true, pixieset: false, zno: true },
   { feature: "10 languages + RTL", fotiqo: true, pixieset: false, zno: false },
-  { feature: "Resort/venue operations", fotiqo: true, pixieset: false, zno: false },
+  { feature: "Help center (100+ articles)", fotiqo: true, pixieset: true, zno: false },
 ];
 
 export default function MarketingHome() {
@@ -97,8 +102,8 @@ export default function MarketingHome() {
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { icon: Shield, title: "Zero monthly fees", desc: "Unlike Pixieset ($28–50/mo), Fotiqo is free. You only pay a small commission when you make a sale." },
-              { icon: Zap, title: "More than a gallery", desc: "AI video reels, face recognition, real-time streaming, 10 languages   — features no other platform offers." },
-              { icon: Heart, title: "One platform, not five", desc: "Galleries + website + store + bookings + marketplace. Stop juggling five different tools." },
+              { icon: Zap, title: "AI-powered everything", desc: "AI website builder, AI command center, AI reel upsells, auto language detection, photo book designer   — features no other platform offers." },
+              { icon: Heart, title: "One platform, not five", desc: "Galleries + website + store + bookings + marketplace + Lightroom integration. Stop juggling five different tools." },
             ].map((item) => { const Icon = item.icon; return (
               <div key={item.title} className="bg-white rounded-2xl p-8 shadow-card">
                 <div className="h-12 w-12 rounded-xl bg-brand-100 flex items-center justify-center mb-4"><Icon className="h-6 w-6 text-brand-600" /></div>

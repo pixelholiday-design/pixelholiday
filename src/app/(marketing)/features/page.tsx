@@ -52,6 +52,14 @@ import {
   Camera,
   Check,
   ArrowRight,
+  Languages,
+  Film,
+  Columns,
+  ShoppingCart,
+  HelpCircle,
+  Aperture,
+  Presentation,
+  Plug,
 } from "lucide-react";
 import SectionFadeIn from "../_components/SectionFadeIn";
 import { CTAPrimary } from "../_components/CTAButton";
@@ -87,37 +95,47 @@ const CATEGORIES: FeatureCategory[] = [
     icon: Images,
     label: "Client Galleries",
     title: "Galleries that delight your clients",
-    desc: "Deliver photos in stunning, password-free galleries. Clients browse, favorite, and purchase -- all in one beautiful experience designed to make every memory feel premium.",
+    desc: "Deliver photos in stunning galleries with 6 themes, per-photo purchasing, photo book designer, AI reel upsells, and auto language detection.",
     cards: [
+      {
+        icon: Palette,
+        title: "6 gallery themes",
+        desc: "Classic, masonry, filmstrip, magazine, minimal, and dark. Each theme transforms the gallery experience.",
+      },
+      {
+        icon: ShoppingCart,
+        title: "Per-photo purchasing",
+        desc: "Clients buy individual photos (€3-€5), select multiples with bulk discounts, or unlock everything with a digital pass.",
+      },
+      {
+        icon: BookOpen,
+        title: "Photo book designer",
+        desc: "Canva-style editor with 13 layouts, 11 shapes, drag/resize/rotate. Clients design their own books.",
+      },
+      {
+        icon: Film,
+        title: "AI reel upsell",
+        desc: "Cinematic video reels auto-generated from session photos. 3 tiers: Short (€9), Standard (€15), Premium (€25).",
+      },
+      {
+        icon: Languages,
+        title: "Auto language detection",
+        desc: "Gallery auto-detects client language from phone number, email domain, or browser. 10 languages + Arabic RTL.",
+      },
       {
         icon: Shield,
         title: "Server-side watermarks",
-        desc: "Invisible until paid. Cloudinary-powered watermarks that cannot be removed or screenshotted.",
+        desc: "Cloudinary-powered signed URLs. Cannot be removed or screenshotted. Custom watermark upload.",
       },
       {
         icon: Heart,
-        title: "Favorites system",
-        desc: "Clients tap to heart their favorite shots. Filter by favorites to build the perfect selection.",
-      },
-      {
-        icon: Download,
-        title: "Download & ZIP",
-        desc: "One-click download for individual photos or a full gallery ZIP, generated serverlessly.",
+        title: "Favorites & proofing",
+        desc: "Clients heart favorites. Filter by selection. Export the list for album design or final editing.",
       },
       {
         icon: Timer,
-        title: "FOMO countdown",
-        desc: "A gentle urgency timer reminds clients their gallery has a limited window -- boosting conversions.",
-      },
-      {
-        icon: Link2,
-        title: "Magic links",
-        desc: "No passwords, no accounts. A single secure link gives clients instant access to their gallery.",
-      },
-      {
-        icon: Smartphone,
-        title: "Mobile-first design",
-        desc: "Galleries look stunning on every device. Masonry layout adapts beautifully from phone to desktop.",
+        title: "Password + download limits",
+        desc: "Optional password protection. Set download limits per gallery. Cookie-based access control.",
       },
     ],
   },
@@ -140,8 +158,8 @@ const CATEGORIES: FeatureCategory[] = [
       },
       {
         icon: BookOpen,
-        title: "Photo book builder",
-        desc: "Clients design their own luxury photo books with drag-and-drop. A high-margin upsell that practically sells itself.",
+        title: "Photo book designer",
+        desc: "Canva-style editor: drag, resize, rotate photos. 13 layouts, 11 clip-path shapes, 10 backgrounds, 8 fonts. AI auto-fill.",
       },
       {
         icon: Gift,
@@ -204,12 +222,22 @@ const CATEGORIES: FeatureCategory[] = [
     icon: Globe,
     label: "Website Builder",
     title: "Your dream website, built in minutes",
-    desc: "Choose from 6 stunning themes. Customize everything. Showcase your portfolio, blog, accept bookings, and sell prints -- all under your own custom domain.",
+    desc: "AI-powered builder or manual editor. 17 block types, custom fonts, client gallery pages, SEO tools, and custom domain.",
     cards: [
       {
+        icon: Sparkles,
+        title: "AI Website Builder",
+        desc: "Answer 3 questions (specialty, style, bio) and get a complete 7-section website generated instantly.",
+      },
+      {
         icon: Paintbrush,
-        title: "6 curated themes",
-        desc: "Minimalist, bold, editorial, dark, light, and classic. Each one designed specifically for photographers.",
+        title: "17 content blocks",
+        desc: "Hero, gallery, about, services, testimonials, contact, FAQ, CTA, blog, stats, custom HTML, and more.",
+      },
+      {
+        icon: UserSearch,
+        title: "Client gallery page",
+        desc: "Clients find their photos by email, gallery code, name, or phone. Create accounts for repeat access.",
       },
       {
         icon: Globe,
@@ -217,24 +245,14 @@ const CATEGORIES: FeatureCategory[] = [
         desc: "Connect your own domain (yourname.com) for a fully branded experience. SSL included.",
       },
       {
-        icon: Camera,
-        title: "Portfolio showcase",
-        desc: "Display your best work in stunning gallery layouts. Organize by category, project, or location.",
+        icon: Search,
+        title: "SEO tools",
+        desc: "Dynamic sitemap, robots.txt, JSON-LD schema markup (Photographer, ImageGallery, Product), OG tags.",
       },
       {
         icon: FileText,
         title: "Built-in blog",
-        desc: "Share session stories, photography tips, and behind-the-scenes content. AI writing assistance included.",
-      },
-      {
-        icon: Search,
-        title: "SEO optimized",
-        desc: "Automatic sitemap, meta tags, schema markup, and performance optimization for search engines.",
-      },
-      {
-        icon: Code,
-        title: "Booking widget embed",
-        desc: "Embed your booking calendar anywhere on your site with a single line of code. Seamless integration.",
+        desc: "Rich text editor with image support. AI writing assistance. Publish directly for SEO.",
       },
     ],
   },
@@ -243,37 +261,37 @@ const CATEGORIES: FeatureCategory[] = [
     icon: BarChart3,
     label: "Studio Manager",
     title: "Run your entire studio from one dashboard",
-    desc: "Track revenue, manage staff, handle payroll, monitor equipment, and get AI-powered insights -- all from a single, beautiful dashboard.",
+    desc: "AI Command Center, project board, Lightroom integration, CRM, contracts, invoices, and PDF presentations.",
     cards: [
+      {
+        icon: Brain,
+        title: "AI Command Center",
+        desc: "7-section dashboard: live metrics, AI briefing, marketing assistant, competitor monitor, customer insights, financial projections.",
+      },
+      {
+        icon: Columns,
+        title: "Kanban project board",
+        desc: "Drag-and-drop workflow: Inquiry, Booked, Shot, Editing, Delivered, Archived. Track every project visually.",
+      },
+      {
+        icon: Plug,
+        title: "Lightroom integration",
+        desc: "API key management with Bearer auth. Upload photos directly from Lightroom or any desktop app via REST API.",
+      },
+      {
+        icon: Presentation,
+        title: "PDF sales presentations",
+        desc: "Generate print-ready presentations for 7 audience types: hotels, resorts, water parks, corporate, and more.",
+      },
       {
         icon: TrendingUp,
         title: "Revenue analytics",
-        desc: "Track earnings by gallery, location, product type, and time period. Spot trends instantly.",
-      },
-      {
-        icon: Brain,
-        title: "AI daily briefing",
-        desc: "Start each day with an AI summary of what matters: bookings, revenue changes, and action items.",
-      },
-      {
-        icon: Users,
-        title: "Staff management",
-        desc: "Assign shifts, track performance, manage transfers between locations. Gamification and XP system.",
+        desc: "Monthly charts, per-gallery breakdown, conversion rates, payout tracking, and Stripe Connect payouts.",
       },
       {
         icon: Wallet,
-        title: "Payroll & commissions",
-        desc: "Automatic commission calculations per sale type. Monthly payroll reports. One-click payout.",
-      },
-      {
-        icon: Package,
-        title: "Equipment tracking",
-        desc: "Track cameras, lenses, iPads, and kiosks. Assign to staff. Monitor costs and maintenance status.",
-      },
-      {
-        icon: BarChart3,
-        title: "Conversion tracking",
-        desc: "See gallery-to-sale conversion rates per photographer. Flag low performers for coaching.",
+        title: "Invoices + contracts",
+        desc: "Invoices with Stripe payment links and PDF generation. Contracts with e-signatures and legal proof.",
       },
     ],
   },
@@ -370,37 +388,42 @@ const CATEGORIES: FeatureCategory[] = [
     icon: Sparkles,
     label: "AI & Automation",
     title: "AI that works while you sleep",
-    desc: "From auto-culling blurry shots to generating video reels and recovering abandoned carts -- our AI handles the tedious work so you can focus on creating.",
+    desc: "AI Command Center, website builder, reel upsells, retouching, language detection, marketing assistant, and competitor analysis.",
     cards: [
       {
-        icon: ScanFace,
-        title: "Auto-cull",
-        desc: "AI rejects eyes-closed, blurry, and misfire shots before they reach the gallery. Saves storage and time.",
+        icon: Brain,
+        title: "AI Command Center",
+        desc: "Daily briefing, marketing content generator (4 tabs), competitor monitor, customer insights, and financial projections.",
+      },
+      {
+        icon: Globe,
+        title: "AI Website Builder",
+        desc: "Answer 3 questions and get a complete 7-section website. Hero, about, gallery, services, testimonials, contact, CTA.",
+      },
+      {
+        icon: Film,
+        title: "AI reel upsell",
+        desc: "Auto-generate cinematic reels from gallery photos. 3 pricing tiers (€9/€15/€25) with Stripe checkout.",
+      },
+      {
+        icon: Aperture,
+        title: "AI retouching",
+        desc: "7 Cloudinary-powered actions: auto-enhance, upscale, remove background, gen-remove, gen-replace, and restore.",
+      },
+      {
+        icon: Languages,
+        title: "Auto language detection",
+        desc: "Detect client language from phone country code, email TLD, or browser. 10 languages with priority chain.",
       },
       {
         icon: ScanFace,
         title: "Face recognition",
-        desc: "Guests take a selfie and instantly find all their photos across the entire event. GDPR-compliant.",
+        desc: "Selfie search finds all photos instantly. Works with sunglasses, hats, expressions. GDPR-compliant.",
       },
       {
-        icon: Camera,
-        title: "Burst detection",
-        desc: "AI detects rapid-fire sequences and selects the best frame. Never deliver 10 nearly identical shots.",
-      },
-      {
-        icon: Clapperboard,
-        title: "Auto-reels",
-        desc: "Burst photos are auto-stitched into looping video reels with music and graphic overlays.",
-      },
-      {
-        icon: Wand2,
-        title: "Magic Shots AR",
-        desc: "Add 3D characters, AR effects, and background replacements to any photo. Zero production cost upsell.",
-      },
-      {
-        icon: Lightbulb,
-        title: "AI coaching",
-        desc: "Performance insights and promotion suggestions based on conversion data and client ratings.",
+        icon: HelpCircle,
+        title: "AI chat support",
+        desc: "Gemini-powered chat widget with 100+ help articles, smart routing, and human escalation.",
       },
       {
         icon: Rocket,

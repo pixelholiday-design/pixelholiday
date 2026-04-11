@@ -12,98 +12,107 @@ export default function Page() {
       icon={<Camera className="h-4 w-4" />}
       badge="Client Gallery"
       headline="Beautiful galleries your clients will love"
-      subheadline="Deliver photos with style. Watermarked previews, client favorites, FOMO timers, face recognition, and AI video reels — all included."
+      subheadline="6 themes, per-photo purchasing, Canva-style photo book designer, AI reel upsells, auto language detection, and PayPal + Stripe checkout."
       productId="gallery"
       color="from-brand-500 to-brand-400"
       ctaText="Try Client Gallery free"
       stats={[
-        { value: "10", label: "Languages supported" },
-        { value: "187", label: "Shop products" },
-        { value: "< 3s", label: "Live streaming delay" },
-        { value: "100%", label: "Server-side watermarks" },
+        { value: "6", label: "Gallery themes" },
+        { value: "10", label: "Languages auto-detected" },
+        { value: "13", label: "Photo book layouts" },
+        { value: "3", label: "Reel upsell tiers" },
       ]}
       detailedFeatures={[
         {
-          title: "Server-side watermarks that can't be removed",
-          description: "Unlike CSS overlays that anyone can inspect and remove, Fotiqo watermarks are applied at the CDN level using signed Cloudinary URLs. Every transformation is cryptographically signed — modifying the URL to remove the watermark returns a 401 error.",
+          title: "6 stunning gallery themes",
+          description: "Choose the perfect look for each gallery. Classic, masonry, filmstrip, magazine, minimal, and dark themes transform the browsing experience. Each theme adapts beautifully across desktop, tablet, and mobile.",
           bullets: [
-            "Watermark baked into the image at the server level",
-            "Signed URLs prevent URL manipulation",
-            "Strict Transformations block unauthorized access",
-            "Watermark auto-scales to 50% of image width",
-            "Custom watermark upload (your logo or text)",
+            "Classic — clean grid layout with elegant spacing",
+            "Masonry — Pinterest-style flowing layout",
+            "Filmstrip — horizontal scrolling cinema feel",
+            "Magazine — editorial spread layout",
+            "Minimal — maximum white space, photos speak",
+            "Dark — moody background for dramatic shots",
           ],
         },
         {
-          title: "AI video reels from your session photos",
-          description: "Fotiqo automatically detects burst sequences in your uploads and stitches them into cinematic video reels with ken-burns transitions, music, and your branding overlay. Clients love sharing these on social media — and each reel is an upsell opportunity.",
+          title: "Per-photo purchasing with bulk discounts",
+          description: "Clients can buy individual photos (web-size €3, full-res €5), select multiples with progressive bulk discounts (10% off for 5+, 20% off for 10+), or unlock the entire gallery with a digital pass at 3 price tiers.",
           bullets: [
-            "Auto-generated from burst photos (5+ in sequence)",
-            "Ken-burns zoom + crossfade transitions",
-            "Royalty-free music library",
-            "Your brand name as video overlay",
-            "Sells as add-on (EUR 15-30 per reel)",
+            "Single photo: web-size €3, full-res €5",
+            "Wall art prints from €8, premium canvas from €25",
+            "Multi-select with visual selection counter",
+            "Bulk discounts: 5+ photos = 10% off, 10+ = 20% off",
+            "Digital pass tiers scale with photo count",
+            "PayPal + Stripe dual checkout options",
           ],
         },
         {
-          title: "Face recognition — clients find themselves instantly",
-          description: "At events, resorts, and large sessions, clients take a selfie and the system instantly matches their face against all photos in the gallery. No scrolling through hundreds of images — they see only their photos within seconds.",
+          title: "Canva-style photo book designer",
+          description: "Clients design their own photo books right inside the gallery. Drag photos onto pages, resize and rotate freely, choose from 13 layouts and 11 clip-path shapes (heart, diamond, hexagon, star, arch). Auto-save and AI auto-fill.",
           bullets: [
-            "Powered by Face++ AI (99.5% accuracy)",
-            "Works with sunglasses, hats, and expressions",
-            "GDPR compliant — selfie deleted after matching",
-            "Perfect for events, resorts, and group sessions",
-            "Reduces support requests ('which photos are mine?')",
+            "13 pre-built page layouts",
+            "11 clip-path shapes (heart, circle, diamond, star, hexagon, arch...)",
+            "Drag, resize, and rotate photos on canvas",
+            "10 background colors + 5 gradients + 8 Google Fonts",
+            "AI auto-fill: one click populates entire book",
+            "3 book types: softcover, hardcover, premium layflat",
           ],
         },
         {
-          title: "Real-time streaming — photos appear as you shoot",
-          description: "Enable 'Go Live' mode on your phone and every photo you take appears on your client's screen within 2-3 seconds. No refresh needed. Powered by Server-Sent Events, not heavy WebSocket connections.",
+          title: "AI cinematic reel upsell",
+          description: "After gallery purchase, clients are offered a cinematic video reel created from their session photos. Three tiers with Stripe checkout — pure profit with zero production cost.",
           bullets: [
-            "Photos appear in real-time (2-3 second delay)",
-            "Browser push notifications for new photos",
-            "Sound alert (camera shutter click)",
-            "Live indicator with viewer count",
-            "Works on mobile and desktop",
+            "Short reel (15s) — €9",
+            "Standard reel (30s) — €15 (most popular)",
+            "Premium reel (60s) — €25 with transitions & effects",
+            "Auto-presented after gallery payment",
+            "Stripe checkout for instant purchase",
+            "Your branding overlay on every reel",
           ],
         },
       ]}
       useCases={[
-        { title: "Wedding photographers", description: "Deliver a stunning gallery with a sneak peek hook, countdown timer, and album/print upsells. Clients can favorite photos for their album selection." },
-        { title: "Event photographers", description: "Face recognition lets guests find their own photos. Real-time streaming shows photos appearing during the event. QR code access — no login needed." },
-        { title: "Portrait & family", description: "Clean, elegant galleries with download options. Clients pick favorites, you deliver the finals. Photo book and print ordering built into the gallery." },
-        { title: "Resort & venue", description: "Watermarked previews drive kiosk sales. Sleeping money automation recovers abandoned galleries. Multi-language for international guests." },
+        { title: "Wedding photographers", description: "Deliver with the magazine theme. Clients favorite photos for album selection, design their own photo book, and add a cinematic reel. Auto-detected language for destination weddings." },
+        { title: "Event photographers", description: "Face recognition lets guests find their own photos. Per-photo purchasing lets them buy just the shots they love. Bulk discounts encourage buying more." },
+        { title: "Portrait & family", description: "Clean minimal theme. Clients buy individual photos or unlock all with a digital pass. Photo book designer for grandparents wanting a printed keepsake." },
+        { title: "International clients", description: "Auto language detection from phone number or email. Gallery automatically displays in French, German, Spanish, Arabic, and 6 more languages." },
       ]}
       features={[
-        { title: "Server-side watermarking", description: "Photos are watermarked at the CDN level using signed Cloudinary URLs. Impossible to remove by inspecting the page." },
-        { title: "Client favorites & proofing", description: "Clients heart their favorite photos. Export the selection list for final editing and album design." },
-        { title: "FOMO countdown timer", description: "Set an expiry date. Galleries show a countdown timer that creates urgency and drives faster purchases." },
-        { title: "AI video reels", description: "Automatically generate cinematic video reels from burst photos with music, transitions, and your branding." },
-        { title: "Face recognition", description: "Clients take a selfie and instantly find all photos of themselves. Powered by Face++ AI." },
-        { title: "Real-time streaming", description: "Photos appear on the client's screen in real-time as you shoot — via Server-Sent Events." },
-        { title: "10 languages + RTL Arabic", description: "Gallery UI auto-translates to French, German, Spanish, Italian, Arabic, Turkish, Russian, Dutch, Portuguese." },
-        { title: "Magic link delivery", description: "No login required. Send a magic link via email or WhatsApp. Client taps and sees their photos instantly." },
-        { title: "Download control", description: "Full-res downloads for paid galleries, watermarked previews for unpaid. You control what clients can access." },
+        { title: "6 gallery themes", description: "Classic, masonry, filmstrip, magazine, minimal, dark. Pick the perfect look for each gallery." },
+        { title: "Per-photo purchasing", description: "Individual photo buying with web-size and full-res options. Prints and wall art available." },
+        { title: "Multi-select + bulk discounts", description: "Select multiple photos with progressive discounts. 5+ = 10% off, 10+ = 20% off." },
+        { title: "Digital pass tiers", description: "Unlock all photos at 3 price points. Tiers scale with gallery photo count." },
+        { title: "Photo book designer", description: "Canva-style editor with 13 layouts, 11 shapes, drag/resize/rotate, AI auto-fill." },
+        { title: "AI reel upsell", description: "3 pricing tiers (€9/€15/€25) with Stripe checkout. Auto-presented after purchase." },
+        { title: "Auto language detection", description: "Detects language from phone number, email TLD, or browser. 10 languages + Arabic RTL." },
+        { title: "Password protection", description: "Optional password gate with cookie-based 24h access. Download limits per gallery." },
+        { title: "PayPal + Stripe checkout", description: "Dual payment options. Clients choose their preferred payment method." },
+        { title: "Server-side watermarks", description: "Signed Cloudinary URLs. Cannot be removed or screenshotted." },
+        { title: "Client favorites", description: "Heart photos, filter by favorites, export selection list for album design." },
+        { title: "Magic link delivery", description: "No login required. Share via email, WhatsApp, or short link with OG tags." },
       ]}
       highlights={[
-        "Unlimited galleries",
-        "Unlimited photos per gallery",
-        "Watermark protection (server-side)",
+        "6 gallery themes",
+        "Per-photo purchasing (€3-€5)",
+        "Multi-select with bulk discounts",
+        "Digital pass tiers",
+        "Photo book designer (13 layouts, 11 shapes)",
+        "AI reel upsell (€9/€15/€25)",
+        "Auto language detection (10 languages)",
+        "Password protection + download limits",
+        "PayPal + Stripe dual checkout",
+        "Server-side watermark protection",
         "Client favorites & proofing",
         "FOMO countdown timer",
-        "AI video reels with music",
         "Face recognition selfie search",
         "Real-time photo streaming",
-        "10 language translations",
-        "Magic link delivery (no login)",
-        "Download in multiple sizes",
         "Mobile-first responsive design",
         "In-gallery shop (prints, canvas, books)",
+        "Short share links with OG tags",
         "Gallery analytics (views, downloads)",
-        "Password protection option",
-        "Custom cover photo",
       ]}
-      comparisonNote="Pixieset charges $28-55/month for galleries. Fotiqo galleries are free on the Starter plan — with features Pixieset doesn't offer at any price: face recognition, AI video reels, real-time streaming, and 10-language support."
+      comparisonNote="Pixieset charges $28-55/month for galleries with no per-photo purchasing, no photo book designer, no AI reel upsells, and no auto language detection. Fotiqo includes all of this free on the Starter plan."
     />
   );
 }
