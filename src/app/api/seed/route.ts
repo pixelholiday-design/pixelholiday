@@ -427,21 +427,46 @@ export async function PATCH(req: Request) {
     "lighthouse", "sailboat", "diving", "kayaking", "campfire",
   ];
 
+  // Build a self-contained HTML slideshow for the reel preview
+  function buildReelPreviewHtml(photoUrls: string[], track: string): string {
+    const n = photoUrls.length;
+    const secPerPhoto = 3;
+    const total = n * secPerPhoto;
+    const slides = photoUrls.map((url, i) =>
+      `<div class="s" style="background-image:url('${url}');animation-delay:${i * secPerPhoto}s"></div>`
+    ).join("");
+    return `<!doctype html><html><head><meta charset="utf-8"><title>Fotiqo Reel</title>
+<style>
+:root{color-scheme:dark}html,body{margin:0;padding:0;height:100%;background:#0C2E3D;overflow:hidden}
+.st{position:fixed;inset:0}
+.s{position:absolute;inset:0;background-size:cover;background-position:center;opacity:0;transform:scale(1);animation:kb ${total}s linear infinite}
+@keyframes kb{0%{opacity:0;transform:scale(1.05)}${(secPerPhoto*0.15/total*100).toFixed(1)}%{opacity:1;transform:scale(1.08)}${(secPerPhoto*0.85/total*100).toFixed(1)}%{opacity:1;transform:scale(1.18)}${(secPerPhoto/total*100).toFixed(1)}%{opacity:0;transform:scale(1.2)}100%{opacity:0;transform:scale(1)}}
+.br{position:fixed;right:24px;top:20px;z-index:5;color:#0EA5A5;font-family:Georgia,serif;font-size:18px;font-weight:600;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+.lb{position:fixed;left:24px;bottom:20px;z-index:5;color:white;font-family:Georgia,serif;font-size:14px;letter-spacing:1px;text-shadow:0 2px 8px rgba(0,0,0,.6);opacity:.85}
+</style></head><body>
+<div class="st">${slides}</div>
+<div class="br">Fotiqo</div>
+<div class="lb">Auto-Reel · ${track} · ${n} moments</div>
+</body></html>`;
+  }
+
   const results: { token: string; status: string; photos: number; reel: boolean }[] = [];
 
   for (const gallery of galleries) {
     const existing = gallery.photos.length;
     const needed = Math.max(0, 15 - existing);
     const isPaid = gallery.status === "PAID" || gallery.status === "DIGITAL_PASS" || gallery.status === "PARTIAL_PAID";
+    const allPhotoUrls: string[] = gallery.photos.map((p) => p.s3Key_highRes);
     const allPhotoIds: string[] = gallery.photos.map((p) => p.id);
 
     if (needed > 0) {
       for (let i = 0; i < needed; i++) {
         const seed = demoSeeds[(existing + i) % demoSeeds.length];
+        const url = `https://picsum.photos/seed/${seed}${gallery.id.slice(-4)}${i}/1200/800`;
         const photo = await prisma.photo.create({
           data: {
             galleryId: gallery.id,
-            s3Key_highRes: `https://picsum.photos/seed/${seed}${gallery.id.slice(-4)}${i}/1200/800`,
+            s3Key_highRes: url,
             cloudinaryId: null,
             isHookImage: false,
             isFavorited: i % 4 === 0,
@@ -450,6 +475,7 @@ export async function PATCH(req: Request) {
           },
         });
         allPhotoIds.push(photo.id);
+        allPhotoUrls.push(url);
       }
 
       await prisma.gallery.update({
@@ -458,17 +484,31 @@ export async function PATCH(req: Request) {
       });
     }
 
-    // Create VideoReel if none exists
+    // Build reel preview HTML from photo URLs
+    const reelUrls = allPhotoUrls.slice(0, 10).filter(Boolean);
+    const track = gallery.status === "PAID" ? "upbeat" : "romantic";
+    const previewHtml = buildReelPreviewHtml(reelUrls, track);
+
+    // Create or update VideoReel with previewHtml
     const existingReel = await prisma.videoReel.findFirst({ where: { galleryId: gallery.id } });
-    if (!existingReel) {
+    if (existingReel) {
+      // Update existing reel to add previewHtml if missing
+      if (!existingReel.previewHtml) {
+        await prisma.videoReel.update({
+          where: { id: existingReel.id },
+          data: { previewHtml },
+        });
+      }
+    } else {
       await prisma.videoReel.create({
         data: {
           galleryId: gallery.id,
           photoIds: JSON.stringify(allPhotoIds.slice(0, 10)),
-          musicTrack: gallery.status === "PAID" ? "upbeat" : "romantic",
+          musicTrack: track,
           duration: 15,
           status: "READY",
           thumbnailUrl: `https://picsum.photos/seed/reel-${gallery.id.slice(-6)}/640/360`,
+          previewHtml,
         },
       });
     }
