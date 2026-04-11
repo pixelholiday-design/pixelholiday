@@ -509,6 +509,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                       return p.category === shopCat;
                     })
                     .map((product) => {
+                      const catalogImg = (product as any).mockupUrl;
                       const previewSrc = hookPhoto
                         ? getPhotoSrc(hookPhoto, isClean)
                         : null;
@@ -518,13 +519,27 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                           onClick={() => setPickerProduct(product)}
                           className="group text-left bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-lift transition-all duration-200 hover:-translate-y-1"
                         >
-                          {/* Photo mockup */}
-                          <div className="relative aspect-[4/3] bg-cream-100 overflow-hidden">
-                            {previewSrc && (
+                          {/* Product image — Printful catalog or CSS mockup */}
+                          <div className="relative aspect-[4/3] bg-cream-50 overflow-hidden">
+                            {catalogImg ? (
+                              <>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                  src={catalogImg}
+                                  alt={product.name}
+                                  className="w-full h-full object-contain p-3 group-hover:scale-105 transition duration-300"
+                                  loading="lazy"
+                                />
+                              </>
+                            ) : previewSrc ? (
                               <ProductCSSMockup
                                 type={inferMockupType(product)}
                                 src={previewSrc}
                               />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-navy-200">
+                                <ShoppingBag className="h-10 w-10" />
+                              </div>
                             )}
                             {product.badge && (
                               <span className="absolute top-2 left-2 text-xs font-bold text-gold-600 bg-white/90 backdrop-blur rounded-full px-2 py-0.5 shadow">

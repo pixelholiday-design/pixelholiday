@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { X, Plus, Minus, ShoppingBag, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import { X, Plus, Minus, ShoppingBag, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { getPhotoSrc } from "@/lib/cloudinary";
 import type { CartItem, CartPhoto } from "@/components/gallery/ShopCart";
 
@@ -30,10 +30,14 @@ function ProductMockup({
   product,
   photo,
   isPaid,
+  realMockupUrl,
+  mockupLoading,
 }: {
   product: CatalogProduct;
   photo: Photo | null;
   isPaid: boolean;
+  realMockupUrl?: string | null;
+  mockupLoading?: boolean;
 }) {
   const imgSrc = photo
     ? getPhotoSrc(photo, !!(isPaid || photo?.isPurchased))
@@ -41,7 +45,39 @@ function ProductMockup({
 
   const type = product.mockupType ?? "default";
 
+  // Show real Printful mockup if available
+  if (realMockupUrl) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-white p-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={realMockupUrl} alt={product.name} className="max-w-full max-h-full object-contain rounded-lg" />
+        <div className="absolute bottom-2 right-2 text-[9px] bg-brand-500/80 text-white px-2 py-0.5 rounded-full font-semibold">
+          Live preview
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (mockupLoading) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center text-navy-400 bg-cream-50">
+        <Loader2 className="h-8 w-8 animate-spin text-brand-500 mb-2" />
+        <span className="text-xs">Generating preview...</span>
+      </div>
+    );
+  }
+
   if (!imgSrc) {
+    // Show Printful catalog image if available
+    if ((product as any).mockupUrl) {
+      return (
+        <div className="w-full h-full flex items-center justify-center bg-white p-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={(product as any).mockupUrl} alt={product.name} className="max-w-full max-h-full object-contain" />
+        </div>
+      );
+    }
     return (
       <div className="w-full h-full flex items-center justify-center text-navy-300">
         <ShoppingBag className="h-16 w-16 opacity-30" />
@@ -194,8 +230,29 @@ export default function ProductPickerModal({
   const [selectedSize, setSelectedSize] = useState(product.sizes?.[0]?.label ?? "");
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [realMockupUrl, setRealMockupUrl] = useState<string | null>(null);
+  const [mockupLoading, setMockupLoading] = useState(false);
 
   const selectedPhoto = photos[selectedPhotoIdx] ?? null;
+
+  // Fetch real Printful mockup when photo changes
+  useEffect(() => {
+    if (!selectedPhoto) return;
+    const photoUrl = getPhotoSrc(selectedPhoto, !!(isPaid || selectedPhoto.isPurchased));
+    if (!photoUrl) return;
+
+    setMockupLoading(true);
+    setRealMockupUrl(null);
+    fetch("/api/shop/mockup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ productKey: product.productKey, photoUrl }),
+    })
+      .then((r) => r.json())
+      .then((d) => { if (d.mockupUrl) setRealMockupUrl(d.mockupUrl); })
+      .catch(() => {})
+      .finally(() => setMockupLoading(false));
+  }, [selectedPhotoIdx, product.productKey, isPaid]); // eslint-disable-line react-hooks/exhaustive-deps
   const sizeExtra = product.sizes?.find((s) => s.label === selectedSize)?.price ?? 0;
   const unitPrice = (product.price ?? (product as any).retailPrice ?? 0) + sizeExtra;
   const isBook = product.productKey.startsWith("book_");
@@ -273,7 +330,7 @@ export default function ProductPickerModal({
 
           {/* Mockup */}
           <div className="flex-1 flex items-center justify-center min-h-[240px] sm:min-h-[360px] relative">
-            <ProductMockup product={product} photo={selectedPhoto} isPaid={isPaid} />
+            <ProductMockup product={product} photo={selectedPhoto} isPaid={isPaid} realMockupUrl={realMockupUrl} mockupLoading={mockupLoading} />
 
             {/* Photo nav arrows */}
             {photos.length > 1 && (
