@@ -53,6 +53,7 @@ export async function POST(req: Request) {
 
     // Get AI response with full error isolation
     let responseContent = "Thanks for your message! How can I help you today?";
+    let shouldEscalate = false;
     try {
       const { getAiResponse } = await import("@/lib/support/chatbot");
       const aiResponse = await getAiResponse(data.message, {
@@ -61,8 +62,9 @@ export async function POST(req: Request) {
         userName: data.name || session?.user?.name || undefined,
       });
       responseContent = aiResponse.content;
+      shouldEscalate = !!aiResponse.shouldEscalate;
 
-      if (aiResponse.shouldEscalate) {
+      if (shouldEscalate) {
         await prisma.supportChat.update({
           where: { id: chat.id },
           data: { status: "WAITING_FOR_ADMIN", escalatedToHuman: true },
@@ -79,13 +81,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       chatId: chat.id,
-      response: { content: responseContent, contentType: "TEXT", sender: "AI_BOT" },
+      response: { content: responseContent, contentType: "TEXT", sender: "AI_BOT", shouldEscalate },
     });
   } catch (e: any) {
     console.error("[Support Chat] Fatal error:", e);
     return NextResponse.json({
       chatId: null,
-      response: { content: "Hi! Thanks for reaching out. How can I help you today?", contentType: "TEXT", sender: "AI_BOT" },
+      response: { content: "Hi! Thanks for reaching out. How can I help you today?", contentType: "TEXT", sender: "AI_BOT", shouldEscalate: false },
     });
   }
 }

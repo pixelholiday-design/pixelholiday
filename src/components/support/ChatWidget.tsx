@@ -1,18 +1,19 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, Loader2, Star, ThumbsUp, ThumbsDown, Sparkles, HelpCircle, BookOpen, CreditCard, Bug, User } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Star, BookOpen, ShoppingBag, CreditCard, Bug, UserRound } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 type Message = { id: string; content: string; sender: "USER" | "AI_BOT" | "ADMIN"; contentType: string; createdAt: string };
 
+const STORAGE_KEY_MESSAGES = "fotiqo_chat_messages";
+const STORAGE_KEY_CHAT_ID = "fotiqo_chat_id";
+
 const QUICK_ACTIONS = [
-  { icon: Sparkles, label: "Getting started", message: "How do I get started with Fotiqo?" },
-  { icon: BookOpen, label: "Gallery help", message: "How do I create and share a gallery?" },
-  { icon: HelpCircle, label: "Website builder", message: "How do I set up my portfolio website?" },
-  { icon: CreditCard, label: "Billing & pricing", message: "How does Fotiqo pricing work?" },
-  { icon: Bug, label: "Report a problem", message: "I need help with a technical issue" },
-  { icon: User, label: "Talk to a person", message: "I'd like to speak with a support agent" },
+  { icon: BookOpen, label: "Gallery Help", message: "How do I create and share a gallery?" },
+  { icon: ShoppingBag, label: "Store Help", message: "How do I set up my online store?" },
+  { icon: CreditCard, label: "Billing", message: "How does Fotiqo pricing work?" },
+  { icon: Bug, label: "Technical Issue", message: "I need help with a technical issue" },
 ];
 
 function getSessionId() {
@@ -33,6 +34,33 @@ function detectProduct(path: string): string {
   return "MARKETING";
 }
 
+function loadMessages(): Message[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_MESSAGES);
+    if (raw) return JSON.parse(raw);
+  } catch { /* corrupted data, ignore */ }
+  return [];
+}
+
+function saveMessages(msgs: Message[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY_MESSAGES, JSON.stringify(msgs));
+  } catch { /* storage full, ignore */ }
+}
+
+function loadChatId(): string | null {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem(STORAGE_KEY_CHAT_ID);
+}
+
+function saveChatId(id: string | null) {
+  if (typeof window === "undefined") return;
+  if (id) localStorage.setItem(STORAGE_KEY_CHAT_ID, id);
+  else localStorage.removeItem(STORAGE_KEY_CHAT_ID);
+}
+
 export default function ChatWidget() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -42,7 +70,38 @@ export default function ChatWidget() {
   const [chatId, setChatId] = useState<string | null>(null);
   const [showCsat, setShowCsat] = useState(false);
   const [csatScore, setCsatScore] = useState(0);
+  const [escalated, setEscalated] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const initialized = useRef(false);
+
+  // Restore messages and chatId from localStorage on mount
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+    const restored = loadMessages();
+    if (restored.length > 0) setMessages(restored);
+    const storedChatId = loadChatId();
+    if (storedChatId) setChatId(storedChatId);
+  }, []);
+
+  // Listen for external open-chat events (e.g., from Help page)
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener("fotiqo:open-chat", handler);
+    return () => window.removeEventListener("fotiqo:open-chat", handler);
+  }, []);
+
+  // Persist messages whenever they change
+  useEffect(() => {
+    if (initialized.current && messages.length > 0) {
+      saveMessages(messages);
+    }
+  }, [messages]);
+
+  // Persist chatId whenever it changes
+  useEffect(() => {
+    saveChatId(chatId);
+  }, [chatId]);
 
   const scrollToBottom = () => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 
@@ -78,6 +137,10 @@ export default function ChatWidget() {
           createdAt: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, botMsg]);
+
+        if (res.response.shouldEscalate) {
+          setEscalated(true);
+        }
       }
     } catch {
       setMessages((prev) => [...prev, {
@@ -87,6 +150,10 @@ export default function ChatWidget() {
       setSending(false);
     }
   }, [chatId, pathname]);
+
+  const handleEscalate = useCallback(() => {
+    sendMessage("I'd like to speak with a support agent");
+  }, [sendMessage]);
 
   async function submitCsat(score: number) {
     setCsatScore(score);
@@ -100,27 +167,30 @@ export default function ChatWidget() {
     setTimeout(() => setShowCsat(false), 2000);
   }
 
-  // Don't show on kiosk or admin support pages
+  // Don't show on kiosk pages, contract signing pages, or admin support page
   if (pathname.startsWith("/kiosk") || pathname === "/admin/support" || pathname.startsWith("/contract/sign")) return null;
+
+  const hasMessages = messages.length > 0;
 
   return (
     <>
-      {/* Floating button */}
+      {/* Floating button - teal circle with chat bubble */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
-          className="fixed bottom-6 right-6 z-[9999] h-14 w-14 rounded-full bg-brand-500 hover:bg-brand-600 text-white shadow-lift flex items-center justify-center transition-all duration-200 hover:scale-110"
+          className="fixed bottom-6 right-6 z-[9999] h-14 w-14 rounded-full shadow-lift flex items-center justify-center transition-all duration-200 hover:scale-110 text-white"
+          style={{ backgroundColor: "#0EA5A5" }}
           aria-label="Chat with support"
         >
           <MessageCircle className="h-6 w-6" />
         </button>
       )}
 
-      {/* Chat panel */}
+      {/* Chat panel - full screen on mobile, 380x520 on desktop */}
       {open && (
-        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-[9999] w-full sm:w-[380px] h-full sm:h-[520px] sm:rounded-2xl bg-white shadow-lift flex flex-col overflow-hidden animate-slide-up border border-cream-300">
+        <div className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 z-[9999] w-full sm:w-[380px] h-full sm:h-[520px] sm:rounded-2xl bg-white shadow-lift flex flex-col overflow-hidden animate-slide-up border border-cream-300">
           {/* Header */}
-          <div className="bg-gradient-to-r from-brand-500 to-brand-400 px-4 py-3 flex items-center justify-between text-white flex-shrink-0">
+          <div className="px-4 py-3 flex items-center justify-between text-white flex-shrink-0" style={{ background: "linear-gradient(to right, #0EA5A5, #12B5B5)" }}>
             <div className="flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/fotiqo-icon.svg" alt="" className="h-7 w-7 rounded-lg bg-white/20 p-0.5" />
@@ -136,11 +206,11 @@ export default function ChatWidget() {
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 bg-cream-50">
-            {messages.length === 0 ? (
+            {!hasMessages ? (
               /* Welcome state */
               <div className="space-y-3 animate-fade-in">
                 <div className="bg-white rounded-2xl rounded-tl-sm p-3 shadow-sm">
-                  <p className="text-sm text-navy-800">Hi! How can I help you today?</p>
+                  <p className="text-sm text-navy-800">Hi! I&apos;m Fotiqo&apos;s assistant. How can I help?</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   {QUICK_ACTIONS.map((a) => {
@@ -179,6 +249,18 @@ export default function ChatWidget() {
                 <div className="bg-white rounded-2xl rounded-bl-sm px-4 py-2 shadow-sm">
                   <Loader2 className="h-4 w-4 animate-spin text-brand-400" />
                 </div>
+              </div>
+            )}
+            {/* "Talk to a person" button - shown after some messages and not yet escalated */}
+            {hasMessages && !escalated && !sending && (
+              <div className="flex justify-center pt-1">
+                <button
+                  onClick={handleEscalate}
+                  className="flex items-center gap-1.5 text-xs text-navy-500 hover:text-brand-600 transition bg-white rounded-full px-3 py-1.5 shadow-sm border border-cream-200"
+                >
+                  <UserRound className="h-3.5 w-3.5" />
+                  Still need help? Talk to a person
+                </button>
               </div>
             )}
             <div ref={messagesEndRef} />

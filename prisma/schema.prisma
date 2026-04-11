@@ -2748,3 +2748,22 @@ model AlbumSpread {
   photoIds String // JSON array of photo IDs
   order    Int
 }
+
+// ── PHOTO BOOK DESIGNER ──────────────────────
+model PhotoBookDesign {
+  id              String   @id @default(cuid())
+  galleryId       String?
+  customerEmail   String?
+  customerName    String?
+  title           String   @default("My Photo Book")
+  bookType        String   @default("HARDCOVER")
+  bookSize        String   @default("8x11")
+  paper           String   @default("MATTE")
+  pageCount       Int      @default(20)
+  pages           Json     @default("[]")
+  coverDesign     Json?
+  status          String   @default("DRAFT")
+  orderId         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
