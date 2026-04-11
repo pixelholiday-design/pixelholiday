@@ -73,6 +73,7 @@ export default function ReelOverlay({ reel, onBuyReel }: { reel: ReelInfo; onBuy
   return (
     <>
       <button
+        data-reel-trigger
         onClick={() => setOpen(true)}
         className="inline-flex items-center gap-2 bg-coral-500 hover:bg-coral-600 text-white rounded-full px-5 py-2.5 text-sm font-semibold shadow-lift transition"
       >

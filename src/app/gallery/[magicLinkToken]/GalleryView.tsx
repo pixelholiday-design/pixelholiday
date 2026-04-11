@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState, useTransition, useCallback } from "react";
-import { Heart, Camera, MapPin, X, ShoppingBag, LayoutGrid, BookOpen } from "lucide-react";
+import { Heart, Camera, MapPin, X, ShoppingBag, LayoutGrid, BookOpen, Film } from "lucide-react";
 import { getPhotoSrc } from "@/lib/cloudinary";
 import { toggleFavorite } from "./actions";
 import BookingTimePicker from "./BookingTimePicker";
@@ -452,6 +452,47 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                   })}
               </div>
 
+              {/* AI Photo Book + Video Reel featured cards */}
+              {shopCat === "ALL" && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                  {/* AI Photo Book */}
+                  {gallery.photos.length >= 10 && (
+                    <button
+                      onClick={() => { setBookBuilderOpen(true); }}
+                      className="group text-left bg-gradient-to-r from-brand-700 to-brand-600 rounded-2xl p-5 text-white hover:shadow-lift transition-all hover:-translate-y-1"
+                    >
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/60 mb-1">
+                        <BookOpen className="h-3 w-3" /> AI Auto-Build
+                      </div>
+                      <div className="font-display text-xl">Photo Book</div>
+                      <p className="text-white/70 text-sm mt-1">AI selected your best {gallery.photos.length} photos into a 20-page book</p>
+                      <div className="mt-3 inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold">
+                        ✨ Preview — from €39
+                      </div>
+                    </button>
+                  )}
+                  {/* Video Reel */}
+                  {reel && (
+                    <button
+                      onClick={() => {
+                        const reelBtn = document.querySelector("[data-reel-trigger]") as HTMLElement;
+                        if (reelBtn) reelBtn.click();
+                      }}
+                      className="group text-left bg-gradient-to-r from-coral-500 to-coral-400 rounded-2xl p-5 text-white hover:shadow-lift transition-all hover:-translate-y-1"
+                    >
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-white/60 mb-1">
+                        <Film className="h-3 w-3" /> Video
+                      </div>
+                      <div className="font-display text-xl">Your Holiday Reel</div>
+                      <p className="text-white/70 text-sm mt-1">{reel.duration}s video of your best moments — share or download</p>
+                      <div className="mt-3 inline-flex items-center gap-2 bg-white/20 rounded-full px-4 py-1.5 text-sm font-semibold">
+                        🎬 Watch & Buy — €10
+                      </div>
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Product grid */}
               {shopProducts.length === 0 ? (
                 <div className="text-center py-20 text-navy-400">
@@ -481,7 +522,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                           <div className="relative aspect-[4/3] bg-cream-100 overflow-hidden">
                             {previewSrc && (
                               <ProductCSSMockup
-                                type={product.mockupType ?? "default"}
+                                type={inferMockupType(product)}
                                 src={previewSrc}
                               />
                             )}
@@ -654,29 +695,59 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
 }
 
 // ── CSS Mockup helper (inline, gallery-only) ──────────────────────────────────
+/** Map product name/category to mockup type */
+function inferMockupType(product: { name?: string; category?: string; mockupType?: string; productKey?: string }): string {
+  if (product.mockupType) return product.mockupType;
+  const n = (product.name || "").toLowerCase();
+  const k = (product.productKey || "").toLowerCase();
+  if (k.startsWith("book_") || n.includes("book") || n.includes("album") || n.includes("journal")) return "book";
+  if (n.includes("canvas") || n.includes("thin canvas")) return "canvas";
+  if (n.includes("framed") || n.includes("frame")) return "frame";
+  if (n.includes("poster") || n.includes("print") && !n.includes("pillow")) return "print";
+  if (n.includes("metal print") || n.includes("acrylic") || n.includes("glossy metal")) return "metal";
+  if (n.includes("mug") || n.includes("tumbler") || n.includes("latte")) return "mug";
+  if (n.includes("puzzle")) return "puzzle";
+  if (n.includes("pillow") || n.includes("cushion")) return "pillow";
+  if (n.includes("blanket")) return "blanket";
+  if (n.includes("ornament") || n.includes("magnet")) return "ornament";
+  if (n.includes("calendar")) return "calendar";
+  if (n.includes("postcard") || n.includes("greeting") || n.includes("card")) return "card";
+  if (n.includes("phone") || n.includes("case")) return "phone";
+  if (n.includes("coaster") || n.includes("mouse")) return "coaster";
+  if (n.includes("water bottle") || n.includes("bottle")) return "bottle";
+  return "default";
+}
+
 function ProductCSSMockup({ type, src }: { type: string; src: string }) {
-  if (type === "print") {
+  const img = (cls: string) => <img src={src} alt="" className={cls} />;
+  // eslint-disable-next-line @next/next/no-img-element
+
+  if (type === "print" || type === "poster") {
     return (
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div className="bg-white p-2 shadow-card rounded" style={{ maxWidth: "75%", maxHeight: "75%" }}>
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-5">
+        <div className="bg-white p-2 shadow-[4px_6px_20px_rgba(0,0,0,0.2)] rounded" style={{ maxWidth: "80%", maxHeight: "80%" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt="" className="block max-w-full max-h-28 object-contain" />
         </div>
       </div>
     );
   }
+  if (type === "frame") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
+        <div className="bg-navy-900 p-2 rounded shadow-[6px_8px_24px_rgba(0,0,0,0.3)]" style={{ maxWidth: "78%" }}>
+          <div className="bg-white p-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt="" className="block max-w-full max-h-24 object-contain" />
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (type === "canvas") {
     return (
-      <div className="absolute inset-0 flex items-center justify-center p-3">
-        <div
-          className="overflow-hidden rounded"
-          style={{
-            width: "72%",
-            height: "72%",
-            transform: "perspective(500px) rotateY(-6deg) rotateX(2deg)",
-            boxShadow: "6px 12px 28px -6px rgba(15,27,45,0.45)",
-          }}
-        >
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
+        <div className="overflow-hidden rounded" style={{ width: "72%", height: "72%", transform: "perspective(500px) rotateY(-6deg) rotateX(2deg)", boxShadow: "6px 12px 28px -6px rgba(15,27,45,0.45)" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={src} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-y-0 right-0 w-3 bg-gradient-to-l from-black/20 to-transparent" />
@@ -684,29 +755,125 @@ function ProductCSSMockup({ type, src }: { type: string; src: string }) {
       </div>
     );
   }
-  if (type === "book") {
+  if (type === "metal") {
     return (
-      <div className="absolute inset-0 flex items-center justify-center p-4">
-        <div
-          className="relative overflow-hidden rounded-r"
-          style={{
-            width: 90,
-            height: 115,
-            transform: "perspective(500px) rotateY(-10deg)",
-            boxShadow: "8px 10px 24px -6px rgba(15,27,45,0.5)",
-          }}
-        >
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-300 to-zinc-400 p-3">
+        <div className="overflow-hidden rounded-sm" style={{ width: "70%", height: "70%", boxShadow: "0 8px 30px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.2)" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
-          <div className="absolute left-0 inset-y-0 w-2 bg-navy-800/60" />
+          <img src={src} alt="" className="w-full h-full object-cover brightness-110 contrast-105" />
         </div>
       </div>
     );
   }
-  // Default: rounded card
+  if (type === "book") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-200 p-4">
+        <div className="relative overflow-hidden rounded-r" style={{ width: 90, height: 115, transform: "perspective(500px) rotateY(-10deg)", boxShadow: "8px 10px 24px -6px rgba(15,27,45,0.5)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-transparent" />
+          <div className="absolute left-0 inset-y-0 w-2 bg-navy-800/50" />
+        </div>
+      </div>
+    );
+  }
+  if (type === "mug") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-100 to-cream-300 p-3">
+        <div className="relative" style={{ width: 100, height: 85 }}>
+          {/* Mug body */}
+          <div className="absolute inset-0 rounded-b-xl overflow-hidden bg-white border border-cream-300" style={{ borderRadius: "8px 8px 20px 20px" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt="" className="w-full h-full object-cover" />
+          </div>
+          {/* Handle */}
+          <div className="absolute right-[-14px] top-2 w-4 h-12 border-2 border-cream-400 rounded-r-full bg-transparent" />
+        </div>
+      </div>
+    );
+  }
+  if (type === "puzzle") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
+        <div className="overflow-hidden rounded" style={{ width: "75%", height: "75%", boxShadow: "3px 5px 15px rgba(0,0,0,0.2)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="w-full h-full object-cover" />
+          {/* Puzzle grid lines */}
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px)", backgroundSize: "25% 33%" }} />
+        </div>
+      </div>
+    );
+  }
+  if (type === "pillow") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
+        <div className="overflow-hidden" style={{ width: "70%", height: "70%", borderRadius: "30% 30% 30% 30%", boxShadow: "4px 8px 20px rgba(0,0,0,0.15)", transform: "rotate(-5deg)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="w-full h-full object-cover" />
+        </div>
+      </div>
+    );
+  }
+  if (type === "ornament") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
+        <div className="flex flex-col items-center">
+          <div className="w-4 h-3 bg-gold-400 rounded-t-sm mb-[-2px]" />
+          <div className="overflow-hidden" style={{ width: 70, height: 70, borderRadius: "50%", boxShadow: "2px 4px 12px rgba(0,0,0,0.2)" }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt="" className="w-full h-full object-cover" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (type === "calendar") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
+        <div className="bg-white rounded shadow-card overflow-hidden" style={{ width: "70%", height: "80%" }}>
+          <div className="bg-coral-500 text-white text-center py-1 text-[9px] font-bold uppercase tracking-wider">2026</div>
+          <div className="p-1">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt="" className="w-full h-16 object-cover rounded-sm" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+  if (type === "card") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
+        <div className="bg-white rounded shadow-card overflow-hidden" style={{ width: "65%", height: "75%", transform: "rotate(-3deg)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="w-full h-3/4 object-cover" />
+          <div className="px-2 py-1 text-center text-[7px] text-navy-500 font-medium">Wish you were here!</div>
+        </div>
+      </div>
+    );
+  }
+  if (type === "blanket") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
+        <div className="overflow-hidden" style={{ width: "80%", height: "75%", borderRadius: "8px", boxShadow: "3px 6px 15px rgba(0,0,0,0.15)", transform: "rotate(2deg) perspective(400px) rotateX(5deg)" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="w-full h-full object-cover" />
+        </div>
+      </div>
+    );
+  }
+  if (type === "coaster" || type === "phone" || type === "bottle") {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
+        <div className="overflow-hidden shadow-card" style={{ width: type === "coaster" ? 75 : 60, height: type === "coaster" ? 75 : 100, borderRadius: type === "coaster" ? "50%" : "12px" }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt="" className="w-full h-full object-cover" />
+        </div>
+      </div>
+    );
+  }
+  // Default: elegant card on textured background
   return (
-    <div className="absolute inset-0 flex items-center justify-center p-4">
+    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
       <div className="overflow-hidden rounded-xl shadow-card" style={{ width: "78%", height: "78%" }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={src} alt="" className="w-full h-full object-cover" />
