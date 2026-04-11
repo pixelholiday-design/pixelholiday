@@ -509,8 +509,7 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                       return p.category === shopCat;
                     })
                     .map((product) => {
-                      const catalogImg = (product as any).mockupUrl;
-                      const previewSrc = hookPhoto
+                      const customerPhoto = hookPhoto
                         ? getPhotoSrc(hookPhoto, isClean)
                         : null;
                       return (
@@ -519,28 +518,12 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                           onClick={() => setPickerProduct(product)}
                           className="group text-left bg-white rounded-2xl overflow-hidden shadow-card hover:shadow-lift transition-all duration-200 hover:-translate-y-1"
                         >
-                          {/* Product image — Printful catalog or CSS mockup */}
+                          {/* Product with customer photo composited on it */}
                           <div className="relative aspect-[4/3] bg-cream-50 overflow-hidden">
-                            {catalogImg ? (
-                              <>
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img
-                                  src={catalogImg}
-                                  alt={product.name}
-                                  className="w-full h-full object-contain p-3 group-hover:scale-105 transition duration-300"
-                                  loading="lazy"
-                                />
-                              </>
-                            ) : previewSrc ? (
-                              <ProductCSSMockup
-                                type={inferMockupType(product)}
-                                src={previewSrc}
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center text-navy-200">
-                                <ShoppingBag className="h-10 w-10" />
-                              </div>
-                            )}
+                            <ProductCSSMockup
+                              type={inferMockupType(product)}
+                              src={customerPhoto || ""}
+                            />
                             {product.badge && (
                               <span className="absolute top-2 left-2 text-xs font-bold text-gold-600 bg-white/90 backdrop-blur rounded-full px-2 py-0.5 shadow">
                                 {product.badge}
@@ -718,7 +701,7 @@ function inferMockupType(product: { name?: string; category?: string; mockupType
   if (k.startsWith("book_") || n.includes("book") || n.includes("album") || n.includes("journal")) return "book";
   if (n.includes("canvas") || n.includes("thin canvas")) return "canvas";
   if (n.includes("framed") || n.includes("frame")) return "frame";
-  if (n.includes("poster") || n.includes("print") && !n.includes("pillow")) return "print";
+  if (n.includes("poster") || (n.includes("print") && !n.includes("pillow"))) return "print";
   if (n.includes("metal print") || n.includes("acrylic") || n.includes("glossy metal")) return "metal";
   if (n.includes("mug") || n.includes("tumbler") || n.includes("latte")) return "mug";
   if (n.includes("puzzle")) return "puzzle";
@@ -727,115 +710,137 @@ function inferMockupType(product: { name?: string; category?: string; mockupType
   if (n.includes("ornament") || n.includes("magnet")) return "ornament";
   if (n.includes("calendar")) return "calendar";
   if (n.includes("postcard") || n.includes("greeting") || n.includes("card")) return "card";
-  if (n.includes("phone") || n.includes("case")) return "phone";
-  if (n.includes("coaster") || n.includes("mouse")) return "coaster";
+  if (n.includes("coaster") || n.includes("mouse pad") || n.includes("mousepad")) return "coaster";
   if (n.includes("water bottle") || n.includes("bottle")) return "bottle";
   return "default";
 }
 
+/**
+ * CSS product mockup — renders customer's photo ON the product shape.
+ * Like Pixieset/Zno: instant client-side compositing, no API call.
+ */
 function ProductCSSMockup({ type, src }: { type: string; src: string }) {
-  const img = (cls: string) => <img src={src} alt="" className={cls} />;
-  // eslint-disable-next-line @next/next/no-img-element
+  if (!src) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-100 to-cream-200">
+        <ShoppingBag className="h-10 w-10 text-navy-200" />
+      </div>
+    );
+  }
+
+  /* eslint-disable @next/next/no-img-element */
 
   if (type === "print" || type === "poster") {
+    // Photo print on wall with white mat border
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-5">
-        <div className="bg-white p-2 shadow-[4px_6px_20px_rgba(0,0,0,0.2)] rounded" style={{ maxWidth: "80%", maxHeight: "80%" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt="" className="block max-w-full max-h-28 object-contain" />
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #e8ddd3 0%, #d4c8b8 100%)" }}>
+        <div className="bg-white p-[6px] sm:p-2" style={{ boxShadow: "4px 6px 20px rgba(0,0,0,0.25)", width: "70%", height: "78%" }}>
+          <img src={src} alt="" className="w-full h-full object-cover" />
         </div>
       </div>
     );
   }
   if (type === "frame") {
+    // Framed print — dark wood frame
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
-        <div className="bg-navy-900 p-2 rounded shadow-[6px_8px_24px_rgba(0,0,0,0.3)]" style={{ maxWidth: "78%" }}>
-          <div className="bg-white p-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt="" className="block max-w-full max-h-24 object-contain" />
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #e8ddd3 0%, #d4c8b8 100%)" }}>
+        <div className="bg-[#3d2b1f] p-[6px] sm:p-2 rounded-sm" style={{ boxShadow: "6px 8px 24px rgba(0,0,0,0.35)", width: "68%", height: "76%" }}>
+          <div className="bg-white p-[4px] sm:p-1.5 w-full h-full">
+            <img src={src} alt="" className="w-full h-full object-cover" />
           </div>
         </div>
       </div>
     );
   }
   if (type === "canvas") {
+    // Gallery-wrapped canvas on wall — 3D perspective
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
-        <div className="overflow-hidden rounded" style={{ width: "72%", height: "72%", transform: "perspective(500px) rotateY(-6deg) rotateX(2deg)", boxShadow: "6px 12px 28px -6px rgba(15,27,45,0.45)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #e8ddd3 0%, #d4c8b8 100%)" }}>
+        <div className="relative overflow-hidden" style={{ width: "72%", height: "76%", transform: "perspective(600px) rotateY(-5deg)", boxShadow: "8px 12px 30px rgba(0,0,0,0.35)" }}>
           <img src={src} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-y-0 right-0 w-3 bg-gradient-to-l from-black/20 to-transparent" />
+          <div className="absolute inset-y-0 right-0 w-[6px] bg-gradient-to-l from-black/30 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-[6px] bg-gradient-to-t from-black/20 to-transparent" />
         </div>
       </div>
     );
   }
   if (type === "metal") {
+    // Glossy metal print with sheen
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-zinc-300 to-zinc-400 p-3">
-        <div className="overflow-hidden rounded-sm" style={{ width: "70%", height: "70%", boxShadow: "0 8px 30px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.2)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt="" className="w-full h-full object-cover brightness-110 contrast-105" />
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #c0c0c0 0%, #e0e0e0 50%, #a0a0a0 100%)" }}>
+        <div className="overflow-hidden" style={{ width: "70%", height: "74%", boxShadow: "0 8px 30px rgba(0,0,0,0.3)" }}>
+          <img src={src} alt="" className="w-full h-full object-cover brightness-105 contrast-105 saturate-110" />
+          <div className="absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-transparent" />
         </div>
       </div>
     );
   }
   if (type === "book") {
+    // 3D photo book with spine
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-brand-100 to-brand-200 p-4">
-        <div className="relative overflow-hidden rounded-r" style={{ width: 90, height: 115, transform: "perspective(500px) rotateY(-10deg)", boxShadow: "8px 10px 24px -6px rgba(15,27,45,0.5)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f0e6d8 0%, #e0d4c4 100%)" }}>
+        <div className="relative overflow-hidden rounded-r-sm" style={{ width: "50%", height: "70%", transform: "perspective(500px) rotateY(-12deg)", boxShadow: "10px 12px 30px rgba(0,0,0,0.4)" }}>
           <img src={src} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-transparent" />
-          <div className="absolute left-0 inset-y-0 w-2 bg-navy-800/50" />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" style={{ width: "15%" }} />
+          <div className="absolute left-0 inset-y-0 w-[5px] bg-[#3d2b1f]" />
+          <div className="absolute bottom-3 inset-x-0 text-center text-[8px] text-white font-bold tracking-wider" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.6)" }}>PHOTO BOOK</div>
         </div>
       </div>
     );
   }
   if (type === "mug") {
+    // Mug with photo wrapped around
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-100 to-cream-300 p-3">
-        <div className="relative" style={{ width: 100, height: 85 }}>
-          {/* Mug body */}
-          <div className="absolute inset-0 rounded-b-xl overflow-hidden bg-white border border-cream-300" style={{ borderRadius: "8px 8px 20px 20px" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
+        <div className="relative" style={{ width: 110, height: 90 }}>
+          <div className="absolute inset-0 overflow-hidden" style={{ borderRadius: "6px 6px 16px 16px", boxShadow: "3px 6px 16px rgba(0,0,0,0.2)" }}>
             <img src={src} alt="" className="w-full h-full object-cover" />
           </div>
-          {/* Handle */}
-          <div className="absolute right-[-14px] top-2 w-4 h-12 border-2 border-cream-400 rounded-r-full bg-transparent" />
+          <div className="absolute -right-[12px] top-[12px] w-[14px] h-[46px] border-[3px] border-[#c8bca8] rounded-r-full bg-transparent" />
+          <div className="absolute inset-0 rounded-[6px_6px_16px_16px] ring-1 ring-black/10" />
         </div>
       </div>
     );
   }
   if (type === "puzzle") {
+    // Jigsaw puzzle with grid overlay
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
-        <div className="overflow-hidden rounded" style={{ width: "75%", height: "75%", boxShadow: "3px 5px 15px rgba(0,0,0,0.2)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #e8e0d4 0%, #d8cfc0 100%)" }}>
+        <div className="overflow-hidden rounded-sm relative" style={{ width: "72%", height: "72%", boxShadow: "3px 5px 15px rgba(0,0,0,0.2)", transform: "rotate(-2deg)" }}>
           <img src={src} alt="" className="w-full h-full object-cover" />
-          {/* Puzzle grid lines */}
-          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.08) 1px, transparent 1px)", backgroundSize: "25% 33%" }} />
+          <div className="absolute inset-0" style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)", backgroundSize: "20% 25%" }} />
         </div>
       </div>
     );
   }
   if (type === "pillow") {
+    // Throw pillow
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
-        <div className="overflow-hidden" style={{ width: "70%", height: "70%", borderRadius: "30% 30% 30% 30%", boxShadow: "4px 8px 20px rgba(0,0,0,0.15)", transform: "rotate(-5deg)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
+        <div className="overflow-hidden" style={{ width: "68%", height: "68%", borderRadius: "22%", boxShadow: "4px 8px 20px rgba(0,0,0,0.18)", transform: "rotate(-3deg)" }}>
           <img src={src} alt="" className="w-full h-full object-cover" />
         </div>
       </div>
     );
   }
-  if (type === "ornament") {
+  if (type === "blanket") {
+    // Throw blanket draped
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e0d8cc 100%)" }}>
+        <div className="overflow-hidden" style={{ width: "82%", height: "72%", borderRadius: "8px", boxShadow: "3px 6px 15px rgba(0,0,0,0.15)", transform: "rotate(1deg) perspective(400px) rotateX(4deg)" }}>
+          <img src={src} alt="" className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
+        </div>
+      </div>
+    );
+  }
+  if (type === "ornament") {
+    // Round ornament with loop
+    return (
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
         <div className="flex flex-col items-center">
-          <div className="w-4 h-3 bg-gold-400 rounded-t-sm mb-[-2px]" />
-          <div className="overflow-hidden" style={{ width: 70, height: 70, borderRadius: "50%", boxShadow: "2px 4px 12px rgba(0,0,0,0.2)" }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
+          <div className="w-[10px] h-[14px] border-2 border-[#c4a94d] rounded-t-full mb-[-3px]" />
+          <div className="overflow-hidden" style={{ width: 80, height: 80, borderRadius: "50%", boxShadow: "2px 5px 16px rgba(0,0,0,0.25)", border: "2px solid rgba(196,169,77,0.3)" }}>
             <img src={src} alt="" className="w-full h-full object-cover" />
           </div>
         </div>
@@ -843,56 +848,66 @@ function ProductCSSMockup({ type, src }: { type: string; src: string }) {
     );
   }
   if (type === "calendar") {
+    // Wall calendar
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
-        <div className="bg-white rounded shadow-card overflow-hidden" style={{ width: "70%", height: "80%" }}>
-          <div className="bg-coral-500 text-white text-center py-1 text-[9px] font-bold uppercase tracking-wider">2026</div>
-          <div className="p-1">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt="" className="w-full h-16 object-cover rounded-sm" />
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
+        <div className="bg-white rounded shadow-card overflow-hidden" style={{ width: "65%", height: "82%", boxShadow: "2px 4px 12px rgba(0,0,0,0.15)" }}>
+          <img src={src} alt="" className="w-full h-[60%] object-cover" />
+          <div className="px-2 py-1.5 border-t border-cream-200">
+            <div className="text-[8px] font-bold text-coral-500 uppercase tracking-wider">2026</div>
+            <div className="grid grid-cols-7 gap-px mt-1">
+              {Array.from({ length: 14 }).map((_, i) => (
+                <div key={i} className="text-[5px] text-navy-400 text-center">{i + 1}</div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
     );
   }
   if (type === "card") {
+    // Greeting card / postcard
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
-        <div className="bg-white rounded shadow-card overflow-hidden" style={{ width: "65%", height: "75%", transform: "rotate(-3deg)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt="" className="w-full h-3/4 object-cover" />
-          <div className="px-2 py-1 text-center text-[7px] text-navy-500 font-medium">Wish you were here!</div>
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
+        <div className="bg-white rounded shadow-card overflow-hidden" style={{ width: "60%", height: "72%", transform: "rotate(-4deg)", boxShadow: "3px 5px 14px rgba(0,0,0,0.18)" }}>
+          <img src={src} alt="" className="w-full h-[72%] object-cover" />
+          <div className="px-2 py-1.5 text-center">
+            <div className="text-[7px] text-navy-500 font-medium italic">Wish you were here!</div>
+          </div>
         </div>
       </div>
     );
   }
-  if (type === "blanket") {
+  if (type === "coaster") {
+    // Round coaster
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-3">
-        <div className="overflow-hidden" style={{ width: "80%", height: "75%", borderRadius: "8px", boxShadow: "3px 6px 15px rgba(0,0,0,0.15)", transform: "rotate(2deg) perspective(400px) rotateX(5deg)" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
+        <div className="overflow-hidden" style={{ width: 85, height: 85, borderRadius: "50%", boxShadow: "2px 4px 12px rgba(0,0,0,0.2)" }}>
           <img src={src} alt="" className="w-full h-full object-cover" />
         </div>
       </div>
     );
   }
-  if (type === "coaster" || type === "phone" || type === "bottle") {
+  if (type === "bottle") {
+    // Water bottle
     return (
-      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
-        <div className="overflow-hidden shadow-card" style={{ width: type === "coaster" ? 75 : 60, height: type === "coaster" ? 75 : 100, borderRadius: type === "coaster" ? "50%" : "12px" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={src} alt="" className="w-full h-full object-cover" />
+      <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
+        <div className="relative flex flex-col items-center">
+          <div className="w-[24px] h-[12px] bg-[#e0d8cc] rounded-t-lg" />
+          <div className="overflow-hidden" style={{ width: 50, height: 95, borderRadius: "6px", boxShadow: "2px 4px 12px rgba(0,0,0,0.2)" }}>
+            <img src={src} alt="" className="w-full h-full object-cover" />
+          </div>
         </div>
       </div>
     );
   }
-  // Default: elegant card on textured background
+  // Default: photo in elegant card
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-cream-200 to-cream-300 p-4">
-      <div className="overflow-hidden rounded-xl shadow-card" style={{ width: "78%", height: "78%" }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
+    <div className="absolute inset-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #f5f0ea 0%, #e8e0d4 100%)" }}>
+      <div className="overflow-hidden rounded-lg" style={{ width: "75%", height: "75%", boxShadow: "3px 6px 16px rgba(0,0,0,0.2)" }}>
         <img src={src} alt="" className="w-full h-full object-cover" />
       </div>
     </div>
   );
+  /* eslint-enable @next/next/no-img-element */
 }
