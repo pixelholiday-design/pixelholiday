@@ -17,18 +17,32 @@ export async function POST(req: Request) {
     const now = new Date();
     const trialEnd = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000); // 14 days
 
-    const org = await prisma.organization.create({
-      data: {
-        name: businessName,
-        type: "HEADQUARTERS",
-        subscriptionTier: t,
-        saasCommissionRate: SAAS_COMMISSION_RATE,
-        sleepingMoneyShare: 0.5,
-        trialStartedAt: now,
-        trialEndsAt: trialEnd,
-        trialExpired: false,
-      },
-    });
+    // Try with trial fields first; fall back without them if columns don't exist yet
+    let org;
+    try {
+      org = await prisma.organization.create({
+        data: {
+          name: businessName,
+          type: "HEADQUARTERS",
+          subscriptionTier: t,
+          saasCommissionRate: SAAS_COMMISSION_RATE,
+          sleepingMoneyShare: 0.5,
+          trialStartedAt: now,
+          trialEndsAt: trialEnd,
+          trialExpired: false,
+        },
+      });
+    } catch {
+      org = await prisma.organization.create({
+        data: {
+          name: businessName,
+          type: "HEADQUARTERS",
+          subscriptionTier: t,
+          saasCommissionRate: SAAS_COMMISSION_RATE,
+          sleepingMoneyShare: 0.5,
+        },
+      });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
