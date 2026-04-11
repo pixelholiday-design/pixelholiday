@@ -1,0 +1,42 @@
+{
+  "name": "Fotiqo — Photography Platform",
+  "short_name": "Fotiqo",
+  "description": "Professional photography platform. Manage galleries, clients, invoices, and bookings.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#FAFAF9",
+  "theme_color": "#0EA5A5",
+  "orientation": "any",
+  "categories": ["photography", "business", "productivity"],
+  "icons": [
+    {
+      "src": "/fotiqo-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Galleries",
+      "url": "/dashboard/galleries",
+      "description": "View your photo galleries"
+    },
+    {
+      "name": "Clients",
+      "url": "/dashboard/clients",
+      "description": "Manage your clients"
+    },
+    {
+      "name": "Invoices",
+      "url": "/dashboard/invoices",
+      "description": "Manage invoices"
+    }
+  ]
+}

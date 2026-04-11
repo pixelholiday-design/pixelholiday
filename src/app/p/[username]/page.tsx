@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import PhotographerWebsite from "./PhotographerWebsite";
+import { photographerJsonLd } from "@/lib/schema-org";
 
 export const dynamic = "force-dynamic";
 
@@ -43,5 +44,21 @@ export default async function PhotographerPage({ params }: Props) {
     });
   }
 
-  return <PhotographerWebsite profile={profile as any} galleries={featuredGalleries} />;
+  const jsonLd = photographerJsonLd({
+    name: profile.businessName || profile.user?.name || username,
+    username,
+    bio: profile.tagline,
+    location: [profile.city, profile.country].filter(Boolean).join(", ") || null,
+    specialties: profile.services?.map((s: any) => s.name) || [],
+    socialInstagram: profile.socialInstagram,
+    socialWebsite: profile.socialWebsite,
+    avatarUrl: profile.profilePhotoUrl,
+  });
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <PhotographerWebsite profile={profile as any} galleries={featuredGalleries} />
+    </>
+  );
 }

@@ -16,6 +16,44 @@ export async function GET(_req: Request, { params }: { params: { token: string }
     return NextResponse.json({ error: "Gallery not paid" }, { status: 402 });
   }
 
+  // Download PIN check
+  if (gallery.downloadPin) {
+    const url = new URL(_req.url);
+    const pin = url.searchParams.get("pin");
+    if (pin !== gallery.downloadPin) {
+      return NextResponse.json({ error: "Download PIN required", requiresPin: true }, { status: 403 });
+    }
+  }
+
+  // Download limit enforcement
+  if (gallery.maxDownloads) {
+    const downloadCount = await prisma.downloadLog.count({
+      where: { galleryId: gallery.id },
+    });
+    if (downloadCount >= gallery.maxDownloads) {
+      return NextResponse.json({
+        error: "Download limit reached",
+        remaining: 0,
+        max: gallery.maxDownloads,
+      }, { status: 403 });
+    }
+  }
+
+  // Log this download
+  try {
+    const forwarded = _req.headers.get("x-forwarded-for");
+    const ip = forwarded?.split(",")[0]?.trim() || "unknown";
+    await prisma.downloadLog.create({
+      data: {
+        galleryId: gallery.id,
+        type: "FULL_GALLERY",
+        ipAddress: ip,
+      },
+    });
+  } catch {
+    // Non-blocking — don't fail download if logging fails
+  }
+
   // Primary path: Cloudinary archive (best quality, single ZIP redirect)
   const cloudinaryIds = gallery.photos
     .map((p) => p.cloudinaryId)

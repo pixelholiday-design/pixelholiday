@@ -250,5 +250,152 @@ export async function POST(req: Request) {
     }
   }
 
+  // ── SUBSCRIPTION LIFECYCLE ──────────────────────
+  if (event.type === "customer.subscription.created") {
+    const sub = event.data.object;
+    const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+    try {
+      const org = await prisma.organization.findFirst({ where: { stripeCustomerId: customerId } });
+      if (org) {
+        const planMap: Record<string, string> = {};
+        // Map Stripe price to plan name via metadata or amount
+        const item = sub.items?.data?.[0];
+        const amount = item?.price?.unit_amount || 0;
+        let plan = "STARTER";
+        if (amount >= 2400) plan = "STUDIO";
+        else if (amount >= 1000) plan = "PRO";
+
+        await prisma.organization.update({
+          where: { id: org.id },
+          data: {
+            stripeSubscriptionId: sub.id,
+            plan,
+            planStartedAt: new Date(sub.start_date * 1000),
+            planInterval: sub.items?.data?.[0]?.price?.recurring?.interval === "year" ? "ANNUAL" : "MONTHLY",
+          },
+        });
+      }
+    } catch (e: any) {
+      console.error("[Stripe] subscription.created error:", e.message);
+    }
+  }
+
+  if (event.type === "customer.subscription.updated") {
+    const sub = event.data.object;
+    const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+    try {
+      const org = await prisma.organization.findFirst({ where: { stripeCustomerId: customerId } });
+      if (org) {
+        const item = sub.items?.data?.[0];
+        const amount = item?.price?.unit_amount || 0;
+        let plan = "STARTER";
+        if (amount >= 2400) plan = "STUDIO";
+        else if (amount >= 1000) plan = "PRO";
+
+        await prisma.organization.update({
+          where: { id: org.id },
+          data: {
+            plan,
+            planInterval: item?.price?.recurring?.interval === "year" ? "ANNUAL" : "MONTHLY",
+            ...(sub.cancel_at_period_end && { planExpiresAt: new Date(sub.current_period_end * 1000) }),
+          },
+        });
+      }
+    } catch (e: any) {
+      console.error("[Stripe] subscription.updated error:", e.message);
+    }
+  }
+
+  if (event.type === "customer.subscription.deleted") {
+    const sub = event.data.object;
+    const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+    try {
+      const org = await prisma.organization.findFirst({ where: { stripeCustomerId: customerId } });
+      if (org) {
+        await prisma.organization.update({
+          where: { id: org.id },
+          data: {
+            plan: "STARTER",
+            stripeSubscriptionId: null,
+            planExpiresAt: null,
+          },
+        });
+      }
+    } catch (e: any) {
+      console.error("[Stripe] subscription.deleted error:", e.message);
+    }
+  }
+
+  if (event.type === "invoice.payment_succeeded") {
+    const inv = event.data.object;
+    const customerId = typeof inv.customer === "string" ? inv.customer : inv.customer?.id;
+    if (inv.subscription) {
+      try {
+        const org = await prisma.organization.findFirst({ where: { stripeCustomerId: customerId } });
+        if (org) {
+          await prisma.organization.update({
+            where: { id: org.id },
+            data: {
+              planExpiresAt: inv.lines?.data?.[0]?.period?.end
+                ? new Date(inv.lines.data[0].period.end * 1000)
+                : undefined,
+            },
+          });
+        }
+      } catch (e: any) {
+        console.error("[Stripe] invoice.payment_succeeded error:", e.message);
+      }
+    }
+  }
+
+  if (event.type === "invoice.payment_failed") {
+    const inv = event.data.object;
+    const customerId = typeof inv.customer === "string" ? inv.customer : inv.customer?.id;
+    if (inv.subscription) {
+      try {
+        const org = await prisma.organization.findFirst({ where: { stripeCustomerId: customerId } });
+        if (org) {
+          // Send warning email
+          if (process.env.RESEND_API_KEY) {
+            const resend = new Resend(process.env.RESEND_API_KEY);
+            const staff = await prisma.user.findFirst({ where: { orgId: org.id, role: "CEO" }, select: { email: true } });
+            if (staff?.email) {
+              await resend.emails.send({
+                from: process.env.FROM_EMAIL || "hello@fotiqo.local",
+                to: staff.email,
+                subject: "Payment failed — your Fotiqo subscription",
+                html: `<p>Your subscription payment failed. Please update your payment method to avoid losing access to premium features.</p>`,
+              }).catch(() => {});
+            }
+          }
+        }
+      } catch (e: any) {
+        console.error("[Stripe] invoice.payment_failed error:", e.message);
+      }
+    }
+  }
+
+  if (event.type === "customer.subscription.trial_will_end") {
+    const sub = event.data.object;
+    const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer?.id;
+    try {
+      const org = await prisma.organization.findFirst({ where: { stripeCustomerId: customerId } });
+      if (org && process.env.RESEND_API_KEY) {
+        const resend = new Resend(process.env.RESEND_API_KEY);
+        const staff = await prisma.user.findFirst({ where: { orgId: org.id, role: "CEO" }, select: { email: true } });
+        if (staff?.email) {
+          await resend.emails.send({
+            from: process.env.FROM_EMAIL || "hello@fotiqo.local",
+            to: staff.email,
+            subject: "Your Fotiqo trial ends in 3 days",
+            html: `<p>Your free trial ends soon. Upgrade now to keep your premium features!</p>`,
+          }).catch(() => {});
+        }
+      }
+    } catch (e: any) {
+      console.error("[Stripe] trial_will_end error:", e.message);
+    }
+  }
+
   return NextResponse.json({ received: true });
 }

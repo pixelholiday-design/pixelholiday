@@ -5,8 +5,10 @@ import Link from "next/link";
 import {
   Home, Image, Globe, Package, Calendar, ShoppingBag,
   MessageSquare, Star, Wallet, Settings, Camera, LogOut,
-  Users, FileText, BarChart3, FileSignature,
+  Users, FileText, BarChart3, FileSignature, Wand2,
+  CalendarDays, BookOpen, Kanban,
 } from "lucide-react";
+import TrialBanner from "@/components/dashboard/TrialBanner";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Home", icon: Home },
@@ -19,6 +21,10 @@ const NAV_ITEMS = [
   { href: "/dashboard/store", label: "Store", icon: ShoppingBag },
   { href: "/dashboard/inquiries", label: "Inquiries", icon: MessageSquare },
   { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
+  { href: "/dashboard/projects", label: "Projects", icon: Kanban },
+  { href: "/dashboard/mini-sessions", label: "Mini Sessions", icon: CalendarDays },
+  { href: "/dashboard/albums", label: "Albums", icon: BookOpen },
+  { href: "/dashboard/ai-tools", label: "AI Tools", icon: Wand2 },
   { href: "/dashboard/reviews", label: "Reviews", icon: Star },
   { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3 },
   { href: "/dashboard/payouts", label: "Payouts", icon: Wallet },
@@ -119,6 +125,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Main content */}
       <main className="lg:ml-60 pt-14 lg:pt-0 pb-16 lg:pb-0 min-h-screen">
+        <div className="px-4 pt-4 lg:px-6 lg:pt-6">
+          <TrialBanner />
+        </div>
         {children}
       </main>
     </div>

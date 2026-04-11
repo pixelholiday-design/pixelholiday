@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { generateReelForGallery } from "@/lib/ai/reel-generator";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { requirePlan } from "@/lib/plan-guard";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +13,15 @@ const schema = z.object({
 });
 
 export async function POST(req: Request) {
+  const session = await getServerSession(authOptions);
+  if (session?.user) {
+    try {
+      await requirePlan((session.user as any).orgId, "aiReels");
+    } catch {
+      return NextResponse.json({ error: "AI Reels require a STUDIO plan" }, { status: 403 });
+    }
+  }
+
   const body = await req.json().catch(() => ({}));
   const parsed = schema.safeParse(body);
   if (!parsed.success) {

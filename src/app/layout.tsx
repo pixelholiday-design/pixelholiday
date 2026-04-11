@@ -31,7 +31,15 @@ export const viewport = { themeColor: "#0EA5A5" };
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${inter.variable} ${dmSans.variable} ${playfair.variable}`}>
+      <head>
+        <link rel="manifest" href="/manifest-saas.json" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Fotiqo" />
+      </head>
       <body className="antialiased bg-cream-100 text-navy-900 font-sans">
+        <script dangerouslySetInnerHTML={{ __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw-saas.js').catch(()=>{});}` }} />
         <Providers>{children}</Providers>
         <CookieConsent />
         <SuggestionButton />

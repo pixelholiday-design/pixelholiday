@@ -3,6 +3,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { redirect } from "next/navigation";
 import { Users, Mail, Phone, Camera, DollarSign, Calendar, Search, Plus } from "lucide-react";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -67,6 +68,9 @@ export default async function ClientsPage() {
           <h1 className="font-display text-3xl text-navy-900">Clients</h1>
           <p className="text-navy-500 text-sm mt-1">{clients.length} clients &middot; &euro;{totalRevenue.toFixed(0)} total revenue</p>
         </div>
+        <Link href="/dashboard/clients/new" className="btn-primary text-sm">
+          <Plus className="h-4 w-4" /> Add Client
+        </Link>
       </div>
 
       {/* Stats */}

@@ -33,6 +33,9 @@ export default function DashboardStorePage() {
           <h1 className="font-display text-3xl text-navy-900">Store</h1>
           <p className="text-navy-500 text-sm mt-1">Products your clients can purchase from their gallery</p>
         </div>
+        <a href="/dashboard/store/pricing-tiers" className="btn-secondary text-sm">
+          Volume Pricing
+        </a>
       </div>
 
       {/* Stats */}
