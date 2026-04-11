@@ -238,15 +238,17 @@ export default function ProductPickerModal({
   // Fetch real Printful mockup when photo changes
   useEffect(() => {
     if (!selectedPhoto) return;
-    const photoUrl = getPhotoSrc(selectedPhoto, !!(isPaid || selectedPhoto.isPurchased));
-    if (!photoUrl) return;
 
     setMockupLoading(true);
     setRealMockupUrl(null);
     fetch("/api/shop/mockup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productKey: product.productKey, photoUrl }),
+      body: JSON.stringify({
+        productKey: product.productKey,
+        photoId: selectedPhoto.id,
+        photoUrl: getPhotoSrc(selectedPhoto, !!(isPaid || selectedPhoto.isPurchased)),
+      }),
     })
       .then((r) => r.json())
       .then((d) => { if (d.mockupUrl) setRealMockupUrl(d.mockupUrl); })
