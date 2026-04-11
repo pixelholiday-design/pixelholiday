@@ -113,7 +113,11 @@ export default withAuth(
 export const config = {
   matcher: [
     "/admin/:path*",
-    "/kiosk/:path*",
+    // Kiosk: only match the root /kiosk path (for authenticated kiosk access).
+    // Public kiosk surfaces (sale-point, gallery, self-service, tv-display,
+    // sd-upload, print-queue, setup) are excluded so they bypass withAuth
+    // entirely and work even without NextAuth configured.
+    "/kiosk/((?!sale-point|gallery|self-service|tv-display|sd-upload|print-queue|setup).*)",
     "/my-dashboard/:path*",
     "/api/admin/:path*",
   ],
