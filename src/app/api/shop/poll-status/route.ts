@@ -111,6 +111,47 @@ export async function GET() {
             }
           }
         }
+        if (labName.includes("WHCC")) {
+          const whccKey = process.env.WHCC_API_KEY;
+          if (whccKey) {
+            const whccEnv = process.env.WHCC_ENVIRONMENT || "sandbox";
+            const whccBase = whccEnv === "live" ? "https://api.whcc.com/v1" : "https://api.sandbox.whcc.com/v1";
+            const res = await fetch(`${whccBase}/orders/${order.labOrderId}`, {
+              headers: {
+                Authorization: `Bearer ${whccKey}`,
+                "X-Account-Id": process.env.WHCC_ACCOUNT_ID || "",
+              },
+              signal: AbortSignal.timeout(8000),
+            });
+
+            if (res.ok) {
+              const json = await res.json().catch(() => null);
+              const whccStatus = (json?.status || "").toLowerCase();
+              const tracking: string | null = json?.trackingNumber || json?.tracking?.number || null;
+              const trackingUrl: string | null = json?.trackingUrl || json?.tracking?.url || null;
+
+              if (whccStatus.includes("ship") && tracking) {
+                await prisma.shopOrder.update({
+                  where: { id: order.id },
+                  data: { status: "SHIPPED", trackingNumber: tracking, trackingUrl },
+                });
+                updates.push({ id: order.id, status: "SHIPPED", trackingNumber: tracking });
+              } else if (whccStatus.includes("deliver") || whccStatus.includes("complete")) {
+                await prisma.shopOrder.update({
+                  where: { id: order.id },
+                  data: { status: "DELIVERED" },
+                });
+                updates.push({ id: order.id, status: "DELIVERED" });
+              } else if (whccStatus.includes("error") || whccStatus.includes("fail")) {
+                await prisma.shopOrder.update({
+                  where: { id: order.id },
+                  data: { status: "ERROR" },
+                });
+                updates.push({ id: order.id, status: "ERROR" });
+              }
+            }
+          }
+        }
         // MOCK orders: skip (they won't have real lab APIs)
       } catch (e: any) {
         console.error(`[poll-status] Error polling order ${order.id}:`, e.message);

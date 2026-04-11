@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
+import { STATIC_PRODUCTS, type StaticProduct } from "@/lib/staticProducts";
 
 export const dynamic = "force-dynamic";
 
@@ -24,42 +24,52 @@ const CATEGORY_ORDER = [
   "PRINTS", "WALL_ART", "ALBUMS", "CARDS", "DIGITAL", "PACKAGES", "GIFTS", "OTHERS",
 ];
 
+function buildResponse(products: StaticProduct[]) {
+  const byCategory: Record<string, StaticProduct[]> = {};
+  for (const p of products) {
+    const cat = p.category ?? "OTHERS";
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(p);
+  }
+
+  const seen = new Set<string>();
+  const presentCategories: string[] = [];
+  for (const c of CATEGORY_ORDER) {
+    if (!seen.has(c) && (byCategory[c]?.length ?? 0) > 0) {
+      presentCategories.push(c);
+      seen.add(c);
+    }
+  }
+  for (const c of Object.keys(byCategory)) {
+    if (!seen.has(c)) {
+      presentCategories.push(c);
+      seen.add(c);
+    }
+  }
+
+  return { products, byCategory, categories: presentCategories, categoryMeta: CATEGORY_META };
+}
+
 export async function GET(_req: NextRequest) {
+  // Try database first
   try {
+    const { prisma } = await import("@/lib/db");
     const products = await prisma.shopProduct.findMany({
       where: { isActive: true },
       orderBy: [{ sortOrder: "asc" }, { isFeatured: "desc" }, { name: "asc" }],
     });
 
-    const byCategory: Record<string, typeof products> = {};
-    for (const p of products) {
-      const cat = p.category ?? "OTHERS";
-      if (!byCategory[cat]) byCategory[cat] = [];
-      byCategory[cat].push(p);
+    if (products.length > 0) {
+      return NextResponse.json(buildResponse(products as unknown as StaticProduct[]));
     }
-
-    const seen = new Set<string>();
-    const presentCategories: string[] = [];
-    for (const c of CATEGORY_ORDER) {
-      if (!seen.has(c) && (byCategory[c]?.length ?? 0) > 0) {
-        presentCategories.push(c);
-        seen.add(c);
-      }
-    }
-    for (const c of Object.keys(byCategory)) {
-      if (!seen.has(c)) {
-        presentCategories.push(c);
-        seen.add(c);
-      }
-    }
-
-    return NextResponse.json({
-      products,
-      byCategory,
-      categories: presentCategories,
-      categoryMeta: CATEGORY_META,
-    });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message, products: [], byCategory: {}, categories: [], categoryMeta: CATEGORY_META }, { status: 500 });
+  } catch {
+    // DB unavailable — fall through to static products
   }
+
+  // Fallback: static product catalog
+  const sorted = [...STATIC_PRODUCTS]
+    .filter((p) => p.isActive)
+    .sort((a, b) => a.sortOrder - b.sortOrder || (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0) || a.name.localeCompare(b.name));
+
+  return NextResponse.json(buildResponse(sorted));
 }

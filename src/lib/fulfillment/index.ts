@@ -26,10 +26,11 @@ import { createPrintfulOrder } from "./printful";
 import { createLocalPrintJob } from "./local";
 import { emailGalleryLink } from "@/lib/email";
 import { sendWhatsAppGalleryDelivery } from "@/lib/whatsapp";
+import { getLabCostBySku } from "@/lib/labCatalog";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
-type LabGroup = "DIGITAL" | "PRODIGI" | "PRINTFUL" | "LOCAL" | "MANUAL";
+type LabGroup = "DIGITAL" | "PRODIGI" | "PRINTFUL" | "WHCC" | "MPIX" | "LOXLEY" | "PRODPI" | "ATKINS" | "LOCAL" | "MANUAL";
 
 export type FulfillmentResult = {
   orderId: string;
@@ -37,12 +38,14 @@ export type FulfillmentResult = {
   digital: number;
   prodigi: number;
   printful: number;
+  whcc: number;
   local: number;
   manual: number;
   /** Legacy alias for prodigi (backward-compat with existing callers) */
   physical: number;
   labOrderId?: string;
   printfulOrderId?: string;
+  whccOrderId?: string;
   localJobIds?: string[];
   commission: number;
   error?: string;
@@ -56,6 +59,11 @@ function routeItem(item: {
   const lab = item.product.labName?.toUpperCase();
   if (lab === "PRODIGI") return "PRODIGI";
   if (lab === "PRINTFUL") return "PRINTFUL";
+  if (lab === "WHCC") return "WHCC";
+  if (lab === "MPIX" || lab === "MILLERS") return "MPIX";
+  if (lab === "LOXLEY") return "LOXLEY";
+  if (lab === "PRODPI") return "PRODPI";
+  if (lab === "ATKINS") return "ATKINS";
   if (lab === "LOCAL") return "LOCAL";
   if (item.product.fulfillmentType === "DIGITAL") return "DIGITAL";
   if (item.product.fulfillmentType === "AUTO") return "PRODIGI";
@@ -89,7 +97,7 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
     return {
       orderId: shopOrderId,
       status: "ERROR",
-      digital: 0, prodigi: 0, printful: 0, local: 0, manual: 0, physical: 0,
+      digital: 0, prodigi: 0, printful: 0, whcc: 0, local: 0, manual: 0, physical: 0,
       commission: 0,
       error: err.message,
     };
@@ -99,7 +107,7 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
     return {
       orderId: shopOrderId,
       status: "ERROR",
-      digital: 0, prodigi: 0, printful: 0, local: 0, manual: 0, physical: 0,
+      digital: 0, prodigi: 0, printful: 0, whcc: 0, local: 0, manual: 0, physical: 0,
       commission: 0,
       error: "Order not found",
     };
@@ -110,6 +118,11 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
     DIGITAL: [],
     PRODIGI: [],
     PRINTFUL: [],
+    WHCC: [],
+    MPIX: [],
+    LOXLEY: [],
+    PRODPI: [],
+    ATKINS: [],
     LOCAL: [],
     MANUAL: [],
   };
@@ -120,6 +133,7 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
   const updates: Promise<unknown>[] = [];
   let labOrderId: string | undefined;
   let printfulOrderId: string | undefined;
+  let whccOrderId: string | undefined;
   let localJobIds: string[] | undefined;
 
   // ── 1. DIGITAL – generate download URLs, deliver via email + WhatsApp ──────
@@ -240,6 +254,148 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
     }
   }
 
+  // ── 3b. WHCC ────────────────────────────────────────────────────────────────
+  if (groups.WHCC.length > 0) {
+    try {
+      const { submitOrder } = await import("./whcc");
+      const whccItems = groups.WHCC.map((i: any) => ({
+        catalogId: i.product.labProductId || i.product.productKey,
+        quantity: i.quantity,
+        imageUrl: i.photoUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/photos/${i.photoId}/download`,
+        options: {
+          ...(i.size ? { Size: i.size } : {}),
+          ...(i.option ? { Option: i.option } : {}),
+        },
+      }));
+      const customer = order.customer;
+      const nameParts = (customer?.name || "Customer").split(" ");
+      const result = await submitOrder(
+        whccItems,
+        {
+          firstName: nameParts[0] || "Customer",
+          lastName: nameParts.slice(1).join(" ") || "",
+          address1: order.shippingAddress || "",
+          city: order.shippingCity || "",
+          postalCode: order.shippingPostal || "",
+          country: order.shippingCountry || "US",
+          email: customer?.email || undefined,
+        },
+        `fotiqo_${shopOrderId}`,
+      );
+      whccOrderId = result.labOrderId;
+      const existingLabName = labOrderId ? "PRODIGI+" : printfulOrderId ? "PRINTFUL+" : "";
+      updates.push(
+        prisma.shopOrder
+          .update({
+            where: { id: shopOrderId },
+            data: {
+              labOrderId: labOrderId ?? printfulOrderId ?? result.labOrderId,
+              labName: `${existingLabName}WHCC`,
+            },
+          })
+          .catch(() => null),
+      );
+      updates.push(
+        prisma.shopOrderItem
+          .updateMany({
+            where: { id: { in: groups.WHCC.map((i: any) => i.id) } },
+            data: { status: "IN_PRODUCTION", labItemId: result.labOrderId },
+          })
+          .catch(() => null),
+      );
+    } catch (err: any) {
+      console.error("[fulfillOrder] WHCC submission failed:", err.message);
+    }
+  }
+
+  // ── 3c. Mpix / Miller's ─────────────────────────────────────────────────────
+  if (groups.MPIX.length > 0) {
+    try {
+      const { submitOrder: submitMpix } = await import("./mpix");
+      const mpixItems = groups.MPIX.map((i: any) => ({
+        catalogId: i.product.labProductId || i.product.productKey,
+        quantity: i.quantity,
+        imageUrl: i.photoUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/photos/${i.photoId}/download`,
+        options: { ...(i.size ? { Size: i.size } : {}), ...(i.option ? { Option: i.option } : {}) },
+      }));
+      const customer = order.customer;
+      const nameParts = (customer?.name || "Customer").split(" ");
+      const result = await submitMpix(mpixItems, {
+        firstName: nameParts[0] || "Customer", lastName: nameParts.slice(1).join(" ") || "",
+        address1: order.shippingAddress || "", city: order.shippingCity || "",
+        postalCode: order.shippingPostal || "", country: order.shippingCountry || "US",
+        email: customer?.email || undefined,
+      }, `fotiqo_${shopOrderId}`);
+      updates.push(prisma.shopOrderItem.updateMany({ where: { id: { in: groups.MPIX.map((i: any) => i.id) } }, data: { status: "IN_PRODUCTION", labItemId: result.labOrderId } }).catch(() => null));
+    } catch (err: any) { console.error("[fulfillOrder] Mpix submission failed:", err.message); }
+  }
+
+  // ── 3d. Loxley Colour ──────────────────────────────────────────────────────
+  if (groups.LOXLEY.length > 0) {
+    try {
+      const { submitOrder: submitLoxley } = await import("./loxley");
+      const loxleyItems = groups.LOXLEY.map((i: any) => ({
+        catalogId: i.product.labProductId || i.product.productKey,
+        quantity: i.quantity,
+        imageUrl: i.photoUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/photos/${i.photoId}/download`,
+        options: { ...(i.size ? { Size: i.size } : {}), ...(i.option ? { Option: i.option } : {}) },
+      }));
+      const customer = order.customer;
+      const nameParts = (customer?.name || "Customer").split(" ");
+      const result = await submitLoxley(loxleyItems, {
+        firstName: nameParts[0] || "Customer", lastName: nameParts.slice(1).join(" ") || "",
+        address1: order.shippingAddress || "", city: order.shippingCity || "",
+        postalCode: order.shippingPostal || "", country: order.shippingCountry || "GB",
+        email: customer?.email || undefined,
+      }, `fotiqo_${shopOrderId}`);
+      updates.push(prisma.shopOrderItem.updateMany({ where: { id: { in: groups.LOXLEY.map((i: any) => i.id) } }, data: { status: "IN_PRODUCTION", labItemId: result.labOrderId } }).catch(() => null));
+    } catch (err: any) { console.error("[fulfillOrder] Loxley submission failed:", err.message); }
+  }
+
+  // ── 3e. ProDPI ──────────────────────────────────────────────────────────────
+  if (groups.PRODPI.length > 0) {
+    try {
+      const { submitOrder: submitProdpi } = await import("./prodpi");
+      const prodpiItems = groups.PRODPI.map((i: any) => ({
+        catalogId: i.product.labProductId || i.product.productKey,
+        quantity: i.quantity,
+        imageUrl: i.photoUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/photos/${i.photoId}/download`,
+        options: { ...(i.size ? { Size: i.size } : {}), ...(i.option ? { Option: i.option } : {}) },
+      }));
+      const customer = order.customer;
+      const nameParts = (customer?.name || "Customer").split(" ");
+      const result = await submitProdpi(prodpiItems, {
+        firstName: nameParts[0] || "Customer", lastName: nameParts.slice(1).join(" ") || "",
+        address1: order.shippingAddress || "", city: order.shippingCity || "",
+        postalCode: order.shippingPostal || "", country: order.shippingCountry || "US",
+        email: customer?.email || undefined,
+      }, `fotiqo_${shopOrderId}`);
+      updates.push(prisma.shopOrderItem.updateMany({ where: { id: { in: groups.PRODPI.map((i: any) => i.id) } }, data: { status: "IN_PRODUCTION", labItemId: result.labOrderId } }).catch(() => null));
+    } catch (err: any) { console.error("[fulfillOrder] ProDPI submission failed:", err.message); }
+  }
+
+  // ── 3f. Atkins Pro ──────────────────────────────────────────────────────────
+  if (groups.ATKINS.length > 0) {
+    try {
+      const { submitOrder: submitAtkins } = await import("./atkins");
+      const atkinsItems = groups.ATKINS.map((i: any) => ({
+        catalogId: i.product.labProductId || i.product.productKey,
+        quantity: i.quantity,
+        imageUrl: i.photoUrl || `${process.env.NEXT_PUBLIC_APP_URL}/api/photos/${i.photoId}/download`,
+        options: { ...(i.size ? { Size: i.size } : {}), ...(i.option ? { Option: i.option } : {}) },
+      }));
+      const customer = order.customer;
+      const nameParts = (customer?.name || "Customer").split(" ");
+      const result = await submitAtkins(atkinsItems, {
+        firstName: nameParts[0] || "Customer", lastName: nameParts.slice(1).join(" ") || "",
+        address1: order.shippingAddress || "", city: order.shippingCity || "",
+        postalCode: order.shippingPostal || "", country: order.shippingCountry || "AU",
+        email: customer?.email || undefined,
+      }, `fotiqo_${shopOrderId}`);
+      updates.push(prisma.shopOrderItem.updateMany({ where: { id: { in: groups.ATKINS.map((i: any) => i.id) } }, data: { status: "IN_PRODUCTION", labItemId: result.labOrderId } }).catch(() => null));
+    } catch (err: any) { console.error("[fulfillOrder] Atkins submission failed:", err.message); }
+  }
+
   // ── 4. LOCAL ───────────────────────────────────────────────────────────────
   if (groups.LOCAL.length > 0) {
     try {
@@ -272,13 +428,21 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
 
   // ── Commission ─────────────────────────────────────────────────────────────
   const commissionBreakdown = calculateCommission(
-    order.items.map((i: any) => ({
-      unitPrice: i.unitPrice,
-      quantity: i.quantity,
-      fulfillmentType: i.product.fulfillmentType,
-      costPrice: i.product.costPrice,
-      isAutomated: false,
-    })),
+    order.items.map((i: any) => {
+      // Use product costPrice, or look up from lab catalog by SKU
+      let costPrice = i.product.costPrice;
+      if (!costPrice && i.product.labProductId) {
+        const labCost = getLabCostBySku(i.product.labProductId);
+        if (labCost) costPrice = labCost.basePrice;
+      }
+      return {
+        unitPrice: i.unitPrice,
+        quantity: i.quantity,
+        fulfillmentType: i.product.fulfillmentType,
+        costPrice,
+        isAutomated: false,
+      };
+    }),
   );
 
   // ── Persist commission + mark order PROCESSING ────────────────────────────
@@ -297,7 +461,9 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
   await Promise.all(updates);
 
   const hasPhysical =
-    groups.PRODIGI.length + groups.PRINTFUL.length + groups.LOCAL.length;
+    groups.PRODIGI.length + groups.PRINTFUL.length + groups.WHCC.length +
+    groups.MPIX.length + groups.LOXLEY.length + groups.PRODPI.length + groups.ATKINS.length +
+    groups.LOCAL.length;
   const totalFulfilled =
     groups.DIGITAL.length +
     hasPhysical +
@@ -309,12 +475,14 @@ export async function fulfillOrder(shopOrderId: string): Promise<FulfillmentResu
     digital: groups.DIGITAL.length,
     prodigi: groups.PRODIGI.length,
     printful: groups.PRINTFUL.length,
+    whcc: groups.WHCC.length,
     local: groups.LOCAL.length,
     manual: groups.MANUAL.length,
     // Legacy alias
     physical: groups.PRODIGI.length,
     labOrderId,
     printfulOrderId,
+    whccOrderId,
     localJobIds,
     commission: commissionBreakdown.fotiqoCommission,
   };
