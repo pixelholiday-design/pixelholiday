@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Play, X, Film, Share2, Download, Check, Video } from "lucide-react";
+import { Play, X, Film, Share2, Download, Check, Video, ShoppingBag } from "lucide-react";
 
 export type ReelInfo = {
   id: string;
@@ -8,7 +8,9 @@ export type ReelInfo = {
   thumbnailUrl: string | null;
 };
 
-export default function ReelOverlay({ reel }: { reel: ReelInfo }) {
+const REEL_PRICE = 10;
+
+export default function ReelOverlay({ reel, onBuyReel }: { reel: ReelInfo; onBuyReel?: () => void }) {
   const [open, setOpen] = useState(false);
   const [html, setHtml] = useState<string | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
@@ -88,6 +90,14 @@ export default function ReelOverlay({ reel }: { reel: ReelInfo }) {
               {videoUrl && <span className="text-xs bg-brand-500/20 text-brand-400 px-2 py-0.5 rounded-full font-sans">HD Video</span>}
             </div>
             <div className="flex items-center gap-2">
+              {onBuyReel && (
+                <button
+                  onClick={() => { onBuyReel(); setOpen(false); }}
+                  className="inline-flex items-center gap-2 h-10 px-5 rounded-full bg-coral-500 hover:bg-coral-600 text-sm font-semibold transition shadow-lg"
+                >
+                  <ShoppingBag className="h-4 w-4" /> Buy reel — €{REEL_PRICE}
+                </button>
+              )}
               <button
                 onClick={handleShare}
                 className="inline-flex items-center gap-2 h-10 px-4 rounded-full bg-white/10 hover:bg-white/20 text-sm font-medium transition"

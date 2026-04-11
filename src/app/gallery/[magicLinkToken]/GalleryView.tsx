@@ -289,7 +289,20 @@ export default function GalleryView({ gallery, reel }: { gallery: Gallery; reel?
                 </button>
               </>
             )}
-            {reel && <ReelOverlay reel={reel} />}
+            {reel && (
+              <ReelOverlay
+                reel={reel}
+                onBuyReel={() => {
+                  addToCart({
+                    productKey: "video_reel",
+                    productName: "Video Reel",
+                    price: 10,
+                    currency: "EUR",
+                    qty: 1,
+                  });
+                }}
+              />
+            )}
             <ShareMenu url={galleryUrl} title={`Fotiqo — ${gallery.location.name}`} />
             {isClean && activeTab === "photos" && <DownloadAllButton token={gallery.magicLinkToken} />}
             <LanguageSwitcher />
