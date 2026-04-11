@@ -87,7 +87,18 @@ export function watermarkedUrl(publicIdOrUrl: string, width = 1200): string {
     if (publicIdOrUrl.includes("photos.fotiqo.com") || publicIdOrUrl.includes("r2.dev")) {
       return publicIdOrUrl;
     }
-    // Use Cloudinary fetch to apply watermark to picsum/external URLs.
+    // Seed/demo URLs (picsum, unsplash, placeholder) — serve directly.
+    // Cloudinary fetch with watermark overlay fails if the overlay asset
+    // doesn't exist in the account. CSS watermark overlay handles protection.
+    if (
+      publicIdOrUrl.includes("picsum.photos") ||
+      publicIdOrUrl.includes("unsplash.com") ||
+      publicIdOrUrl.includes("placeholder.co") ||
+      publicIdOrUrl.includes("placehold.co")
+    ) {
+      return publicIdOrUrl;
+    }
+    // Use Cloudinary fetch to apply watermark to external URLs.
     if (!HAS_CLOUDINARY) return publicIdOrUrl;
     return `https://res.cloudinary.com/${CLOUD}/image/fetch/${transform}/${publicIdOrUrl}`;
   }
