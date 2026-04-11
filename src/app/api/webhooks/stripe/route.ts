@@ -227,6 +227,19 @@ export async function POST(req: Request) {
           amount: netAmount,
         });
 
+        // Auto AI Reel upsell — flag orders with 5+ photos as reel-eligible
+        try {
+          const photoCount = gallery.photos?.length || 0;
+          if (photoCount >= 5) {
+            await prisma.order.update({
+              where: { id: order.id },
+              data: { reelStatus: "PREVIEW_READY" },
+            });
+          }
+        } catch (reelErr: any) {
+          console.warn("[Stripe] Reel upsell flag error:", reelErr.message);
+        }
+
         // Delivery email
         if (process.env.RESEND_API_KEY && gallery.customer.email) {
           try {
