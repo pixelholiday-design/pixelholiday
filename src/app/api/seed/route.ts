@@ -399,8 +399,8 @@ export async function GET() {
 }
 
 /**
- * PATCH — Upgrade a PAID gallery to have 15 photos + a VideoReel
- * so the AI Auto-Book banner and reel player are visible.
+ * PATCH — Upgrade ALL galleries to have 15 photos + a VideoReel
+ * so the AI Auto-Book banner and reel player are visible on every gallery type.
  *
  * Usage: PATCH /api/seed?secret=fotiqo-seed-2026
  */
@@ -411,84 +411,79 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Find a PAID gallery to upgrade
-  const gallery = await prisma.gallery.findFirst({
-    where: { status: "PAID" },
+  const galleries = await prisma.gallery.findMany({
     include: { photos: true },
     orderBy: { createdAt: "asc" },
   });
-  if (!gallery) {
-    return NextResponse.json({ error: "No PAID gallery found" }, { status: 404 });
+
+  if (!galleries.length) {
+    return NextResponse.json({ error: "No galleries found" }, { status: 404 });
   }
 
-  // Add more photos if gallery has fewer than 15
-  const existing = gallery.photos.length;
-  const needed = Math.max(0, 15 - existing);
-  const newPhotoIds: string[] = gallery.photos.map((p) => p.id);
+  const demoSeeds = [
+    "beach-sunset", "mountain-lake", "palm-trees", "ocean-waves", "waterfall",
+    "coral-reef", "tropical-fish", "resort-pool", "hammock-beach", "starfish",
+    "snorkeling", "jet-ski", "parasailing", "family-beach", "sunset-dinner",
+    "lighthouse", "sailboat", "diving", "kayaking", "campfire",
+  ];
 
-  if (needed > 0) {
-    // Nature/travel themed demo photos
-    const demoPhotos = [
-      "seed/beach-sunset/1200/800",
-      "seed/mountain-lake/1200/800",
-      "seed/palm-trees/1200/800",
-      "seed/ocean-waves/1200/800",
-      "seed/waterfall/1200/800",
-      "seed/coral-reef/1200/800",
-      "seed/tropical-fish/1200/800",
-      "seed/resort-pool/1200/800",
-      "seed/hammock-beach/1200/800",
-      "seed/starfish/1200/800",
-      "seed/snorkeling/1200/800",
-      "seed/jet-ski/1200/800",
-      "seed/parasailing/1200/800",
-      "seed/family-beach/1200/800",
-      "seed/sunset-dinner/1200/800",
-    ];
+  const results: { token: string; status: string; photos: number; reel: boolean }[] = [];
 
-    for (let i = 0; i < needed; i++) {
-      const photo = await prisma.photo.create({
-        data: {
-          galleryId: gallery.id,
-          s3Key_highRes: `https://picsum.photos/${demoPhotos[i] || `seed/holiday${i}/1200/800`}`,
-          cloudinaryId: null,
-          isHookImage: false,
-          isFavorited: i % 3 === 0,
-          isPurchased: true,
-          sortOrder: existing + i,
-        },
+  for (const gallery of galleries) {
+    const existing = gallery.photos.length;
+    const needed = Math.max(0, 15 - existing);
+    const isPaid = gallery.status === "PAID" || gallery.status === "DIGITAL_PASS" || gallery.status === "PARTIAL_PAID";
+    const allPhotoIds: string[] = gallery.photos.map((p) => p.id);
+
+    if (needed > 0) {
+      for (let i = 0; i < needed; i++) {
+        const seed = demoSeeds[(existing + i) % demoSeeds.length];
+        const photo = await prisma.photo.create({
+          data: {
+            galleryId: gallery.id,
+            s3Key_highRes: `https://picsum.photos/seed/${seed}${gallery.id.slice(-4)}${i}/1200/800`,
+            cloudinaryId: null,
+            isHookImage: false,
+            isFavorited: i % 4 === 0,
+            isPurchased: isPaid,
+            sortOrder: existing + i,
+          },
+        });
+        allPhotoIds.push(photo.id);
+      }
+
+      await prisma.gallery.update({
+        where: { id: gallery.id },
+        data: { totalCount: existing + needed },
       });
-      newPhotoIds.push(photo.id);
     }
 
-    await prisma.gallery.update({
-      where: { id: gallery.id },
-      data: { totalCount: existing + needed },
-    });
-  }
+    // Create VideoReel if none exists
+    const existingReel = await prisma.videoReel.findFirst({ where: { galleryId: gallery.id } });
+    if (!existingReel) {
+      await prisma.videoReel.create({
+        data: {
+          galleryId: gallery.id,
+          photoIds: JSON.stringify(allPhotoIds.slice(0, 10)),
+          musicTrack: gallery.status === "PAID" ? "upbeat" : "romantic",
+          duration: 15,
+          status: "READY",
+          thumbnailUrl: `https://picsum.photos/seed/reel-${gallery.id.slice(-6)}/640/360`,
+        },
+      });
+    }
 
-  // Create VideoReel if none exists
-  const existingReel = await prisma.videoReel.findFirst({ where: { galleryId: gallery.id } });
-  let reel = existingReel;
-  if (!reel) {
-    reel = await prisma.videoReel.create({
-      data: {
-        galleryId: gallery.id,
-        photoIds: JSON.stringify(newPhotoIds.slice(0, 10)),
-        musicTrack: "upbeat",
-        duration: 15,
-        status: "READY",
-        thumbnailUrl: `https://picsum.photos/seed/reel-thumb/640/360`,
-      },
+    results.push({
+      token: gallery.magicLinkToken,
+      status: gallery.status,
+      photos: existing + needed,
+      reel: true,
     });
   }
 
   return NextResponse.json({
     success: true,
-    galleryId: gallery.id,
-    galleryToken: gallery.magicLinkToken,
-    totalPhotos: existing + needed,
-    reelId: reel.id,
-    galleryUrl: `/gallery/${gallery.magicLinkToken}`,
+    upgraded: results.length,
+    galleries: results,
   });
 }
