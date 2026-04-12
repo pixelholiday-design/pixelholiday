@@ -57,6 +57,9 @@ model Organization {
   trialEndsAt          DateTime?
   trialExpired         Boolean          @default(false)
   priceSheets          PriceSheet[]
+  agentConversations   AgentConversation[] @relation("OrgAgentConversations")
+  agentTasks           AgentTask[]         @relation("OrgAgentTasks")
+  agentSettings        AgentSettings?      @relation("OrgAgentSettings")
   createdAt            DateTime         @default(now())
 }
 
@@ -103,6 +106,7 @@ model User {
   availability         PhotographerAvailability[] @relation("PhotographerAvailabilities")
   marketplaceBookings  MarketplaceBooking[]       @relation("PhotographerMarketplaceBookings")
   packageBookings      PackageBooking[]           @relation("PackageBookingPhotographer")
+  agentConversations   AgentConversation[]        @relation("UserAgentConversations")
   createdAt            DateTime                  @default(now())
 }
 
@@ -2787,4 +2791,55 @@ model ClientAccount {
 
   @@unique([organizationId, email])
   @@index([organizationId])
+}
+
+// ── FOTIQO AI AGENT ──────────────────────────
+model AgentConversation {
+  id              String   @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation("OrgAgentConversations", fields: [organizationId], references: [id])
+  userId          String
+  user            User     @relation("UserAgentConversations", fields: [userId], references: [id])
+  messages        Json     @default("[]")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([userId])
+}
+
+model AgentTask {
+  id              String   @id @default(cuid())
+  organizationId  String
+  organization    Organization @relation("OrgAgentTasks", fields: [organizationId], references: [id])
+  type            String
+  status          String   @default("SUGGESTED")
+  title           String
+  description     String?
+  data            Json?
+  scheduledFor    DateTime?
+  executedAt      DateTime?
+  result          Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([organizationId])
+  @@index([status])
+}
+
+model AgentSettings {
+  id              String   @id @default(cuid())
+  organizationId  String   @unique
+  organization    Organization @relation("OrgAgentSettings", fields: [organizationId], references: [id])
+  isEnabled       Boolean  @default(true)
+  autoPost        Boolean  @default(false)
+  autoReply       Boolean  @default(false)
+  autoEnhance     Boolean  @default(false)
+  dailyBriefing   Boolean  @default(true)
+  weeklyReport    Boolean  @default(true)
+  socialAccounts  Json?
+  brandVoice      String?
+  targetAudience  String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

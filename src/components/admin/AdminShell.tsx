@@ -99,6 +99,13 @@ const SECTIONS: NavSection[] = [
     ],
   },
   {
+    title: "Agent",
+    badge: "AI",
+    items: [
+      { href: "/admin/agent", label: "Fotiqo Agent", icon: Sparkles },
+    ],
+  },
+  {
     title: "Store",
     items: [
       { href: "/admin/store/orders", label: "Orders", icon: ShoppingBag },
@@ -139,7 +146,7 @@ const ROLE_ALLOWED: Record<string, string[]> = {
     "/admin/b2b","/admin/companies-manage","/admin/franchise","/admin/hotel-integration","/admin/ai-insights","/admin/fraud-alerts","/admin/hr/jobs",
     "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch","/admin/reels","/admin/gamification",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
-    "/admin/subscription",
+    "/admin/subscription","/admin/agent",
   ],
   OPERATIONS_MANAGER: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
@@ -148,7 +155,7 @@ const ROLE_ALLOWED: Record<string, string[]> = {
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money",
     "/admin/b2b","/admin/hotel-integration","/admin/fraud-alerts","/admin/hr/jobs","/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch","/admin/reels","/admin/gamification",
     "/admin/store/orders","/admin/store/labs","/admin/store/coupons",
-    "/admin/subscription",
+    "/admin/subscription","/admin/agent",
   ],
   SUPERVISOR: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/chat","/admin/staff","/admin/equipment",
