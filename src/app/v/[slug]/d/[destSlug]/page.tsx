@@ -55,10 +55,10 @@ export default async function DestinationPage({ params }: { params: { slug: stri
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
-              <div key={item.label} className="flex-shrink-0 bg-white rounded-xl border border-cream-200 px-4 py-3 flex items-center gap-2 text-sm text-navy-700 hover:border-brand-300 transition cursor-pointer">
+              <Link key={item.label} href={`/v/${params.slug}/d/${params.destSlug}${item.href}`} className="flex-shrink-0 bg-white rounded-xl border border-cream-200 px-4 py-3 flex items-center gap-2 text-sm text-navy-700 hover:border-brand-300 transition cursor-pointer">
                 <Icon className="h-4 w-4" style={{ color: primaryColor }} />
                 {item.label}
-              </div>
+              </Link>
             );
           })}
         </div>
