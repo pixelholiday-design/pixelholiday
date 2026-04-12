@@ -130,9 +130,13 @@ const CATEGORY_FALLBACKS: Record<string, string> = {
   OTHERS:   "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=80",
 };
 
-function getProductImage(productKey: string, category: string): string {
-  return PRODUCT_IMAGES[productKey]
-    ?? CATEGORY_FALLBACKS[category]
+function getProductImage(productKey: string, category: string, mockupUrl?: string): string {
+  // 1. Lab-provided mockup image (from Printful catalog sync, etc.)
+  if (mockupUrl && mockupUrl.startsWith("http")) return mockupUrl;
+  // 2. Curated product lifestyle photo
+  if (PRODUCT_IMAGES[productKey]) return PRODUCT_IMAGES[productKey];
+  // 3. Category fallback
+  return CATEGORY_FALLBACKS[category]
     ?? "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80";
 }
 
@@ -509,7 +513,7 @@ export default function ShopClient({ initialCatalog }: { initialCatalog?: Catalo
                         {/* Thumbnail */}
                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 shadow-sm">
                           <img
-                            src={getProductImage(item.productKey, p.category)}
+                            src={getProductImage(item.productKey, p.category, p.mockupUrl)}
                             alt={p.name}
                             className="w-full h-full object-cover"
                           />
@@ -693,7 +697,7 @@ function ProductGrid({
     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
       {products.map(p => {
         const inCart = items.find(i => i.productKey === p.productKey)?.qty || 0;
-        const imgSrc = getProductImage(p.productKey, p.category);
+        const imgSrc = getProductImage(p.productKey, p.category, p.mockupUrl);
 
         return (
           <div

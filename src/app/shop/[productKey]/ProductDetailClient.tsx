@@ -83,8 +83,13 @@ const CATEGORY_FALLBACKS: Record<string, string> = {
   PACKAGES: "https://images.unsplash.com/photo-1596900779744-2bdc4a90509a?w=800&q=80",
   OTHERS: "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=80",
 };
-function getProductImage(productKey: string, category: string): string {
-  return PRODUCT_IMAGES[productKey] ?? CATEGORY_FALLBACKS[category] ?? "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=800&q=80";
+function getProductImage(productKey: string, category: string, mockupUrl?: string): string {
+  // 1. Lab-provided mockup image (from Printful/Prodigi catalog sync)
+  if (mockupUrl && mockupUrl.startsWith("http")) return mockupUrl;
+  // 2. Curated product lifestyle photo
+  if (PRODUCT_IMAGES[productKey]) return PRODUCT_IMAGES[productKey];
+  // 3. Category fallback
+  return CATEGORY_FALLBACKS[category] ?? "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=800&q=80";
 }
 
 /* ─── Helpers ────────────────────────────────────────────── */
@@ -234,7 +239,7 @@ export default function ProductDetailClient({
   const showRoom = isWallArt(product);
   const productType = detectProductType(product);
 
-  const productImageUrl = photoPreview || getProductImage(product.productKey, product.category);
+  const productImageUrl = photoPreview || getProductImage(product.productKey, product.category, product.mockupUrl);
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] text-[#0C2E3D]">
@@ -576,7 +581,7 @@ export default function ProductDetailClient({
                 >
                   <div className="overflow-hidden aspect-[4/3]">
                     <img
-                      src={getProductImage(p.productKey, p.category)}
+                      src={getProductImage(p.productKey, p.category, p.mockupUrl)}
                       alt={p.name}
                       loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"

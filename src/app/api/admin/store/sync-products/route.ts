@@ -82,6 +82,24 @@ async function fetchPrintfulProducts(): Promise<any[]> {
   }
 }
 
+// Curated product images by Prodigi category (Prodigi doesn't provide images via API)
+const PRODIGI_IMAGE_MAP: Record<string, string> = {
+  "Fine Art Prints":  "https://images.unsplash.com/photo-1579541814924-49fef17c5be5?w=800&q=80",
+  "Photo Prints":     "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=800&q=80",
+  Prints:             "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=800&q=80",
+  Canvas:             "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=800&q=80",
+  "Canvas Wraps":     "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=800&q=80",
+  "Framed Prints":    "https://images.unsplash.com/photo-1594633313828-8794e2bd2e15?w=800&q=80",
+  "Metal Prints":     "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=800&q=80",
+  "Acrylic Prints":   "https://images.unsplash.com/photo-1596900779744-2bdc4a90509a?w=800&q=80",
+  Mugs:               "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=800&q=80",
+  "Phone Cases":      "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&q=80",
+  Cushions:           "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&q=80",
+  "Tote Bags":        "https://images.unsplash.com/photo-1544816155-12df9643f363?w=800&q=80",
+  Calendars:          "https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=800&q=80",
+  Posters:            "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=800&q=80",
+};
+
 // ── Map Prodigi product to ShopProduct shape ───────────────────────────────
 
 function mapProdigiProduct(p: any, sortBase: number): any {
@@ -134,6 +152,7 @@ function mapProdigiProduct(p: any, sortBase: number): any {
     isFeatured: false,
     sortOrder: sortBase,
     sizes: sizes.length > 0 ? JSON.stringify(sizes) : null,
+    mockupUrl: p.imageUrl || PRODIGI_IMAGE_MAP[p.category || ""] || PRODIGI_IMAGE_MAP[p.productType || ""] || null,
   };
 }
 
@@ -218,6 +237,7 @@ export async function POST(req: Request) {
           labName: mapped.labName,
           sizes: mapped.sizes,
           sortOrder: mapped.sortOrder,
+          mockupUrl: mapped.mockupUrl,
         },
       });
       results.prodigi++;
