@@ -69,7 +69,7 @@ export async function POST(req: Request) {
         subject,
         html: fullHtml,
         ...(bodyText ? { text: bodyText } : {}),
-        reply_to: fotiqoEmail.emailAddress,
+        replyTo: fotiqoEmail.emailAddress,
       });
     } else {
       console.log(`[Email MOCK → ${to}] ${subject}`);
