@@ -68,6 +68,10 @@ export async function POST(req: Request) {
       seoDescription: data.seoDescription,
       seoImage: data.seoImage,
       featuredGalleryIds: data.featuredGalleryIds || [],
+      whatsappEnabled: data.whatsappEnabled ?? false,
+      whatsappNumber: data.whatsappNumber || null,
+      whatsappMessage: data.whatsappMessage || null,
+      whatsappPosition: data.whatsappPosition || "bottom-right",
     },
     update: {
       ...(data.username !== undefined && { username: data.username }),
@@ -101,6 +105,10 @@ export async function POST(req: Request) {
       ...(data.seoDescription !== undefined && { seoDescription: data.seoDescription }),
       ...(data.seoImage !== undefined && { seoImage: data.seoImage }),
       ...(data.featuredGalleryIds !== undefined && { featuredGalleryIds: data.featuredGalleryIds }),
+      ...(data.whatsappEnabled !== undefined && { whatsappEnabled: data.whatsappEnabled }),
+      ...(data.whatsappNumber !== undefined && { whatsappNumber: data.whatsappNumber || null }),
+      ...(data.whatsappMessage !== undefined && { whatsappMessage: data.whatsappMessage || null }),
+      ...(data.whatsappPosition !== undefined && { whatsappPosition: data.whatsappPosition }),
     },
     include: { services: { orderBy: { sortOrder: "asc" } }, testimonials: { orderBy: { sortOrder: "asc" } } },
   });

@@ -7,6 +7,7 @@ import {
   MapPin, Users, Camera, DollarSign, Building, ArrowRight, Plus,
   X, Loader2, Hotel, Waves, FerrisWheel, Store, Settings, LogOut,
   Upload, ShoppingBag, Calendar, BarChart3, UserPlus, Briefcase, Sparkles,
+  Network,
 } from "lucide-react";
 
 type Destination = {
@@ -126,6 +127,9 @@ export default function CompanyDashboard() {
           >
             <Plus className="h-4 w-4" /> Add Destination
           </button>
+          <Link href={`/v/${slug}/team`} className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cream-300 bg-white text-sm text-navy-700 hover:border-brand-300 transition">
+            <Network className="h-4 w-4" style={{ color: primaryColor }} /> Team & Org Chart
+          </Link>
           <Link href={`/v/${slug}/staff`} className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cream-300 bg-white text-sm text-navy-700 hover:border-brand-300 transition">
             <UserPlus className="h-4 w-4" style={{ color: primaryColor }} /> Manage Staff
           </Link>

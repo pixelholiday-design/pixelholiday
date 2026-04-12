@@ -10,104 +10,105 @@ datasource db {
 
 // ── USERS & AUTH ──────────────────────────────
 model Organization {
-  id                 String           @id @default(cuid())
-  name               String
-  slug               String?          @unique // "tunisphoto" — for /v/[slug] portal URL
-  type               OrgType
-  parentOrgId        String?
-  parentOrg          Organization?    @relation("FranchiseTree", fields: [parentOrgId], references: [id])
-  children           Organization[]   @relation("FranchiseTree")
-  locations          Location[]
-  staff              User[]
-  subscriptionTier   SubscriptionTier @default(STARTER)
-  saasCommissionRate Float            @default(0.02)
-  sleepingMoneyShare Float            @default(0.50)
+  id                       String              @id @default(cuid())
+  name                     String
+  slug                     String?             @unique // "tunisphoto" — for /v/[slug] portal URL
+  type                     OrgType
+  parentOrgId              String?
+  parentOrg                Organization?       @relation("FranchiseTree", fields: [parentOrgId], references: [id])
+  children                 Organization[]      @relation("FranchiseTree")
+  locations                Location[]
+  staff                    User[]
+  subscriptionTier         SubscriptionTier    @default(STARTER)
+  saasCommissionRate       Float               @default(0.02)
+  sleepingMoneyShare       Float               @default(0.50)
   // White-label branding
-  brandColor         String?
-  brandName          String?          // "TunisPhoto" — shown on their portal
-  brandLogo          String?          // logo URL for light backgrounds
-  brandLogoDark      String?          // logo URL for dark backgrounds
-  brandPrimaryColor  String?          // e.g. "#FF5733"
-  brandSecondaryColor String?
-  brandFavicon       String?
-  showPoweredByFotiqo Boolean         @default(true)
-  logoUrl            String?
-  tagline            String?
-  customDomain       String?
+  brandColor               String?
+  brandName                String? // "TunisPhoto" — shown on their portal
+  brandLogo                String? // logo URL for light backgrounds
+  brandLogoDark            String? // logo URL for dark backgrounds
+  brandPrimaryColor        String? // e.g. "#FF5733"
+  brandSecondaryColor      String?
+  brandFavicon             String?
+  showPoweredByFotiqo      Boolean             @default(true)
+  logoUrl                  String?
+  tagline                  String?
+  customDomain             String?
   // Company details (for VENUE_COMPANY)
-  website            String?
-  phone              String?
-  country            String?
-  city               String?
-  taxId              String?
-  contractStartDate  DateTime?
-  contractEndDate    DateTime?
-  commissionRate     Float?           // negotiated override rate
+  website                  String?
+  phone                    String?
+  country                  String?
+  city                     String?
+  taxId                    String?
+  contractStartDate        DateTime?
+  contractEndDate          DateTime?
+  commissionRate           Float? // negotiated override rate
   // Subscription plan
-  plan                 String           @default("STARTER") // STARTER, PRO, STUDIO
-  planInterval         String?          // MONTHLY, ANNUAL
-  planStartedAt        DateTime?
-  planExpiresAt        DateTime?
-  stripeCustomerId     String?
-  stripeSubscriptionId String?
-  stripeConnectAccountId String?
-  stripeConnectStatus    String?
+  plan                     String              @default("STARTER") // STARTER, PRO, STUDIO
+  planInterval             String? // MONTHLY, ANNUAL
+  planStartedAt            DateTime?
+  planExpiresAt            DateTime?
+  stripeCustomerId         String?
+  stripeSubscriptionId     String?
+  stripeConnectAccountId   String?
+  stripeConnectStatus      String?
   stripeConnectOnboardedAt DateTime?
-  trialStartedAt       DateTime?
-  trialEndsAt          DateTime?
-  trialExpired         Boolean          @default(false)
-  priceSheets          PriceSheet[]
-  agentConversations   AgentConversation[] @relation("OrgAgentConversations")
-  agentTasks           AgentTask[]         @relation("OrgAgentTasks")
-  agentSettings        AgentSettings?      @relation("OrgAgentSettings")
-  createdAt            DateTime         @default(now())
+  trialStartedAt           DateTime?
+  trialEndsAt              DateTime?
+  trialExpired             Boolean             @default(false)
+  priceSheets              PriceSheet[]
+  agentConversations       AgentConversation[] @relation("OrgAgentConversations")
+  agentTasks               AgentTask[]         @relation("OrgAgentTasks")
+  agentSettings            AgentSettings?      @relation("OrgAgentSettings")
+  createdAt                DateTime            @default(now())
 }
 
 model User {
-  id                   String                    @id @default(cuid())
+  id                   String                     @id @default(cuid())
   name                 String
-  email                String                    @unique
+  email                String                     @unique
   password             String?
   phone                String?
   pin                  String?
   role                 StaffRole
   orgId                String
-  org                  Organization              @relation(fields: [orgId], references: [id])
+  org                  Organization               @relation(fields: [orgId], references: [id])
   locationId           String?
-  location             Location?                 @relation(fields: [locationId], references: [id])
-  isRepeater           Boolean                   @default(false)
-  repeaterYears        Int                       @default(0)
+  location             Location?                  @relation(fields: [locationId], references: [id])
+  isRepeater           Boolean                    @default(false)
+  repeaterYears        Int                        @default(0)
   salary               Float?
-  rating               Float                     @default(0)
+  rating               Float                      @default(0)
   equipmentAssignments EquipmentAssignment[]
-  galleries            Gallery[]                 @relation("PhotographerGalleries")
-  appointments         Appointment[]             @relation("AssignedPhotographer")
+  galleries            Gallery[]                  @relation("PhotographerGalleries")
+  appointments         Appointment[]              @relation("AssignedPhotographer")
   commissions          Commission[]
   shifts               Shift[]
   housing              StaffHousing?
   blogPosts            BlogPost[]
   chatMessages         ChatMessage[]
   chatMemberships      ChatMember[]
-  xp                   Int                       @default(0)
-  level                Int                       @default(1)
-  badges               String[]                  @default([])
-  streakDays           Int                       @default(0)
+  xp                   Int                        @default(0)
+  level                Int                        @default(1)
+  badges               String[]                   @default([])
+  streakDays           Int                        @default(0)
   lastActivityAt       DateTime?
   userBadges           UserBadge[]
   xpLogs               XpLog[]
-  photoAnalyses        PhotoAnalysis[]           @relation("PhotographerAnalyses")
-  skillProfile         PhotographerSkillProfile? @relation("UserSkillProfile")
-  trainingAssignments  TrainingAssignment[]      @relation("UserTrainingAssignments")
-  weeklySkillReports   WeeklySkillReport[]       @relation("UserWeeklyReports")
-  zoneAssignments      ZoneAssignment[]          @relation("UserZoneAssignments")
-  appointmentOutcomes  AppointmentOutcome[]      @relation("UserAppointmentOutcomes")
-  photographerProfile  PhotographerProfile?      @relation("UserPhotographerProfile")
+  photoAnalyses        PhotoAnalysis[]            @relation("PhotographerAnalyses")
+  skillProfile         PhotographerSkillProfile?  @relation("UserSkillProfile")
+  trainingAssignments  TrainingAssignment[]       @relation("UserTrainingAssignments")
+  weeklySkillReports   WeeklySkillReport[]        @relation("UserWeeklyReports")
+  zoneAssignments      ZoneAssignment[]           @relation("UserZoneAssignments")
+  appointmentOutcomes  AppointmentOutcome[]       @relation("UserAppointmentOutcomes")
+  photographerProfile  PhotographerProfile?       @relation("UserPhotographerProfile")
   reviews              PhotographerReview[]       @relation("PhotographerReviews")
   availability         PhotographerAvailability[] @relation("PhotographerAvailabilities")
   marketplaceBookings  MarketplaceBooking[]       @relation("PhotographerMarketplaceBookings")
   packageBookings      PackageBooking[]           @relation("PackageBookingPhotographer")
   agentConversations   AgentConversation[]        @relation("UserAgentConversations")
-  createdAt            DateTime                  @default(now())
+  staffProfile         StaffProfile?              @relation("UserStaffProfile")
+  createdAt            DateTime                   @default(now())
 }
 
 enum StaffRole {
@@ -121,12 +122,12 @@ enum StaffRole {
 }
 
 enum OrgType {
-  HEADQUARTERS        // Fotiqo admin (Joe)
-  FRANCHISE           // Legacy franchised operation
-  INDEPENDENT         // Solo freelance photographer (SaaS)
-  STUDIO              // Photography studio/team (SaaS)
-  VENUE_COMPANY       // Photography company at venues (contract partner)
-  MARKETPLACE_ONLY    // Marketplace-only photographer
+  HEADQUARTERS // Fotiqo admin (Joe)
+  FRANCHISE // Legacy franchised operation
+  INDEPENDENT // Solo freelance photographer (SaaS)
+  STUDIO // Photography studio/team (SaaS)
+  VENUE_COMPANY // Photography company at venues (contract partner)
+  MARKETPLACE_ONLY // Marketplace-only photographer
 }
 
 enum SubscriptionTier {
@@ -138,11 +139,11 @@ enum SubscriptionTier {
 
 // ── LOCATIONS ─────────────────────────────────
 model Location {
-  id                 String          @id @default(cuid())
+  id                 String           @id @default(cuid())
   name               String
   type               LocationType
   orgId              String
-  org                Organization    @relation(fields: [orgId], references: [id])
+  org                Organization     @relation(fields: [orgId], references: [id])
   address            String?
   partnerCommission  Float?
   rentCost           Float?
@@ -155,32 +156,32 @@ model Location {
   cameras            Camera[]
   kiosks             KioskDevice[]
   cashRegisters      CashRegister[]
-  locationType       String          @default("LUXURY")
+  locationType       String           @default("LUXURY")
   targetAOV          Float?
-  maxShiftHours      Int             @default(8)
+  maxShiftHours      Int              @default(8)
   siestaStart        String?
   siestaEnd          String?
-  country            String          @default("Tunisia")
+  country            String           @default("Tunisia")
   city               String?
-  timezone           String          @default("Africa/Tunis")
-  defaultLocale      String          @default("en")
-  currency           String          @default("EUR")
-  taxRate            Float           @default(0.19)
+  timezone           String           @default("Africa/Tunis")
+  defaultLocale      String           @default("en")
+  currency           String           @default("EUR")
+  taxRate            Float            @default(0.19)
   rentAmount         Float?
   rentType           String?
   rentPercentage     Float?
   targetDailyRevenue Float?
   targetCaptureRate  Float?
-  scheduleType       String          @default("SIESTA")
+  scheduleType       String           @default("SIESTA")
   morningStart       String?
   morningEnd         String?
   eveningStart       String?
   eveningEnd         String?
   rotationHours      Int?
-  commissionType     String          @default("FLAT")
-  commissionRate     Float           @default(0.10)
-  attendanceBonus    Float           @default(2.0)
-  vipCloserBonus     Float           @default(0.05)
+  commissionType     String           @default("FLAT")
+  commissionRate     Float            @default(0.10)
+  attendanceBonus    Float            @default(2.0)
+  vipCloserBonus     Float            @default(0.05)
   tier1Threshold     Float?
   tier1Rate          Float?
   tier2Threshold     Float?
@@ -195,12 +196,12 @@ model Location {
   occupancyRate      Float?
   contractStartDate  DateTime?
   contractEndDate    DateTime?
-  isActive           Boolean         @default(true)
+  isActive           Boolean          @default(true)
   pricingConfigs     PricingConfig[]
   appointments       Appointment[]
   photoPackages      PhotoPackage[]
   packageBookings    PackageBooking[]
-  createdAt          DateTime        @default(now())
+  createdAt          DateTime         @default(now())
 }
 
 enum LocationType {
@@ -212,31 +213,31 @@ enum LocationType {
 
 // ── CUSTOMERS ─────────────────────────────────
 model Customer {
-  id              String           @id @default(cuid())
-  name            String?
-  email           String?
-  whatsapp        String?
-  roomNumber      String?
-  faceVector      Bytes?
-  wristbandCode   String?
-  nfcTag          String?
-  hasDigitalPass  Boolean          @default(false)
-  digitalPassType DigitalPassType?
-  preferredLocale   String?
-  detectedLanguage  String?          // auto-detected: en, fr, de, es, it, ar, tr, ru, nl, pt
-  locationId        String?
-  galleries       Gallery[]
-  orders          Order[]
-  shopOrders      ShopOrder[] @relation("ShopOrders")
-  checkInDate     DateTime?
-  checkOutDate    DateTime?
-  cartAbandoned   Boolean          @default(false)
-  cartAbandonedAt DateTime?
-  lastViewedAt    DateTime?
-  preArrivalOfferSentAt DateTime?
+  id                     String           @id @default(cuid())
+  name                   String?
+  email                  String?
+  whatsapp               String?
+  roomNumber             String?
+  faceVector             Bytes?
+  wristbandCode          String?
+  nfcTag                 String?
+  hasDigitalPass         Boolean          @default(false)
+  digitalPassType        DigitalPassType?
+  preferredLocale        String?
+  detectedLanguage       String? // auto-detected: en, fr, de, es, it, ar, tr, ru, nl, pt
+  locationId             String?
+  galleries              Gallery[]
+  orders                 Order[]
+  shopOrders             ShopOrder[]      @relation("ShopOrders")
+  checkInDate            DateTime?
+  checkOutDate           DateTime?
+  cartAbandoned          Boolean          @default(false)
+  cartAbandonedAt        DateTime?
+  lastViewedAt           DateTime?
+  preArrivalOfferSentAt  DateTime?
   checkoutReminderSentAt DateTime?
-  packageBookings PackageBooking[]
-  createdAt       DateTime         @default(now())
+  packageBookings        PackageBooking[]
+  createdAt              DateTime         @default(now())
 
   @@index([whatsapp])
   @@index([wristbandCode])
@@ -339,8 +340,8 @@ model Photo {
   isWristbandPhoto       Boolean        @default(false)
   extractedWristbandCode String?
   // Face recognition
-  faceTokens             String?        // JSON array of face_token strings from Face++
-  faceBounds             String?        // JSON array of {top,left,width,height} bounding boxes
+  faceTokens             String? // JSON array of face_token strings from Face++
+  faceBounds             String? // JSON array of {top,left,width,height} bounding boxes
   faceCount              Int            @default(0)
   faceIndexedAt          DateTime?
   createdAt              DateTime       @default(now())
@@ -453,10 +454,10 @@ model Order {
   isAutomatedSale Boolean            @default(false)
   discountApplied Float?
   // Financial tracking — Stripe fee & net amount for accurate margin calculation
-  stripeFee       Float              @default(0)   // Stripe processing fee (2.9% + €0.30)
-  netAmount       Float?             // amount minus stripeFee — actual cash received
-  taxAmount       Float              @default(0)   // VAT/tax collected
-  taxRate         Float              @default(0)   // Tax rate applied (e.g., 0.19 for 19%)
+  stripeFee       Float              @default(0) // Stripe processing fee (2.9% + €0.30)
+  netAmount       Float? // amount minus stripeFee — actual cash received
+  taxAmount       Float              @default(0) // VAT/tax collected
+  taxRate         Float              @default(0) // Tax rate applied (e.g., 0.19 for 19%)
   refundedAmount  Float              @default(0)
   refundedAt      DateTime?
   refundReason    String?
@@ -464,8 +465,8 @@ model Order {
   stripeRefundId  String?
   reelPreviewUrl  String?
   reelFullUrl     String?
-  reelStatus      String?            // PREVIEW_READY, PURCHASED, GENERATING_FULL, DELIVERED
-  reelTier        String?            // SHORT, STANDARD, PREMIUM
+  reelStatus      String? // PREVIEW_READY, PURCHASED, GENERATING_FULL, DELIVERED
+  reelTier        String? // SHORT, STANDARD, PREMIUM
   createdAt       DateTime           @default(now())
 
   @@index([status])
@@ -512,23 +513,23 @@ enum OrderStatus {
 
 // ── COMMISSIONS & PAYROLL ─────────────────────
 model Commission {
-  id          String         @id @default(cuid())
+  id          String           @id @default(cuid())
   userId      String
-  user        User           @relation(fields: [userId], references: [id])
+  user        User             @relation(fields: [userId], references: [id])
   orderId     String?
-  order       Order?         @relation(fields: [orderId], references: [id])
-  bookingId   String?        // For marketplace booking commissions
+  order       Order?           @relation(fields: [orderId], references: [id])
+  bookingId   String? // For marketplace booking commissions
   type        CommissionType
-  grossAmount Float?         // Original sale amount (before fees)
-  netAmount   Float?         // After Stripe fees
-  amount      Float          // Commission amount the user earns
+  grossAmount Float? // Original sale amount (before fees)
+  netAmount   Float? // After Stripe fees
+  amount      Float // Commission amount the user earns
   rate        Float
   status      CommissionStatus @default(PENDING)
-  isPaid      Boolean        @default(false)
+  isPaid      Boolean          @default(false)
   paidAt      DateTime?
   month       String?
-  notes       String?        // Adjustments, reversals
-  createdAt   DateTime       @default(now())
+  notes       String? // Adjustments, reversals
+  createdAt   DateTime         @default(now())
 
   @@index([userId])
   @@index([month])
@@ -537,11 +538,11 @@ model Commission {
 }
 
 enum CommissionStatus {
-  PENDING    // Awaiting approval
-  APPROVED   // Approved for payout
-  PAID       // Paid out
-  REVERSED   // Reversed due to refund
-  ADJUSTED   // Manual adjustment
+  PENDING // Awaiting approval
+  APPROVED // Approved for payout
+  PAID // Paid out
+  REVERSED // Reversed due to refund
+  ADJUSTED // Manual adjustment
 }
 
 enum CommissionType {
@@ -624,7 +625,7 @@ model StaffHousing {
   user              User             @relation(fields: [userId], references: [id])
   propertyName      String?
   address           String
-  type              String?          // APARTMENT, SHARED_ROOM, HOTEL_ROOM, STUDIO
+  type              String? // APARTMENT, SHARED_ROOM, HOTEL_ROOM, STUDIO
   capacity          Int              @default(1)
   monthlyCost       Float
   deposit           Float?
@@ -643,10 +644,10 @@ model HousingExpense {
   id        String       @id @default(cuid())
   housingId String
   housing   StaffHousing @relation(fields: [housingId], references: [id], onDelete: Cascade)
-  type      String       // RENT, UTILITIES, REPAIR, DEPOSIT, FURNITURE, CLEANING
+  type      String // RENT, UTILITIES, REPAIR, DEPOSIT, FURNITURE, CLEANING
   amount    Float
   date      DateTime
-  paidBy    String       // COMPANY, STAFF, SHARED
+  paidBy    String // COMPANY, STAFF, SHARED
   receipt   String?
   notes     String?
   createdAt DateTime     @default(now())
@@ -674,7 +675,7 @@ model ChatChannel {
   description String?
   locationId  String?
   location    Location?       @relation(fields: [locationId], references: [id])
-  role        String?         // For ROLE-type channels (e.g., "PHOTOGRAPHER")
+  role        String? // For ROLE-type channels (e.g., "PHOTOGRAPHER")
   isSystem    Boolean         @default(false)
   members     ChatMember[]
   messages    ChatMessage[]
@@ -785,8 +786,8 @@ model MagicElement {
   slug        String?          @unique
   type        MagicElementType
   assetUrl    String
-  category    String?  // FACE_OVERLAY | BACKGROUND | FRAME | EFFECT
-  position    String?  // TOP | CENTER | FACE | BORDER | SCATTER
+  category    String? // FACE_OVERLAY | BACKGROUND | FRAME | EFFECT
+  position    String? // TOP | CENTER | FACE | BORDER | SCATTER
   description String?
   usageCount  Int              @default(0)
   isActive    Boolean          @default(true)
@@ -1068,11 +1069,11 @@ model CashExpense {
 
 model OperatingExpense {
   id          String   @id @default(cuid())
-  category    String   // RENT, SALARY, EQUIPMENT, TRAVEL, ACCOMMODATION, SUPPLIES, MARKETING, INSURANCE, LICENSE, UTILITIES, OTHER
+  category    String // RENT, SALARY, EQUIPMENT, TRAVEL, ACCOMMODATION, SUPPLIES, MARKETING, INSURANCE, LICENSE, UTILITIES, OTHER
   amount      Float
   date        DateTime
   locationId  String?
-  paidBy      String?  // "Company account", "Petty cash", "Manager card"
+  paidBy      String? // "Company account", "Petty cash", "Manager card"
   receiptUrl  String?
   description String?
   recurring   Boolean  @default(false)
@@ -1181,7 +1182,7 @@ model Coupon {
   expiresAt  DateTime?
   isActive   Boolean    @default(true)
   locationId String?
-  galleryId  String?    // If set, coupon is restricted to this gallery only
+  galleryId  String? // If set, coupon is restricted to this gallery only
   createdAt  DateTime   @default(now())
 }
 
@@ -1608,15 +1609,15 @@ model VideoReel {
   id           String   @id @default(cuid())
   galleryId    String
   gallery      Gallery  @relation(fields: [galleryId], references: [id])
-  photoIds     String   // JSON-encoded array of photo IDs in playback order
-  musicTrack   String?  // "upbeat" | "romantic" | "adventure"
+  photoIds     String // JSON-encoded array of photo IDs in playback order
+  musicTrack   String? // "upbeat" | "romantic" | "adventure"
   duration     Int      @default(15) // total runtime in seconds
   status       String   @default("READY") // GENERATING | READY | FAILED
   previewHtml  String?  @db.Text // standalone HTML slideshow preview
   thumbnailUrl String?
-  videoUrl     String?  // Cloudinary video slideshow URL (real MP4)
-  videoFormat  String?  // "mp4" or "webm"
-  cloudinaryId String?  // Cloudinary public ID of generated video
+  videoUrl     String? // Cloudinary video slideshow URL (real MP4)
+  videoFormat  String? // "mp4" or "webm"
+  cloudinaryId String? // Cloudinary public ID of generated video
   createdAt    DateTime @default(now())
 
   @@index([galleryId])
@@ -1625,25 +1626,25 @@ model VideoReel {
 
 // ── GIFT CARDS & STORE CREDITS ──────────────
 model GiftCard {
-  id          String    @id @default(cuid())
-  code        String    @unique // "PH-GIFT-XXXX-XXXX"
-  amount      Float     // original amount e.g. 50
-  balance     Float     // remaining balance
-  currency    String    @default("EUR")
-  purchasedBy String?   // customer name or email who bought it
-  redeemedBy  String?   // customer who used it
-  locationId  String?   // can be location-specific or global
-  type        String    @default("GIFT") // GIFT, STORE_CREDIT, HOTEL_PACKAGE, REFUND_CREDIT
-  expiresAt   DateTime?
-  isActive    Boolean   @default(true)
-  stripeSessionId String?
+  id                 String               @id @default(cuid())
+  code               String               @unique // "PH-GIFT-XXXX-XXXX"
+  amount             Float // original amount e.g. 50
+  balance            Float // remaining balance
+  currency           String               @default("EUR")
+  purchasedBy        String? // customer name or email who bought it
+  redeemedBy         String? // customer who used it
+  locationId         String? // can be location-specific or global
+  type               String               @default("GIFT") // GIFT, STORE_CREDIT, HOTEL_PACKAGE, REFUND_CREDIT
+  expiresAt          DateTime?
+  isActive           Boolean              @default(true)
+  stripeSessionId    String?
   // Revenue recognition — gift cards are DEFERRED REVENUE until redeemed
-  totalRedeemed    Float    @default(0)  // Cumulative amount redeemed (recognized as revenue)
-  breakageRecognized Boolean @default(false) // True if unredeemed balance was recognized as breakage
-  breakageAmount   Float    @default(0)  // Amount recognized as breakage revenue
-  breakageDate     DateTime?            // Date breakage was recognized
-  redemptions      GiftCardRedemption[]
-  createdAt   DateTime  @default(now())
+  totalRedeemed      Float                @default(0) // Cumulative amount redeemed (recognized as revenue)
+  breakageRecognized Boolean              @default(false) // True if unredeemed balance was recognized as breakage
+  breakageAmount     Float                @default(0) // Amount recognized as breakage revenue
+  breakageDate       DateTime? // Date breakage was recognized
+  redemptions        GiftCardRedemption[]
+  createdAt          DateTime             @default(now())
 
   @@index([code])
   @@index([isActive])
@@ -1652,14 +1653,14 @@ model GiftCard {
 
 // Track individual gift card redemptions for audit trail
 model GiftCardRedemption {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   giftCardId  String
-  giftCard    GiftCard  @relation(fields: [giftCardId], references: [id])
-  amount      Float     // Amount redeemed in this transaction
-  orderId     String?   // Linked order, if applicable
-  shopOrderId String?   // Linked shop order, if applicable
-  redeemedBy  String?   // Customer identifier
-  createdAt   DateTime  @default(now())
+  giftCard    GiftCard @relation(fields: [giftCardId], references: [id])
+  amount      Float // Amount redeemed in this transaction
+  orderId     String? // Linked order, if applicable
+  shopOrderId String? // Linked shop order, if applicable
+  redeemedBy  String? // Customer identifier
+  createdAt   DateTime @default(now())
 
   @@index([giftCardId])
 }
@@ -1669,10 +1670,10 @@ model SessionQuestionnaire {
   id              String    @id @default(cuid())
   appointmentId   String    @unique
   groupSize       Int?
-  specialOccasion String?   // "anniversary", "birthday", "honeymoon", "family reunion"
-  preferredStyle  String?   // "casual", "formal", "fun", "romantic", "adventure"
-  comfortLevel    String?   // "very comfortable", "a bit shy", "first time"
-  waterComfort    String?   // "loves water", "prefers dry", "can't swim"
+  specialOccasion String? // "anniversary", "birthday", "honeymoon", "family reunion"
+  preferredStyle  String? // "casual", "formal", "fun", "romantic", "adventure"
+  comfortLevel    String? // "very comfortable", "a bit shy", "first time"
+  waterComfort    String? // "loves water", "prefers dry", "can't swim"
   specialRequests String?
   answeredAt      DateTime?
   createdAt       DateTime  @default(now())
@@ -1680,57 +1681,57 @@ model SessionQuestionnaire {
 
 // ── EMAIL MARKETING ─────────────────────────
 model MarketingCampaign {
-  id          String   @id @default(cuid())
-  name        String
-  template    String   // "gallery_ready", "limited_offer", "anniversary"
-  subject     String
-  body        String   @db.Text
-  locationId  String?
-  sentCount   Int      @default(0)
-  openCount   Int      @default(0)
-  clickCount  Int      @default(0)
-  sentAt      DateTime?
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  name       String
+  template   String // "gallery_ready", "limited_offer", "anniversary"
+  subject    String
+  body       String    @db.Text
+  locationId String?
+  sentCount  Int       @default(0)
+  openCount  Int       @default(0)
+  clickCount Int       @default(0)
+  sentAt     DateTime?
+  createdAt  DateTime  @default(now())
 }
 
 // ── INTEGRATED SHOP & PRINT FULFILLMENT ──────
 model ShopProduct {
-  id              String   @id @default(cuid())
-  productKey      String   @unique
-  name            String
-  description     String   @default("")
-  category        String   // PRINTS, WALL_ART, ALBUMS, CARDS, DIGITAL, PACKAGES, GIFTS, OTHERS
-  subcategory     String?  // "canvas", "metal", "framed", "mug", "puzzle" etc.
-  sizes           String?  @db.Text // JSON: [{name:"8x10", sku:"...", cost:2.40, width:8, height:10}]
-  defaultSize     String?
-  options         String?  @db.Text // JSON: [{name:"Lustre", sku:"...", costAddon:0}]
-  defaultOption   String?
-  papers          String?  @db.Text // JSON: [{name:"Lustre", costAddon:0}, {name:"Matte", costAddon:0.50}]
-  frames          String?  @db.Text // JSON: [{name:"Black", costAddon:5.00}]
-  finishes        String?  @db.Text // JSON: [{name:"Glossy"}, {name:"Matte"}]
-  costPrice       Float    @default(0)
-  retailPrice     Float
-  fulfillmentType String   @default("AUTO") // AUTO, MANUAL, DIGITAL
-  labProductId    String?  // Prodigi/Printful/WHCC SKU
-  labName         String?  // PRODIGI, PRINTFUL, WHCC, LOCAL
-  mockupUrl       String?
-  roomPreviewUrl  String?  // Room scene mockup for wall art
-  hasRoomPreview  Boolean  @default(false)
-  hasPersonalizedPreview Boolean @default(true)
-  minPhotos       Int      @default(1)
-  maxPhotos       Int?
-  isDigital       Boolean  @default(false)
-  isActive        Boolean  @default(true)
-  isFeatured      Boolean  @default(false)
-  comingSoon      Boolean  @default(false)
-  sortOrder       Int      @default(0)
-  weight          Float?   // grams
-  shippingClass   String?  // STANDARD, OVERSIZED, FRAGILE
-  turnaround      String?  // "3-5 business days"
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  orderItems      ShopOrderItem[]
-  priceSheetItems PriceSheetItem[]
+  id                     String           @id @default(cuid())
+  productKey             String           @unique
+  name                   String
+  description            String           @default("")
+  category               String // PRINTS, WALL_ART, ALBUMS, CARDS, DIGITAL, PACKAGES, GIFTS, OTHERS
+  subcategory            String? // "canvas", "metal", "framed", "mug", "puzzle" etc.
+  sizes                  String?          @db.Text // JSON: [{name:"8x10", sku:"...", cost:2.40, width:8, height:10}]
+  defaultSize            String?
+  options                String?          @db.Text // JSON: [{name:"Lustre", sku:"...", costAddon:0}]
+  defaultOption          String?
+  papers                 String?          @db.Text // JSON: [{name:"Lustre", costAddon:0}, {name:"Matte", costAddon:0.50}]
+  frames                 String?          @db.Text // JSON: [{name:"Black", costAddon:5.00}]
+  finishes               String?          @db.Text // JSON: [{name:"Glossy"}, {name:"Matte"}]
+  costPrice              Float            @default(0)
+  retailPrice            Float
+  fulfillmentType        String           @default("AUTO") // AUTO, MANUAL, DIGITAL
+  labProductId           String? // Prodigi/Printful/WHCC SKU
+  labName                String? // PRODIGI, PRINTFUL, WHCC, LOCAL
+  mockupUrl              String?
+  roomPreviewUrl         String? // Room scene mockup for wall art
+  hasRoomPreview         Boolean          @default(false)
+  hasPersonalizedPreview Boolean          @default(true)
+  minPhotos              Int              @default(1)
+  maxPhotos              Int?
+  isDigital              Boolean          @default(false)
+  isActive               Boolean          @default(true)
+  isFeatured             Boolean          @default(false)
+  comingSoon             Boolean          @default(false)
+  sortOrder              Int              @default(0)
+  weight                 Float? // grams
+  shippingClass          String? // STANDARD, OVERSIZED, FRAGILE
+  turnaround             String? // "3-5 business days"
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  orderItems             ShopOrderItem[]
+  priceSheetItems        PriceSheetItem[]
 
   @@index([category])
   @@index([isActive, isFeatured])
@@ -1738,28 +1739,28 @@ model ShopProduct {
 
 // Price sheets for SaaS photographers — custom markup per product
 model PriceSheet {
-  id                String   @id @default(cuid())
+  id                String           @id @default(cuid())
   organizationId    String
-  organization      Organization @relation(fields: [organizationId], references: [id])
-  name              String   // "Wedding Price Sheet"
-  isDefault         Boolean  @default(false)
-  bulkMarkupPercent Float?   // e.g. 80 = 80% markup on all
+  organization      Organization     @relation(fields: [organizationId], references: [id])
+  name              String // "Wedding Price Sheet"
+  isDefault         Boolean          @default(false)
+  bulkMarkupPercent Float? // e.g. 80 = 80% markup on all
   items             PriceSheetItem[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
 
   @@index([organizationId])
 }
 
 model PriceSheetItem {
-  id              String   @id @default(cuid())
-  priceSheetId    String
-  priceSheet      PriceSheet @relation(fields: [priceSheetId], references: [id])
-  shopProductId   String
-  shopProduct     ShopProduct @relation(fields: [shopProductId], references: [id])
-  isEnabled       Boolean  @default(true)
-  markupPercent   Float?
-  customPrice     Float?
+  id            String      @id @default(cuid())
+  priceSheetId  String
+  priceSheet    PriceSheet  @relation(fields: [priceSheetId], references: [id])
+  shopProductId String
+  shopProduct   ShopProduct @relation(fields: [shopProductId], references: [id])
+  isEnabled     Boolean     @default(true)
+  markupPercent Float?
+  customPrice   Float?
 
   @@unique([priceSheetId, shopProductId])
   @@index([priceSheetId])
@@ -1768,7 +1769,7 @@ model PriceSheetItem {
 model PrintLabPartner {
   id            String   @id @default(cuid())
   name          String
-  type          String   // PRODIGI_API, WHCC_API, ZNO_API, MANUAL, LOCAL
+  type          String // PRODIGI_API, WHCC_API, ZNO_API, MANUAL, LOCAL
   apiBaseUrl    String?
   apiKey        String?
   isActive      Boolean  @default(true)
@@ -1780,34 +1781,34 @@ model PrintLabPartner {
 }
 
 model ShopOrder {
-  id              String   @id @default(cuid())
-  customerId      String
-  customer        Customer @relation("ShopOrders", fields: [customerId], references: [id])
-  galleryId       String?
-  status          String   @default("PENDING") // PENDING, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED
-  items           ShopOrderItem[]
-  shippingName    String?
-  shippingAddress String?
-  shippingCity    String?
-  shippingCountry String?
-  shippingPostal  String?
-  shippingPhone   String?
-  shippingMethod  String?  // STANDARD, EXPRESS
-  shippingCost    Float    @default(0)
-  subtotal        Float
-  discount        Float    @default(0)
-  couponCode      String?
-  tax             Float    @default(0)
-  total           Float
-  stripeSessionId String?
-  labOrderId      String?
-  labName         String?
-  trackingNumber  String?
-  trackingUrl     String?
-  fotiqoCommission Float @default(0) // 2% sales + 50% shop profit
-  notes           String?  // Internal admin notes
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String          @id @default(cuid())
+  customerId       String
+  customer         Customer        @relation("ShopOrders", fields: [customerId], references: [id])
+  galleryId        String?
+  status           String          @default("PENDING") // PENDING, PAID, PROCESSING, SHIPPED, DELIVERED, CANCELLED, REFUNDED
+  items            ShopOrderItem[]
+  shippingName     String?
+  shippingAddress  String?
+  shippingCity     String?
+  shippingCountry  String?
+  shippingPostal   String?
+  shippingPhone    String?
+  shippingMethod   String? // STANDARD, EXPRESS
+  shippingCost     Float           @default(0)
+  subtotal         Float
+  discount         Float           @default(0)
+  couponCode       String?
+  tax              Float           @default(0)
+  total            Float
+  stripeSessionId  String?
+  labOrderId       String?
+  labName          String?
+  trackingNumber   String?
+  trackingUrl      String?
+  fotiqoCommission Float           @default(0) // 2% sales + 50% shop profit
+  notes            String? // Internal admin notes
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
 
   @@index([status])
   @@index([customerId])
@@ -1838,61 +1839,66 @@ model ShopOrderItem {
 
 // ── PHOTOGRAPHER PROFILE & WEBSITE BUILDER ────
 model PhotographerProfile {
-  id              String   @id @default(cuid())
-  userId          String   @unique
-  user            User     @relation("UserPhotographerProfile", fields: [userId], references: [id])
-  username        String   @unique // slug for /p/[username]
-  businessName    String?
-  tagline         String?
-  bio             String?  @db.Text
-  profilePhotoUrl String?
-  coverPhotoUrl   String?
-  specialties     String[] @default([]) // ["wedding","portrait","landscape","event","resort","commercial"]
-  experience      String?  // "1-3 years", "3-5 years", "5-10 years", "10+ years"
-  equipment       String[] @default([]) // ["Canon R5","Sony A7IV"]
-  languages       String[] @default([]) // ["English","French","Arabic"]
-  city            String?
-  country         String?
-  latitude        Float?
-  longitude       Float?
-  serviceAreaKm   Int?
-  priceRange      String?  // "€50-€100/hour"
-  hourlyRate      Float?
-  totalReviews    Int      @default(0)
-  averageRating   Float    @default(0)
-  completedSessions Int    @default(0)
-  responseTime    String?  // e.g. "Within 1 hour"
-  socialInstagram String?
-  socialFacebook  String?
-  socialWebsite   String?
-  socialTiktok    String?
+  id                   String                     @id @default(cuid())
+  userId               String                     @unique
+  user                 User                       @relation("UserPhotographerProfile", fields: [userId], references: [id])
+  username             String                     @unique // slug for /p/[username]
+  businessName         String?
+  tagline              String?
+  bio                  String?                    @db.Text
+  profilePhotoUrl      String?
+  coverPhotoUrl        String?
+  specialties          String[]                   @default([]) // ["wedding","portrait","landscape","event","resort","commercial"]
+  experience           String? // "1-3 years", "3-5 years", "5-10 years", "10+ years"
+  equipment            String[]                   @default([]) // ["Canon R5","Sony A7IV"]
+  languages            String[]                   @default([]) // ["English","French","Arabic"]
+  city                 String?
+  country              String?
+  latitude             Float?
+  longitude            Float?
+  serviceAreaKm        Int?
+  priceRange           String? // "€50-€100/hour"
+  hourlyRate           Float?
+  totalReviews         Int                        @default(0)
+  averageRating        Float                      @default(0)
+  completedSessions    Int                        @default(0)
+  responseTime         String? // e.g. "Within 1 hour"
+  socialInstagram      String?
+  socialFacebook       String?
+  socialWebsite        String?
+  socialTiktok         String?
   instagramAccessToken String?
   instagramUserId      String?
-  isPublicProfile Boolean  @default(true)
+  isPublicProfile      Boolean                    @default(true)
   // Website builder settings
-  websiteTheme    String   @default("minimal") // minimal, bold, classic, modern, dark, light
-  primaryColor    String   @default("#0EA5A5")
-  fontChoice      String   @default("inter") // inter, playfair, montserrat, lora, raleway
-  logoUrl         String?
-  sections        String?  @db.Text // JSON array of section config [{type,order,visible}]
-  customDomain    String?  @unique
-  seoTitle        String?
-  seoDescription  String?
-  seoImage        String?
+  websiteTheme         String                     @default("minimal") // minimal, bold, classic, modern, dark, light
+  primaryColor         String                     @default("#0EA5A5")
+  fontChoice           String                     @default("inter") // inter, playfair, montserrat, lora, raleway
+  logoUrl              String?
+  sections             String?                    @db.Text // JSON array of section config [{type,order,visible}]
+  customDomain         String?                    @unique
+  seoTitle             String?
+  seoDescription       String?
+  seoImage             String?
+  // WhatsApp floating button
+  whatsappEnabled      Boolean                    @default(false)
+  whatsappNumber       String?
+  whatsappMessage      String?
+  whatsappPosition     String                     @default("bottom-right") // bottom-right, bottom-left
   // Portfolio galleries (which galleries to feature)
-  featuredGalleryIds String[] @default([])
+  featuredGalleryIds   String[]                   @default([])
   // Services offered
-  services        PhotographerService[]
+  services             PhotographerService[]
   // Testimonials
-  testimonials    PhotographerTestimonial[]
+  testimonials         PhotographerTestimonial[]
   // Inquiries
-  inquiries       PhotographerInquiry[]
-  reviews         PhotographerReview[]
-  availability    PhotographerAvailability[]
-  bookings        MarketplaceBooking[]
-  portfolioPhotos PortfolioPhoto[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  inquiries            PhotographerInquiry[]
+  reviews              PhotographerReview[]
+  availability         PhotographerAvailability[]
+  bookings             MarketplaceBooking[]
+  portfolioPhotos      PortfolioPhoto[]
+  createdAt            DateTime                   @default(now())
+  updatedAt            DateTime                   @updatedAt
 
   @@index([username])
   @@index([isPublicProfile])
@@ -1905,9 +1911,9 @@ model PhotographerService {
   profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
   name        String
   description String?             @db.Text
-  startingAt  Float?              // Starting price
+  startingAt  Float? // Starting price
   currency    String              @default("EUR")
-  duration    String?             // "2 hours", "Full day"
+  duration    String? // "2 hours", "Full day"
   sortOrder   Int                 @default(0)
   createdAt   DateTime            @default(now())
 
@@ -1915,34 +1921,34 @@ model PhotographerService {
 }
 
 model PhotographerTestimonial {
-  id          String              @id @default(cuid())
-  profileId   String
-  profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  clientName  String
-  content     String              @db.Text
-  rating      Int                 @default(5) // 1-5
-  eventType   String?             // "Wedding", "Portrait"
-  date        DateTime?
-  isVisible   Boolean             @default(true)
-  sortOrder   Int                 @default(0)
-  createdAt   DateTime            @default(now())
+  id         String              @id @default(cuid())
+  profileId  String
+  profile    PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  clientName String
+  content    String              @db.Text
+  rating     Int                 @default(5) // 1-5
+  eventType  String? // "Wedding", "Portrait"
+  date       DateTime?
+  isVisible  Boolean             @default(true)
+  sortOrder  Int                 @default(0)
+  createdAt  DateTime            @default(now())
 
   @@index([profileId])
 }
 
 model PhotographerInquiry {
-  id          String              @id @default(cuid())
-  profileId   String
-  profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  name        String
-  email       String
-  phone       String?
-  eventType   String?
-  eventDate   DateTime?
-  message     String              @db.Text
-  budget      String?
-  status      InquiryStatus       @default(NEW)
-  createdAt   DateTime            @default(now())
+  id        String              @id @default(cuid())
+  profileId String
+  profile   PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  name      String
+  email     String
+  phone     String?
+  eventType String?
+  eventDate DateTime?
+  message   String              @db.Text
+  budget    String?
+  status    InquiryStatus       @default(NEW)
+  createdAt DateTime            @default(now())
 
   @@index([profileId])
   @@index([status])
@@ -1957,24 +1963,24 @@ enum InquiryStatus {
 
 // ── PHOTOGRAPHER MARKETPLACE ──────────────────
 model PhotographerReview {
-  id              String              @id @default(cuid())
-  profileId       String
-  profile         PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  photographerId  String
-  photographer    User                @relation("PhotographerReviews", fields: [photographerId], references: [id])
-  bookingId       String?             @unique
-  booking         MarketplaceBooking? @relation(fields: [bookingId], references: [id])
-  customerName    String
-  customerEmail   String?
-  rating          Int                 // 1-5 stars
-  title           String?
-  comment         String              @db.Text
-  photoUrls       String[]            @default([]) // Photos from the session as proof
-  response        String?             @db.Text     // Photographer's reply
-  respondedAt     DateTime?
-  isVerified      Boolean             @default(false) // Booked through platform
-  isPublic        Boolean             @default(true)
-  createdAt       DateTime            @default(now())
+  id             String              @id @default(cuid())
+  profileId      String
+  profile        PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  photographerId String
+  photographer   User                @relation("PhotographerReviews", fields: [photographerId], references: [id])
+  bookingId      String?             @unique
+  booking        MarketplaceBooking? @relation(fields: [bookingId], references: [id])
+  customerName   String
+  customerEmail  String?
+  rating         Int // 1-5 stars
+  title          String?
+  comment        String              @db.Text
+  photoUrls      String[]            @default([]) // Photos from the session as proof
+  response       String?             @db.Text // Photographer's reply
+  respondedAt    DateTime?
+  isVerified     Boolean             @default(false) // Booked through platform
+  isPublic       Boolean             @default(true)
+  createdAt      DateTime            @default(now())
 
   @@index([profileId])
   @@index([photographerId])
@@ -1982,19 +1988,19 @@ model PhotographerReview {
 }
 
 model PhotographerAvailability {
-  id          String   @id @default(cuid())
+  id          String               @id @default(cuid())
   userId      String
-  user        User     @relation("PhotographerAvailabilities", fields: [userId], references: [id])
+  user        User                 @relation("PhotographerAvailabilities", fields: [userId], references: [id])
   profileId   String?
   profile     PhotographerProfile? @relation(fields: [profileId], references: [id])
-  date        DateTime @db.Date
-  startTime   String   // "09:00"
-  endTime     String   // "17:00"
-  isAvailable Boolean  @default(true)
-  isRecurring Boolean  @default(false)
-  dayOfWeek   Int?     // 0=Sun, 1=Mon ... 6=Sat (for recurring)
+  date        DateTime             @db.Date
+  startTime   String // "09:00"
+  endTime     String // "17:00"
+  isAvailable Boolean              @default(true)
+  isRecurring Boolean              @default(false)
+  dayOfWeek   Int? // 0=Sun, 1=Mon ... 6=Sat (for recurring)
   notes       String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime             @default(now())
 
   @@unique([userId, date])
   @@index([userId, isAvailable])
@@ -2002,52 +2008,52 @@ model PhotographerAvailability {
 }
 
 model MarketplaceBooking {
-  id                String              @id @default(cuid())
-  profileId         String
-  profile           PhotographerProfile @relation(fields: [profileId], references: [id])
-  photographerId    String
-  photographer      User                @relation("PhotographerMarketplaceBookings", fields: [photographerId], references: [id])
+  id                 String                   @id @default(cuid())
+  profileId          String
+  profile            PhotographerProfile      @relation(fields: [profileId], references: [id])
+  photographerId     String
+  photographer       User                     @relation("PhotographerMarketplaceBookings", fields: [photographerId], references: [id])
   // Customer info
-  customerName      String
-  customerEmail     String
-  customerPhone     String?
+  customerName       String
+  customerEmail      String
+  customerPhone      String?
   // Session details
-  serviceId         String?
-  sessionType       String              // "Portrait Session", "Wedding", etc.
-  sessionDate       DateTime
-  sessionStartTime  String              // "10:00"
-  sessionDuration   Int                 // minutes
-  sessionLocation   String?
-  occasion          String?
-  groupSize         Int                 @default(1)
-  specialRequests   String?             @db.Text
+  serviceId          String?
+  sessionType        String // "Portrait Session", "Wedding", etc.
+  sessionDate        DateTime
+  sessionStartTime   String // "10:00"
+  sessionDuration    Int // minutes
+  sessionLocation    String?
+  occasion           String?
+  groupSize          Int                      @default(1)
+  specialRequests    String?                  @db.Text
   // Pricing
-  totalPrice        Float
-  depositAmount     Float?
-  currency          String              @default("EUR")
+  totalPrice         Float
+  depositAmount      Float?
+  currency           String                   @default("EUR")
   // Platform commission tracking
-  platformFeeRate   Float               @default(0.10) // 10% marketplace fee
-  platformFee       Float?              // Calculated: totalPrice * platformFeeRate
-  photographerPayout Float?             // totalPrice - platformFee - stripeFee
-  stripeFee         Float?              // Stripe processing fee on this booking
+  platformFeeRate    Float                    @default(0.10) // 10% marketplace fee
+  platformFee        Float? // Calculated: totalPrice * platformFeeRate
+  photographerPayout Float? // totalPrice - platformFee - stripeFee
+  stripeFee          Float? // Stripe processing fee on this booking
   // Payment
-  stripeSessionId   String?
-  stripePaymentId   String?
-  isPaid            Boolean             @default(false)
-  paidAt            DateTime?
-  payoutStatus      PayoutStatus        @default(PENDING)
-  payoutAt          DateTime?           // When photographer was paid out
-  escrowReleasedAt  DateTime?           // When escrow hold was released
+  stripeSessionId    String?
+  stripePaymentId    String?
+  isPaid             Boolean                  @default(false)
+  paidAt             DateTime?
+  payoutStatus       PayoutStatus             @default(PENDING)
+  payoutAt           DateTime? // When photographer was paid out
+  escrowReleasedAt   DateTime? // When escrow hold was released
   // Status
-  status            MarketplaceBookingStatus @default(PENDING)
+  status             MarketplaceBookingStatus @default(PENDING)
   // Communication
-  photographerNotes String?             @db.Text
+  photographerNotes  String?                  @db.Text
   // Review
-  review            PhotographerReview?
-  reviewRequestSent Boolean             @default(false)
-  reviewRequestedAt DateTime?
-  createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
+  review             PhotographerReview?
+  reviewRequestSent  Boolean                  @default(false)
+  reviewRequestedAt  DateTime?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
 
   @@index([profileId])
   @@index([photographerId])
@@ -2067,24 +2073,24 @@ enum MarketplaceBookingStatus {
 }
 
 enum PayoutStatus {
-  PENDING     // Funds held in escrow
-  HELD        // Session completed, 48-hour hold
-  RELEASED    // Funds released to photographer
-  PAID        // Stripe transfer completed
-  CANCELLED   // Booking cancelled, refunded
+  PENDING // Funds held in escrow
+  HELD // Session completed, 48-hour hold
+  RELEASED // Funds released to photographer
+  PAID // Stripe transfer completed
+  CANCELLED // Booking cancelled, refunded
 }
 
 model PortfolioPhoto {
-  id          String              @id @default(cuid())
-  profileId   String
-  profile     PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  url         String
+  id           String              @id @default(cuid())
+  profileId    String
+  profile      PhotographerProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  url          String
   thumbnailUrl String?
-  caption     String?
-  category    String?             // "wedding", "portrait", etc.
-  sortOrder   Int                 @default(0)
-  isFeatured  Boolean             @default(false)
-  createdAt   DateTime            @default(now())
+  caption      String?
+  category     String? // "wedding", "portrait", etc.
+  sortOrder    Int                 @default(0)
+  isFeatured   Boolean             @default(false)
+  createdAt    DateTime            @default(now())
 
   @@index([profileId])
   @@index([category])
@@ -2114,34 +2120,34 @@ enum PackageBookingStatus {
 }
 
 model PhotoPackage {
-  id                String          @id @default(cuid())
-  name              String
-  slug              String          @unique
-  description       String          @db.Text
-  shortDescription  String?
-  category          PackageCategory
-  sessionType       String          @default("MIXED") // PORTRAIT, ACTION, CANDID, MIXED
-  duration          Int             // minutes
-  deliveredPhotos   Int             // minimum guaranteed photos
-  price             Float           // base price in currency
-  depositAmount     Float?          // if null, full payment upfront
-  currency          String          @default("EUR")
-  coverImage        String?
-  galleryImages     String[]        @default([])
-  whatsIncluded     String[]        @default([])
-  whatToBring       String[]        @default([])
-  cancellationPolicy String?        @db.Text
-  maxGroupSize      Int             @default(6)
-  minGroupSize      Int             @default(1)
-  isActive          Boolean         @default(true)
-  isFeatured        Boolean         @default(false)
-  sortOrder         Int             @default(0)
-  locationId        String?
-  location          Location?       @relation(fields: [locationId], references: [id])
-  addOns            PackageAddOn[]
-  bookings          PackageBooking[]
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
+  id                 String           @id @default(cuid())
+  name               String
+  slug               String           @unique
+  description        String           @db.Text
+  shortDescription   String?
+  category           PackageCategory
+  sessionType        String           @default("MIXED") // PORTRAIT, ACTION, CANDID, MIXED
+  duration           Int // minutes
+  deliveredPhotos    Int // minimum guaranteed photos
+  price              Float // base price in currency
+  depositAmount      Float? // if null, full payment upfront
+  currency           String           @default("EUR")
+  coverImage         String?
+  galleryImages      String[]         @default([])
+  whatsIncluded      String[]         @default([])
+  whatToBring        String[]         @default([])
+  cancellationPolicy String?          @db.Text
+  maxGroupSize       Int              @default(6)
+  minGroupSize       Int              @default(1)
+  isActive           Boolean          @default(true)
+  isFeatured         Boolean          @default(false)
+  sortOrder          Int              @default(0)
+  locationId         String?
+  location           Location?        @relation(fields: [locationId], references: [id])
+  addOns             PackageAddOn[]
+  bookings           PackageBooking[]
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
 
   @@index([slug])
   @@index([category])
@@ -2164,51 +2170,51 @@ model PackageAddOn {
 }
 
 model PackageBooking {
-  id                  String               @id @default(cuid())
-  confirmationCode    String               @unique
+  id                     String               @id @default(cuid())
+  confirmationCode       String               @unique
   // Package
-  packageId           String
-  package             PhotoPackage         @relation(fields: [packageId], references: [id])
+  packageId              String
+  package                PhotoPackage         @relation(fields: [packageId], references: [id])
   // Photographer (auto-assigned)
   assignedPhotographerId String?
-  assignedPhotographer   User?             @relation("PackageBookingPhotographer", fields: [assignedPhotographerId], references: [id])
+  assignedPhotographer   User?                @relation("PackageBookingPhotographer", fields: [assignedPhotographerId], references: [id])
   // Appointment link
-  appointmentId       String?              @unique
-  appointment         Appointment?         @relation(fields: [appointmentId], references: [id])
+  appointmentId          String?              @unique
+  appointment            Appointment?         @relation(fields: [appointmentId], references: [id])
   // Customer
-  customerId          String?
-  customer            Customer?            @relation(fields: [customerId], references: [id])
-  customerName        String
-  customerEmail       String
-  customerPhone       String?
+  customerId             String?
+  customer               Customer?            @relation(fields: [customerId], references: [id])
+  customerName           String
+  customerEmail          String
+  customerPhone          String?
   // Session details
-  sessionDate         DateTime
-  sessionStartTime    String               // "17:00"
-  groupSize           Int                  @default(1)
-  specialRequests     String?              @db.Text
+  sessionDate            DateTime
+  sessionStartTime       String // "17:00"
+  groupSize              Int                  @default(1)
+  specialRequests        String?              @db.Text
   // Pricing
-  basePrice           Float
-  addOnsTotal         Float                @default(0)
-  addOnsSelected      String[]             @default([]) // add-on names for display
-  totalPrice          Float
-  currency            String               @default("EUR")
+  basePrice              Float
+  addOnsTotal            Float                @default(0)
+  addOnsSelected         String[]             @default([]) // add-on names for display
+  totalPrice             Float
+  currency               String               @default("EUR")
   // Platform fees
-  platformFeeRate     Float                @default(0.15) // 15% for resort packages
-  platformFee         Float?
-  photographerPayout  Float?
-  stripeFee           Float?
+  platformFeeRate        Float                @default(0.15) // 15% for resort packages
+  platformFee            Float?
+  photographerPayout     Float?
+  stripeFee              Float?
   // Payment
-  stripeSessionId     String?
-  stripePaymentId     String?
-  isPaid              Boolean              @default(false)
-  paidAt              DateTime?
+  stripeSessionId        String?
+  stripePaymentId        String?
+  isPaid                 Boolean              @default(false)
+  paidAt                 DateTime?
   // Status
-  status              PackageBookingStatus @default(PENDING)
+  status                 PackageBookingStatus @default(PENDING)
   // Location
-  locationId          String?
-  location            Location?            @relation(fields: [locationId], references: [id])
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
+  locationId             String?
+  location               Location?            @relation(fields: [locationId], references: [id])
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
 
   @@index([status])
   @@index([sessionDate])
@@ -2330,16 +2336,16 @@ enum ContractStatus {
 
 // ── WEBSITE BLOCK EDITOR ─────────────────────
 model WebsiteBlock {
-  id         String           @id @default(cuid())
-  profileId  String
-  pageSlug   String           @default("home")
-  type       WebsiteBlockType
-  sortOrder  Int              @default(0)
-  content    Json             @default("{}")
-  settings   Json?
-  isVisible  Boolean          @default(true)
-  createdAt  DateTime         @default(now())
-  updatedAt  DateTime         @updatedAt
+  id        String           @id @default(cuid())
+  profileId String
+  pageSlug  String           @default("home")
+  type      WebsiteBlockType
+  sortOrder Int              @default(0)
+  content   Json             @default("{}")
+  settings  Json?
+  isVisible Boolean          @default(true)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
 
   @@index([profileId, pageSlug])
 }
@@ -2396,26 +2402,26 @@ model CustomFont {
 
 // ── SUPPORT CHAT ─────────────────────────────
 model SupportChat {
-  id              String            @id @default(cuid())
-  userId          String?
-  visitorEmail    String?
-  visitorName     String?
-  sessionId       String
-  status          SupportChatStatus @default(ACTIVE)
-  channel         String            @default("WIDGET")
-  page            String?
-  product         String?
-  userRole        String?
-  csatScore       Int?
-  csatFeedback    String?
-  csatRatedAt     DateTime?
-  resolvedAt      DateTime?
-  resolvedBy      String?
-  aiHandled       Boolean           @default(false)
-  escalatedToHuman Boolean          @default(false)
-  messages        SupportMessage[]
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id               String            @id @default(cuid())
+  userId           String?
+  visitorEmail     String?
+  visitorName      String?
+  sessionId        String
+  status           SupportChatStatus @default(ACTIVE)
+  channel          String            @default("WIDGET")
+  page             String?
+  product          String?
+  userRole         String?
+  csatScore        Int?
+  csatFeedback     String?
+  csatRatedAt      DateTime?
+  resolvedAt       DateTime?
+  resolvedBy       String?
+  aiHandled        Boolean           @default(false)
+  escalatedToHuman Boolean           @default(false)
+  messages         SupportMessage[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@index([sessionId])
   @@index([status])
@@ -2524,26 +2530,26 @@ enum VenueApplicationStatus {
 
 // ── MULTI-TENANT: DESTINATIONS ───────────────
 model Destination {
-  id              String   @id @default(cuid())
-  organizationId  String
-  name            String
-  slug            String
-  venueType       String   @default("HOTEL")
-  address         String?
-  city            String?
-  country         String?
-  phone           String?
-  contactPerson   String?
-  defaultLocale   String   @default("en")
-  currency        String   @default("EUR")
-  timezone        String   @default("Europe/Tunis")
-  logo            String?
-  primaryColor    String?
-  isActive        Boolean  @default(true)
-  locationId      String?  @unique
-  staff           DestinationStaff[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String             @id @default(cuid())
+  organizationId String
+  name           String
+  slug           String
+  venueType      String             @default("HOTEL")
+  address        String?
+  city           String?
+  country        String?
+  phone          String?
+  contactPerson  String?
+  defaultLocale  String             @default("en")
+  currency       String             @default("EUR")
+  timezone       String             @default("Europe/Tunis")
+  logo           String?
+  primaryColor   String?
+  isActive       Boolean            @default(true)
+  locationId     String?            @unique
+  staff          DestinationStaff[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
 
   @@unique([organizationId, slug])
   @@index([organizationId])
@@ -2594,9 +2600,9 @@ model CrmClient {
   phone          String?
   tags           String[]           @default([])
   notes          String?            @db.Text
-  source         String?            // "gallery", "manual", "inquiry", "booking"
+  source         String? // "gallery", "manual", "inquiry", "booking"
   status         String             @default("ACTIVE") // LEAD, ACTIVE, VIP, ARCHIVED
-  customerId     String?            // Link to existing Customer if applicable
+  customerId     String? // Link to existing Customer if applicable
   totalSpent     Float              @default(0)
   sessionCount   Int                @default(0)
   lastContactAt  DateTime?
@@ -2612,7 +2618,7 @@ model CrmCommunication {
   id        String    @id @default(cuid())
   clientId  String
   client    CrmClient @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  type      String    // EMAIL, PHONE, NOTE, MEETING
+  type      String // EMAIL, PHONE, NOTE, MEETING
   subject   String?
   content   String    @db.Text
   createdAt DateTime  @default(now())
@@ -2709,19 +2715,19 @@ model MiniSessionBooking {
 
 // ── PROJECT MANAGEMENT ────────────────────────
 model Project {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   orgId      String
   clientId   String?
   title      String
-  status     String   @default("INQUIRY") // INQUIRY, BOOKED, SHOT, EDITING, DELIVERED, ARCHIVED
+  status     String    @default("INQUIRY") // INQUIRY, BOOKED, SHOT, EDITING, DELIVERED, ARCHIVED
   eventDate  DateTime?
   eventType  String?
-  notes      String?  @db.Text
+  notes      String?   @db.Text
   galleryId  String?
   contractId String?
   invoiceId  String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([orgId, status])
 }
@@ -2739,15 +2745,15 @@ model PricingTier {
 
 // ── ALBUM DESIGNER ────────────────────────────
 model Album {
-  id        String        @id @default(cuid())
-  orgId     String
-  name      String
-  spreads   AlbumSpread[]
-  template  String        @default("classic")
-  status    String        @default("DRAFT") // DRAFT, READY, ORDERED
+  id         String        @id @default(cuid())
+  orgId      String
+  name       String
+  spreads    AlbumSpread[]
+  template   String        @default("classic")
+  status     String        @default("DRAFT") // DRAFT, READY, ORDERED
   labOrderId String?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
 }
 
 model AlbumSpread {
@@ -2761,33 +2767,33 @@ model AlbumSpread {
 
 // ── PHOTO BOOK DESIGNER ──────────────────────
 model PhotoBookDesign {
-  id              String   @id @default(cuid())
-  galleryId       String?
-  customerEmail   String?
-  customerName    String?
-  title           String   @default("My Photo Book")
-  bookType        String   @default("HARDCOVER")
-  bookSize        String   @default("8x11")
-  paper           String   @default("MATTE")
-  pageCount       Int      @default(20)
-  pages           Json     @default("[]")
-  coverDesign     Json?
-  status          String   @default("DRAFT")
-  orderId         String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id            String   @id @default(cuid())
+  galleryId     String?
+  customerEmail String?
+  customerName  String?
+  title         String   @default("My Photo Book")
+  bookType      String   @default("HARDCOVER")
+  bookSize      String   @default("8x11")
+  paper         String   @default("MATTE")
+  pageCount     Int      @default(20)
+  pages         Json     @default("[]")
+  coverDesign   Json?
+  status        String   @default("DRAFT")
+  orderId       String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model ClientAccount {
-  id               String       @id @default(cuid())
-  organizationId   String
-  name             String
-  email            String
-  passwordHash     String?
-  phone            String?
-  lastLoginAt      DateTime?
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  id             String    @id @default(cuid())
+  organizationId String
+  name           String
+  email          String
+  passwordHash   String?
+  phone          String?
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   @@unique([organizationId, email])
   @@index([organizationId])
@@ -2795,51 +2801,223 @@ model ClientAccount {
 
 // ── FOTIQO AI AGENT ──────────────────────────
 model AgentConversation {
-  id              String   @id @default(cuid())
-  organizationId  String
-  organization    Organization @relation("OrgAgentConversations", fields: [organizationId], references: [id])
-  userId          String
-  user            User     @relation("UserAgentConversations", fields: [userId], references: [id])
-  messages        Json     @default("[]")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation("OrgAgentConversations", fields: [organizationId], references: [id])
+  userId         String
+  user           User         @relation("UserAgentConversations", fields: [userId], references: [id])
+  messages       Json         @default("[]")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@index([organizationId])
   @@index([userId])
 }
 
 model AgentTask {
-  id              String   @id @default(cuid())
-  organizationId  String
-  organization    Organization @relation("OrgAgentTasks", fields: [organizationId], references: [id])
-  type            String
-  status          String   @default("SUGGESTED")
-  title           String
-  description     String?
-  data            Json?
-  scheduledFor    DateTime?
-  executedAt      DateTime?
-  result          Json?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String       @id @default(cuid())
+  organizationId String
+  organization   Organization @relation("OrgAgentTasks", fields: [organizationId], references: [id])
+  type           String
+  status         String       @default("SUGGESTED")
+  title          String
+  description    String?
+  data           Json?
+  scheduledFor   DateTime?
+  executedAt     DateTime?
+  result         Json?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
   @@index([organizationId])
   @@index([status])
 }
 
 model AgentSettings {
-  id              String   @id @default(cuid())
-  organizationId  String   @unique
-  organization    Organization @relation("OrgAgentSettings", fields: [organizationId], references: [id])
-  isEnabled       Boolean  @default(true)
-  autoPost        Boolean  @default(false)
-  autoReply       Boolean  @default(false)
-  autoEnhance     Boolean  @default(false)
-  dailyBriefing   Boolean  @default(true)
-  weeklyReport    Boolean  @default(true)
-  socialAccounts  Json?
-  brandVoice      String?
-  targetAudience  String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String       @id @default(cuid())
+  organizationId String       @unique
+  organization   Organization @relation("OrgAgentSettings", fields: [organizationId], references: [id])
+  isEnabled      Boolean      @default(true)
+  autoPost       Boolean      @default(false)
+  autoReply      Boolean      @default(false)
+  autoEnhance    Boolean      @default(false)
+  dailyBriefing  Boolean      @default(true)
+  weeklyReport   Boolean      @default(true)
+  socialAccounts Json?
+  brandVoice     String?
+  targetAudience String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+// ── VENUE COMPANY TEAM MANAGEMENT ─────────────────────────
+
+model StaffProfile {
+  id                   String                  @id @default(cuid())
+  userId               String                  @unique
+  user                 User                    @relation("UserStaffProfile", fields: [userId], references: [id])
+  companyId            String
+  designation          String // CEO, Operations Manager, Supervisor, Lead Photographer, etc.
+  department           String? // Operations, Photography, Sales, Administration
+  level                String // C_LEVEL, MANAGEMENT, SENIOR, STAFF, JUNIOR, TRAINEE
+  employmentType       String                  @default("FULL_TIME") // FULL_TIME, PART_TIME, SEASONAL, CONTRACT
+  startDate            DateTime                @default(now())
+  endDate              DateTime?
+  isActive             Boolean                 @default(true)
+  reportsToId          String?
+  reportsTo            StaffProfile?           @relation("ReportsTo", fields: [reportsToId], references: [id])
+  directReports        StaffProfile[]          @relation("ReportsTo")
+  assignedDestinations Json?
+  primaryDestinationId String?
+  salaryType           String                  @default("MONTHLY") // MONTHLY, DAILY, HOURLY, COMMISSION_ONLY
+  salaryAmount         Float?
+  salaryCurrency       String                  @default("EUR")
+  commissionRate       Float?
+  bonusTarget          Float?
+  dateOfBirth          DateTime?
+  nationality          String?
+  languages            Json?
+  phone                String?
+  emergencyContact     String?
+  emergencyPhone       String?
+  address              String?
+  photoUrl             String?
+  cvUrl                String?
+  contractUrl          String?
+  idDocumentUrl        String?
+  workPermitUrl        String?
+  workPermitExpiry     DateTime?
+  skills               Json?
+  certifications       Json?
+  equipmentTrained     Json?
+  performanceScore     Float?
+  lastReviewDate       DateTime?
+  nextReviewDate       DateTime?
+  needsTraining        Boolean                 @default(false)
+  needsCoaching        Boolean                 @default(false)
+  needsReplacement     Boolean                 @default(false)
+  onProbation          Boolean                 @default(false)
+  isTopPerformer       Boolean                 @default(false)
+  managerNotes         String?
+  hrNotes              String?
+  performanceReviews   PerformanceReview[]     @relation("StaffPerformanceReviews")
+  trainingRecords      TrainingRecord[]        @relation("StaffTrainingRecords")
+  staffCommissions     StaffCommissionConfig[] @relation("StaffCommissionConfigs")
+  staffBonuses         StaffBonusTarget[]      @relation("StaffBonusTargets")
+  staffPayouts         StaffPayout[]           @relation("StaffPayouts")
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  @@index([companyId])
+  @@index([reportsToId])
+}
+
+model PerformanceReview {
+  id               String       @id @default(cuid())
+  staffProfileId   String
+  staffProfile     StaffProfile @relation("StaffPerformanceReviews", fields: [staffProfileId], references: [id])
+  reviewerId       String
+  companyId        String
+  period           String
+  photoQuality     Float?
+  salesPerformance Float?
+  customerService  Float?
+  punctuality      Float?
+  teamwork         Float?
+  initiative       Float?
+  appearance       Float?
+  technicalSkills  Float?
+  overallScore     Float
+  photosUploaded   Int?
+  salesAmount      Float?
+  salesConversion  Float?
+  avgGalleryRating Float?
+  shiftsCompleted  Int?
+  shiftsAbsent     Int?
+  lateArrivals     Int?
+  strengths        String?
+  improvements     String?
+  goals            String?
+  actionPlan       String?
+  recommendation   String // PROMOTE, RETAIN, TRAIN, COACH, PROBATION, TERMINATE
+  staffSigned      Boolean      @default(false)
+  staffSignedAt    DateTime?
+  managerSigned    Boolean      @default(false)
+  managerSignedAt  DateTime?
+  createdAt        DateTime     @default(now())
+
+  @@index([companyId])
+  @@index([staffProfileId])
+}
+
+model TrainingRecord {
+  id             String       @id @default(cuid())
+  staffProfileId String
+  staffProfile   StaffProfile @relation("StaffTrainingRecords", fields: [staffProfileId], references: [id])
+  companyId      String
+  trainingType   String // ONBOARDING, PHOTOGRAPHY, SALES, KIOSK, SAFETY, CUSTOMER_SERVICE, EQUIPMENT, SOFTWARE
+  title          String
+  description    String?
+  status         String       @default("ASSIGNED") // ASSIGNED, IN_PROGRESS, COMPLETED, FAILED
+  dueDate        DateTime?
+  completedDate  DateTime?
+  score          Float?
+  certificateUrl String?
+  createdAt      DateTime     @default(now())
+
+  @@index([companyId])
+  @@index([staffProfileId])
+}
+
+model StaffCommissionConfig {
+  id             String       @id @default(cuid())
+  staffProfileId String
+  staffProfile   StaffProfile @relation("StaffCommissionConfigs", fields: [staffProfileId], references: [id])
+  companyId      String
+  isEnabled      Boolean      @default(true)
+  commissionType String // PHOTO_SALES, KIOSK_SALES, DESTINATION_REVENUE, REGION_REVENUE, FIXED_PER_SALE
+  commissionRate Float?
+  fixedPerSale   Float?
+  monthlyCap     Float?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([companyId])
+  @@index([staffProfileId])
+}
+
+model StaffBonusTarget {
+  id             String       @id @default(cuid())
+  staffProfileId String
+  staffProfile   StaffProfile @relation("StaffBonusTargets", fields: [staffProfileId], references: [id])
+  companyId      String
+  period         String       @default("MONTHLY") // MONTHLY, QUARTERLY
+  metricType     String // REVENUE, CONVERSION_RATE, PHOTO_COUNT, CUSTOMER_RATING, SHIFTS_COMPLETED
+  targetValue    Float
+  bonusAmount    Float
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([companyId])
+  @@index([staffProfileId])
+}
+
+model StaffPayout {
+  id               String       @id @default(cuid())
+  staffProfileId   String
+  staffProfile     StaffProfile @relation("StaffPayouts", fields: [staffProfileId], references: [id])
+  companyId        String
+  period           String
+  baseSalary       Float
+  commissionEarned Float
+  bonusEarned      Float
+  deductions       Float        @default(0)
+  totalPayout      Float
+  status           String       @default("PENDING") // PENDING, APPROVED, PAID
+  paidAt           DateTime?
+  notes            String?
+  createdAt        DateTime     @default(now())
+
+  @@index([companyId])
+  @@index([staffProfileId])
 }

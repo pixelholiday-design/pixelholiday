@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { SectionConfig, WebsiteTheme } from "@/lib/website-themes";
 import { DEFAULT_SECTIONS } from "@/lib/website-themes";
 import { photoRef } from "@/lib/cloudinary";
+import WhatsAppButton from "@/components/website/WhatsAppButton";
 
 type Profile = {
   id: string;
@@ -29,6 +30,10 @@ type Profile = {
   fontChoice: string;
   logoUrl: string | null;
   sections: string | null;
+  whatsappEnabled: boolean;
+  whatsappNumber: string | null;
+  whatsappMessage: string | null;
+  whatsappPosition: string;
   services: { id: string; name: string; description: string | null; startingAt: number | null; currency: string; duration: string | null }[];
   testimonials: { id: string; clientName: string; content: string; rating: number; eventType: string | null }[];
   user: { name: string; email: string };
@@ -116,6 +121,16 @@ export default function PhotographerWebsite({ profile, galleries }: { profile: P
           <p className={`text-xs ${tc.muted}`}>&copy; {new Date().getFullYear()} {profile.businessName || profile.user.name}. Powered by Fotiqo.</p>
         </div>
       </footer>
+
+      {/* WhatsApp Floating Button */}
+      {profile.whatsappEnabled && profile.whatsappNumber && (
+        <WhatsAppButton
+          phoneNumber={profile.whatsappNumber}
+          message={profile.whatsappMessage || undefined}
+          photographerName={profile.businessName || profile.user.name}
+          position={(profile.whatsappPosition as "bottom-right" | "bottom-left") || "bottom-right"}
+        />
+      )}
     </div>
   );
 }
