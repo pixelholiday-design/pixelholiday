@@ -4,7 +4,7 @@ import '@/styles/kiosk.css';
 export const metadata = {
   title: 'Fotiqo Kiosk',
   manifest: '/manifest-gallery-kiosk.json',
-  themeColor: '#0f172a',
+  themeColor: '#050a12',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',

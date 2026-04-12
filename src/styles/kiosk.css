@@ -1,12 +1,18 @@
-/* Fotiqo Kiosk Design Tokens & Animations */
+/* Fotiqo Kiosk — Modern Premium Design System */
 
 :root {
-  --kiosk-bg: #08111C;
-  --kiosk-card: #1A1F2E;
-  --kiosk-border: #2A3042;
-  --kiosk-coral: #F97316;
-  --kiosk-gold: #D4A853;
-  --kiosk-touch-min: 60px;
+  --kiosk-bg: #050a12;
+  --kiosk-surface: rgba(255, 255, 255, 0.03);
+  --kiosk-surface-hover: rgba(255, 255, 255, 0.06);
+  --kiosk-border: rgba(255, 255, 255, 0.06);
+  --kiosk-accent: #6366f1;
+  --kiosk-accent-soft: rgba(99, 102, 241, 0.12);
+  --kiosk-success: #22c55e;
+  --kiosk-warm: #f59e0b;
+  --kiosk-touch-min: 56px;
+  --kiosk-radius: 20px;
+  --kiosk-radius-sm: 14px;
+  --kiosk-radius-xs: 10px;
 }
 
 /* Disable scrollbars and selection on kiosk pages */
@@ -20,23 +26,143 @@ html.kiosk body {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   overscroll-behavior: none;
+  background: var(--kiosk-bg);
 }
 
 html.kiosk *::-webkit-scrollbar {
-  display: none;
+  width: 4px;
 }
-html.kiosk * {
-  scrollbar-width: none;
+html.kiosk *::-webkit-scrollbar-track {
+  background: transparent;
+}
+html.kiosk *::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
 }
 
 /* Touch target utility */
 .touch-target {
   min-height: var(--kiosk-touch-min);
   min-width: var(--kiosk-touch-min);
-  padding: 16px;
+  padding: 14px;
+}
+
+/* Modern kiosk card */
+.kiosk-card {
+  background: var(--kiosk-surface);
+  border: 1px solid var(--kiosk-border);
+  border-radius: var(--kiosk-radius);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.2s ease;
+}
+.kiosk-card:hover {
+  background: var(--kiosk-surface-hover);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.kiosk-card.active {
+  border-color: var(--kiosk-accent);
+  background: var(--kiosk-accent-soft);
+}
+
+/* Modern kiosk button */
+.kiosk-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 600;
+  border-radius: var(--kiosk-radius-sm);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+.kiosk-btn-primary {
+  background: var(--kiosk-accent);
+  color: white;
+  padding: 16px 32px;
+  font-size: 16px;
+}
+.kiosk-btn-primary:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+}
+.kiosk-btn-primary:active {
+  transform: translateY(0);
+}
+.kiosk-btn-primary:disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.kiosk-btn-ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 12px 20px;
+  font-size: 14px;
+}
+.kiosk-btn-ghost:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Kiosk label badge */
+.kiosk-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Mesh gradient background */
+.kiosk-mesh {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(99, 102, 241, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(139, 92, 246, 0.06), transparent),
+    radial-gradient(ellipse 50% 30% at 20% 80%, rgba(99, 102, 241, 0.04), transparent),
+    var(--kiosk-bg);
+}
+
+/* Success mesh */
+.kiosk-mesh-success {
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(34, 197, 94, 0.12), transparent),
+    radial-gradient(ellipse 60% 40% at 80% 50%, rgba(16, 185, 129, 0.06), transparent),
+    var(--kiosk-bg);
 }
 
 /* ───────── Animations ───────── */
+@keyframes kiosk-slide-up {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+@keyframes kiosk-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes kiosk-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+@keyframes kiosk-pulse-soft {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+@keyframes kiosk-check-draw {
+  0%   { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes kiosk-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3); }
+  50%      { box-shadow: 0 0 40px rgba(99, 102, 241, 0.5); }
+}
 @keyframes slide-in-right {
   from { transform: translateX(100%); opacity: 0; }
   to   { transform: translateX(0);    opacity: 1; }
@@ -54,14 +180,14 @@ html.kiosk * {
   to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes pulse-ring {
-  0%   { box-shadow: 0 0 0 0   rgba(232, 89, 60, 0.6); }
-  70%  { box-shadow: 0 0 0 32px rgba(232, 89, 60, 0); }
-  100% { box-shadow: 0 0 0 0   rgba(232, 89, 60, 0); }
+  0%   { box-shadow: 0 0 0 0   rgba(99, 102, 241, 0.5); }
+  70%  { box-shadow: 0 0 0 24px rgba(99, 102, 241, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(99, 102, 241, 0); }
 }
 @keyframes bounce-heart {
   0%   { transform: scale(1); }
-  30%  { transform: scale(1.4); }
-  60%  { transform: scale(0.85); }
+  30%  { transform: scale(1.3); }
+  60%  { transform: scale(0.9); }
   100% { transform: scale(1); }
 }
 @keyframes confetti-burst {
@@ -69,20 +195,20 @@ html.kiosk * {
   100% { transform: translate(var(--cx, 0), var(--cy, 200px)) rotate(720deg); opacity: 0; }
 }
 @keyframes number-roll {
-  0%   { transform: translateY(20px); opacity: 0; }
+  0%   { transform: translateY(16px); opacity: 0; }
   100% { transform: translateY(0); opacity: 1; }
 }
 @keyframes scale-press {
   0%   { transform: scale(1); }
-  50%  { transform: scale(0.95); }
+  50%  { transform: scale(0.97); }
   100% { transform: scale(1); }
 }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  20%      { transform: translateX(-12px); }
-  40%      { transform: translateX(12px); }
-  60%      { transform: translateX(-8px); }
-  80%      { transform: translateX(8px); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-5px); }
+  80%      { transform: translateX(5px); }
 }
 @keyframes ticker {
   from { transform: translateX(100%); }
@@ -92,15 +218,20 @@ html.kiosk * {
   to { transform: rotate(360deg); }
 }
 
+.anim-slide-up    { animation: kiosk-slide-up 400ms ease-out both; }
 .anim-slide-right { animation: slide-in-right 300ms ease-out both; }
 .anim-slide-left  { animation: slide-in-left 300ms ease-out both; }
 .anim-slide-down  { animation: slide-down 300ms ease-out both; }
-.anim-fade-up     { animation: fade-in-up 200ms ease-out both; }
+.anim-fade-up     { animation: fade-in-up 300ms ease-out both; }
+.anim-fade-in     { animation: kiosk-fade-in 400ms ease-out both; }
+.anim-scale-in    { animation: kiosk-scale-in 300ms ease-out both; }
 .anim-pulse-ring  { animation: pulse-ring 2s infinite; }
+.anim-pulse-soft  { animation: kiosk-pulse-soft 2s ease-in-out infinite; }
 .anim-bounce-heart{ animation: bounce-heart 400ms ease-out; }
 .anim-shake       { animation: shake 400ms ease-in-out; }
 .anim-number-roll { animation: number-roll 300ms ease-out both; }
 .anim-spin-slow   { animation: spin-slow 1.2s linear infinite; }
+.anim-glow        { animation: kiosk-glow 2s ease-in-out infinite; }
 
 .press:active { animation: scale-press 200ms ease-out; }
 
@@ -116,7 +247,15 @@ html.kiosk * {
   100% { background-position: 400px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #1A1F2E 0%, #2A3042 50%, #1A1F2E 100%);
+  background: linear-gradient(90deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.03) 100%);
   background-size: 800px 100%;
   animation: shimmer 1.4s linear infinite;
 }
+
+/* Stagger children animations */
+.stagger > *:nth-child(1) { animation-delay: 0ms; }
+.stagger > *:nth-child(2) { animation-delay: 80ms; }
+.stagger > *:nth-child(3) { animation-delay: 160ms; }
+.stagger > *:nth-child(4) { animation-delay: 240ms; }
+.stagger > *:nth-child(5) { animation-delay: 320ms; }
+.stagger > *:nth-child(6) { animation-delay: 400ms; }
