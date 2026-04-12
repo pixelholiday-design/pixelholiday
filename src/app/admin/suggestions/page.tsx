@@ -77,7 +77,11 @@ export default function SuggestionsPage() {
 
   async function updateStatus(id: string, status: string) {
     setSuggestions((prev) => prev.map((s) => s.id === id ? { ...s, status } : s));
-    // TODO: PUT /api/suggestions/[id] when endpoint is ready
+    await fetch(`/api/suggestions/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
   }
 
   return (

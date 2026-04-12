@@ -416,7 +416,7 @@ function BlockSettings({ block, onUpdate }: { block: Block; onUpdate: (id: strin
         <Field label="Heading" value={c.heading} onChange={(v) => update("heading", v)} />
       )}
       {(block.type === "STATS" || block.type === "FAQ" || block.type === "TESTIMONIALS" || block.type === "SERVICES") && (
-        <p className="text-xs text-navy-400">Edit items in the JSON content. Advanced editor coming soon.</p>
+        <p className="text-xs text-navy-400">Edit items in the JSON content below.</p>
       )}
     </div>
   );

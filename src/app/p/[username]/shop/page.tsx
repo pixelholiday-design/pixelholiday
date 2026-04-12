@@ -67,7 +67,7 @@ export default async function PhotographerShopPage({ params }: Props) {
         </div>
 
         {products.length === 0 && (
-          <p className={`text-center py-20 ${isDark ? "text-zinc-500" : "text-gray-400"}`}>Shop coming soon.</p>
+          <p className={`text-center py-20 ${isDark ? "text-zinc-500" : "text-gray-400"}`}>No products available yet.</p>
         )}
       </div>
     </div>

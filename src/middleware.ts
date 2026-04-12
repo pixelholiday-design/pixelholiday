@@ -15,9 +15,12 @@ const ROLE_ROUTES: Record<string, string[]> = {
     "/admin/wifi-transfer", "/admin/photo-flow",
     "/admin/payroll", "/admin/commissions", "/admin/pricing",
     "/admin/cash", "/admin/finance", "/admin/sleeping-money",
+    "/admin/payouts", "/admin/packages",
     "/admin/store", "/admin/franchise", "/admin/ai-insights",
     "/admin/fraud-alerts", "/admin/hotel-integration", "/admin/subscription",
-    "/admin/agent",
+    "/admin/agent", "/admin/ai-command",
+    "/admin/marketing", "/admin/suggestions", "/admin/support",
+    "/admin/csat", "/admin/zones",
     "/kiosk", "/my-dashboard",
   ],
   SUPERVISOR: [

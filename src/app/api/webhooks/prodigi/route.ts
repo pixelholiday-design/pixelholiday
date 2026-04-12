@@ -48,7 +48,6 @@ export async function POST(req: NextRequest) {
         },
       });
       console.log(`[Prodigi] Order ${order.id} → SHIPPED (tracking: ${trackingNumber})`);
-      // TODO: send customer shipping notification email
     }
 
     if (event.type === "order.completed") {

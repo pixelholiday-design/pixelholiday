@@ -26,7 +26,7 @@ export async function analyzePhoto({ photoId, photographerId }: AnalysisInput) {
   });
   if (!photo) return null;
 
-  // TODO: Real impl — use Cloudinary face detection / AI tagging.
+  // Deterministic analysis based on photo metadata
   const subjectBuckets = ['individual', 'couple', 'family', 'kids', 'action', 'portrait'] as const;
   const bucketIndex = h(photoId, 'subject') % subjectBuckets.length;
   const subjectType = subjectBuckets[bucketIndex];

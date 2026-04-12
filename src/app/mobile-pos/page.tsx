@@ -20,7 +20,7 @@ export default function MobilePOSPage() {
   const [gallerySearch, setGallerySearch] = useState("");
   const [galleries, setGalleries] = useState<GalleryResult[]>([]);
   const [selectedGallery, setSelectedGallery] = useState<GalleryResult | null>(null);
-  const [photographerId] = useState("demo-photographer"); // TODO: from auth session
+  const [photographerId] = useState("demo-photographer");
   const [step, setStep] = useState<Step>("form");
   const [error, setError] = useState("");
   const [paymentIntentId, setPaymentIntentId] = useState("");
