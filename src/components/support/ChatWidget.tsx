@@ -173,7 +173,8 @@ export default function ChatWidget() {
     pathname.startsWith("/admin") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/v/") ||
-    pathname.startsWith("/contract/sign")
+    pathname.startsWith("/contract/sign") ||
+    pathname.startsWith("/shop")
   ) return null;
 
   const hasMessages = messages.length > 0;

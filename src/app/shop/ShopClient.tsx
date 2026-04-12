@@ -41,10 +41,25 @@ type CartItem = { productKey: string; qty: number; size?: string; option?: strin
 
 const STORAGE_KEY = "fotiqo.cart.v2";
 
-/* Sample photo data-uri — landscape scene for product cards */
-const SAMPLE_PHOTO = `data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="sky" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#5b8ec9"/><stop offset="45%" stop-color="#7ec8d9"/><stop offset="85%" stop-color="#e8c87a"/><stop offset="100%" stop-color="#eab060"/></linearGradient><radialGradient id="sun" cx="0.75" cy="0.18"><stop offset="0%" stop-color="#fff8e0"/><stop offset="100%" stop-color="transparent"/></radialGradient></defs><rect fill="url(#sky)" width="800" height="530"/><circle cx="600" cy="95" r="55" fill="#f5d56e" opacity="0.7"/><rect fill="url(#sun)" width="800" height="530" opacity="0.3"/><ellipse cx="400" cy="480" rx="500" ry="110" fill="#2d6a3f" opacity="0.18"/><ellipse cx="200" cy="460" rx="260" ry="80" fill="#3a7d50" opacity="0.14"/></svg>`
-)}`;
+/* Sample photo data-uris — varied color palettes for product cards */
+const SAMPLE_PHOTOS = [
+  // 1. Golden sunset beach (warm oranges/golds)
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a1a2e"/><stop offset="30%" stop-color="#e94560"/><stop offset="60%" stop-color="#f5a623"/><stop offset="80%" stop-color="#f7d794"/><stop offset="100%" stop-color="#2d6a4f"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="400" cy="280" r="50" fill="#f5d76e" opacity="0.8"/><ellipse cx="400" cy="480" rx="500" ry="80" fill="#1a4731" opacity="0.3"/></svg>`)}`,
+  // 2. Ocean blue (cool blues/teals)
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0c2461"/><stop offset="40%" stop-color="#48dbfb"/><stop offset="65%" stop-color="#0abde3"/><stop offset="100%" stop-color="#1dd1a1"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="580" cy="100" r="40" fill="#fff" opacity="0.3"/><ellipse cx="300" cy="400" rx="450" ry="60" fill="#fff" opacity="0.08"/></svg>`)}`,
+  // 3. Mountain lavender (purples/pinks)
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d1b69"/><stop offset="35%" stop-color="#6c5ce7"/><stop offset="60%" stop-color="#a29bfe"/><stop offset="85%" stop-color="#dfe6e9"/><stop offset="100%" stop-color="#636e72"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><polygon points="150,530 350,250 550,530" fill="#4a4060" opacity="0.4"/><polygon points="350,530 500,300 700,530" fill="#3d3557" opacity="0.35"/></svg>`)}`,
+  // 4. Autumn forest (warm greens/oranges)
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6ab04c"/><stop offset="30%" stop-color="#badc58"/><stop offset="55%" stop-color="#f9ca24"/><stop offset="75%" stop-color="#f0932b"/><stop offset="100%" stop-color="#6a3d0a"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="200" cy="350" r="80" fill="#27ae60" opacity="0.3"/><circle cx="500" cy="380" r="100" fill="#e67e22" opacity="0.2"/><circle cx="650" cy="320" r="60" fill="#c0392b" opacity="0.15"/></svg>`)}`,
+  // 5. Rose garden (soft pinks/magentas)
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fd79a8"/><stop offset="40%" stop-color="#fab1a0"/><stop offset="70%" stop-color="#ffeaa7"/><stop offset="100%" stop-color="#55efc4"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="250" cy="300" r="120" fill="#e84393" opacity="0.15"/><circle cx="550" cy="250" r="90" fill="#fd79a8" opacity="0.12"/></svg>`)}`,
+  // 6. Classic landscape (original, improved)
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#5b8ec9"/><stop offset="45%" stop-color="#7ec8d9"/><stop offset="85%" stop-color="#e8c87a"/><stop offset="100%" stop-color="#eab060"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="600" cy="95" r="55" fill="#f5d56e" opacity="0.7"/><ellipse cx="400" cy="480" rx="500" ry="110" fill="#2d6a3f" opacity="0.18"/><ellipse cx="200" cy="460" rx="260" ry="80" fill="#3a7d50" opacity="0.14"/></svg>`)}`,
+];
+
+function getSamplePhoto(index: number): string {
+  return SAMPLE_PHOTOS[index % SAMPLE_PHOTOS.length];
+}
 
 const DISPLAY_TABS = [
   { key: "ALL",            label: "All" },
@@ -262,9 +277,22 @@ export default function ShopClient() {
         )}
 
         {!catalog && !catalogError && (
-          <div className="flex flex-col items-center py-24 text-gray-400">
-            <Loader2 className="h-8 w-8 animate-spin mb-4" />
-            <p className="font-medium">Loading products...</p>
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl overflow-hidden ring-1 ring-gray-100 animate-pulse">
+                <div className="aspect-[4/3] bg-gray-100" />
+                <div className="p-4 sm:p-5 space-y-3">
+                  <div className="h-3 bg-gray-100 rounded w-16" />
+                  <div className="h-5 bg-gray-100 rounded w-3/4" />
+                  <div className="h-3 bg-gray-100 rounded w-full" />
+                  <div className="h-3 bg-gray-100 rounded w-2/3" />
+                  <div className="flex items-end justify-between pt-3 border-t border-gray-50">
+                    <div className="h-7 bg-gray-100 rounded w-16" />
+                    <div className="h-9 bg-gray-100 rounded-full w-16" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -402,7 +430,7 @@ export default function ShopClient() {
                         {/* Thumbnail */}
                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 shadow-sm">
                           <ProductMockup
-                            photoUrl={SAMPLE_PHOTO}
+                            photoUrl={getSamplePhoto(items.indexOf(item))}
                             product={p}
                             size="card"
                           />
@@ -590,7 +618,7 @@ function ProductGrid({
         return (
           <div
             key={p.id}
-            className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col ring-1 ring-gray-100"
+            className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col ring-1 ring-gray-100 hover:ring-[#0EA5A5]/30"
           >
             {/* Featured badge */}
             {p.isFeatured && (
@@ -600,13 +628,19 @@ function ProductGrid({
             )}
 
             {/* Product mockup with hover zoom */}
-            <Link href={`/shop/${p.productKey}`} className="block overflow-hidden">
+            <Link href={`/shop/${p.productKey}`} className="block overflow-hidden relative">
               <div className="transition-transform duration-500 group-hover:scale-[1.03]">
                 <ProductMockup
-                  photoUrl={SAMPLE_PHOTO}
+                  photoUrl={getSamplePhoto(products.indexOf(p))}
                   product={p}
                   size="card"
                 />
+              </div>
+              {/* Hover overlay */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 flex items-center justify-center">
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm text-[#0C2E3D] text-sm font-semibold px-4 py-2 rounded-full shadow-sm">
+                  View options →
+                </span>
               </div>
             </Link>
 

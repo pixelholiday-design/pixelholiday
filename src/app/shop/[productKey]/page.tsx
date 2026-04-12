@@ -35,9 +35,20 @@ type OptionEntry = { key?: string; name?: string; label?: string; costAddon?: nu
 type CartItem = { productKey: string; qty: number; size?: string; option?: string };
 const STORAGE_KEY = "fotiqo.cart.v2";
 
-const SAMPLE_PHOTO = `data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="sky" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#5b8ec9"/><stop offset="45%" stop-color="#7ec8d9"/><stop offset="85%" stop-color="#e8c87a"/><stop offset="100%" stop-color="#eab060"/></linearGradient></defs><rect fill="url(#sky)" width="800" height="530"/><circle cx="600" cy="95" r="55" fill="#f5d56e" opacity="0.7"/><ellipse cx="400" cy="480" rx="500" ry="110" fill="#2d6a3f" opacity="0.18"/></svg>`
-)}`;
+const SAMPLE_PHOTOS = [
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a1a2e"/><stop offset="30%" stop-color="#e94560"/><stop offset="60%" stop-color="#f5a623"/><stop offset="80%" stop-color="#f7d794"/><stop offset="100%" stop-color="#2d6a4f"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="400" cy="280" r="50" fill="#f5d76e" opacity="0.8"/><ellipse cx="400" cy="480" rx="500" ry="80" fill="#1a4731" opacity="0.3"/></svg>`)}`,
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0c2461"/><stop offset="40%" stop-color="#48dbfb"/><stop offset="65%" stop-color="#0abde3"/><stop offset="100%" stop-color="#1dd1a1"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="580" cy="100" r="40" fill="#fff" opacity="0.3"/><ellipse cx="300" cy="400" rx="450" ry="60" fill="#fff" opacity="0.08"/></svg>`)}`,
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d1b69"/><stop offset="35%" stop-color="#6c5ce7"/><stop offset="60%" stop-color="#a29bfe"/><stop offset="85%" stop-color="#dfe6e9"/><stop offset="100%" stop-color="#636e72"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><polygon points="150,530 350,250 550,530" fill="#4a4060" opacity="0.4"/><polygon points="350,530 500,300 700,530" fill="#3d3557" opacity="0.35"/></svg>`)}`,
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6ab04c"/><stop offset="30%" stop-color="#badc58"/><stop offset="55%" stop-color="#f9ca24"/><stop offset="75%" stop-color="#f0932b"/><stop offset="100%" stop-color="#6a3d0a"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="200" cy="350" r="80" fill="#27ae60" opacity="0.3"/><circle cx="500" cy="380" r="100" fill="#e67e22" opacity="0.2"/><circle cx="650" cy="320" r="60" fill="#c0392b" opacity="0.15"/></svg>`)}`,
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fd79a8"/><stop offset="40%" stop-color="#fab1a0"/><stop offset="70%" stop-color="#ffeaa7"/><stop offset="100%" stop-color="#55efc4"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="250" cy="300" r="120" fill="#e84393" opacity="0.15"/><circle cx="550" cy="250" r="90" fill="#fd79a8" opacity="0.12"/></svg>`)}`,
+  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#5b8ec9"/><stop offset="45%" stop-color="#7ec8d9"/><stop offset="85%" stop-color="#e8c87a"/><stop offset="100%" stop-color="#eab060"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="600" cy="95" r="55" fill="#f5d56e" opacity="0.7"/><ellipse cx="400" cy="480" rx="500" ry="110" fill="#2d6a3f" opacity="0.18"/><ellipse cx="200" cy="460" rx="260" ry="80" fill="#3a7d50" opacity="0.14"/></svg>`)}`,
+];
+
+function getSamplePhoto(key: string): string {
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
+  return SAMPLE_PHOTOS[Math.abs(hash) % SAMPLE_PHOTOS.length];
+}
 
 /* ─── Helpers ────────────────────────────────────────────── */
 function parseJson<T>(json?: string | null): T[] {
@@ -215,7 +226,7 @@ export default function ProductDetailPage() {
   const showRoom = isWallArt(product);
   const productType = detectProductType(product);
 
-  const placeholderPhotoUrl = photoPreview || SAMPLE_PHOTO;
+  const placeholderPhotoUrl = photoPreview || getSamplePhoto(product.productKey);
 
   return (
     <div className="min-h-screen bg-white text-[#0C2E3D]">
@@ -554,7 +565,7 @@ export default function ProductDetailPage() {
                 >
                   <div className="overflow-hidden">
                     <div className="transition-transform duration-500 group-hover:scale-[1.03]">
-                      <ProductMockup photoUrl={SAMPLE_PHOTO} product={p} size="card" />
+                      <ProductMockup photoUrl={getSamplePhoto(p.productKey)} product={p} size="card" />
                     </div>
                   </div>
                   <div className="p-4">
