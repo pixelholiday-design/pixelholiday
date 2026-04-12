@@ -58,7 +58,6 @@ import {
   ShoppingCart,
   HelpCircle,
   Aperture,
-  Presentation,
   Plug,
 } from "lucide-react";
 import SectionFadeIn from "../_components/SectionFadeIn";
@@ -263,7 +262,7 @@ const CATEGORIES: FeatureCategory[] = [
     icon: BarChart3,
     label: "Studio Manager",
     title: "Run your entire studio from one dashboard",
-    desc: "AI Command Center, project board, Lightroom integration, CRM, contracts, invoices, and PDF presentations.",
+    desc: "AI Command Center, project board, Lightroom integration, CRM, contracts, and invoices.",
     cards: [
       {
         icon: Brain,
@@ -279,11 +278,6 @@ const CATEGORIES: FeatureCategory[] = [
         icon: Plug,
         title: "Lightroom integration",
         desc: "API key management with Bearer auth. Upload photos directly from Lightroom or any desktop app via REST API.",
-      },
-      {
-        icon: Presentation,
-        title: "PDF sales presentations",
-        desc: "Generate print-ready presentations for 7 audience types: hotels, resorts, water parks, corporate, and more.",
       },
       {
         icon: TrendingUp,

@@ -96,7 +96,6 @@ export const PLANS = {
       "White-label (zero Fotiqo branding)",
       "Up to 5 team members",
       "Advanced analytics + competitor analysis",
-      "PDF sales presentations (7 audiences)",
       "Real-time live streaming",
       "500GB storage",
       "Phone + chat support",
