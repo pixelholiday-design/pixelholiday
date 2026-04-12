@@ -1,35 +1,45 @@
 export const dynamic = "force-dynamic";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { requireStaff } from "@/lib/guards";
 
 export async function GET(req: Request) {
   try {
+  const user = await requireStaff();
+  const orgId = user.orgId;
+
   const url = new URL(req.url);
   const locationId = url.searchParams.get("locationId") || undefined;
   const division = url.searchParams.get("division") || undefined; // LUXURY | SPLASH | ATTRACTION
 
-  // Resolve division → list of matching location ids (only when no specific locationId is set)
+  // Get all location IDs belonging to this user's organization
+  const orgLocations = await prisma.location.findMany({
+    where: { orgId },
+    select: { id: true, name: true, type: true, locationType: true },
+  });
+  const orgLocationIds = orgLocations.map((l) => l.id);
+
+  // Resolve division → list of matching location ids within this org
   let divisionLocationIds: string[] | undefined;
   if (division && !locationId) {
-    const divLocations = await prisma.location.findMany({
-      where: { locationType: division },
-      select: { id: true },
-    });
-    divisionLocationIds = divLocations.map((l) => l.id);
+    divisionLocationIds = orgLocations
+      .filter((l) => l.locationType === division)
+      .map((l) => l.id);
   }
 
-  const orderWhere: any = { status: "COMPLETED" };
-  const galleryWhere: any = {};
-  const userGalleryWhere: any = {};
-  if (locationId) {
-    orderWhere.gallery = { locationId };
-    galleryWhere.locationId = locationId;
-    userGalleryWhere.locationId = locationId;
-  } else if (divisionLocationIds && divisionLocationIds.length > 0) {
-    orderWhere.gallery = { locationId: { in: divisionLocationIds } };
-    galleryWhere.locationId = { in: divisionLocationIds };
-    userGalleryWhere.locationId = { in: divisionLocationIds };
-  }
+  // Build scoped filters — always within this org's locations
+  const scopedLocationIds = locationId
+    ? [locationId].filter((id) => orgLocationIds.includes(id)) // only if it belongs to this org
+    : divisionLocationIds && divisionLocationIds.length > 0
+      ? divisionLocationIds
+      : orgLocationIds;
+
+  const orderWhere: any = {
+    status: "COMPLETED",
+    gallery: { locationId: { in: scopedLocationIds } },
+  };
+  const galleryWhere: any = { locationId: { in: scopedLocationIds } };
+  const userGalleryWhere: any = { locationId: { in: scopedLocationIds } };
 
   let orders: any[];
   try {
@@ -49,47 +59,45 @@ export async function GET(req: Request) {
     try { return await fn(); } catch { return fallback; }
   };
 
-  const [galleries, locations, users, commissions, equipment, passes] = await Promise.all([
+  // Filter locations for display — use division filter or all org locations
+  const displayLocations = division
+    ? orgLocations.filter((l) => l.locationType === division)
+    : orgLocations;
+
+  const [galleries, users, commissions, equipment, passes] = await Promise.all([
     safeQuery(() => prisma.gallery.findMany({
       where: galleryWhere,
       select: { id: true, status: true, locationId: true, photographerId: true, totalCount: true, purchasedCount: true, createdAt: true,
         photographer: { select: { id: true, name: true } }, location: { select: { id: true, name: true, type: true } },
         order: { select: { id: true, status: true, amount: true } } },
     }), []),
-    safeQuery(() => prisma.location.findMany({
-      where: division ? { locationType: division } : {},
-      select: { id: true, name: true, type: true },
-    }), []),
     safeQuery(() => prisma.user.findMany({
-      where: { role: "PHOTOGRAPHER" },
+      where: { role: "PHOTOGRAPHER", orgId },
       select: { id: true, name: true, galleries: { where: userGalleryWhere, select: { id: true, totalCount: true, purchasedCount: true } } },
     }), []),
     safeQuery(() => prisma.commission.findMany({
-      where: { isPaid: false },
+      where: { isPaid: false, user: { orgId } },
       select: { id: true, amount: true },
     }), []),
     safeQuery(() => prisma.equipment.findMany({
+      where: { locationId: { in: orgLocationIds } },
       select: { id: true, purchaseCost: true },
     }), []),
-    safeQuery(() => prisma.customer.count({ where: { hasDigitalPass: true } }), 0),
+    safeQuery(() => prisma.customer.count({ where: { hasDigitalPass: true, locationId: { in: orgLocationIds } } }), 0),
   ]);
 
   const totalGross = orders.reduce((s, o) => s + o.amount, 0);
-  // NET revenue = gross minus Stripe fees and tax.  Use stored fields when
-  // available (added in the webhook fix), otherwise estimate from gross.
   const totalStripeFees = orders.reduce((s, o) => s + (o.stripeFee ?? 0), 0);
   const totalTax = orders.reduce((s, o) => s + (o.taxAmount ?? 0), 0);
   const totalRevenue = Math.round((totalGross - totalStripeFees - totalTax) * 100) / 100;
 
-  // Gift card sales are DEFERRED REVENUE — they are NOT income until redeemed.
-  // Exclude orders that are gift-card purchases from the revenue total.
   const giftCardOrders = orders.filter((o: any) => o.isGiftCardPurchase === true);
   const giftCardDeferred = giftCardOrders.reduce((s, o) => s + o.amount, 0);
   const recognizedRevenue = Math.round((totalRevenue - giftCardDeferred) * 100) / 100;
 
   const pendingPayouts = commissions.reduce((s, c) => s + c.amount, 0);
 
-  const revenueByLocation = locations.map((loc) => {
+  const revenueByLocation = displayLocations.map((loc) => {
     const locOrders = orders.filter((o) => o.gallery.locationId === loc.id);
     const locGross = locOrders.reduce((s, o) => s + o.amount, 0);
     const locFees = locOrders.reduce((s, o) => s + (o.stripeFee ?? 0), 0);
@@ -132,11 +140,11 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     totalGross,
-    totalRevenue,        // NET after Stripe fees & tax
-    recognizedRevenue,   // NET minus gift card deferred revenue
+    totalRevenue,
+    recognizedRevenue,
     totalStripeFees,
     totalTax,
-    giftCardDeferred,    // Gift card sales = deferred revenue, not income
+    giftCardDeferred,
     pendingPayouts,
     revenueByLocation,
     conversion,
@@ -146,6 +154,7 @@ export async function GET(req: Request) {
     equipmentCost,
   });
   } catch (e: any) {
+    if (e?.status === 401) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     console.error("admin/dashboard error", e);
     return NextResponse.json({ error: e?.message || "Internal error" }, { status: 500 });
   }
