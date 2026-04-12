@@ -99,7 +99,7 @@ const SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: "Agent",
+    title: "Fotiqo Agent",
     badge: "AI",
     items: [
       { href: "/admin/agent", label: "Fotiqo Agent", icon: Sparkles },
