@@ -154,7 +154,7 @@ export default function SettingsPage() {
                 type="text"
                 value={brandName}
                 onChange={(e) => setBrandName(e.target.value)}
-                placeholder="e.g. PixelHoliday"
+                placeholder="e.g. My Photo Studio"
                 className="w-full px-4 py-2.5 rounded-xl border border-cream-300 text-navy-900 focus:outline-none focus:ring-2 focus:ring-brand-300"
               />
               <p className="text-xs text-navy-400 mt-1">Displayed on your portal and customer-facing pages</p>

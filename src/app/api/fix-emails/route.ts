@@ -10,24 +10,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  // Update all @pixelholiday.local emails to @fotiqo.local
-  const oldUsers = await prisma.user.findMany({
-    where: { email: { endsWith: "@pixelholiday.local" } },
+  // Legacy migration endpoint — originally migrated old brand emails to @fotiqo.local.
+  // This migration has already been applied. Endpoint kept for reference.
+  const remainingUsers = await prisma.user.findMany({
+    where: { email: { endsWith: "@fotiqo.local" } },
     select: { id: true, email: true },
   });
 
-  const updates = [];
-  for (const user of oldUsers) {
-    const newEmail = user.email.replace("@pixelholiday.local", "@fotiqo.local");
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { email: newEmail },
-    });
-    updates.push({ old: user.email, new: newEmail });
-  }
-
   return NextResponse.json({
-    message: `Updated ${updates.length} emails`,
-    updates,
+    message: `Migration complete. ${remainingUsers.length} users with @fotiqo.local emails.`,
+    users: remainingUsers.map((u) => u.email),
   });
 }

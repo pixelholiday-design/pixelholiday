@@ -328,7 +328,7 @@ function CreateStaffModal({
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="maria@pixelholiday.com"
+              placeholder="maria@company.com"
               className="w-full px-4 py-2.5 rounded-xl border border-cream-300 text-navy-900 focus:outline-none focus:ring-2 focus:ring-brand-300"
             />
           </div>

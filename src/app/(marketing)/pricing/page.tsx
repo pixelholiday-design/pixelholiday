@@ -154,48 +154,6 @@ export default function PricingPage() {
         </div>
       </section>
 
-      {/* VISUAL DIVIDER */}
-      <div className="max-w-5xl mx-auto px-6">
-        <div className="flex items-center gap-4 py-4">
-          <div className="flex-1 h-px bg-cream-300" />
-          <span className="text-sm font-semibold text-navy-400 uppercase tracking-wider whitespace-nowrap">A different model for venues</span>
-          <div className="flex-1 h-px bg-cream-300" />
-        </div>
-      </div>
-
-      {/* VENUES & RESORTS SECTION */}
-      <section className="py-20 bg-navy-900 text-white">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <p className="text-brand-300 text-xs uppercase tracking-widest font-semibold mb-3">For Attractions &amp; Resorts</p>
-            <h2 className="font-display text-3xl sm:text-4xl mb-4">Commission-based pricing for venue photography</h2>
-            <p className="text-white/70 text-lg max-w-2xl mx-auto">Commission-based pricing for photography companies at hotels, water parks, and attractions. No monthly fees &mdash; you only pay when you earn.</p>
-          </div>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            {[
-              { title: "2-5% commission", desc: "Pay only a small percentage of each photo sale. No upfront costs, no monthly subscriptions." },
-              { title: "No monthly fee", desc: "Zero fixed costs. Your pricing scales with your revenue, making it risk-free to get started." },
-              { title: "Staff management", desc: "Shifts, commissions, performance tracking, and payroll for your entire photography team." },
-              { title: "Kiosk POS included", desc: "iPad and touchscreen kiosk app with Stripe Terminal, cash tracking, and offline mode built in." },
-            ].map((item) => (
-              <div key={item.title} className="bg-white/5 border border-white/10 rounded-2xl p-6">
-                <Check className="h-5 w-5 text-brand-400 mb-3" />
-                <h3 className="font-semibold text-white text-base mb-2">{item.title}</h3>
-                <p className="text-sm text-white/60 leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center">
-            <Link href="/for/attractions-and-resorts" className="inline-flex items-center gap-2 bg-[#F97316] hover:bg-orange-600 text-white font-semibold rounded-xl px-8 py-4 text-base shadow-lift transition hover:scale-[1.02]">
-              Learn more &amp; apply <ArrowRight className="h-4 w-4" />
-            </Link>
-            <p className="text-white/40 text-sm mt-3">Custom onboarding for every venue. Talk to our team.</p>
-          </div>
-        </div>
-      </section>
-
       {/* FAQ */}
       <section className="py-16 bg-white">
         <div className="max-w-3xl mx-auto px-6">
