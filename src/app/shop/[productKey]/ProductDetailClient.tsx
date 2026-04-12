@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
-import { Minus, Plus, ShoppingBag, ArrowLeft, Upload, Loader2, Check, Heart, ChevronRight } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Upload, Check, ChevronRight } from "lucide-react";
 import RoomPreview from "@/components/shop/RoomPreview";
 import ProductMockup from "@/components/shop/ProductMockup";
 
@@ -31,7 +31,7 @@ type ShopProduct = {
 
 type SizeEntry = { key?: string; name?: string; label?: string; cost?: number; width?: number; height?: number };
 type OptionEntry = { key?: string; name?: string; label?: string; costAddon?: number };
-type CartItem = { productKey: string; qty: number; size?: string; option?: string };
+type CartItem = { productKey: string; qty: number; size?: string; option?: string; unitPrice?: number };
 const STORAGE_KEY = "fotiqo.cart.v2";
 
 const SAMPLE_PHOTOS = [
@@ -96,12 +96,12 @@ function useCart() {
   useEffect(() => {
     try { const raw = sessionStorage.getItem(STORAGE_KEY); if (raw) setItems(JSON.parse(raw)); } catch {}
   }, []);
-  function addItem(productKey: string, qty: number, size?: string, option?: string) {
+  function addItem(productKey: string, qty: number, size?: string, option?: string, unitPrice?: number) {
     setItems(prev => {
       const found = prev.find(p => p.productKey === productKey);
       const updated = found
-        ? prev.map(p => p.productKey === productKey ? { ...p, qty: p.qty + qty, size, option } : p)
-        : [...prev, { productKey, qty, size, option }];
+        ? prev.map(p => p.productKey === productKey ? { ...p, qty: p.qty + qty, size, option, unitPrice } : p)
+        : [...prev, { productKey, qty, size, option, unitPrice }];
       try { sessionStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch {}
       return updated;
     });
@@ -173,7 +173,7 @@ export default function ProductDetailClient({
 
   function handleAddToCart() {
     if (!product) return;
-    addItem(product.productKey, qty, selectedSize || undefined, selectedOption || undefined);
+    addItem(product.productKey, qty, selectedSize || undefined, selectedOption || undefined, unitPrice);
     setAdded(true);
     setTimeout(() => setAdded(false), 2500);
   }

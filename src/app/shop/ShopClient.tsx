@@ -37,9 +37,24 @@ type CatalogData = {
   categoryMeta: Record<string, CategoryMeta>;
 };
 
-type CartItem = { productKey: string; qty: number; size?: string; option?: string };
+type CartItem = { productKey: string; qty: number; size?: string; option?: string; unitPrice?: number };
+type SizeEntry = { key?: string; name?: string; label?: string; cost?: number };
 
 const STORAGE_KEY = "fotiqo.cart.v2";
+
+function parseJsonSafe<T>(json?: string | null): T[] {
+  if (!json) return [];
+  try { return JSON.parse(json); } catch { return []; }
+}
+function sizeEntryId(e: SizeEntry): string {
+  return e.key ?? e.name ?? e.label ?? "";
+}
+function getItemPrice(product: ShopProduct, sizeKey?: string): number {
+  if (!sizeKey) return product.retailPrice;
+  const sizes = parseJsonSafe<SizeEntry>(product.sizes);
+  const match = sizes.find(s => sizeEntryId(s) === sizeKey);
+  return match?.cost ?? product.retailPrice;
+}
 
 /* Sample photo data-uris — varied color palettes for product cards */
 const SAMPLE_PHOTOS = [
@@ -57,8 +72,10 @@ const SAMPLE_PHOTOS = [
   `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#5b8ec9"/><stop offset="45%" stop-color="#7ec8d9"/><stop offset="85%" stop-color="#e8c87a"/><stop offset="100%" stop-color="#eab060"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="600" cy="95" r="55" fill="#f5d56e" opacity="0.7"/><ellipse cx="400" cy="480" rx="500" ry="110" fill="#2d6a3f" opacity="0.18"/><ellipse cx="200" cy="460" rx="260" ry="80" fill="#3a7d50" opacity="0.14"/></svg>`)}`,
 ];
 
-function getSamplePhoto(index: number): string {
-  return SAMPLE_PHOTOS[index % SAMPLE_PHOTOS.length];
+function getSamplePhoto(key: string): string {
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
+  return SAMPLE_PHOTOS[Math.abs(hash) % SAMPLE_PHOTOS.length];
 }
 
 const DISPLAY_TABS = [
@@ -170,7 +187,9 @@ export default function ShopClient({ initialCatalog }: { initialCatalog?: Catalo
   const itemCount = items.reduce((n, i) => n + i.qty, 0);
   const total = items.reduce((sum, i) => {
     const p = productMap.get(i.productKey);
-    return sum + (p ? p.retailPrice * i.qty : 0);
+    if (!p) return sum;
+    const price = i.unitPrice ?? getItemPrice(p, i.size);
+    return sum + price * i.qty;
   }, 0);
   const discountedTotal = couponResult?.valid ? total * (1 - couponResult.discount / 100) : total;
   const hasPhysical = items.some(i => { const p = productMap.get(i.productKey); return p && p.fulfillmentType !== "DIGITAL"; });
@@ -227,7 +246,7 @@ export default function ShopClient({ initialCatalog }: { initialCatalog?: Catalo
         <div className="relative bg-[#0C2E3D] hover:bg-[#0a2633] text-white rounded-full pl-5 pr-6 py-3.5 shadow-[0_8px_30px_rgba(12,46,61,0.4)] flex items-center gap-2.5 font-semibold transition-all duration-200 hover:shadow-[0_12px_40px_rgba(12,46,61,0.5)] hover:scale-[1.02]">
           <ShoppingBag className="h-5 w-5" />
           <span className="text-[15px]">
-            {loaded && itemCount > 0 ? `${itemCount} · €${total.toFixed(0)}` : "Cart"}
+            {loaded && itemCount > 0 ? `${itemCount} · €${total.toFixed(2)}` : "Cart"}
           </span>
           {loaded && itemCount > 0 && (
             <span className="absolute -top-1.5 -right-1.5 h-5 w-5 bg-[#F97316] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm">
@@ -432,7 +451,7 @@ export default function ShopClient({ initialCatalog }: { initialCatalog?: Catalo
                         {/* Thumbnail */}
                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 shadow-sm">
                           <ProductMockup
-                            photoUrl={getSamplePhoto(items.indexOf(item))}
+                            photoUrl={getSamplePhoto(item.productKey)}
                             product={p}
                             size="card"
                           />
@@ -440,7 +459,7 @@ export default function ShopClient({ initialCatalog }: { initialCatalog?: Catalo
                         <div className="flex-1 min-w-0">
                           <div className="font-semibold text-[#0C2E3D] text-sm truncate">{p.name}</div>
                           {item.size && <div className="text-xs text-gray-400 mt-0.5">{item.size}</div>}
-                          <div className="text-sm font-semibold text-[#0C2E3D] mt-1">€{(p.retailPrice * item.qty).toFixed(2)}</div>
+                          <div className="text-sm font-semibold text-[#0C2E3D] mt-1">€{((item.unitPrice ?? getItemPrice(p, item.size)) * item.qty).toFixed(2)}</div>
                         </div>
                         <div className="flex flex-col items-end gap-1.5">
                           <button onClick={() => remove(item.productKey)} className="text-gray-300 hover:text-red-500 transition p-0.5">
@@ -633,7 +652,7 @@ function ProductGrid({
             <Link href={`/shop/${p.productKey}`} className="block overflow-hidden relative">
               <div className="transition-transform duration-500 group-hover:scale-[1.03]">
                 <ProductMockup
-                  photoUrl={getSamplePhoto(products.indexOf(p))}
+                  photoUrl={getSamplePhoto(p.productKey)}
                   product={p}
                   size="card"
                 />
