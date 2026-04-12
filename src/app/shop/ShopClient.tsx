@@ -6,7 +6,7 @@ import {
   ShoppingBag, Plus, Minus, X, Check, ChevronRight,
   Loader2, Truck, CreditCard, Tag,
 } from "lucide-react";
-import ProductMockup from "@/components/shop/ProductMockup";
+/* eslint-disable @next/next/no-img-element */
 
 /* ── Types ──────────────────────────────────────────────── */
 
@@ -56,26 +56,84 @@ function getItemPrice(product: ShopProduct, sizeKey?: string): number {
   return match?.cost ?? product.retailPrice;
 }
 
-/* Sample photo data-uris — varied color palettes for product cards */
-const SAMPLE_PHOTOS = [
-  // 1. Golden sunset beach (warm oranges/golds)
-  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a1a2e"/><stop offset="30%" stop-color="#e94560"/><stop offset="60%" stop-color="#f5a623"/><stop offset="80%" stop-color="#f7d794"/><stop offset="100%" stop-color="#2d6a4f"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="400" cy="280" r="50" fill="#f5d76e" opacity="0.8"/><ellipse cx="400" cy="480" rx="500" ry="80" fill="#1a4731" opacity="0.3"/></svg>`)}`,
-  // 2. Ocean blue (cool blues/teals)
-  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#0c2461"/><stop offset="40%" stop-color="#48dbfb"/><stop offset="65%" stop-color="#0abde3"/><stop offset="100%" stop-color="#1dd1a1"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="580" cy="100" r="40" fill="#fff" opacity="0.3"/><ellipse cx="300" cy="400" rx="450" ry="60" fill="#fff" opacity="0.08"/></svg>`)}`,
-  // 3. Mountain lavender (purples/pinks)
-  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d1b69"/><stop offset="35%" stop-color="#6c5ce7"/><stop offset="60%" stop-color="#a29bfe"/><stop offset="85%" stop-color="#dfe6e9"/><stop offset="100%" stop-color="#636e72"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><polygon points="150,530 350,250 550,530" fill="#4a4060" opacity="0.4"/><polygon points="350,530 500,300 700,530" fill="#3d3557" opacity="0.35"/></svg>`)}`,
-  // 4. Autumn forest (warm greens/oranges)
-  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6ab04c"/><stop offset="30%" stop-color="#badc58"/><stop offset="55%" stop-color="#f9ca24"/><stop offset="75%" stop-color="#f0932b"/><stop offset="100%" stop-color="#6a3d0a"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="200" cy="350" r="80" fill="#27ae60" opacity="0.3"/><circle cx="500" cy="380" r="100" fill="#e67e22" opacity="0.2"/><circle cx="650" cy="320" r="60" fill="#c0392b" opacity="0.15"/></svg>`)}`,
-  // 5. Rose garden (soft pinks/magentas)
-  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fd79a8"/><stop offset="40%" stop-color="#fab1a0"/><stop offset="70%" stop-color="#ffeaa7"/><stop offset="100%" stop-color="#55efc4"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="250" cy="300" r="120" fill="#e84393" opacity="0.15"/><circle cx="550" cy="250" r="90" fill="#fd79a8" opacity="0.12"/></svg>`)}`,
-  // 6. Classic landscape (original, improved)
-  `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="800" height="530"><defs><linearGradient id="a" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0%" stop-color="#5b8ec9"/><stop offset="45%" stop-color="#7ec8d9"/><stop offset="85%" stop-color="#e8c87a"/><stop offset="100%" stop-color="#eab060"/></linearGradient></defs><rect fill="url(#a)" width="800" height="530"/><circle cx="600" cy="95" r="55" fill="#f5d56e" opacity="0.7"/><ellipse cx="400" cy="480" rx="500" ry="110" fill="#2d6a3f" opacity="0.18"/><ellipse cx="200" cy="460" rx="260" ry="80" fill="#3a7d50" opacity="0.14"/></svg>`)}`,
-];
+/* ── Product lifestyle images (Unsplash, royalty-free) ── */
+const PRODUCT_IMAGES: Record<string, string> = {
+  // Wall Art
+  wall_canvas:        "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80",
+  wall_framed_print:  "https://images.unsplash.com/photo-1594633313828-8794e2bd2e15?w=600&q=80",
+  wall_metal:         "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=600&q=80",
+  wall_acrylic:       "https://images.unsplash.com/photo-1596900779744-2bdc4a90509a?w=600&q=80",
+  wall_wood:          "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=600&q=80",
+  wall_float_frame:   "https://images.unsplash.com/photo-1594633313828-8794e2bd2e15?w=600&q=80",
+  wall_framed_canvas: "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=600&q=80",
+  wall_acrylic_block: "https://images.unsplash.com/photo-1596900779744-2bdc4a90509a?w=600&q=80",
+  wall_photo_tile:    "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80",
+  wall_bamboo:        "https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=600&q=80",
+  wall_standout:      "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=600&q=80",
+  wall_gallery_set:   "https://images.unsplash.com/photo-1596900779744-2bdc4a90509a?w=600&q=80",
+  // Prints
+  print_lustre:       "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&q=80",
+  print_glossy:       "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=600&q=80",
+  print_matte:        "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&q=80",
+  print_fine_art:     "https://images.unsplash.com/photo-1579541814924-49fef17c5be5?w=600&q=80",
+  print_mounted:      "https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=600&q=80",
+  // Gifts
+  gift_mug_11oz:      "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80",
+  gift_mug_15oz:      "https://images.unsplash.com/photo-1572119865084-43c285814d63?w=600&q=80",
+  gift_mug_enamel:    "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=600&q=80",
+  gift_magnet:        "https://images.unsplash.com/photo-1549465220-1a8b9238f2b8?w=600&q=80",
+  gift_keychain:      "https://images.unsplash.com/photo-1549465220-1a8b9238f2b8?w=600&q=80",
+  gift_phone_case:    "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80",
+  gift_puzzle_120:    "https://images.unsplash.com/photo-1606503153255-59d8b2e4b0c4?w=600&q=80",
+  gift_puzzle_500:    "https://images.unsplash.com/photo-1606503153255-59d8b2e4b0c4?w=600&q=80",
+  gift_coasters:      "https://images.unsplash.com/photo-1549465220-1a8b9238f2b8?w=600&q=80",
+  gift_ornament:      "https://images.unsplash.com/photo-1545048702-79362596cdc9?w=600&q=80",
+  gift_mouse_pad:     "https://images.unsplash.com/photo-1549465220-1a8b9238f2b8?w=600&q=80",
+  gift_tote:          "https://images.unsplash.com/photo-1544816155-12df9643f363?w=600&q=80",
+  gift_cushion:       "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
+  gift_blanket:       "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80",
+  gift_bottle:        "https://images.unsplash.com/photo-1549465220-1a8b9238f2b8?w=600&q=80",
+  gift_calendar:      "https://images.unsplash.com/photo-1506784365847-bbad939e9335?w=600&q=80",
+  // Albums
+  album_hardcover:    "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80",
+  album_softcover:    "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80",
+  album_signature:    "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80",
+  album_layflat:      "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=600&q=80",
+  // Cards
+  card_greeting:      "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+  card_holiday:       "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+  card_thankyou:      "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+  card_postcard:      "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+  card_savethedate:   "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+  card_folded:        "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+  // Digital
+  digital_single:     "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80",
+  digital_gallery:    "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80",
+  // Packages
+  package_starter:    "https://images.unsplash.com/photo-1596900779744-2bdc4a90509a?w=600&q=80",
+  package_wall_art:   "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80",
+  package_family:     "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80",
+  package_premium:    "https://images.unsplash.com/photo-1581783898377-1c85bf937427?w=600&q=80",
+  // Extras
+  extra_retouch:      "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80",
+  extra_reel:         "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=80",
+};
 
-function getSamplePhoto(key: string): string {
-  let hash = 0;
-  for (let i = 0; i < key.length; i++) hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0;
-  return SAMPLE_PHOTOS[Math.abs(hash) % SAMPLE_PHOTOS.length];
+const CATEGORY_FALLBACKS: Record<string, string> = {
+  WALL_ART: "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80",
+  PRINTS:   "https://images.unsplash.com/photo-1578301978693-85fa9c0320b9?w=600&q=80",
+  GIFTS:    "https://images.unsplash.com/photo-1549465220-1a8b9238f2b8?w=600&q=80",
+  ALBUMS:   "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=600&q=80",
+  CARDS:    "https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?w=600&q=80",
+  DIGITAL:  "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?w=600&q=80",
+  PACKAGES: "https://images.unsplash.com/photo-1596900779744-2bdc4a90509a?w=600&q=80",
+  OTHERS:   "https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=600&q=80",
+};
+
+function getProductImage(productKey: string, category: string): string {
+  return PRODUCT_IMAGES[productKey]
+    ?? CATEGORY_FALLBACKS[category]
+    ?? "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=600&q=80";
 }
 
 const DISPLAY_TABS = [
@@ -450,10 +508,10 @@ export default function ShopClient({ initialCatalog }: { initialCatalog?: Catalo
                       <li key={item.productKey} className="flex gap-4 p-3 rounded-xl bg-gray-50 hover:bg-gray-100/80 transition">
                         {/* Thumbnail */}
                         <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 shadow-sm">
-                          <ProductMockup
-                            photoUrl={getSamplePhoto(item.productKey)}
-                            product={p}
-                            size="card"
+                          <img
+                            src={getProductImage(item.productKey, p.category)}
+                            alt={p.name}
+                            className="w-full h-full object-cover"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
@@ -632,14 +690,15 @@ function ProductGrid({
   productMap: Map<string, ShopProduct>;
 }) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 sm:gap-6">
       {products.map(p => {
         const inCart = items.find(i => i.productKey === p.productKey)?.qty || 0;
+        const imgSrc = getProductImage(p.productKey, p.category);
 
         return (
           <div
             key={p.id}
-            className="group relative bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col ring-1 ring-gray-100 hover:ring-[#0EA5A5]/30"
+            className="group relative bg-white rounded-xl overflow-hidden hover:shadow-[0_12px_32px_rgba(0,0,0,0.12)] hover:-translate-y-1.5 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col border border-gray-100 hover:border-[#0EA5A5]/25"
           >
             {/* Featured badge */}
             {p.isFeatured && (
@@ -648,18 +707,17 @@ function ProductGrid({
               </span>
             )}
 
-            {/* Product mockup with hover zoom */}
-            <Link href={`/shop/${p.productKey}`} className="block overflow-hidden relative">
-              <div className="transition-transform duration-500 group-hover:scale-[1.03]">
-                <ProductMockup
-                  photoUrl={getSamplePhoto(p.productKey)}
-                  product={p}
-                  size="card"
-                />
-              </div>
+            {/* Product image — real lifestyle photo */}
+            <Link href={`/shop/${p.productKey}`} className="block overflow-hidden relative aspect-[4/3]">
+              <img
+                src={imgSrc}
+                alt={p.name}
+                loading="lazy"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
               {/* Hover overlay */}
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 flex items-center justify-center">
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-sm text-[#0C2E3D] text-sm font-semibold px-4 py-2 rounded-full shadow-sm">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-5">
+                <span className="bg-white/95 backdrop-blur-sm text-[#0C2E3D] text-sm font-semibold px-5 py-2 rounded-full shadow-lg translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                   View options →
                 </span>
               </div>
@@ -667,22 +725,19 @@ function ProductGrid({
 
             {/* Info */}
             <div className="p-4 sm:p-5 flex flex-col flex-1">
-              <span className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#0EA5A5] mb-1">
-                {p.category.replace(/_/g, " ")}
-              </span>
-              <Link href={`/shop/${p.productKey}`}>
-                <h3 className="font-display text-base sm:text-lg text-[#0C2E3D] leading-tight group-hover:text-[#0EA5A5] transition-colors duration-200">
+              <Link href={`/shop/${p.productKey}`} className="flex-1">
+                <h3 className="font-semibold text-[15px] text-[#0C2E3D] leading-snug group-hover:text-[#0EA5A5] transition-colors duration-200">
                   {p.name}
                 </h3>
+                <p className="text-gray-400 text-xs mt-1 capitalize">
+                  {p.category.replace(/_/g, " ").toLowerCase()}
+                </p>
               </Link>
-              <p className="text-gray-500 text-xs sm:text-sm mt-1.5 leading-relaxed flex-1 line-clamp-2">
-                {p.description}
-              </p>
 
-              <div className="flex items-end justify-between mt-4 pt-3 border-t border-gray-100">
+              <div className="flex items-end justify-between mt-3 pt-3 border-t border-gray-50">
                 <div>
-                  <div className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">from</div>
-                  <div className="text-xl sm:text-2xl font-bold text-[#0C2E3D]">
+                  <span className="text-[10px] text-gray-400 font-medium uppercase tracking-wider">from</span>
+                  <div className="text-lg font-bold text-[#0C2E3D]">
                     €{p.retailPrice.toFixed(p.retailPrice % 1 ? 2 : 0)}
                   </div>
                 </div>
