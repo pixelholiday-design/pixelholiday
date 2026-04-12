@@ -49,6 +49,7 @@ import {
   Settings,
   Terminal,
   ClipboardList,
+  Mail,
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
@@ -68,6 +69,7 @@ const SECTIONS: NavSection[] = [
   {
     title: "My Team",
     items: [
+      { href: "/admin/email", label: "Email", icon: Mail },
       { href: "/admin/chat", label: "Team Chat", icon: MessageSquare },
       { href: "/admin/staff", label: "Staff", icon: Users },
       { href: "/admin/shifts", label: "Shifts", icon: CalendarDays },
@@ -169,12 +171,12 @@ const ROLE_ALLOWED: Record<string, string[]> = {
     "/admin/marketing","/admin/suggestions","/admin/support","/admin/csat","/admin/venue-applications","/admin/zones","/admin/setup",
     "/admin/blog","/admin/reviews","/admin/magic-elements","/admin/retouch","/admin/reels","/admin/gamification",
     "/admin/store/orders","/admin/store/products","/admin/store/labs","/admin/store/coupons","/admin/store/fulfillment","/admin/store/gift-cards",
-    "/admin/subscription","/admin/agent","/admin/ai-command",
+    "/admin/subscription","/admin/agent","/admin/ai-command","/admin/email",
   ],
   OPERATIONS_MANAGER: [
     "/admin/dashboard","/admin/upload","/admin/bookings","/admin/cameras","/admin/kiosks",
     "/admin/kiosk-setup","/admin/wifi-transfer","/admin/photo-flow","/kiosk/print-queue",
-    "/admin/chat","/admin/staff","/admin/shifts","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
+    "/admin/email","/admin/chat","/admin/staff","/admin/shifts","/admin/equipment","/admin/housing","/admin/academy","/admin/payroll",
     "/admin/commissions","/admin/pricing","/admin/cash","/admin/finance","/admin/sleeping-money","/admin/payouts","/admin/packages",
     "/admin/b2b","/admin/hotel-integration","/admin/fraud-alerts","/admin/hr/jobs",
     "/admin/marketing","/admin/suggestions","/admin/support","/admin/csat","/admin/zones",

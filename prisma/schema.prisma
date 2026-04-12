@@ -108,6 +108,9 @@ model User {
   packageBookings      PackageBooking[]           @relation("PackageBookingPhotographer")
   agentConversations   AgentConversation[]        @relation("UserAgentConversations")
   staffProfile         StaffProfile?              @relation("UserStaffProfile")
+  fotiqoEmails         FotiqoEmail[]              @relation("UserFotiqoEmails")
+  emailMessages        EmailMessage[]             @relation("UserEmailMessages")
+  emailSignature       EmailSignature?            @relation("UserEmailSignature")
   createdAt            DateTime                   @default(now())
 }
 
@@ -3020,4 +3023,101 @@ model StaffPayout {
 
   @@index([companyId])
   @@index([staffProfileId])
+}
+
+// ── PROFESSIONAL EMAIL SYSTEM ─────────────────
+
+model FotiqoEmail {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("UserFotiqoEmails", fields: [userId], references: [id])
+  organizationId  String?
+
+  emailAddress    String   @unique // sarah.wilson@fotiqo.com
+  emailType       String   @default("PERSONAL") // PERSONAL (SaaS photographer), COMPANY (venue staff)
+  subdomain       String?  // null = @fotiqo.com, "pixelholiday" = @pixelholiday.fotiqo.com
+  isActive        Boolean  @default(true)
+  isPrimary       Boolean  @default(true)
+
+  messages        EmailMessage[] @relation("EmailAccountMessages")
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([organizationId])
+}
+
+model EmailMessage {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("UserEmailMessages", fields: [userId], references: [id])
+  fotiqoEmailId   String
+  fotiqoEmail     FotiqoEmail @relation("EmailAccountMessages", fields: [fotiqoEmailId], references: [id])
+
+  direction       String   // INBOUND, OUTBOUND
+  fromAddress     String
+  fromName        String?
+  toAddress       String
+  toName          String?
+  ccAddresses     Json?
+  subject         String
+  bodyHtml        String?  @db.Text
+  bodyText        String?  @db.Text
+  attachments     Json?
+
+  isRead          Boolean  @default(false)
+  isStarred       Boolean  @default(false)
+  isArchived      Boolean  @default(false)
+  isDeleted       Boolean  @default(false)
+  isDraft         Boolean  @default(false)
+
+  folder          String   @default("INBOX") // INBOX, SENT, DRAFTS, ARCHIVE, TRASH
+  labels          Json?
+
+  aiSummary       String?
+  aiSuggestedReply String? @db.Text
+  aiCategory      String?  // BOOKING_INQUIRY, CLIENT_FOLLOWUP, PARTNERSHIP, INVOICE, PERSONAL, SPAM
+
+  threadId        String?
+  inReplyTo       String?
+
+  receivedAt      DateTime @default(now())
+  sentAt          DateTime?
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([fotiqoEmailId])
+  @@index([folder])
+  @@index([threadId])
+  @@index([isRead])
+}
+
+model EmailSignature {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation("UserEmailSignature", fields: [userId], references: [id])
+  organizationId  String?
+
+  style           String   @default("MINIMAL") // MINIMAL, WITH_LOGO, WITH_PHOTO, COMPANY_BRANDED
+  displayName     String
+  title           String?
+  company         String?
+  phone           String?
+  email           String?
+  websiteUrl      String?
+  bookingUrl      String?
+  location        String?
+  logoUrl         String?
+  photoUrl        String?
+  socialInstagram String?
+  socialFacebook  String?
+  socialLinkedin  String?
+  socialTiktok    String?
+  brandColor      String?  @default("#0EA5A5")
+  showPoweredBy   Boolean  @default(true)
+  signatureHtml   String?  @db.Text
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([organizationId])
 }

@@ -7,7 +7,7 @@ import {
   MapPin, Users, Camera, DollarSign, Building, ArrowRight, Plus,
   X, Loader2, Hotel, Waves, FerrisWheel, Store, Settings, LogOut,
   Upload, ShoppingBag, Calendar, BarChart3, UserPlus, Briefcase, Sparkles,
-  Network,
+  Network, Mail,
 } from "lucide-react";
 
 type Destination = {
@@ -138,6 +138,9 @@ export default function CompanyDashboard() {
           </Link>
           <Link href={`/v/${slug}/finance`} className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cream-300 bg-white text-sm text-navy-700 hover:border-brand-300 transition">
             <BarChart3 className="h-4 w-4" style={{ color: primaryColor }} /> Finance
+          </Link>
+          <Link href={`/v/${slug}/email`} className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cream-300 bg-white text-sm text-navy-700 hover:border-brand-300 transition">
+            <Mail className="h-4 w-4" style={{ color: primaryColor }} /> Email
           </Link>
           <Link href={`/v/${slug}/agent`} className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl border border-cream-300 bg-white text-sm text-navy-700 hover:border-brand-300 transition">
             <Sparkles className="h-4 w-4" style={{ color: primaryColor }} /> Fotiqo Agent

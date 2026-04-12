@@ -6,7 +6,7 @@ import {
   Home, Image, Globe, Package, Calendar, ShoppingBag,
   MessageSquare, Star, Wallet, Settings, Camera, LogOut,
   Users, FileText, BarChart3, FileSignature, Wand2,
-  CalendarDays, BookOpen, Kanban, Sparkles,
+  CalendarDays, BookOpen, Kanban, Sparkles, Mail,
 } from "lucide-react";
 import TrialBanner from "@/components/dashboard/TrialBanner";
 
@@ -21,6 +21,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/store", label: "Store", icon: ShoppingBag },
   { href: "/dashboard/inquiries", label: "Inquiries", icon: MessageSquare },
   { href: "/dashboard/invoices", label: "Invoices", icon: FileText },
+  { href: "/dashboard/email", label: "Email", icon: Mail },
   { href: "/dashboard/projects", label: "Projects", icon: Kanban },
   { href: "/dashboard/mini-sessions", label: "Mini Sessions", icon: CalendarDays },
   { href: "/dashboard/albums", label: "Albums", icon: BookOpen },
