@@ -607,7 +607,7 @@ const QUICK_ACTIONS = [
   { href: "/admin/marketing", label: "Marketing", icon: TrendingUp },
   { href: "/admin/support", label: "Support Center", icon: Headphones },
   { href: "/admin/finance", label: "Finance", icon: Wallet },
-  { href: "/admin/companies", label: "Companies", icon: Building },
+  { href: "/admin/companies-manage", label: "Companies", icon: Building },
   { href: "/admin/staff", label: "Staff", icon: Users },
   { href: "/admin/ai-insights", label: "AI Insights", icon: Brain },
   { href: "/admin/dashboard", label: "CEO Dashboard", icon: BarChart3 },
