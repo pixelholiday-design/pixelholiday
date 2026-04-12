@@ -2,7 +2,10 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { Resend } from "resend";
 export const dynamic = "force-dynamic";
+
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -52,17 +55,25 @@ export async function POST(req: Request) {
       },
     });
 
-    // TODO: integrate Resend for actual email delivery
-    // import { Resend } from 'resend';
-    // const resend = new Resend(process.env.RESEND_API_KEY);
-    // await resend.emails.send({
-    //   from: `${dbUser?.name} <${fotiqoEmail.emailAddress}>`,
-    //   to,
-    //   cc,
-    //   subject,
-    //   html: bodyHtml,
-    //   text: bodyText,
-    // });
+    // Send via Resend
+    if (resend) {
+      const signature = await prisma.emailSignature.findUnique({ where: { userId: user.id } });
+      const fullHtml = signature?.signatureHtml
+        ? `${bodyHtml || ""}<br/><br/>${signature.signatureHtml}`
+        : bodyHtml || bodyText || "";
+
+      await resend.emails.send({
+        from: `${dbUser?.name || "Fotiqo"} <${fotiqoEmail.emailAddress}>`,
+        to: [to],
+        ...(cc ? { cc: Array.isArray(cc) ? cc : [cc] } : {}),
+        subject,
+        html: fullHtml,
+        ...(bodyText ? { text: bodyText } : {}),
+        reply_to: fotiqoEmail.emailAddress,
+      });
+    } else {
+      console.log(`[Email MOCK → ${to}] ${subject}`);
+    }
 
     return NextResponse.json(message);
   } catch (error: any) {
