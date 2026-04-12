@@ -19,7 +19,7 @@ const NAV_LINKS = [
   },
   { href: "/pricing", label: "Pricing" },
   { href: "/find-photographer", label: "Marketplace" },
-  { href: "/for/attractions-and-resorts", label: "For Attractions & Resorts" },
+  { href: "/for/attractions-and-resorts", label: "For Venues & Resorts", highlighted: true },
 ];
 
 export default function MarketingNav() {
@@ -77,7 +77,11 @@ export default function MarketingNav() {
               <Link
                 key={item.label}
                 href={item.href!}
-                className="px-3 py-2 text-sm font-medium text-navy-700 hover:text-brand-500 transition"
+                className={`px-3 py-2 text-sm font-medium transition ${
+                  "highlighted" in item && item.highlighted
+                    ? "text-brand-600 hover:text-brand-700 font-semibold"
+                    : "text-navy-700 hover:text-brand-500"
+                }`}
               >
                 {item.label}
               </Link>

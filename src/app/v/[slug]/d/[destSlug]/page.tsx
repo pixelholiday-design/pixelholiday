@@ -30,7 +30,7 @@ export default async function DestinationPage({ params }: { params: { slug: stri
     { href: `/kiosk`, label: "Kiosk POS", icon: ShoppingBag },
     { href: `/staff`, label: "Staff", icon: Users },
     { href: `/shifts`, label: "Shifts", icon: Calendar },
-    { href: `/pricing`, label: "Pricing", icon: DollarSign },
+    { href: `/commissions`, label: "Commissions", icon: DollarSign },
     { href: `/settings`, label: "Settings", icon: Settings },
   ];
 

@@ -12,7 +12,6 @@ type Gallery = {
   expiresAt: string;
   photos: Photo[];
   customer: Customer;
-  roomNumber: string | null;
   totalCount: number;
   purchasedCount: number;
 };

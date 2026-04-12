@@ -44,11 +44,11 @@ import {
 } from "lucide-react";
 
 type NavItem = { href: string; label: string; icon: any };
-type NavSection = { title: string; items: NavItem[] };
+type NavSection = { title: string; badge?: string; items: NavItem[] };
 
 const SECTIONS: NavSection[] = [
   {
-    title: "Operations",
+    title: "My Operations",
     items: [
       { href: "/admin/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/admin/upload", label: "Upload Hub", icon: Upload },
@@ -58,7 +58,7 @@ const SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: "Team",
+    title: "My Team",
     items: [
       { href: "/admin/chat", label: "Team Chat", icon: MessageSquare },
       { href: "/admin/staff", label: "Staff", icon: Users },
@@ -69,7 +69,7 @@ const SECTIONS: NavSection[] = [
     ],
   },
   {
-    title: "Business",
+    title: "Finance",
     items: [
       { href: "/admin/payroll", label: "Payroll", icon: Wallet },
       { href: "/admin/commissions", label: "Commissions", icon: TrendingUp },
@@ -77,10 +77,21 @@ const SECTIONS: NavSection[] = [
       { href: "/admin/cash", label: "Cash management", icon: Banknote },
       { href: "/admin/finance", label: "Finance", icon: Wallet },
       { href: "/admin/sleeping-money", label: "Sleeping money", icon: Moon },
+    ],
+  },
+  {
+    title: "Venue Network",
+    items: [
       { href: "/admin/b2b", label: "B2B Barter", icon: Handshake },
       { href: "/admin/companies-manage", label: "Companies", icon: Building2 },
       { href: "/admin/franchise", label: "Franchise", icon: Building2 },
       { href: "/admin/hotel-integration", label: "Hotel Integration", icon: Building2 },
+    ],
+  },
+  {
+    title: "Platform",
+    badge: "SaaS",
+    items: [
       { href: "/admin/ai-insights", label: "AI Insights", icon: Brain },
       { href: "/admin/fraud-alerts", label: "Fraud Alerts", icon: Shield },
       { href: "/admin/hr/jobs", label: "HR / Jobs", icon: Briefcase },
@@ -199,8 +210,13 @@ export default function AdminShell({
         <nav className="px-3 py-5 overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin">
           {visibleSections.map((section) => (
             <div key={section.title} className="mb-6">
-              <div className="px-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/50 mb-2">
+              <div className="px-3 text-[10px] font-medium uppercase tracking-[0.12em] text-white/50 mb-2 flex items-center gap-2">
                 {section.title}
+                {section.badge && (
+                  <span className="text-[9px] font-semibold uppercase tracking-wider bg-coral-500/20 text-coral-300 px-1.5 py-0.5 rounded-full leading-none">
+                    {section.badge}
+                  </span>
+                )}
               </div>
               <div className="space-y-0.5">
                 {section.items.map((item) => {

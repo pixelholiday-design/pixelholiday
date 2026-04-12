@@ -467,17 +467,39 @@ export default function FeaturesPage() {
 
           {/* Quick nav pills */}
           <SectionFadeIn delay={150}>
-            <div className="flex flex-wrap justify-center gap-2">
-              {CATEGORIES.map((cat) => (
-                <a
-                  key={cat.id}
-                  href={`#${cat.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/80 transition hover:bg-white/20 hover:text-white"
-                >
-                  <cat.icon className="w-4 h-4" />
-                  {cat.label}
-                </a>
-              ))}
+            <div className="space-y-4">
+              {/* For Photographers */}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-brand-400 mb-2">For Photographers</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {CATEGORIES.filter((cat) => cat.id !== "resort").map((cat) => (
+                    <a
+                      key={cat.id}
+                      href={`#${cat.id}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/80 transition hover:bg-white/20 hover:text-white"
+                    >
+                      <cat.icon className="w-4 h-4" />
+                      {cat.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+              {/* For Venues & Resorts */}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-coral-400 mb-2">For Venues &amp; Resorts</p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {CATEGORIES.filter((cat) => cat.id === "resort").map((cat) => (
+                    <a
+                      key={cat.id}
+                      href={`#${cat.id}`}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white/80 transition hover:bg-white/20 hover:text-white"
+                    >
+                      <cat.icon className="w-4 h-4" />
+                      {cat.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
           </SectionFadeIn>
         </div>

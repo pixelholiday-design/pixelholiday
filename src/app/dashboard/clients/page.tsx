@@ -20,7 +20,7 @@ export default async function ClientsPage() {
       createdAt: true,
       status: true,
       customer: {
-        select: { id: true, name: true, email: true, whatsapp: true, roomNumber: true, createdAt: true },
+        select: { id: true, name: true, email: true, whatsapp: true, createdAt: true },
       },
       _count: { select: { photos: true } },
       order: { select: { amount: true, status: true } },

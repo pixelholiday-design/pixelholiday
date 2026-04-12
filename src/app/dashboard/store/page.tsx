@@ -63,7 +63,7 @@ export default function DashboardStorePage() {
             <TrendingUp className="h-5 w-5 text-green-500" />
             <div>
               <div className="font-display text-2xl text-navy-900">2%</div>
-              <div className="text-xs text-navy-400">Commission rate</div>
+              <div className="text-xs text-navy-400">Platform fee</div>
             </div>
           </div>
         </div>

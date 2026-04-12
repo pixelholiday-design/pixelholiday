@@ -60,7 +60,7 @@ export default function MarketingFooter() {
               </span>
             </Link>
             <p className="text-sm text-navy-300 leading-relaxed mb-6">
-              The complete photography platform for galleries, print sales, bookings, and studio management.
+              The complete photography platform for studios, galleries, and resort photography operations.
             </p>
             {/* Social icons */}
             <div className="flex gap-4">

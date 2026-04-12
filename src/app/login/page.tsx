@@ -96,17 +96,20 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <p className="mt-6 text-sm text-navy-400 text-center">
-            Don't have an account?{" "}
-            <Link href="/signup/photographer" className="text-brand-500 hover:text-brand-700 font-medium">Sign up free</Link>
-          </p>
-
-          <div className="mt-8 pt-6 border-t border-cream-300 text-center space-y-2">
-            <p className="text-xs text-navy-400">
-              Company staff? <Link href="/login/staff" className="text-brand-500 hover:text-brand-700">Use your company portal</Link>
+          <div className="mt-6 text-sm text-navy-400 text-center space-y-2">
+            <p>
+              Photographer?{" "}
+              <Link href="/signup/photographer" className="text-brand-500 hover:text-brand-700 font-medium">Sign up as Photographer</Link>
             </p>
+            <p>
+              Hotel, water park, or resort?{" "}
+              <Link href="/join" className="text-brand-500 hover:text-brand-700 font-medium">Apply as Venue Company</Link>
+            </p>
+          </div>
+
+          <div className="mt-8 pt-6 border-t border-cream-300 text-center">
             <p className="text-xs text-navy-400">
-              Join as marketplace photographer? <Link href="/join" className="text-brand-500 hover:text-brand-700">Join free</Link>
+              Venue / Resort staff? <Link href="/login/staff" className="text-brand-500 hover:text-brand-700">Venue Staff Portal</Link>
             </p>
           </div>
 
