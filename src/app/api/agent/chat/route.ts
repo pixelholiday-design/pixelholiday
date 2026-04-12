@@ -18,9 +18,10 @@ export async function POST(req: Request) {
   }
 
   // Check for API key
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const geminiKey = process.env.GEMINI_API_KEY;
+  if (!geminiKey || geminiKey === "placeholder") {
     return NextResponse.json({
-      response: "The Fotiqo Agent is not configured yet. Please add your ANTHROPIC_API_KEY to environment variables.",
+      response: "The Fotiqo Agent is not configured yet. Please add your GEMINI_API_KEY to environment variables.",
       agentType: "unconfigured",
     });
   }
@@ -95,31 +96,43 @@ export async function POST(req: Request) {
     { role: "user", content: message },
   ];
 
-  // Call Anthropic API
+  // Call Gemini API
   try {
-    const anthropicRes = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY || "",
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6-20250514",
-        max_tokens: 2048,
-        system: systemPrompt,
-        messages: conversationMessages,
-      }),
-    });
+    // Build Gemini-compatible messages: system prompt as first user context + conversation
+    const geminiContents = [
+      { role: "user", parts: [{ text: `[System instructions]\n${systemPrompt}\n\n[User message]\n${conversationMessages[conversationMessages.length - 1].content}` }] },
+    ];
+    // Add prior conversation context (skip last message, already included above)
+    if (conversationMessages.length > 1) {
+      const prior = conversationMessages.slice(0, -1);
+      geminiContents.unshift(
+        ...prior.map((m: any) => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }],
+        }))
+      );
+    }
 
-    if (!anthropicRes.ok) {
-      const errText = await anthropicRes.text();
-      console.error("[Agent] Anthropic API error:", errText);
+    const geminiRes = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: geminiContents,
+          generationConfig: { maxOutputTokens: 2048 },
+        }),
+      }
+    );
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error("[Agent] Gemini API error:", errText);
       return NextResponse.json({ error: "AI service error", details: errText }, { status: 502 });
     }
 
-    const data = await anthropicRes.json();
-    const assistantContent = data.content?.[0]?.text || "I couldn't generate a response. Please try again.";
+    const data = await geminiRes.json();
+    const assistantContent = data.candidates?.[0]?.content?.parts?.[0]?.text || "I couldn't generate a response. Please try again.";
 
     // Save conversation
     const allMessages = [
