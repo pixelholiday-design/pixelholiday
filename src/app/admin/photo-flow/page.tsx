@@ -6,14 +6,18 @@ import {
 
 export const dynamic = "force-dynamic";
 
+async function safeCount(fn: () => Promise<number>): Promise<number> {
+  try { return await fn(); } catch { return 0; }
+}
+
 export default async function PhotoFlowPage() {
   const [photos, edited, orders, prints, syncPending, sleepingMoney] = await Promise.all([
-    prisma.photo.count(),
-    prisma.photo.count({ where: { isAutoEdited: true } }),
-    prisma.order.count(),
-    prisma.printJob.count(),
-    prisma.syncLog.count({ where: { status: "PENDING" } }),
-    prisma.order.count({ where: { isAutomatedSale: true } }),
+    safeCount(() => prisma.photo.count()),
+    safeCount(() => prisma.photo.count({ where: { isAutoEdited: true } })),
+    safeCount(() => prisma.order.count()),
+    safeCount(() => prisma.printJob.count()),
+    safeCount(() => prisma.syncLog.count({ where: { status: "PENDING" } })),
+    safeCount(() => prisma.order.count({ where: { isAutomatedSale: true } })),
   ]);
 
   const editedPct = photos > 0 ? Math.round((edited / photos) * 100) : 0;

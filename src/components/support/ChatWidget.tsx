@@ -167,8 +167,14 @@ export default function ChatWidget() {
     setTimeout(() => setShowCsat(false), 2000);
   }
 
-  // Don't show on kiosk pages, contract signing pages, or admin support page
-  if (pathname.startsWith("/kiosk") || pathname === "/admin/support" || pathname.startsWith("/contract/sign")) return null;
+  // Don't show on kiosk, admin, dashboard, or venue portal pages (logged-in users have in-app support)
+  if (
+    pathname.startsWith("/kiosk") ||
+    pathname.startsWith("/admin") ||
+    pathname.startsWith("/dashboard") ||
+    pathname.startsWith("/v/") ||
+    pathname.startsWith("/contract/sign")
+  ) return null;
 
   const hasMessages = messages.length > 0;
 
