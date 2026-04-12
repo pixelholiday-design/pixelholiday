@@ -1,5 +1,6 @@
 import Link from "next/link";
 import ShopClient from "./ShopClient";
+import { STATIC_PRODUCTS, type StaticProduct } from "@/lib/staticProducts";
 
 export const dynamic = "force-dynamic";
 export const metadata = {
@@ -8,7 +9,61 @@ export const metadata = {
     "Prints, wall art, photo books, gifts and digital downloads. Lab-quality products delivered to your door.",
 };
 
+/* ── Server-side catalog builder (same logic as /api/shop/catalog) ── */
+const CATEGORY_META: Record<string, { label: string; blurb: string; icon: string }> = {
+  PRINTS:    { label: "Prints",            blurb: "Lab-quality photo prints on premium paper.",              icon: "Image" },
+  WALL_ART:  { label: "Wall Art",          blurb: "Canvas, metal, acrylic, and framed art for your walls.", icon: "Frame" },
+  ALBUMS:    { label: "Albums & Books",    blurb: "Photo books and layflat albums to treasure forever.",     icon: "Book" },
+  CARDS:     { label: "Cards",             blurb: "Greeting cards, postcards, and personalized stationery.", icon: "Mail" },
+  DIGITAL:   { label: "Digital Downloads", blurb: "High-res files delivered instantly to your device.",      icon: "Download" },
+  PACKAGES:  { label: "Packages",          blurb: "Curated bundles — prints, wall art, and digital.",        icon: "Package" },
+  GIFTS:     { label: "Gifts & Souvenirs", blurb: "Mugs, puzzles, ornaments, and personalized keepsakes.",   icon: "Gift" },
+  OTHERS:    { label: "Extras",            blurb: "Video reels, retouching, and custom products.",            icon: "Star" },
+  PRINT:     { label: "Prints",            blurb: "Lab-quality photo prints.",                              icon: "Image" },
+  PHOTO_BOOK:{ label: "Albums & Books",    blurb: "Photo books and albums.",                                icon: "Book" },
+  GIFT:      { label: "Gifts",             blurb: "Photo gifts and keepsakes.",                              icon: "Gift" },
+  CARD:      { label: "Cards",             blurb: "Cards and stationery.",                                   icon: "Mail" },
+};
+const CATEGORY_ORDER = ["PRINTS", "WALL_ART", "ALBUMS", "CARDS", "DIGITAL", "PACKAGES", "GIFTS", "OTHERS"];
+
+function buildCatalog(products: StaticProduct[]) {
+  const byCategory: Record<string, StaticProduct[]> = {};
+  for (const p of products) {
+    const cat = p.category ?? "OTHERS";
+    if (!byCategory[cat]) byCategory[cat] = [];
+    byCategory[cat].push(p);
+  }
+  const seen = new Set<string>();
+  const categories: string[] = [];
+  for (const c of CATEGORY_ORDER) {
+    if (!seen.has(c) && (byCategory[c]?.length ?? 0) > 0) { categories.push(c); seen.add(c); }
+  }
+  for (const c of Object.keys(byCategory)) {
+    if (!seen.has(c)) { categories.push(c); seen.add(c); }
+  }
+  return { products, byCategory, categories, categoryMeta: CATEGORY_META };
+}
+
+async function getServerCatalog() {
+  // Try DB first
+  try {
+    const { prisma } = await import("@/lib/db");
+    const dbProducts = await prisma.shopProduct.findMany({
+      where: { isActive: true },
+      orderBy: [{ sortOrder: "asc" }, { isFeatured: "desc" }, { name: "asc" }],
+    });
+    if (dbProducts.length > 0) return buildCatalog(dbProducts as unknown as StaticProduct[]);
+  } catch { /* DB unavailable */ }
+  // Fallback: static catalog
+  const sorted = [...STATIC_PRODUCTS]
+    .filter((p) => p.isActive)
+    .sort((a, b) => a.sortOrder - b.sortOrder || (b.isFeatured ? 1 : 0) - (a.isFeatured ? 1 : 0) || a.name.localeCompare(b.name));
+  return buildCatalog(sorted);
+}
+
 export default async function ShopPage() {
+  const catalog = await getServerCatalog();
+
   return (
     <div className="min-h-screen bg-white text-[#0C2E3D]">
       {/* ── Top nav ─────────────────────────────────────── */}
@@ -64,8 +119,8 @@ export default async function ShopPage() {
         </div>
       </header>
 
-      {/* ── Client-side catalog ─────────────────────────── */}
-      <ShopClient />
+      {/* ── Client-side catalog (pre-loaded from server) ── */}
+      <ShopClient initialCatalog={catalog as any} />
 
       {/* ── Lab partners ────────────────────────────────── */}
       <section className="bg-gray-50 py-20 border-t border-gray-100">

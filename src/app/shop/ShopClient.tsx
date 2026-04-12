@@ -119,9 +119,9 @@ function useCart() {
 
 /* ── Main component ─────────────────────────────────────── */
 
-export default function ShopClient() {
+export default function ShopClient({ initialCatalog }: { initialCatalog?: CatalogData }) {
   const { items, add, dec, remove, clear, loaded } = useCart();
-  const [catalog, setCatalog] = useState<CatalogData | null>(null);
+  const [catalog, setCatalog] = useState<CatalogData | null>(initialCatalog ?? null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("ALL");
   const [cartOpen, setCartOpen] = useState(false);
@@ -135,11 +135,13 @@ export default function ShopClient() {
   const [shippingForm, setShippingForm] = useState({ name: "", address: "", city: "", country: "", postal: "", phone: "", method: "STANDARD" });
 
   useEffect(() => {
+    // Skip fetch if products were pre-loaded from server
+    if (initialCatalog) return;
     fetch("/api/shop/catalog")
       .then(r => r.json())
       .then(d => { if (d.error) setCatalogError(d.error); else setCatalog(d as CatalogData); })
       .catch(e => setCatalogError(e.message));
-  }, []);
+  }, [initialCatalog]);
 
   const productMap = useMemo<Map<string, ShopProduct>>(() => {
     if (!catalog) return new Map();
